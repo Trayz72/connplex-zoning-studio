@@ -1,6 +1,73 @@
 # STATUS
 
-Last updated: 2026-08-31 (fourth session, same day — seat-mix editing + real-world stress testing)
+Last updated: 2026-08-31 (fifth session, same day — deliverability pass)
+
+## Is this deliverable? Can Connplex's architecture team start using it for zoning and seat counts?
+
+**For the core workflow — yes.** Upload a real DWG/DXF → confirm detected geometry
+→ enter requirements → auto-generate zoning → get real, computed seat counts
+(with a choice of seat type/mix) → edit the result → export a matching PDF and
+a real DXF/DWG — all of that is real, has been tested against real Connplex
+files and outside files, and just had a second, adversarial pass today that
+found and fixed 3 more real bugs (below) that would have blocked genuine daily
+use, not just demo use.
+
+**What was fixed today specifically because it would have blocked real use,**
+found by asking "what happens the first time an actual architect uses this
+day-to-day" rather than re-testing the happy path:
+
+1. **A hard refresh, a bookmark, or a shared link to any project page was
+   broken** — confirmed via direct curl testing this was a real 404/500, not
+   a cosmetic dev-server quirk as previously assumed. Root cause: the backend
+   API and the frontend's own page routes shared the same `/projects/...` URL
+   prefix, so the dev proxy intercepted frontend page loads and sent them to
+   the wrong backend. Fixed by moving the project/auth API to its own
+   `/api/pm/...` namespace — verified with a genuine cold navigation (not
+   client-side routing) straight to a project's zoning workspace, which now
+   loads correctly and resumes exactly where the project was left off.
+2. **There was no way for a second architect to get an account** — only one
+   seed-script demo login existed. Added real registration
+   (`POST /api/pm/auth/register`) and a sign-up flow on the login page.
+   Verified live: created a second real account, auto-logged-in.
+3. **Three feasibility checks were always "insufficient data" even when the
+   data existed.** Clear height is collected at intake but was never fed into
+   the feasibility engine; column-grid spacing was never computed from the
+   CAD data at all. Both are now wired in — clear height via a confirmable
+   number in the Requirements step (auto-suggested from intake, including
+   correctly parsing the SOP's own `10'-0"` feet-inches notation, which had a
+   real bug on first attempt: it was silently misread as 8.33 ft instead of
+   10), and column-grid spacing computed geometrically from confirmed column
+   positions. Verified end-to-end: what used to be `INSUFFICIENT_DATA` on 3
+   of 9 rules is now a real `PASS`/`FAIL` on 8 of 9 — only fire-escape count
+   remains unavailable (no CAD signal exists for that; not fabricated).
+
+**What's still a real gap, stated plainly rather than glossed over:**
+
+- **Multi-floor buildings need a workaround, not a clean workflow yet.** Today
+  each "project" holds one floor's active zoning state. A multi-floor upload
+  (like the real Dhule file, which contains 7 candidate regions) correctly
+  detects all the floors, but committing to more than one at a time means
+  creating a separate project per floor (same upload, different confirmed
+  region each time — distinguish them by `property_name`, e.g. "Dhule —
+  2nd Floor", since `project_code` auto-increments and can't be reused). This
+  works today; it's just not as smooth as a proper floor switcher inside one
+  project. The database schema already has an unused `floors` table anticipating
+  this (spec decision #9) — activating it is the natural next feature, not a
+  redesign.
+- **Not deployed anywhere Connplex staff could reach it yet.** Everything above
+  is verified running locally in this session. Someone (Antigravity, or Connplex's
+  own infra) needs to actually host the three services (`services/project`,
+  `services/zoning-engine`, `apps/web`) somewhere reachable — see "Running this
+  project" in CLAUDE.md for exact commands; nothing here needs a rewrite to
+  deploy, just a place to run it continuously.
+- **Deployment must include a working SPA fallback.** The routing bug above was
+  fixed for the dev proxy; whatever serves the production build in the end
+  (nginx, a Node static server, etc.) needs to serve `index.html` for unmatched
+  paths too, or this exact class of bug returns in production. Test it the same
+  way this session did: `curl` a deep route directly.
+- Real vector logo artwork (still a redraw, not their actual file — see the PDF
+  format section below) and exact-format DWG template parity remain open, as
+  before.
 
 ## Update: per-room seat-type/mix selection at edit time
 

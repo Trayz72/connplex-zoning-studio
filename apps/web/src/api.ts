@@ -18,7 +18,14 @@ export interface Project {
   created_by: string;
 }
 
-export const API_BASE = '';
+// Namespaced under /api/pm ("project management") so it can never collide with a
+// frontend route. It used to be a bare '' prefix hitting /auth and /projects
+// directly — but /projects/:id/studio, /projects/:id/intake, and
+// /projects/:id/canvas are also real frontend routes with the same prefix, so a
+// hard refresh or a shared link on any of those pages was being caught by the
+// dev-server proxy and sent to this backend instead of the SPA (confirmed via a
+// direct curl test — a 500/proxy error, not Vite's own history-API fallback).
+export const API_BASE = '/api/pm';
 
 export async function login(email: string, password: string) {
   const res = await fetch(`${API_BASE}/auth/login`, {
@@ -30,6 +37,20 @@ export async function login(email: string, password: string) {
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'Login failed' }));
     throw new Error(error.error || 'Login failed');
+  }
+  return res.json();
+}
+
+export async function register(email: string, password: string) {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ email, password })
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: 'Registration failed' }));
+    throw new Error(error.error || 'Registration failed');
   }
   return res.json();
 }

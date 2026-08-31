@@ -42,6 +42,12 @@ class RequirementsIn(BaseModel):
     max_auditoriums: int = 4
     franchise_tier_id: Optional[str] = None
     support_zone_area_overrides_sqft: dict = {}
+    # Architect-confirmed clear height in feet — pre-filled by the frontend from
+    # the project's intake beam_bottom_clear_height (free text, parsed
+    # client-side) but always editable/confirmable here, never trusted blind.
+    # Feeds VR_CLEAR_HEIGHT_EXISTING, which was previously always
+    # INSUFFICIENT_DATA even when this value existed at intake.
+    clear_height_ft: Optional[float] = None
 
 
 class GeometryUpdateIn(BaseModel):
@@ -63,6 +69,27 @@ class ExportIn(BaseModel):
     project_meta: dict
     sheet_type: str = "Zoning Layout"
     format: Optional[str] = "dxf"  # dxf | dwg (export/cad only)
+
+
+def _build_measurements(requirements: dict, confirmed_obstacles: list, boundary_area_sqft: float,
+                         total_seats: int, screen_count: int) -> dict:
+    """Shared measurement builder for feasibility evaluation — used at run time,
+    on every layout read, and on export, so the three call sites can't drift out
+    of sync on which real signals get wired in."""
+    column_points = [o["points_ft"] for o in confirmed_obstacles if o.get("classification") == "COLUMN"]
+    grid_width, grid_length = layout_engine.estimate_column_grid_spacing(column_points)
+    measurements = {
+        "carpet_area_sqft": round(boundary_area_sqft, 2),
+        "seats_per_screen": round(total_seats / screen_count, 2) if screen_count else 0,
+        "total_project_seats": total_seats,
+        "screen_count": screen_count,
+    }
+    if requirements.get("clear_height_ft") is not None:
+        measurements["clear_height_ft"] = requirements["clear_height_ft"]
+    if grid_width is not None:
+        measurements["column_grid_width_ft"] = grid_width
+        measurements["column_grid_length_ft"] = grid_length
+    return measurements
 
 
 # ---------- CAD upload & geometry confirmation ----------
@@ -150,13 +177,10 @@ def run_zoning(project_id: str, body: ZoningRunIn):
 
     candidates = layout_engine.generate_candidates(region["boundary"]["points_ft"], confirmed_obstacles, requirements)
 
+    confirmed_obstacle_records = [o for o in region["obstacles"] if o["status"] == "CONFIRMED"]
     for cand in candidates:
-        measurements = {
-            "carpet_area_sqft": cand["boundary_area_sqft"],
-            "seats_per_screen": cand["seats_per_screen"],
-            "total_project_seats": cand["total_seats"],
-            "screen_count": cand["screen_count"]
-        }
+        measurements = _build_measurements(requirements, confirmed_obstacle_records, cand["boundary_area_sqft"],
+                                            cand["total_seats"], cand["screen_count"])
         cand["feasibility"] = feasibility_engine.evaluate(requirements.get("property_type", "EXISTING_BUILDING"), measurements)
         cand["area_seat_chart"] = chart_engine.build_chart(cand)
         for room in cand["rooms"]:
@@ -291,12 +315,8 @@ def _enrich_layout(project_id: str, layout: dict) -> dict:
     }
     total_seats = sum(r.get("seat_estimate", {}).get("seat_count", 0) for r in layout["rooms"] if r["room_type"].startswith("AUDITORIUM"))
     screen_count = len([r for r in layout["rooms"] if r["room_type"].startswith("AUDITORIUM")])
-    measurements = {
-        "carpet_area_sqft": round(candidate_shape["boundary_area_sqft"], 2),
-        "seats_per_screen": round(total_seats / screen_count, 2) if screen_count else 0,
-        "total_project_seats": total_seats,
-        "screen_count": screen_count
-    }
+    measurements = _build_measurements(requirements, layout.get("obstacles", []), candidate_shape["boundary_area_sqft"],
+                                        total_seats, screen_count)
     layout = dict(layout)
     layout["feasibility"] = feasibility_engine.evaluate(requirements.get("property_type", "EXISTING_BUILDING"), measurements)
     layout["area_seat_chart"] = chart_engine.build_chart(candidate_shape)
@@ -352,12 +372,7 @@ def _enrich_with_requirements(project_id: str, layout: dict) -> dict:
     total_seats = sum(r.get("seat_estimate", {}).get("seat_count", 0) for r in layout["rooms"] if r["room_type"].startswith("AUDITORIUM"))
     screen_count = len([r for r in layout["rooms"] if r["room_type"].startswith("AUDITORIUM")])
     boundary_area = layout_engine.poly_from_points(layout["boundary_points_ft"]).area
-    measurements = {
-        "carpet_area_sqft": round(boundary_area, 2),
-        "seats_per_screen": round(total_seats / screen_count, 2) if screen_count else 0,
-        "total_project_seats": total_seats,
-        "screen_count": screen_count
-    }
+    measurements = _build_measurements(requirements, layout.get("obstacles", []), boundary_area, total_seats, screen_count)
     feasibility = feasibility_engine.evaluate(requirements.get("property_type", "EXISTING_BUILDING"), measurements)
     chart = chart_engine.build_chart({"rooms": layout["rooms"], "circulation_area_sqft": layout["circulation_area_sqft"]})
     return {"feasibility": feasibility, "area_seat_chart": chart}

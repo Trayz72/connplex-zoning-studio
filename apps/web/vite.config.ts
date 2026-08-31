@@ -6,8 +6,10 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/auth': 'http://localhost:3001',
-      '/projects': 'http://localhost:3001',
+      // More specific rule first — Vite checks proxy prefixes in key order, and
+      // /api/pm must win over the broader /api rule below so it reaches the
+      // project/auth service rather than the zoning engine.
+      '/api/pm': { target: 'http://localhost:3001', changeOrigin: true },
       '/api': { target: 'http://localhost:8000', changeOrigin: true }
     }
   }

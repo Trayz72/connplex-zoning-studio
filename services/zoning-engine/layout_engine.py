@@ -249,6 +249,58 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
     }
 
 
+def estimate_column_grid_spacing(confirmed_column_point_lists, cluster_tolerance_ft=1.0):
+    """Estimates the structural column grid spacing (the VR_COLUMN_GRID_WIDTH/
+    LENGTH_EXISTING viability rules' metric) from confirmed COLUMN obstacle
+    positions — real, computed from the CAD data, not a guess.
+
+    Method: cluster column centroids into distinct grid lines along X and along
+    Y (columns whose coordinate is within `cluster_tolerance_ft` are treated as
+    the same line — real column grids are regular but rarely pixel-exact), then
+    take the SMALLEST gap between adjacent lines in each axis. That's the
+    conservative choice: the viability rule cares whether the *tightest* bay in
+    the building would fit an auditorium, not the average.
+
+    The smaller of the two axis spacings is reported as "width" and the larger
+    as "length" — matching the SOP's own numbers (width 20-22ft < length
+    30-35ft), since true building orientation isn't otherwise known. This is an
+    explicit, documented convention, not a claim of certainty about which way
+    the building actually faces.
+
+    Returns (width_ft, length_ft) or (None, None) if there aren't at least 2
+    distinct grid lines in both axes to measure a gap from (e.g. 0 or 1 column,
+    or all columns collinear) — never fabricates a spacing from insufficient data.
+    """
+    if not confirmed_column_point_lists or len(confirmed_column_point_lists) < 2:
+        return None, None
+
+    centroids = []
+    for pts in confirmed_column_point_lists:
+        cx = sum(p[0] for p in pts) / len(pts)
+        cy = sum(p[1] for p in pts) / len(pts)
+        centroids.append((cx, cy))
+
+    def cluster_axis(values):
+        values = sorted(values)
+        lines = [values[0]]
+        for v in values[1:]:
+            if v - lines[-1] > cluster_tolerance_ft:
+                lines.append(v)
+        return lines
+
+    x_lines = cluster_axis([c[0] for c in centroids])
+    y_lines = cluster_axis([c[1] for c in centroids])
+
+    x_gaps = [x_lines[i + 1] - x_lines[i] for i in range(len(x_lines) - 1)]
+    y_gaps = [y_lines[i + 1] - y_lines[i] for i in range(len(y_lines) - 1)]
+
+    if not x_gaps or not y_gaps:
+        return None, None
+
+    spacings = sorted([min(x_gaps), min(y_gaps)])
+    return round(spacings[0], 2), round(spacings[1], 2)
+
+
 def validate_rooms(boundary_points_ft, confirmed_obstacle_point_lists, rooms: list) -> dict:
     """Real geometric validation for architect-edited layouts (spec Sec 38/61
     'geometry tests': overlap, containment, obstacle avoidance). Returns per-room

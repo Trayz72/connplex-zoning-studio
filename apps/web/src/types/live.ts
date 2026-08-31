@@ -56,6 +56,7 @@ export interface Requirements {
   max_auditoriums: number;
   franchise_tier_id: string | null;
   support_zone_area_overrides_sqft: Record<string, number>;
+  clear_height_ft: number | null;
 }
 
 export interface SeatEstimate {

@@ -15,8 +15,10 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/auth', authRoutes);
-app.use('/projects', projectRoutes);
+// Namespaced under /api/pm so these routes can never collide with a frontend
+// route sharing the same prefix (e.g. /projects/:id/studio) — see api.ts.
+app.use('/api/pm/auth', authRoutes);
+app.use('/api/pm/projects', projectRoutes);
 
 app.listen(port, () => {
   console.log(`Project service listening on port ${port}`);

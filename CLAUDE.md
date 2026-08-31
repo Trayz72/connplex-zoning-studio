@@ -281,20 +281,36 @@ correctly, across all 4 floors and all 4 candidates, with a clean `tsc --noEmit`
 ## Running this project
 
 ```bash
-# 1. Project/auth service — port 3001
+# 1. Project/auth service — port 3001, routes live under /api/pm/*
 cd services/project && npm start        # demo login: test@connplex.com / password123
+                                         # or use "Create an account" on the login page
 
-# 2. Zoning engine (the real pipeline) — port 8000
+# 2. Zoning engine (the real pipeline) — port 8000, routes live under /api/*
 cd services/zoning-engine && python3 -m uvicorn main:app --port 8000
 # (pip install -r requirements.txt first on a fresh machine — fastapi, uvicorn,
 # python-multipart, ezdxf, shapely, reportlab, pydantic; all already present here)
 
-# 3. Frontend — port 5173, proxies /auth + /projects to :3001 and /api to :8000
+# 3. Frontend — port 5173, proxies /api/pm to :3001 and /api (everything else) to :8000
 cd apps/web && npm run dev
-# open http://localhost:5173 -> log in -> open a project's intake -> "Go to Zoning
-# Canvas" -> lands on /projects/:id/studio, the real upload/edit/export workspace.
-# "View Reference Demo" in its header links to the old static Dhule/Vadodara demo.
+# open http://localhost:5173 -> log in (or create an account) -> open a project's
+# intake -> "Go to Zoning Canvas" -> lands on /projects/:id/studio, the real
+# upload/edit/export workspace. "View Reference Demo" in its header links to the
+# old static Dhule/Vadodara demo.
 ```
+
+**Route namespacing matters here — don't casually add a bare `/projects` or
+`/auth` backend route again.** They used to be unprefixed and it caused a real
+bug: the frontend's own pages (`/projects/:id/studio`, `/projects/:id/intake`,
+`/projects/:id/canvas`) share that exact prefix, so the dev proxy intercepted
+page loads meant for the SPA and sent them to the Node backend instead —
+invisible via client-side navigation, but a real 404/500 on every hard refresh
+or shared link (confirmed with a direct `curl`, not assumed). `services/project`
+now lives entirely under `/api/pm/*`; `services/zoning-engine` under `/api/*`
+(minus `/api/pm`, which the Vite proxy matches first since it's the more
+specific rule — order matters in `vite.config.ts`'s `proxy` object). If you add
+a new frontend route, make sure its path doesn't collide with either prefix,
+and if you add a new backend route, put it under one of those two namespaces,
+never bare.
 
 To re-run the legacy pipeline's M8 stage after editing `rules_registry_v1.json` (only
 affects the `/canvas` reference-demo dataset, not `/studio`):
