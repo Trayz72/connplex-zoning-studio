@@ -2,10 +2,14 @@ import {
   GeometryResult, GeometryRegion, Requirements, ZoningRunResult, EditableLayout, ValidationError, SelectableSeatType
 } from '../types/live';
 
-const BASE = '/api/projects';
+// VITE_ZONING_API_BASE lets a production build point at a separately-hosted
+// zoning-engine origin (e.g. Render) — unset, it falls back to the relative
+// path the Vite dev proxy already handles.
+const API_ROOT = import.meta.env.VITE_ZONING_API_BASE || '/api';
+const BASE = `${API_ROOT}/projects`;
 
 export async function getSeatTypes(): Promise<SelectableSeatType[]> {
-  const res = await fetch('/api/seat-types');
+  const res = await fetch(`${API_ROOT}/seat-types`);
   if (!res.ok) throw new Error('Failed to load seat types');
   const data = await res.json();
   return data.seat_types;

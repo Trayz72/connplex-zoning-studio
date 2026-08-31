@@ -32,7 +32,19 @@ import export_dxf
 import export_pdf
 
 app = FastAPI(title="Connplex Zoning Engine")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+# No cookies flow through this service (it has no auth of its own — see the
+# module docstring above), so a wildcard origin doesn't expose a logged-in
+# user's session the way it would on services/project. Still worth locking
+# to the real frontend origin once deployed rather than leaving this open
+# to any site — set FRONTEND_ORIGIN (same value as services/project's) to
+# do that; unset, it keeps today's wildcard behavior for local dev.
+_allowed_origin = os.environ.get("FRONTEND_ORIGIN")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[_allowed_origin] if _allowed_origin else ["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # ---------- Schemas ----------

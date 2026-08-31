@@ -2,6 +2,7 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import db from '../db.js';
+import { SESSION_COOKIE_OPTIONS, CLEAR_COOKIE_OPTIONS } from '../cookieOptions.js';
 
 const router = Router();
 
@@ -41,11 +42,7 @@ router.post('/register', (req, res) => {
   db.prepare('INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)')
     .run(id, email, password_hash, created_at);
 
-  res.cookie('session_user_id', id, {
-    httpOnly: true,
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000
-  });
+  res.cookie('session_user_id', id, SESSION_COOKIE_OPTIONS);
 
   return res.status(201).json({ user: { id, email, is_admin: false, created_at } });
 });
@@ -67,11 +64,7 @@ router.post('/login', (req, res) => {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
 
-  res.cookie('session_user_id', user.id, {
-    httpOnly: true,
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000
-  });
+  res.cookie('session_user_id', user.id, SESSION_COOKIE_OPTIONS);
 
   return res.json({
     user: {
@@ -84,7 +77,7 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-  res.clearCookie('session_user_id');
+  res.clearCookie('session_user_id', CLEAR_COOKIE_OPTIONS);
   return res.json({ message: 'Logged out successfully' });
 });
 
@@ -100,7 +93,7 @@ router.get('/me', (req, res) => {
   }
   const user = db.prepare('SELECT id, email, is_admin, created_at FROM users WHERE id = ?').get(userId);
   if (!user) {
-    res.clearCookie('session_user_id');
+    res.clearCookie('session_user_id', CLEAR_COOKIE_OPTIONS);
     return res.status(401).json({ error: 'Not logged in' });
   }
   return res.json({ user: { ...user, is_admin: Boolean(user.is_admin) } });

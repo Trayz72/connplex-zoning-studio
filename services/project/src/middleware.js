@@ -1,4 +1,5 @@
 import db from './db.js';
+import { CLEAR_COOKIE_OPTIONS } from './cookieOptions.js';
 
 /** The only place a request's identity should be resolved from. Previously
  * `projects.js` had its own copy of this that silently fell back to "the
@@ -13,7 +14,7 @@ export function requireAuth(req, res, next) {
   }
   const user = db.prepare('SELECT id, email, is_admin FROM users WHERE id = ?').get(userId);
   if (!user) {
-    res.clearCookie('session_user_id');
+    res.clearCookie('session_user_id', CLEAR_COOKIE_OPTIONS);
     return res.status(401).json({ error: 'Not logged in' });
   }
   req.user = { ...user, is_admin: Boolean(user.is_admin) };

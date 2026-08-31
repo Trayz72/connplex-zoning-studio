@@ -31,12 +31,18 @@ export interface Project {
 
 // Namespaced under /api/pm ("project management") so it can never collide with a
 // frontend route. It used to be a bare '' prefix hitting /auth and /projects
-// directly — but /projects/:id/studio, /projects/:id/intake, and
-// /projects/:id/canvas are also real frontend routes with the same prefix, so a
-// hard refresh or a shared link on any of those pages was being caught by the
-// dev-server proxy and sent to this backend instead of the SPA (confirmed via a
-// direct curl test — a 500/proxy error, not Vite's own history-API fallback).
-export const API_BASE = '/api/pm';
+// directly — but /projects/:id/studio and /projects/:id/intake are also real
+// frontend routes with the same prefix, so a hard refresh or a shared link on
+// either page was being caught by the dev-server proxy and sent to this
+// backend instead of the SPA (confirmed via a direct curl test — a 500/proxy
+// error, not Vite's own history-API fallback).
+//
+// VITE_PM_API_BASE lets a production build point at a separately-hosted
+// project-service origin (e.g. Render, where each service gets its own
+// subdomain and there's no shared dev-proxy to lean on) — unset, it falls
+// back to the relative path the Vite dev proxy already handles, so local
+// dev is unaffected.
+export const API_BASE = import.meta.env.VITE_PM_API_BASE || '/api/pm';
 
 export async function login(email: string, password: string) {
   const res = await fetch(`${API_BASE}/auth/login`, {

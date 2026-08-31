@@ -9,8 +9,15 @@ import rulesConfigRoutes from './routes/rulesConfig.js';
 const app = express();
 const port = process.env.PORT || 3001;
 
+// origin:true reflects whatever Origin header the request sent, which —
+// combined with credentials:true — lets any site make credentialed
+// requests here, not just this app's real frontend. Fine for local dev
+// (no other origin can reach localhost anyway); set FRONTEND_ORIGIN to the
+// deployed frontend's real origin (e.g. https://connplex-web.onrender.com,
+// no trailing slash) once this is hosted somewhere reachable from outside.
+const allowedOrigin = process.env.FRONTEND_ORIGIN || true;
 app.use(cors({
-  origin: true,
+  origin: allowedOrigin,
   credentials: true
 }));
 

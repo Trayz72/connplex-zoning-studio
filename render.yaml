@@ -1,0 +1,57 @@
+# Render Blueprint — defines all three services in this monorepo so they can
+# be created together from render.com/deploy or "New > Blueprint" pointed at
+# this repo. Written against Render's Blueprint spec as of this session;
+# double-check field names against https://render.com/docs/blueprint-spec
+# before relying on it — if a Blueprint deploy fails validation, create the
+# three services manually from the dashboard instead (same settings below),
+# which is the path DEPLOYMENT.md walks through step by step.
+#
+# All three are on the free plan. Free-tier notes (see DEPLOYMENT.md §2):
+# no persistent disk, so services/project's SQLite file and
+# services/zoning-engine's uploaded-CAD/export storage do NOT survive a
+# redeploy or a spin-down after 15 minutes of inactivity — acceptable for a
+# demo/proving-out deployment, not for real daily use yet.
+
+services:
+  - type: web
+    name: connplex-web
+    runtime: static
+    rootDir: apps/web
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_PM_API_BASE
+        value: https://connplex-project.onrender.com/api/pm
+      - key: VITE_ZONING_API_BASE
+        value: https://connplex-zoning-engine.onrender.com/api
+    routes:
+      # SPA fallback — without this, a hard refresh or shared link on any
+      # client-side route (e.g. /projects/abc/studio) 404s instead of
+      # loading index.html and letting React Router take over.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  - type: web
+    name: connplex-project
+    runtime: node
+    rootDir: services/project
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/index.js
+    envVars:
+      - key: FRONTEND_ORIGIN
+        value: https://connplex-web.onrender.com
+      - key: CROSS_ORIGIN_COOKIES
+        value: "true"
+
+  - type: web
+    name: connplex-zoning-engine
+    runtime: python
+    rootDir: services/zoning-engine
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: FRONTEND_ORIGIN
+        value: https://connplex-web.onrender.com
