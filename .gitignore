@@ -11,3 +11,7 @@ services/cad-interop/oda/
 # SQLite write-ahead-log temp files (data.sqlite itself IS committed — it holds demo seed data)
 *.sqlite-shm
 *.sqlite-wal
+
+# Runtime per-project data (uploaded CAD files, generated geometry/layouts/exports) —
+# user-generated at runtime, not source. See services/zoning-engine/storage.py.
+services/zoning-engine/storage/*/

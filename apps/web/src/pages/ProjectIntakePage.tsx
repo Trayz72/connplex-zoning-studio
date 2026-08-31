@@ -84,7 +84,7 @@ export const ProjectIntakePage: React.FC = () => {
 
   const handleGoToCanvas = () => {
     if (project?.is_intake_complete) {
-      navigate(`/projects/${id}/canvas`);
+      navigate(`/projects/${id}/studio`);
     }
   };
 

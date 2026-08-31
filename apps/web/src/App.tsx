@@ -5,6 +5,7 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectIntakePage } from './pages/ProjectIntakePage';
 import { ZoningCanvasPlaceholder } from './pages/ZoningCanvasPlaceholder';
 import { ZoningStudio } from './pages/ZoningStudio';
+import { ZoningWorkspace } from './pages/ZoningWorkspace';
 
 export const App: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ export const App: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/projects/:id/intake" element={<ProjectIntakePage />} />
+        <Route path="/projects/:id/studio" element={<ZoningWorkspace />} />
         <Route path="/projects/:id/canvas" element={<ZoningStudio />} />
         <Route path="/projects/:id/placeholder" element={<ZoningCanvasPlaceholder />} />
         <Route path="/" element={<Navigate to="/login" replace />} />

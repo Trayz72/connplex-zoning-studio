@@ -1,0 +1,7 @@
+fastapi==0.141.1
+uvicorn==0.52.4
+python-multipart
+ezdxf==1.4.4
+shapely==2.1.2
+reportlab==5.0.1
+pydantic>=2

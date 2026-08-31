@@ -1,143 +1,157 @@
 # STATUS
 
-Last updated: 2026-08-31 (EOD handoff session)
+Last updated: 2026-08-31 (second session, same day — real pipeline build)
 
 ## Where this stands right now
 
-A working prototype: CAD→geometry→candidate-generation→scoring→review pipeline
-(built pre-existing, M0–M7), plus a new M8 layer added today that closes the
-biggest functional gap — **real seat counts, a real feasibility engine, and the
-actual required Area/Seat Chart deliverable, none of which existed before today.**
-The app runs end-to-end for the two real reference properties (Dhule, 4 of its 6
-floor plans; Vadodara is fully blocked). It is **not yet wired for an arbitrary new
-property** — that's the top item in the backlog below.
+The full normal-flow loop the product is supposed to provide is now real and
+working end-to-end for an **arbitrary uploaded property**, not just the two
+pre-baked reference drawings: upload a DWG/DXF → confirm what was detected →
+enter requirements → run auto-layout → get real seat estimates → edit the result
+on an interactive canvas → export PDF/DXF/DWG. All of it was built and verified
+live in a browser this session, against files this session generated on the spot
+(not just the Dhule/Vadodara demo data).
 
-Full detail on what was audited, what was found broken, and what was fixed is in
-`CLAUDE.md` — this file is the forward-looking punch list.
+The legacy demo pipeline (Dhule/Vadodara, `/projects/:id/canvas`) still exists and
+still works — kept as a reference/demo, reachable via a "View Reference Demo" link
+— but it is no longer the primary flow. `/projects/:id/studio` (the new
+`services/zoning-engine/` pipeline) is what "Go to Zoning Canvas" now opens.
 
-## Verified working right now (tested live in-browser today)
+Full technical detail on what was built, and exactly how each claim was verified,
+is in `CLAUDE.md` ("What was built in this session" → Part 2). This file is the
+forward-looking punch list.
 
-- Login → Projects dashboard → project intake → "Go to Zoning Canvas".
-- 4 zoning-ready Dhule floors (First/Second/Third/Fourth), each with 4 real,
-  independently-scored candidates (previously all 4 candidates silently showed
-  identical fallback scores — fixed, see CLAUDE.md item 5).
-- Real seat counts per auditorium, per candidate (previously did not exist anywhere).
-- Real Area & Seat Chart matching the spec's exact required table structure.
-- Real feasibility/compliance panel (previously 10 hardcoded `passed: true` checks)
-  — current honest result: **all 4 floors are NOT_FEASIBLE** against Connplex's own
-  Feasibility Manual (carpet area, seats/screen, total legal seats all fail). This is
-  a genuine finding about the existing frozen geometry, not a bug in today's work.
-- 4th floor's `VALID_REVIEW_REQUIRED` / uncertainty-penalty flow still works
-  end-to-end with the new seat-aware scores layered on top.
-- `tsc --noEmit` clean; `npm run build` succeeds; both dev servers verified running
-  together (Vite on 5173 proxying to Express on 3001).
+## Verified working right now (tested live, this session)
 
-## Priority backlog (ordered — this is what "the rest" should tackle)
+- Real file upload via actual drag-and-drop (`DataTransfer`/`File` API) through
+  the real UI, hitting a real multipart POST to `services/zoning-engine`, which
+  really runs `ezdxf` parsing (and ODA DWG→DXF conversion when needed) on the
+  uploaded bytes — proven on 3 independent files, including one dropped through
+  the browser that the backend correctly rejected the first time (malformed) and
+  correctly accepted the second time (fixed), with the real, specific ezdxf error
+  shown to the user in between.
+- Real geometry-review/confirm UI: boundary + every obstacle rendered as actual
+  SVG polygons at their real coordinates (not a raster image), each with a
+  Confirm/Ignore control; a zoning run is refused server-side until the boundary
+  is confirmed.
+- Real requirements form → real auto-layout run producing two genuinely different
+  strategies (verified different room counts/sizes/seat totals on a real ~6,874
+  sqft Dhule region, not cosmetic variants).
+- Real seat counts and real feasibility results per candidate, using the same
+  rules registry as the legacy pipeline.
+- Real interactive canvas: drag-to-move and drag-to-resize work via actual pointer
+  events and `getScreenCTM`-based coordinate transforms; an edit that would go
+  outside the boundary or onto a confirmed obstacle is rejected server-side with
+  the specific overlap in square feet, is confirmed (via direct API query) to
+  never persist, and the canvas visually reverts (fixed a bug this session where
+  it didn't). A valid edit persists and survives a full page reload, with
+  circulation area and the Area & Seat Chart correctly recomputed.
+- Real exports: PDF (rendered to PNG and visually inspected — real floor plan to
+  scale, real Area & Seat Chart, real feasibility results, real title block with
+  the actual project data and an incrementing revision number), DXF (read back
+  with `ezdxf`, 28 real entities on correctly-named layers), DWG (verified with
+  `file` as genuine AutoCAD 2018/2019/2020 format, produced via a real DXF→DWG
+  ODA conversion).
+- `tsc --noEmit` clean, `npm run build` succeeds, all three services (project on
+  :3001, zoning-engine on :8000, vite on :5173) run together correctly.
 
-### 1. Seat-maximizing geometry candidate ("Candidate E") — the highest-complexity remaining piece
+## Priority backlog
 
-**Why this is next:** today's audit proved the auto-generated auditoriums (744 sqft,
-798 sqft) are far too small — below every SOP preset, yielding ~29 seats/screen
-against a 60-seat/screen hard requirement. Rescoring the *existing* 4 candidates with
-a seat-aware objective (done today) can't fix this, because all 4 frozen candidates
-already allocate roughly the same, too-small auditorium footprint — there is no
-seat-maximizing option among them to prefer. The actual fix has to generate a new
-geometry candidate that trades non-auditorium area for auditorium area.
+### 1. Franchise-tier selection + fuller requirement inputs in the UI
 
-**Why this wasn't attempted today:** it means writing a new placement algorithm
-against the irregular usable-area polygon (avoiding real obstructions), which is a
-focused, visually-iterative geometry task — exactly the kind of work better done with
-live visual feedback in an IDE than blind in a terminal. Spec §7.2 already specifies
-the intended staged approach; this is that work.
+`RequirementsStep.tsx` only asks for property type, max auditoriums, and an
+optional franchise tier. The spec's full required-input list (§7 in the master
+context: seat-mix percentage, foyer/F&B/circulation area *preferences* rather
+than just engine defaults, number of entrances/exits, existing entrance/exit
+preservation, floor height) isn't collected yet. The registry
+(`franchise_tiers`, `support_zone_area_overrides_sqft` param already exists
+server-side) supports most of this — it's a UI-only gap.
 
-**Concrete plan:**
-- Inputs available: `services/cad-interop/test/output/usable_planning_areas_v1.json`
-  (usable polygon per region, obstructions already subtracted) and
-  `resolved_obstructions_v1.json` (hard obstruction polygons).
-- Algorithm (per spec §7.2 step 1, and `05_zoning_engine_and_optimization` doc):
-  greedily grow/place auditorium rectangles along the floor plate's long axis from the
-  `AuditoriumPreset` list in `services/rules-config/registry/rules_registry_v1.json`
-  (60/90/125-seat), skipping/shrinking around `StructuralElement`/obstruction polygons,
-  stopping when no further auditorium clears the minimum area, then placing support
-  zones in the remainder using the existing candidate A–D logic as a template.
-- Output contract: a new candidate object shaped exactly like the existing
-  candidates in `zoning_layouts_v2.json` (same `rooms[]` schema), so it drops straight
-  into `generate_seat_layout.py` → `evaluate_feasibility.py` →
-  `rescore_candidates.py` → `generate_area_seat_chart.py` with **zero changes** to
-  those four scripts.
-- Acceptance: the new candidate should clear ≥55–60 seats/screen on at least the
-  First floor (the largest usable area of the 4 ready floors, 5,242 sqft boundary),
-  or, if it genuinely cannot, that itself is the answer Connplex needs — write it up
-  plainly (this floor may simply not support the seats-per-screen bar at any layout,
-  which is a real business finding, not a code problem).
+### 2. Production SPA routing
 
-### 2. Wire a real per-project CAD pipeline (not just the two hardcoded demo properties)
+Confirmed this session (same pre-existing issue as before, on the new route too):
+a cold navigation straight to `/projects/:id/studio` 404s on Vite's dev server;
+in-app client-side navigation works fine. This is almost certainly fine under
+`vite dev` for local work, but **must be checked before any real deployment** —
+whatever serves the production `dist/` build needs an SPA fallback (serve
+`index.html` for any unmatched path). Nginx/most static hosts need one line of
+config for this; verify it's actually configured wherever this gets deployed.
 
-`ZoningStudio.tsx` currently hardcodes "Dhule Cinema Hub" / a specific DWG filename in
-its header regardless of which project you opened (see the `cadState` initial value).
-`services/project` (project CRUD) and `services/cad-interop` (the pipeline) are
-completely disconnected — there's no code path from "user uploads a DWG on a new
-project" to a real pipeline run. To make this a real multi-project tool:
-- Add an endpoint (new, in `services/project` or a new small service) that accepts a
-  DWG upload for a given project, shells out to `services/cad-interop/convert.py` and
-  the rest of the pipeline, and stores results keyed by `project_id` instead of the
-  hardcoded `test/output/` directory.
-- Update `CadUploadModal.tsx` (`isDemoData` flag already exists in the type — it's
-  currently always presenting demo data) to actually trigger this.
-- This is a real backend/plumbing project, not a quick fix — budget real time for it.
+### 3. Multi-region / multi-floor CAD sheets in the real pipeline
 
-### 3. Exact-match PDF/DWG export (spec M8 / this repo has nothing here yet)
+`cad_extraction.py` already returns multiple candidate regions when a sheet
+contains more than one floor plan (verified against the real Dhule DXF — 7
+regions found), and `GeometryReviewStep` already lets the architect switch
+between them and confirm one — but `zoning-runs`/the editable layout are scoped
+to a single `region_id` per project today. A project with a multi-floor sheet
+currently only carries one floor's zoning result forward. Spec §3 decision #9
+says single-floor-per-project is fine for v1 as long as the schema doesn't block
+adding more later — worth confirming the current per-project (not per-region)
+storage in `storage.py` doesn't quietly become that blocker as this gets built
+out further.
 
-Nothing in this repo produces the client-facing PDF or a re-exported DWG. Spec §7.3
-and M8 require validating against the two real reference PDFs (title block, Area/Seat
-Chart, legends, revision log) as the acceptance test. The new `area_seat_chart_v1.json`
-from today is the right input data for the chart portion of this.
+### 4. Exact-match PDF/DWG title-block artwork
 
-### 4. `config over code` cleanup in `cadService.ts`
+`export_pdf.py`/`export_dxf.py` reproduce every *required piece of content*
+(spec §2.11 item 2 / Master Context §42) but use a clean generic template, not
+Connplex's actual logo/letterhead/exact title-block layout — that needs
+Connplex's brand assets and the two real reference PDFs as a pixel-level
+acceptance test (spec §7.3), neither of which this session had a path to
+produce from scratch. If exact visual fidelity is a hard requirement for the
+next milestone, get the brand assets first.
 
-`min_area_sqft` is still computed inline (`rm.room_type.includes('AUDITORIUM') ? 600 : ...`)
-instead of read from `rules_registry_v1.json`'s `auditorium_presets`/room minimums.
-Low effort, flagged but not fixed today to keep today's diff focused on the seat/
-feasibility gap.
+### 5. `config over code` cleanup in the legacy `cadService.ts`
 
-### 5. UI polish (this is the "rest for antigravity" category — good iterative-IDE work)
+Unchanged from before this session — `min_area_sqft` is still computed inline in
+`apps/web/src/services/cadService.ts` (the *legacy* demo-pipeline service) instead
+of read from the registry. Low effort; only affects `/canvas`, not `/studio`
+(which already reads registry-driven minimums throughout
+`services/zoning-engine/`).
 
-- `ZoningCanvasPlaceholder.tsx` is dead/unused — either wire it up or remove it.
-- Deep-linking to `/projects/:id/canvas` 404s on a raw browser navigation (confirmed
-  today) — works fine via in-app client-side links. Likely needs SPA fallback
-  configured for whatever serves the production build (not just `vite dev`, which
-  should handle this by default — worth a closer look).
-- Franchise-tier selection UI (Express/Signature/Luxuriance) doesn't exist yet in the
-  intake form even though the registry now has the data — spec flags the Express/
-  Smart naming conflict (open item #2, still unresolved, needs a Connplex decision).
-- General visual polish, loading states, and mobile/responsive behavior were not
-  in scope today.
+### 6. Minor: stale collision-hint banner
+
+`EditableCanvas.tsx`'s live orange "Overlap / out of bounds" hint (client-side,
+cosmetic — separate from the real server-side validation, which is correct) was
+observed once this session staying visible slightly longer than expected after a
+rejected drag. The underlying data was never wrong (confirmed via direct API
+query each time) — this is purely a UI-hint staleness edge case, not a
+correctness issue. Worth a closer look if it recurs, not urgent.
+
+### 7. Background/async zoning runs
+
+`POST /zoning-runs` runs synchronously today (~1–2s on the floor sizes tested).
+Spec §58 calls for background job processing for anything long-running. Fine at
+today's scale; revisit if candidate generation gets slower (e.g. a proper
+constraint solver instead of the current greedy packer) or floor plates get much
+larger.
 
 ## Open items still requiring a Connplex decision (unchanged from spec §10)
 
-1. APS/ODA licensing approval for production-grade DWG interop (today's work
-   confirms the *free* ODA File Converter path works for DWG→DXF conversion at
-   prototype scale — that may reduce urgency on this, but production terms/support
-   still need sign-off).
-2. Franchise tier naming: "Express" (brochure) vs. "Smart" (ROI sheet) — unresolved,
-   encoded in the registry with an explicit `naming_conflict_note`.
-3. Whether 55–60 seats/screen (SOP) and 60 seats/screen (Feasibility Manual) should
-   both gate, or be reconciled into one number — today's registry keeps them as two
-   separate rules per CLAUDE.md governance; a Connplex decision could collapse this.
+1. APS/ODA licensing approval for production-grade DWG interop — this session's
+   work confirms the *free* ODA File Converter path genuinely works for both
+   DWG→DXF (import) and DXF→DWG (export) at prototype scale; may reduce urgency,
+   but production terms/support still need sign-off for scale/reliability
+   guarantees.
+2. Franchise tier naming: "Express" (brochure) vs. "Smart" (ROI sheet) —
+   unresolved, encoded in the registry with an explicit `naming_conflict_note`.
+3. Whether 55–60 seats/screen (SOP) and 60 seats/screen (Feasibility Manual)
+   should both gate, or be reconciled into one number — registry keeps them
+   separate per CLAUDE.md governance; a Connplex decision could collapse this.
 4. Which franchise tier governs a given project (user-selected vs. inferred vs.
-   sales-negotiated) — still open, blocks item 5 above (foyer:screen ratio target).
+   sales-negotiated) — still open, affects the foyer:screen ratio target used by
+   `layout_engine.py`.
 5. Whether "Net Usage Area" is a second export type for every project or was
-   Dhule-specific — still open, blocks the M8/export work in item 3.
+   Dhule-specific — still open, affects export template scope (backlog item 4).
 
 ## How to verify this status yourself
 
 ```bash
-cd services/cad-interop
-python3 generate_seat_layout.py && python3 evaluate_feasibility.py \
-  && python3 rescore_candidates.py && python3 generate_area_seat_chart.py
-# then:
-cd ../project && npm start &
-cd ../../apps/web && npm run dev
+cd services/project && npm start &
+cd services/zoning-engine && python3 -m uvicorn main:app --port 8000 &
+cd apps/web && npm run dev
 # open http://localhost:5173, log in as test@connplex.com / password123,
-# open any project's intake form, click "Go to Zoning Canvas".
+# create or open a project, complete intake, click "Go to Zoning Canvas",
+# upload any real .dwg/.dxf (docs/reference/ has three), confirm the detected
+# boundary/obstacles, submit requirements, run zoning, pick a candidate, try
+# dragging a room, then use the Export buttons in the right sidebar.
 ```

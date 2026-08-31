@@ -7,7 +7,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/auth': 'http://localhost:3001',
-      '/projects': 'http://localhost:3001'
+      '/projects': 'http://localhost:3001',
+      '/api': { target: 'http://localhost:8000', changeOrigin: true }
     }
   }
 });
