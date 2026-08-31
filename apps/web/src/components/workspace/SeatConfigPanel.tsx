@@ -6,9 +6,12 @@ interface SeatConfigPanelProps {
   seatTypes: SelectableSeatType[];
   onApply: (seatConfig: SeatConfig) => void;
   applying: boolean;
+  /** When true, skip the outer card wrapper — used when the parent already
+   * provides one (e.g. alongside RoomDimensionEditor in the same card). */
+  embedded?: boolean;
 }
 
-export const SeatConfigPanel: React.FC<SeatConfigPanelProps> = ({ room, seatTypes, onApply, applying }) => {
+export const SeatConfigPanel: React.FC<SeatConfigPanelProps> = ({ room, seatTypes, onApply, applying, embedded }) => {
   const existing = room.seat_config;
   const [primary, setPrimary] = useState(existing?.primary_seat_type_id || 'SLIDER_SOFA');
   const [secondary, setSecondary] = useState<string>(existing?.secondary_seat_type_id || '');
@@ -38,10 +41,10 @@ export const SeatConfigPanel: React.FC<SeatConfigPanelProps> = ({ room, seatType
     color: '#f0f6fc', borderRadius: '4px', fontSize: '0.75rem'
   };
 
-  return (
-    <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
+  const content = (
+    <>
       <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '8px' }}>
-        {room.display_name} — Seat Configuration
+        {room.display_name}
       </div>
       <div style={{ fontSize: '0.78rem', color: '#f0f6fc', marginBottom: '4px' }}>
         {room.area_sqft} sqft ({room.width_ft} × {room.depth_ft} ft)
@@ -58,6 +61,7 @@ export const SeatConfigPanel: React.FC<SeatConfigPanelProps> = ({ room, seatType
       )}
 
       <div style={{ borderTop: '1px solid #21262d', paddingTop: '10px' }}>
+        <div style={{ fontSize: '0.68rem', color: '#8b949e', textTransform: 'uppercase', marginBottom: '6px' }}>Seat Configuration</div>
         <label style={{ display: 'block', fontSize: '0.68rem', color: '#8b949e', marginBottom: '3px' }}>Seat Type</label>
         <select style={selectStyle} value={primary} onChange={(e) => setPrimary(e.target.value)}>
           {seatTypes.map(t => <option key={t.id} value={t.id}>{t.name} ({t.category})</option>)}
@@ -93,6 +97,14 @@ export const SeatConfigPanel: React.FC<SeatConfigPanelProps> = ({ room, seatType
           {applying ? 'Applying…' : 'Apply Seat Configuration'}
         </button>
       </div>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
+      {content}
     </div>
   );
 };

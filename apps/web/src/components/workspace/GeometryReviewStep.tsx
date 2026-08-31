@@ -13,6 +13,7 @@ const CONF_COLOR: Record<string, string> = { high: '#3fb950', medium: '#d29922',
 export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry, onConfirmed, onStartOver }) => {
   const [regions, setRegions] = useState<GeometryRegion[]>(geometry.regions);
   const [activeRegionId, setActiveRegionId] = useState<string>(geometry.regions[0]?.region_id || '');
+  const [showCadLinework, setShowCadLinework] = useState(true);
 
   const activeRegion = regions.find(r => r.region_id === activeRegionId);
 
@@ -49,7 +50,16 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
   return (
     <div style={{ display: 'flex', height: '100%', gap: '12px', padding: '12px' }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.72rem', color: '#8b949e', cursor: 'pointer' }}>
+            <input type="checkbox" checked={showCadLinework} onChange={(e) => setShowCadLinework(e.target.checked)} />
+            Show original CAD linework
+            {activeRegion.raw_geometry?.truncated && (
+              <span style={{ color: '#d29922' }} title="This region has more entities than are shown — capped for performance.">
+                (partial — capped for size)
+              </span>
+            )}
+          </label>
           <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={onStartOver}>
             ↺ Replace CAD File
           </button>
@@ -78,6 +88,8 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
           onLiveChange={() => {}}
           onCommit={() => {}}
           snapToGridFt={0}
+          rawGeometry={activeRegion.raw_geometry}
+          showCadLinework={showCadLinework}
         />
       </div>
 

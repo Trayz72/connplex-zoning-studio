@@ -1,6 +1,6 @@
 # STATUS
 
-Last updated: 2026-08-31 (fifth session, same day — deliverability pass)
+Last updated: 2026-08-31 (sixth session, same day — visual/professional polish pass)
 
 ## Is this deliverable? Can Connplex's architecture team start using it for zoning and seat counts?
 
@@ -68,6 +68,53 @@ day-to-day" rather than re-testing the happy path:
 - Real vector logo artwork (still a redraw, not their actual file — see the PDF
   format section below) and exact-format DWG template parity remain open, as
   before.
+
+## Update: visual polish pass — CAD backdrop, resize UX, numeric editing, PDF export quality
+
+Directly in response to specific user feedback: resizing rooms was hard, and
+the exported/rendered output needed to look professional rather than just
+functional. Checked the whole editing → zoning → export path and fixed what
+was real, not cosmetic-only:
+
+- **Resize handles were the actual reported problem.** Root cause: they were
+  sized in feet (so they shrank as you zoomed out) and their clickable hit
+  area was identical to their visible size — a few pixels at any real zoom
+  level — and only the 4 corners had handles at all. Rewrote
+  `EditableCanvas.tsx`: handles now render at a fixed screen-pixel size
+  regardless of zoom, each has a much larger invisible 26px hit circle around
+  a 9px visible dot, and all 8 positions (4 corners + 4 edges) are draggable
+  with correct per-handle cursors. Verified with a real mouse drag (not a
+  simulated event) — shrank the Dhule auditorium from 1,350 to 1,066 sqft
+  smoothly on the first attempt.
+- **Added a numeric fallback**, `RoomDimensionEditor.tsx` — exact X/Y/width/
+  depth fields next to the seat config panel, for when a precise dimension
+  matters more than a drag. It feeds the same `PUT /layout` validation a drag
+  does, so an overlapping value is rejected the same honest way.
+- **The original CAD linework can now be shown as a backdrop** under the
+  interpreted zoning layers (walls/columns/text at 35% opacity), both during
+  geometry review and while editing, via a `showCadLinework` toggle. New
+  `extract_raw_geometry()` in `cad_extraction.py` feeds it, capped at 6,000
+  lines / 800 text entities per region with an honest "partial — capped for
+  size" note when a region is truncated, rather than silently dropping data.
+- **PDF export had two real, visible defects on genuine complex geometry** —
+  only surfaced by exporting the actual edited Dhule floor, not the earlier
+  simple synthetic-room test:
+  1. The floor-plan box spanned the full sheet height regardless of the
+     drawing's own shape, leaving roughly half the sheet blank white space
+     for a region that's wider than it is tall.
+  2. Long room names ("FOOD & BEVERAGE / CONCESSION") overflowed narrow
+     rooms' drawn boundaries once the font-shrink loop hit its floor size.
+
+  Fixed both in `export_pdf.py`: the plan now auto-rotates 90° when that
+  orientation would use the sheet meaningfully better — the same call a
+  drafter makes fitting a plan to a sheet; only geometry rotates, room-name
+  text is still drawn upright and readable. Added a real title/scale header
+  and a genuine computed overall-dimension callout at the bottom (the
+  region's actual bounding size in ft-in, not an invented round scale
+  figure). Long room names now wrap onto a second line before the font is
+  allowed to shrink past legibility. Verified by re-exporting the same real
+  Dhule project before/after and comparing renders directly — confirmed the
+  blank space is gone and no label overflows any room anymore.
 
 ## Update: per-room seat-type/mix selection at edit time
 

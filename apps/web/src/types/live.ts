@@ -29,11 +29,25 @@ export interface Boundary {
   status: 'PROPOSED' | 'CONFIRMED';
 }
 
+/** The actual underlying CAD drawing (raw lines/circles/text near this region),
+ * separate from the interpreted boundary/obstacles — rendered as a light
+ * backdrop so the architect can see the real source drawing under the
+ * generated zoning, the way a real CAD viewer does. Not every entity in the
+ * file, just what falls within this region's bounding box, to keep payload
+ * size sane on large drawings. */
+export interface RawGeometry {
+  lines: [[number, number], [number, number]][];
+  circles: { center: [number, number]; radius: number }[];
+  texts: { text: string; position: [number, number] }[];
+  truncated: boolean;
+}
+
 export interface GeometryRegion {
   region_id: string;
   boundary: Boundary;
   obstacles: Obstacle[];
   text_labels: TextLabel[];
+  raw_geometry?: RawGeometry;
 }
 
 export interface GeometryResult {

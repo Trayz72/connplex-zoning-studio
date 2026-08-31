@@ -59,6 +59,38 @@ LEGEND_ITEMS = [
 ]
 
 
+def _fmt_ft_in(value_ft):
+    """Decimal feet -> architectural feet-inch string, matching this sheet's
+    own 'ALL DIMENSIONS ARE IN FEET-INCH' note."""
+    total_in = round(value_ft * 12)
+    ft, inch_part = divmod(total_in, 12)
+    return f"{ft}'-{inch_part}\""
+
+
+def _fit_room_name(c, name, max_w, start_size, floor_size=4.2):
+    """Fit a room name within max_w: shrink the font first, then — if it still
+    won't fit even at the floor size — wrap onto a second line split at the
+    best space. Long real names ('FOOD & BEVERAGE / CONCESSION') in narrow
+    rooms otherwise spill past the room's drawn boundary."""
+    size = start_size
+    while size > floor_size and c.stringWidth(name, "Helvetica-Bold", size) > max_w:
+        size -= 0.4
+    if c.stringWidth(name, "Helvetica-Bold", size) <= max_w or " " not in name:
+        return [name], size
+
+    words = name.split(" ")
+    best = None
+    for i in range(1, len(words)):
+        line1, line2 = " ".join(words[:i]), " ".join(words[i:])
+        w = max(c.stringWidth(line1, "Helvetica-Bold", size), c.stringWidth(line2, "Helvetica-Bold", size))
+        if best is None or w < best[0]:
+            best = (w, line1, line2)
+    _, line1, line2 = best
+    while size > floor_size and max(c.stringWidth(line1, "Helvetica-Bold", size), c.stringWidth(line2, "Helvetica-Bold", size)) > max_w:
+        size -= 0.4
+    return [line1, line2], size
+
+
 def _room_color(room_type):
     key = room_type.split("_")[0] if room_type.startswith("AUDITORIUM") else room_type
     return ROOM_FILL.get(key, HexColor("#eeeeee"))
@@ -318,7 +350,7 @@ def _draw_company_block(c, x, y_top, w):
     return y_top - h
 
 
-def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h):
+def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h, sheet_type="Zoning Layout"):
     if not boundary_points_ft:
         return
     xs = [p[0] for p in boundary_points_ft]
@@ -327,12 +359,48 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
     if bw <= 0 or bh <= 0:
         return
 
-    scale = min(plan_w / bw, plan_h / bh) * 0.94
-    ox = plan_x + (plan_w - bw * scale) / 2 - min(xs) * scale
-    oy = plan_y + (plan_h - bh * scale) / 2 - min(ys) * scale
+    # Title/scale header at the top of the box, and dimension lines along the
+    # drawing, both take a slice of the box's own available space rather than
+    # the full box — real footprints (esp. a single confirmed region) are
+    # often much wider than tall relative to a portrait sheet, so the plan
+    # alone would otherwise leave a large, unlabelled blank area above/below it.
+    header_h = 20 * mm
+    dim_h = 12 * mm
+    c.setFont("Helvetica-Bold", 11)
+    c.setFillColor(black)
+    c.drawString(plan_x + 4, plan_y + plan_h - 14, f"FLOOR PLAN — {sheet_type.upper()}")
+    c.setFont("Helvetica", 7.5)
+    c.setFillColor(HexColor("#444444"))
+    c.drawString(plan_x + 4, plan_y + plan_h - 24, "SCALE : N.T.S.")
 
-    def tx(pt):
-        return (ox + pt[0] * scale, oy + pt[1] * scale)
+    draw_x, draw_y = plan_x, plan_y + dim_h
+    draw_w, draw_h = plan_w, plan_h - header_h - dim_h
+
+    # A confirmed region is often much wider than tall (or vice versa) relative
+    # to this portrait sheet's drawing area. Rather than fit it as-is and leave
+    # most of the sheet blank, rotate 90° whenever that orientation lets the
+    # plan actually use more of the available area — the same call a drafter
+    # fitting a plan to a sheet would make. Only geometry is rotated; room/
+    # dimension labels are still drawn upright via drawCentredString, so text
+    # stays horizontal and readable either way.
+    scale_normal = min(draw_w / bw, draw_h / bh)
+    scale_rotated = min(draw_w / bh, draw_h / bw)
+    rotated = scale_rotated > scale_normal * 1.1
+    scale = (scale_rotated if rotated else scale_normal) * 0.94
+    min_x, min_y = min(xs), min(ys)
+
+    if rotated:
+        ox = draw_x + (draw_w - bh * scale) / 2
+        oy = draw_y + (draw_h - bw * scale) / 2
+
+        def tx(pt):
+            return (ox + (pt[1] - min_y) * scale, oy + (pt[0] - min_x) * scale)
+    else:
+        ox = draw_x + (draw_w - bw * scale) / 2 - min_x * scale
+        oy = draw_y + (draw_h - bh * scale) / 2 - min_y * scale
+
+        def tx(pt):
+            return (ox + pt[0] * scale, oy + pt[1] * scale)
 
     c.setStrokeColor(black)
     c.setLineWidth(1.6)
@@ -374,9 +442,9 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
         path.close()
         c.drawPath(path, stroke=1, fill=1)
 
-        rxs = [p[0] for p in pts]
-        rys = [p[1] for p in pts]
-        rw, rh = (max(rxs) - min(rxs)) * scale, (max(rys) - min(rys)) * scale
+        page_pts = [tx(p) for p in pts]
+        rw = max(p[0] for p in page_pts) - min(p[0] for p in page_pts)
+        rh = max(p[1] for p in page_pts) - min(p[1] for p in page_pts)
         cx = sum(p[0] for p in pts) / len(pts)
         cy = sum(p[1] for p in pts) / len(pts)
         lx, ly = tx((cx, cy))
@@ -384,20 +452,22 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
         seat = room.get("seat_estimate") or {}
         seat_count = seat.get("seat_count")
         name = room["display_name"].upper()
-        name_size = max(min(rw, rh) * 0.11, 6)
-        # Cap font size so the name text actually fits the room's width, rather than
-        # spilling past its boundary — real rooms vary a lot in aspect ratio.
-        while name_size > 4.5 and c.stringWidth(name, "Helvetica-Bold", name_size) > rw * 0.92:
-            name_size -= 0.4
+        start_size = max(min(rw, rh) * 0.11, 6)
+        # Fit the name to the room's actual on-page width, rather than letting
+        # it spill past the room's boundary — real rooms vary a lot in shape.
+        name_lines, name_size = _fit_room_name(c, name, rw * 0.92, start_size)
+        extra = len(name_lines) - 1
         c.setFillColor(black)
         c.setFont("Helvetica-Bold", name_size)
-        line_y = ly + (name_size * 0.8 if seat_count else 0)
-        c.drawCentredString(lx, line_y, name)
+        line_y = ly + (name_size * 0.8 if seat_count else 0) + extra * name_size * 0.55
+        for i, ln in enumerate(name_lines):
+            c.drawCentredString(lx, line_y - i * name_size * 1.1, ln)
+        name_bottom_y = line_y - extra * name_size * 1.1
         if seat_count:
             c.setFont("Helvetica-Bold", name_size * 0.95)
-            c.drawCentredString(lx, line_y - name_size * 1.2, str(seat_count))
+            c.drawCentredString(lx, name_bottom_y - name_size * 1.2, str(seat_count))
             breakdown = seat.get("seat_breakdown", {})
-            by = line_y - name_size * 2.3
+            by = name_bottom_y - name_size * 2.3
             c.setFont("Helvetica", name_size * 0.62)
             for label, key in [("SOFA SLIDER", "SOFA_SLIDER"), ("FRONT LOUNGER", "LOUNGER"), ("PREMIUM RECLINER", "PREMIUM_RECLINER")]:
                 if breakdown.get(key):
@@ -405,7 +475,25 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
                     by -= name_size * 0.85
         else:
             c.setFont("Helvetica", name_size * 0.7)
-            c.drawCentredString(lx, line_y - name_size * 1.1, f"{room['area_sqft']:,.0f} SQ.FT")
+            c.drawCentredString(lx, name_bottom_y - name_size * 1.1, f"{room['area_sqft']:,.0f} SQ.FT")
+
+    # Overall dimension line under the drawing — real bounding-box size of the
+    # confirmed region (in whichever axis now runs horizontal on the page,
+    # after any rotation above), not an invented/rounded scale figure.
+    page_pts = [tx(p) for p in boundary_points_ft]
+    page_min_x = min(p[0] for p in page_pts)
+    page_max_x = max(p[0] for p in page_pts)
+    horiz_ft = (page_max_x - page_min_x) / scale
+    x0, x1 = page_min_x, page_max_x
+    dim_y = plan_y + dim_h * 0.45
+    c.setStrokeColor(HexColor("#444444"))
+    c.setLineWidth(0.5)
+    c.line(x0, dim_y, x1, dim_y)
+    c.line(x0, dim_y - 3, x0, dim_y + 3)
+    c.line(x1, dim_y - 3, x1, dim_y + 3)
+    c.setFont("Helvetica", 7.5)
+    c.setFillColor(HexColor("#444444"))
+    c.drawCentredString((x0 + x1) / 2, dim_y + 4, _fmt_ft_in(horiz_ft))
 
 
 def render_pdf(project_meta: dict, boundary_points_ft, rooms, chart: dict, feasibility: dict, out_path: str,
@@ -419,7 +507,7 @@ def render_pdf(project_meta: dict, boundary_points_ft, rooms, chart: dict, feasi
     plan_w = sidebar_x - GAP - MARGIN
     plan_h = page_h - 2 * MARGIN
 
-    _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h)
+    _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h, sheet_type)
     c.setStrokeColor(black)
     c.setLineWidth(1)
     c.rect(plan_x, plan_y, plan_w, plan_h, stroke=1, fill=0)

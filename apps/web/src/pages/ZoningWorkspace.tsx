@@ -11,6 +11,7 @@ import { RunStep } from '../components/workspace/RunStep';
 import { EditableCanvas } from '../components/workspace/EditableCanvas';
 import { ExportPanel } from '../components/workspace/ExportPanel';
 import { SeatConfigPanel } from '../components/workspace/SeatConfigPanel';
+import { RoomDimensionEditor } from '../components/workspace/RoomDimensionEditor';
 
 type Step = 'LOADING' | 'UPLOAD' | 'GEOMETRY_REVIEW' | 'REQUIREMENTS' | 'RUN' | 'EDIT';
 
@@ -37,6 +38,7 @@ export const ZoningWorkspace: React.FC = () => {
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [snapFt, setSnapFt] = useState(1);
+  const [showCadLinework, setShowCadLinework] = useState(true);
   const [saving, setSaving] = useState(false);
   const [seatTypes, setSeatTypes] = useState<SelectableSeatType[]>([]);
   const [applyingSeatConfig, setApplyingSeatConfig] = useState(false);
@@ -158,6 +160,24 @@ export const ZoningWorkspace: React.FC = () => {
     setApplyingSeatConfig(false);
   };
 
+  const [applyingDimensions, setApplyingDimensions] = useState(false);
+  const applyDimensions = async (updates: { origin_ft: [number, number]; width_ft: number; depth_ft: number }) => {
+    if (!layout || !selectedRoomId) return;
+    setApplyingDimensions(true);
+    const [x, y] = updates.origin_ft;
+    const { width_ft: w, depth_ft: d } = updates;
+    const rooms = layout.rooms.map(r => r.room_id === selectedRoomId ? {
+      ...r,
+      origin_ft: updates.origin_ft,
+      width_ft: w,
+      depth_ft: d,
+      area_sqft: Math.round(w * d * 100) / 100,
+      geometry_points_ft: [[x, y], [x + w, y], [x + w, y + d], [x, y + d]]
+    } : r);
+    await persistLayout(rooms);
+    setApplyingDimensions(false);
+  };
+
   const selectedRoom = layout?.rooms.find(r => r.room_id === selectedRoomId) || null;
 
   if (step === 'LOADING') {
@@ -198,7 +218,11 @@ export const ZoningWorkspace: React.FC = () => {
                   <button key={t.type} className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={() => addZone(t)}>+ {t.label}</button>
                 ))}
                 {selectedRoomId && <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px', color: '#f85149' }} onClick={deleteSelected}>✕ Delete Selected</button>}
-                <label style={{ fontSize: '0.7rem', color: '#8b949e', marginLeft: 'auto' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', color: '#8b949e', marginLeft: 'auto', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={showCadLinework} onChange={(e) => setShowCadLinework(e.target.checked)} />
+                  CAD linework
+                </label>
+                <label style={{ fontSize: '0.7rem', color: '#8b949e' }}>
                   Snap: <select value={snapFt} onChange={(e) => setSnapFt(parseFloat(e.target.value))} style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: '4px', padding: '2px' }}>
                     <option value={0}>Off</option>
                     <option value={0.5}>0.5 ft</option>
@@ -224,6 +248,8 @@ export const ZoningWorkspace: React.FC = () => {
                 onLiveChange={() => {}}
                 onCommit={persistLayout}
                 snapToGridFt={snapFt}
+                rawGeometry={geometry?.regions.find(r => r.region_id === layout.region_id)?.raw_geometry}
+                showCadLinework={showCadLinework}
               />
             </div>
 
@@ -241,12 +267,16 @@ export const ZoningWorkspace: React.FC = () => {
               </div>
 
               {selectedRoom && selectedRoom.room_type.startsWith('AUDITORIUM') && seatTypes.length > 0 && (
-                <SeatConfigPanel room={selectedRoom} seatTypes={seatTypes} onApply={applySeatConfig} applying={applyingSeatConfig} />
+                <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
+                  <SeatConfigPanel room={selectedRoom} seatTypes={seatTypes} onApply={applySeatConfig} applying={applyingSeatConfig} embedded />
+                  <RoomDimensionEditor room={selectedRoom} onApply={applyDimensions} applying={applyingDimensions} />
+                </div>
               )}
               {selectedRoom && !selectedRoom.room_type.startsWith('AUDITORIUM') && (
                 <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
                   <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '8px' }}>{selectedRoom.display_name}</div>
                   <div style={{ fontSize: '0.78rem', color: '#f0f6fc' }}>{selectedRoom.area_sqft} sqft ({selectedRoom.width_ft} × {selectedRoom.depth_ft} ft)</div>
+                  <RoomDimensionEditor room={selectedRoom} onApply={applyDimensions} applying={applyingDimensions} />
                 </div>
               )}
 

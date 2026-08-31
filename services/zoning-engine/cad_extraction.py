@@ -299,6 +299,48 @@ def extract(input_path: str) -> dict:
             except Exception:
                 continue
 
+    MAX_RAW_LINES = 6000
+    MAX_RAW_TEXTS = 800
+
+    def extract_raw_geometry(minx, miny, maxx, maxy):
+        """The actual underlying CAD drawing near this region — rendered as a
+        light backdrop in the editor so the architect can see the real source
+        drawing under the generated zoning, the way a real CAD viewer does.
+        Capped per region so a huge real drawing (Vadodara: 2000+ closed shapes
+        alone) doesn't ship an unbounded payload to the browser."""
+        pad = max((maxx - minx), (maxy - miny)) * 0.05
+        bx0, by0, bx1, by1 = minx - pad, miny - pad, maxx + pad, maxy + pad
+        lines, circles, texts = [], [], []
+        truncated = False
+        for e in entities:
+            if len(lines) >= MAX_RAW_LINES:
+                truncated = True
+                break
+            t = e.dxftype()
+            try:
+                if t in ("LINE", "LWPOLYLINE", "POLYLINE"):
+                    for a, b in _open_segments(e):
+                        if not (bx0 <= a[0] <= bx1 and by0 <= a[1] <= by1) and not (bx0 <= b[0] <= bx1 and by0 <= b[1] <= by1):
+                            continue
+                        lines.append([[round(a[0] * scale, 3), round(a[1] * scale, 3)],
+                                      [round(b[0] * scale, 3), round(b[1] * scale, 3)]])
+                        if len(lines) >= MAX_RAW_LINES:
+                            truncated = True
+                            break
+                elif t == "CIRCLE":
+                    c, r = e.dxf.center, e.dxf.radius
+                    if bx0 <= c[0] <= bx1 and by0 <= c[1] <= by1:
+                        circles.append({"center": [round(c[0] * scale, 3), round(c[1] * scale, 3)], "radius": round(r * scale, 3)})
+                elif t in ("TEXT", "MTEXT") and len(texts) < MAX_RAW_TEXTS:
+                    ins = e.dxf.insert
+                    if bx0 <= ins[0] <= bx1 and by0 <= ins[1] <= by1:
+                        txt = e.plain_text().strip() if hasattr(e, "plain_text") else str(getattr(e.dxf, "text", "")).strip()
+                        if txt:
+                            texts.append({"text": txt, "position": [round(ins[0] * scale, 3), round(ins[1] * scale, 3)]})
+            except Exception:
+                continue
+        return {"lines": lines, "circles": circles, "texts": texts, "truncated": truncated}
+
     regions = []
     for boundary in chosen_boundaries:
         b_poly = boundary["polygon"]
@@ -375,7 +417,8 @@ def extract(input_path: str) -> dict:
                 "status": "PROPOSED"
             },
             "obstacles": obstacles,
-            "text_labels": region_texts
+            "text_labels": region_texts,
+            "raw_geometry": extract_raw_geometry(minx, miny, maxx, maxy)
         })
 
     regions.sort(key=lambda r: r["boundary"]["area_sqft"], reverse=True)
