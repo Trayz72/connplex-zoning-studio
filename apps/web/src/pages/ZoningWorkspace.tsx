@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import { getProject, Project } from '../api';
 import * as engine from '../services/zoningEngineApi';
 import { ValidationRejectedError } from '../services/zoningEngineApi';
@@ -184,6 +184,18 @@ export const ZoningWorkspace: React.FC = () => {
     return <div style={{ padding: '3rem', textAlign: 'center', color: '#8b949e' }}>Loading workspace…</div>;
   }
 
+  // The intake page already disables "Go to Zoning Canvas" until every
+  // mandatory field is filled, but that was only ever a UI nicety — nothing
+  // stopped a direct URL to /studio on an incomplete project. Verified this
+  // directly: a fresh project with is_intake_complete=false loaded the full
+  // upload/zoning workspace with no gate at all. This contradicts the
+  // spec's own M0 acceptance criterion ("cannot reach the canvas route with
+  // incomplete intake data"), so enforce it here too, not just as a
+  // disabled button.
+  if (project && !project.is_intake_complete && id) {
+    return <Navigate to={`/projects/${id}/intake`} replace />;
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d1117', color: '#f0f6fc', overflow: 'hidden' }}>
       <header style={{ height: '52px', background: '#161b22', borderBottom: '1px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
@@ -200,7 +212,6 @@ export const ZoningWorkspace: React.FC = () => {
             }}>{i + 1}. {s.replace('_', ' ')}</span>
           ))}
         </div>
-        {id && <Link to={`/projects/${id}/canvas`} className="btn btn-secondary" style={{ fontSize: '0.72rem', padding: '4px 10px' }}>View Reference Demo</Link>}
       </header>
 
       <div style={{ flex: 1, overflow: 'auto' }}>

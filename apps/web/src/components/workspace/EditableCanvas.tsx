@@ -17,9 +17,19 @@ interface EditableCanvasProps {
   showCadLinework?: boolean;
 }
 
+// Same hue family per room type as ROOM_FILL in services/zoning-engine/export_pdf.py
+// — saturated here for a dark canvas background, pastel there for a printed white
+// page. Keep both in sync when either changes: before this fix they'd drifted
+// into unrelated colors per room type (e.g. washrooms were purple on-screen but
+// blue in the exported PDF), so the same room read as a different color depending
+// on whether you were looking at the editor or the deliverable.
 const ROOM_COLORS: Record<string, string> = {
-  AUDITORIUM: '#4a7fd6', FOYER: '#4fae5a', FNB: '#c99a3b', WASHROOM: '#9a5fc9',
-  BOX_OFFICE: '#d65f8f', BOH: '#8a8a8a'
+  AUDITORIUM: '#7c6fd6',   // violet
+  FOYER: '#3fb968',        // green
+  FNB: '#d68a3f',          // amber
+  WASHROOM: '#4a90d6',     // blue
+  BOX_OFFICE: '#d65f96',   // magenta
+  BOH: '#8a8a94'           // slate
 };
 
 const HANDLE_SCREEN_PX = 9;       // visible handle size, constant on screen regardless of zoom

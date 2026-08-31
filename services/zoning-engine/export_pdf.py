@@ -28,10 +28,20 @@ MARGIN = 14 * mm
 SIDEBAR_W = 190 * mm
 GAP = 6 * mm
 
+# Same hue family per room type as ROOM_COLORS in
+# apps/web/src/components/workspace/EditableCanvas.tsx — pastel here for a
+# printed white page, saturated there for a dark canvas background. Keep both
+# in sync when either changes (see the note in EditableCanvas.tsx for why).
+# Scoped to exactly the room types layout_engine.py's SUPPORT_ZONE_DEFAULTS
+# and auditorium placement actually produce — CAFE/STORE were dead entries
+# for room types the real pipeline never generates.
 ROOM_FILL = {
-    "AUDITORIUM": HexColor("#cdb8e8"), "FOYER": HexColor("#d9f5d0"), "FNB": HexColor("#f3b8a8"),
-    "WASHROOM": HexColor("#bcd9f0"), "BOX_OFFICE": HexColor("#ffffff"), "BOH": HexColor("#e6b8d9"),
-    "CAFE": HexColor("#f0b878"), "STORE": HexColor("#d9d9d9")
+    "AUDITORIUM": HexColor("#d9d2f0"),  # violet
+    "FOYER": HexColor("#cdefd6"),       # green
+    "FNB": HexColor("#f5dcb8"),         # amber
+    "WASHROOM": HexColor("#c9e0f5"),    # blue
+    "BOX_OFFICE": HexColor("#f5d6e6"),  # magenta
+    "BOH": HexColor("#dcdce2"),         # slate
 }
 
 COMPANY_NAME = "CONNPLEX SMART THEATRES"
