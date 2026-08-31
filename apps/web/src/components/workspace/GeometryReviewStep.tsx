@@ -102,6 +102,14 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
           <div style={{ fontSize: '0.72rem', color: CONF_COLOR[activeRegion.boundary.confidence], marginBottom: '10px' }}>
             Confidence: {activeRegion.boundary.confidence.toUpperCase()} (largest un-nested closed polyline{activeRegion.boundary.layer.toLowerCase().includes('wall') ? ', on a wall-hinted layer' : ''})
           </div>
+          {activeRegion.boundary.note && (
+            <div style={{
+              fontSize: '0.72rem', color: '#f0f6fc', background: 'rgba(248,81,73,0.12)',
+              border: '1px solid rgba(248,81,73,0.4)', borderRadius: '6px', padding: '8px 10px', marginBottom: '10px'
+            }}>
+              ⚠ {activeRegion.boundary.note}
+            </div>
+          )}
           {activeRegion.boundary.status === 'CONFIRMED' ? (
             <span style={{ color: '#3fb950', fontSize: '0.8rem', fontWeight: 700 }}>✓ Confirmed</span>
           ) : (

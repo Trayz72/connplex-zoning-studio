@@ -1,6 +1,6 @@
 # STATUS
 
-Last updated: 2026-08-31 (tenth session, same day — real selection-persistence bug fix, color-coding removed from CAD/DXF/DWG and canvas)
+Last updated: 2026-08-31 (eleventh session, same day — deployed to Render, fixed a real "Run Auto-Layout" hang on real-world files)
 
 ## Is this deliverable? Can Connplex's architecture team start using it for zoning and seat counts?
 
@@ -68,6 +68,62 @@ day-to-day" rather than re-testing the happy path:
 - Real vector logo artwork (still a redraw, not their actual file — see the PDF
   format section below) and exact-format DWG template parity remain open, as
   before.
+
+## Update: deployed to Render, fixed a real "Run Auto-Layout" hang
+
+The app is now live: pushed to GitHub (`Trayz72/connplex-zoning-studio`) and
+deployed to Render's free tier as three services (`connplex-web` static
+site, `connplex-project`, `connplex-zoning-engine`). Before that could work
+at all, three real cross-origin issues needed fixing — see the commit
+"Prepare for cross-origin hosting" for detail (env-driven API base URLs,
+`sameSite:'none'` cookies for cross-site auth, locked-down CORS). All
+verified working live: login, dashboard, and the deployed frontend calling
+both deployed backends.
+
+### Fixed: a real "stuck on Running..." bug, found from a live user report with real files
+
+The user hit an actual hang on the deployed app — "Run Auto-Layout" spun on
+"Running..." forever on a real uploaded file. Reproduced locally with the
+exact files (`theater.dxf`/`theater_clean.dxf`) rather than guessing, and
+found two compounding real bugs:
+
+1. **The boundary-detection heuristic picked a drawing sheet-border/title-
+   block frame instead of the real building outline.** The file's
+   `$INSUNITS` was unspecified, and "largest closed polyline" — which
+   normally works fine — latched onto a frame several **million** square
+   feet in size (one candidate was 16.8M sqft; for scale, that's larger
+   than the Pentagon). Worse, the nesting-collapse logic then treated the
+   real building outline, nested inside that frame, as suppressed rather
+   than its own candidate. Fixed: an oversized candidate (>500,000 sqft,
+   a deliberately generous bound — even IKEA's biggest stores are under
+   that) no longer suppresses real candidates nested inside it, gets
+   flagged `confidence: low` with an explicit on-screen warning explaining
+   what likely happened, and is sorted after plausible-sized regions so an
+   architect doesn't land on it by default. Also fixed a real, separate gap
+   found while building this: the backend already computed this kind of
+   warning `note` field for boundaries (previously only for reconstructed-
+   from-line-segments boundaries) but **the frontend never rendered it
+   anywhere** — added it to `GeometryReviewStep.tsx`, and fixed the
+   TypeScript type, which was missing the `note` field and `'low'` as a
+   valid confidence value entirely.
+2. **Even with a huge boundary confirmed, the auto-layout grid-scanner had
+   no upper bound on how long it could run.** At the fixed `GRID_STEP_FT`
+   of 2.0 ft, a multi-million-sqft bounding box means millions of grid
+   positions, each doing a real shapely polygon containment check — for
+   multiple auditorium presets, times up to 4 auditoriums, times 2
+   strategies. This is what "Running..." forever actually was. Fixed with
+   an adaptive grid step (`_grid_step_for_bbox`) that scales up once a
+   boundary would need more than 40,000 cells, so a pathological boundary
+   degrades to a coarse, fast, honest result instead of running
+   indefinitely — a defensive fix that holds regardless of *why* a boundary
+   might end up huge, not just this specific root cause.
+
+Verified, not assumed: re-ran the exact same file that hung before. The
+465,659 sqft region (now offered first) completes in **0.26s**. Even the
+worst case — deliberately confirming one of the 16.8M sqft frame regions
+despite the warning — now completes in **1.7s** instead of hanging.
+Re-verified the real Dhule file still produces the exact same seat counts
+as every prior session (666/240 seats) — no regression on the normal case.
 
 ## Update: real selection-persistence bug, and color-coding removed from CAD/DXF/DWG + canvas
 

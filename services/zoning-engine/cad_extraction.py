@@ -34,6 +34,19 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from convert import convert as oda_convert  # noqa: E402  (reuses the proven, generic ODA wrapper)
 
 MIN_BOUNDARY_AREA_SQFT = 150.0     # below this, a closed shape is furniture/fixtures, not a floor boundary
+# Above this, a closed shape is implausible as a single real indoor floor
+# plate — found via a real uploaded file whose $INSUNITS was unspecified,
+# where the "largest closed polyline" heuristic latched onto a drawing
+# sheet-border/title-block frame (a very common real DXF artifact) instead
+# of the actual building outline, producing a "boundary" of several million
+# sqft. For scale: even IKEA's largest stores, among the biggest single-
+# floor retail plates that exist, run well under 500,000 sqft. Not treated
+# as disqualifying — the architect still sees and can confirm it if it's
+# genuinely intended — but it's flagged low-confidence with an explicit
+# note, sorted after plausible candidates, and (see the nesting-collapse
+# loop below) no longer allowed to swallow smaller real candidates nested
+# inside it.
+MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT = 500000.0
 MAX_OBSTACLE_AREA_RATIO = 0.10     # an "obstacle" larger than 10% of its boundary's area is probably itself a room, not a column
 MIN_OBSTACLE_AREA_SQFT = 0.3       # ignore microscopic closed shapes (hatch fragments, tick marks)
 CONTAINMENT_THRESHOLD = 0.6        # fraction of an obstacle's area that must fall inside a boundary to count as "in" it
@@ -301,10 +314,19 @@ def extract(input_path: str) -> dict:
     # Collapse nested/overlapping candidates: keep the largest in each disjoint cluster
     # as a boundary; anything mostly-contained inside an already-picked boundary is not
     # itself a separate boundary (it becomes an obstacle/room candidate in pass 3).
+    #
+    # Exception: an implausibly large candidate (see MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT —
+    # almost always a sheet-border/title-block frame, not a real floor) does not get to
+    # swallow whatever real candidate is nested inside it. Without this, a file with a
+    # frame drawn around the actual building outline would silently lose that real
+    # boundary entirely — demoted to an "obstacle" of the frame instead of being
+    # offered as its own selectable region.
     chosen_boundaries = []
     for cand in boundary_candidates:
         nested_in_existing = False
         for b in chosen_boundaries:
+            if b["area_sqft"] > MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT:
+                continue
             inter = cand["polygon"].intersection(b["polygon"]).area
             if cand["polygon"].area > 0 and inter / cand["polygon"].area > CONTAINMENT_THRESHOLD:
                 nested_in_existing = True
@@ -429,6 +451,19 @@ def extract(input_path: str) -> dict:
         else:
             boundary_layer_conf = "high" if has_wall_hint else "medium"
 
+        is_implausibly_large = b_area > MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT
+        if is_implausibly_large:
+            boundary_layer_conf = "low"
+            plausibility_note = (
+                f"This shape is {b_area:,.0f} sqft — far larger than any real single indoor "
+                f"floor plate. Most likely a drawing sheet border or title-block frame was "
+                f"picked up instead of the actual building outline (common when a DXF file's "
+                f"units aren't specified — see units.needs_user_confirmation). Check the other "
+                f"candidate regions below before confirming this one."
+            )
+        else:
+            plausibility_note = None
+
         regions.append({
             "region_id": f"region-{uuid.uuid4().hex[:8]}",
             "boundary": {
@@ -442,9 +477,12 @@ def extract(input_path: str) -> dict:
                     "max_x": round(maxx * scale, 2), "max_y": round(maxy * scale, 2)
                 },
                 "confidence": boundary_layer_conf,
-                "note": ("Reconstructed from discrete wall line segments — not one explicit closed "
-                          "polyline in the source file. Verify this boundary carefully before confirming."
-                          if is_reconstructed else None),
+                "note": " ".join(filter(None, [
+                    ("Reconstructed from discrete wall line segments — not one explicit closed "
+                     "polyline in the source file. Verify this boundary carefully before confirming."
+                     if is_reconstructed else None),
+                    plausibility_note
+                ])) or None,
                 "status": "PROPOSED"
             },
             "obstacles": obstacles,
@@ -452,7 +490,15 @@ def extract(input_path: str) -> dict:
             "raw_geometry": extract_raw_geometry(minx, miny, maxx, maxy)
         })
 
-    regions.sort(key=lambda r: r["boundary"]["area_sqft"], reverse=True)
+    # Plausible-sized regions first (largest among them first, same as before),
+    # implausibly-large ones (see MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT) pushed to the
+    # end — the frontend defaults to reviewing regions[0], so an oversized
+    # sheet-border/frame candidate should never be what an architect lands on
+    # first by default.
+    regions.sort(key=lambda r: (
+        r["boundary"]["area_sqft"] > MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT,
+        -r["boundary"]["area_sqft"]
+    ))
 
     return {
         "schema_version": "1.0",

@@ -39,6 +39,31 @@ import seat_engine
 GRID_STEP_FT = 2.0
 AISLE_CLEARANCE_FT = 3.5   # matches CENTRAL_AISLE_MIN_FT — used generically as the minimum gap between placed zones
 OBSTACLE_BUFFER_FT = 0.5
+MAX_SCAN_CELLS = 40000     # see _grid_step_for_bbox — real crash found via real testing, not a hypothetical
+
+
+def _grid_step_for_bbox(bbox):
+    """A boundary this scan runs against is normally a real, human-scale
+    floor plate (tens to low thousands of sqft), where GRID_STEP_FT=2.0 is
+    fine-grained enough to matter and cheap enough to run. Real testing with
+    a real uploaded file (a DXF whose $INSUNITS was unspecified, so the
+    boundary heuristic latched onto a sheet-border/title-block frame instead
+    of the actual building outline — see cad_extraction.py's
+    MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT for the actual fix) produced a bounding
+    box millions of square feet in size. At GRID_STEP_FT=2.0 that's millions
+    of grid cells, each doing a real shapely polygon containment check —
+    the "Run Auto-Layout" button never returning was this, not a hang bug in
+    the request/response plumbing. Scaling the step up so the total cell
+    count stays bounded means a pathological boundary degrades to a coarse,
+    fast, honest "doesn't fit" instead of running for hours."""
+    minx, miny, maxx, maxy = bbox
+    w, h = maxx - minx, maxy - miny
+    if w <= 0 or h <= 0:
+        return GRID_STEP_FT
+    natural_cells = (w / GRID_STEP_FT) * (h / GRID_STEP_FT)
+    if natural_cells <= MAX_SCAN_CELLS:
+        return GRID_STEP_FT
+    return GRID_STEP_FT * math.sqrt(natural_cells / MAX_SCAN_CELLS)
 
 SUPPORT_ZONE_DEFAULTS = [
     # (room_type, display_name, target_area_sqft, min_area_sqft, source)
@@ -73,6 +98,7 @@ def _scan_place(usable_poly, placed_polys, w, h, bbox, allow_rotate=True):
     """First-fit deterministic scan: returns (x, y, w_used, h_used) of the first
     valid placement, or None. Tries both orientations if allow_rotate."""
     minx, miny, maxx, maxy = bbox
+    step = _grid_step_for_bbox(bbox)
     orientations = [(w, h)]
     if allow_rotate and abs(w - h) > 1e-6:
         orientations.append((h, w))
@@ -91,8 +117,8 @@ def _scan_place(usable_poly, placed_polys, w, h, bbox, allow_rotate=True):
                 if any(clearance.intersects(p) for p in placed_polys):
                     continue
                 return x, y, ow, oh
-            x += GRID_STEP_FT
-        y += GRID_STEP_FT
+            x += step
+        y += step
     return None
 
 
@@ -118,6 +144,7 @@ def _scan_place_best(usable_poly, placed_polys, w, h, bbox, allow_rotate=True, s
     it, per Product Principle #7 (never silently invent a placement that
     contradicts real geometry, but never silently drop a room either)."""
     minx, miny, maxx, maxy = bbox
+    step = _grid_step_for_bbox(bbox)
     orientations = [(w, h)]
     if allow_rotate and abs(w - h) > 1e-6:
         orientations.append((h, w))
@@ -139,8 +166,8 @@ def _scan_place_best(usable_poly, placed_polys, w, h, bbox, allow_rotate=True, s
                 candidates.append((x, y, ow, oh))
                 if len(candidates) >= max_candidates:
                     break
-            x += GRID_STEP_FT
-        y += GRID_STEP_FT
+            x += step
+        y += step
 
     if not candidates:
         return None, False

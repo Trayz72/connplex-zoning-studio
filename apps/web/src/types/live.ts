@@ -22,10 +22,17 @@ export interface TextLabel {
 export interface Boundary {
   source_handle: string;
   layer: string;
+  source: 'explicit' | 'reconstructed';
   area_sqft: number;
   points_ft: number[][];
   bounding_box_ft: { min_x: number; min_y: number; max_x: number; max_y: number };
-  confidence: 'high' | 'medium';
+  confidence: 'high' | 'medium' | 'low';
+  /** Set when this boundary needs a second look before confirming — e.g.
+   * reconstructed from discrete wall segments rather than one explicit
+   * closed polyline, or implausibly large (almost always a sheet-border/
+   * title-block frame mistaken for the real floor outline). Was already
+   * computed by the backend but never actually rendered anywhere. */
+  note: string | null;
   status: 'PROPOSED' | 'CONFIRMED';
 }
 
