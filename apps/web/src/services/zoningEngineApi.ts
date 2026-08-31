@@ -1,8 +1,15 @@
 import {
-  GeometryResult, GeometryRegion, Requirements, ZoningRunResult, EditableLayout, ValidationError
+  GeometryResult, GeometryRegion, Requirements, ZoningRunResult, EditableLayout, ValidationError, SelectableSeatType
 } from '../types/live';
 
 const BASE = '/api/projects';
+
+export async function getSeatTypes(): Promise<SelectableSeatType[]> {
+  const res = await fetch('/api/seat-types');
+  if (!res.ok) throw new Error('Failed to load seat types');
+  const data = await res.json();
+  return data.seat_types;
+}
 
 export class ValidationRejectedError extends Error {
   errors: ValidationError[];

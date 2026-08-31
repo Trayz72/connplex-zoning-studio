@@ -3,13 +3,14 @@ import { useParams, Link } from 'react-router-dom';
 import { getProject, Project } from '../api';
 import * as engine from '../services/zoningEngineApi';
 import { ValidationRejectedError } from '../services/zoningEngineApi';
-import { GeometryResult, GeometryRegion, Requirements, EditableLayout, LiveRoom, ValidationError } from '../types/live';
+import { GeometryResult, GeometryRegion, Requirements, EditableLayout, LiveRoom, ValidationError, SelectableSeatType, SeatConfig } from '../types/live';
 import { UploadStep } from '../components/workspace/UploadStep';
 import { GeometryReviewStep } from '../components/workspace/GeometryReviewStep';
 import { RequirementsStep } from '../components/workspace/RequirementsStep';
 import { RunStep } from '../components/workspace/RunStep';
 import { EditableCanvas } from '../components/workspace/EditableCanvas';
 import { ExportPanel } from '../components/workspace/ExportPanel';
+import { SeatConfigPanel } from '../components/workspace/SeatConfigPanel';
 
 type Step = 'LOADING' | 'UPLOAD' | 'GEOMETRY_REVIEW' | 'REQUIREMENTS' | 'RUN' | 'EDIT';
 
@@ -37,6 +38,12 @@ export const ZoningWorkspace: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [snapFt, setSnapFt] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [seatTypes, setSeatTypes] = useState<SelectableSeatType[]>([]);
+  const [applyingSeatConfig, setApplyingSeatConfig] = useState(false);
+
+  useEffect(() => {
+    engine.getSeatTypes().then(setSeatTypes).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -143,6 +150,14 @@ export const ZoningWorkspace: React.FC = () => {
     setSelectedRoomId(null);
   };
 
+  const applySeatConfig = async (seatConfig: SeatConfig) => {
+    if (!layout || !selectedRoomId) return;
+    setApplyingSeatConfig(true);
+    const rooms = layout.rooms.map(r => r.room_id === selectedRoomId ? { ...r, seat_config: seatConfig } : r);
+    await persistLayout(rooms);
+    setApplyingSeatConfig(false);
+  };
+
   const selectedRoom = layout?.rooms.find(r => r.room_id === selectedRoomId) || null;
 
   if (step === 'LOADING') {
@@ -225,18 +240,13 @@ export const ZoningWorkspace: React.FC = () => {
                 ))}
               </div>
 
-              {selectedRoom && (
+              {selectedRoom && selectedRoom.room_type.startsWith('AUDITORIUM') && seatTypes.length > 0 && (
+                <SeatConfigPanel room={selectedRoom} seatTypes={seatTypes} onApply={applySeatConfig} applying={applyingSeatConfig} />
+              )}
+              {selectedRoom && !selectedRoom.room_type.startsWith('AUDITORIUM') && (
                 <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
                   <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '8px' }}>{selectedRoom.display_name}</div>
                   <div style={{ fontSize: '0.78rem', color: '#f0f6fc' }}>{selectedRoom.area_sqft} sqft ({selectedRoom.width_ft} × {selectedRoom.depth_ft} ft)</div>
-                  {selectedRoom.seat_estimate && (
-                    <div style={{ fontSize: '0.78rem', color: '#58a6ff', marginTop: '4px' }}>{selectedRoom.seat_estimate.seat_count} seats ({selectedRoom.seat_estimate.rows} rows × {selectedRoom.seat_estimate.seats_per_row}/row, Sofa Slider)</div>
-                  )}
-                  {selectedRoom.preset_fit && (
-                    <div style={{ fontSize: '0.72rem', color: selectedRoom.preset_fit.matches_preset ? '#3fb950' : '#d29922', marginTop: '4px' }}>
-                      {selectedRoom.preset_fit.matches_preset ? `Meets ${selectedRoom.preset_fit.matches_preset} preset` : selectedRoom.preset_fit.status.replace(/_/g, ' ')}
-                    </div>
-                  )}
                 </div>
               )}
 

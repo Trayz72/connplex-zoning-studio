@@ -73,6 +73,21 @@ export interface PresetFit {
   shortfall_vs_smallest_preset_sqft?: number;
 }
 
+export interface SelectableSeatType {
+  id: string;
+  name: string;
+  category: string;
+  chart_column: string;
+  seat_width_ft: number;
+  row_step_ft: number;
+}
+
+export interface SeatConfig {
+  primary_seat_type_id: string;
+  secondary_seat_type_id: string | null;
+  primary_ratio_pct: number;
+}
+
 export interface LiveRoom {
   room_id: string;
   room_type: string;
@@ -85,6 +100,7 @@ export interface LiveRoom {
   preset_id?: string;
   preset_name?: string;
   seat_estimate?: SeatEstimate;
+  seat_config?: SeatConfig;
   preset_fit?: PresetFit;
   area_basis_note?: string;
   shrink_note?: string;

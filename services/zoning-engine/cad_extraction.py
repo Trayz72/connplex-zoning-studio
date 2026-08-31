@@ -23,8 +23,12 @@ import math
 import uuid
 
 import ezdxf
-from shapely.geometry import Polygon
+import ezdxf.recover
+from collections import Counter
+from ezdxf.lldxf.const import DXFStructureError
+from shapely.geometry import Polygon, LineString
 from shapely.validation import make_valid
+from shapely.ops import polygonize
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "cad-interop"))
 from convert import convert as oda_convert  # noqa: E402  (reuses the proven, generic ODA wrapper)
@@ -99,6 +103,107 @@ def _layer_hint_score(layer_name, hints):
     return any(h in name for h in hints)
 
 
+def _open_segments(e):
+    """Break any line-like entity into individual 2-point segments, in drawing
+    units. Covers the very common real-world case of a boundary drawn as
+    discrete wall LINE segments rather than one closed polyline — the same
+    'composite wall segments, no single closed polyline' situation the master
+    context notes even Connplex's own Dhule basement/ground floors hit."""
+    t = e.dxftype()
+    try:
+        if t == "LINE":
+            s, end = e.dxf.start, e.dxf.end
+            return [((s[0], s[1]), (end[0], end[1]))]
+        if t == "LWPOLYLINE":
+            pts = [(float(p[0]), float(p[1])) for p in e.get_points()]
+            segs = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
+            if e.closed and len(pts) >= 2:
+                segs.append((pts[-1], pts[0]))
+            return segs
+        if t == "POLYLINE":
+            pts = [(float(v.dxf.location[0]), float(v.dxf.location[1])) for v in e.vertices]
+            segs = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
+            if e.is_closed and len(pts) >= 2:
+                segs.append((pts[-1], pts[0]))
+            return segs
+    except Exception:
+        return []
+    return []
+
+
+def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_drawing_units):
+    """Chain together every LINE/open-polyline segment in the drawing (via
+    shapely's polygonize, which finds closed rings in an arbitrary network of
+    line segments) to recover boundaries that exist as discrete wall segments
+    rather than one explicit closed polyline. Returns candidate shapes in the
+    same shape as the explicit-closed-shape pass, tagged source="reconstructed"
+    with lower confidence and the contributing layer names for provenance —
+    this is an inference, not something present verbatim in the file, and must
+    be reviewed like any other uncertain detection.
+
+    Performance note: a real architectural drawing can have tens of thousands
+    of LINE segments (dimension marks, hatching, furniture). polygonize() over
+    all of them is fine (GEOS's planar-graph algorithm), but naively attributing
+    each resulting polygon back to a source layer by testing it against every
+    segment is O(polygons x segments) and was measured to hang on a real 800+
+    entity drawing. Fixed with a spatial index (STRtree) for that lookup, and
+    by discarding sub-threshold polygons (found: hundreds of tiny ones from
+    hatching/furniture) before doing any attribution work at all."""
+    from shapely.strtree import STRtree
+
+    segments = []
+    layer_by_segment = []
+    for e in entities:
+        if str(e.dxf.handle) in already_closed_handles:
+            continue  # already a closed shape in its own right; don't double-count its edges
+        for a, b in _open_segments(e):
+            if a == b:
+                continue
+            segments.append(LineString([a, b]))
+            layer_by_segment.append(str(e.dxf.layer))
+
+    if len(segments) < 3:
+        return []
+
+    candidate_polys = [p for p in polygonize(segments) if p.is_valid and p.area >= min_area_drawing_units]
+    if not candidate_polys:
+        return []
+
+    tree = STRtree(segments)
+    results = []
+    for poly in candidate_polys:
+        boundary = poly.exterior
+        nearby_idx = tree.query(boundary.buffer(1e-6))
+        touching_layers = [layer_by_segment[i] for i in nearby_idx if segments[i].distance(boundary) < 1e-6]
+        dominant_layer = Counter(touching_layers).most_common(1)[0][0] if touching_layers else "unknown"
+        results.append({
+            "handle": f"reconstructed-{uuid.uuid4().hex[:8]}",
+            "layer": dominant_layer,
+            "dxftype": "RECONSTRUCTED_FROM_LINES",
+            "source": "reconstructed",
+            "polygon": poly,
+        })
+    return results
+
+
+def _read_dxf_with_recovery(dxf_path: str):
+    """Real-world DXF files are frequently not fully spec-compliant (missing
+    subclass markers, out-of-order sections, etc.) — a strict reader failing on
+    the first defect would make this extractor far less generic than it claims
+    to be. Try a normal strict read first (fast, and gives the cleanest data);
+    if that raises a structural error, fall back to ezdxf's recovery reader,
+    which tolerates and audits around many real-world malformations. Only if
+    both genuinely fail do we give up — never silently return partial garbage."""
+    try:
+        return ezdxf.readfile(dxf_path), None
+    except DXFStructureError as e:
+        doc, auditor = ezdxf.recover.readfile(dxf_path)
+        note = (f"This DXF was not fully spec-compliant ({e}); recovered {len(auditor.errors)} "
+                f"structural issue(s) automatically. Geometry below may be incomplete near the "
+                f"affected entities — review carefully.")
+        return doc, note
+
+
 def extract(input_path: str) -> dict:
     """Main entry point. input_path may be .dwg or .dxf. Returns canonical geometry."""
     ext = os.path.splitext(input_path)[1].lower()
@@ -113,7 +218,7 @@ def extract(input_path: str) -> dict:
     else:
         raise ValueError(f"Unsupported CAD file extension '{ext}'. Only .dwg and .dxf are supported.")
 
-    doc = ezdxf.readfile(dxf_path)
+    doc, recovery_note = _read_dxf_with_recovery(dxf_path)
     msp = doc.modelspace()
     units = _get_units(doc)
     scale = units["feet_per_drawing_unit"] or 1.0  # if unspecified, extract in raw units and flag for confirmation
@@ -122,6 +227,7 @@ def extract(input_path: str) -> dict:
 
     # --- Pass 1: find every closed shape and its polygon/area (in drawing units) ---
     closed_shapes = []
+    closed_handles = set()
     for e in entities:
         pts = _closed_points(e)
         if not pts:
@@ -133,14 +239,35 @@ def extract(input_path: str) -> dict:
             "handle": str(e.dxf.handle),
             "layer": str(e.dxf.layer),
             "dxftype": e.dxftype(),
+            "source": "explicit",
             "polygon": poly,
             "area_sqft": poly.area * (scale ** 2),
             "points_ft": [[round(x * scale, 3), round(y * scale, 3)] for x, y in poly.exterior.coords]
         })
+        closed_handles.add(str(e.dxf.handle))
 
-    # --- Pass 2: boundary candidates = large closed shapes, largest first ---
+    # --- Pass 1b: reconstruct additional boundary candidates from discrete wall
+    # line segments (LINE/open-polyline entities that together form a closed
+    # loop but aren't one explicit closed shape in the source file) ---
+    min_area_drawing_units = MIN_OBSTACLE_AREA_SQFT / max(scale ** 2, 1e-9)  # cheap pre-filter, tightened again in feet below
+    for rec in _reconstruct_polygons_from_lines(entities, closed_handles, min_area_drawing_units):
+        poly = rec["polygon"]
+        closed_shapes.append({
+            "handle": rec["handle"], "layer": rec["layer"], "dxftype": rec["dxftype"], "source": "reconstructed",
+            "polygon": poly, "area_sqft": poly.area * (scale ** 2),
+            "points_ft": [[round(x * scale, 3), round(y * scale, 3)] for x, y in poly.exterior.coords]
+        })
+
+    # --- Pass 2: boundary candidates = large closed shapes, largest first.
+    # CIRCLE-derived shapes are excluded from *boundary* candidacy — floor
+    # plates are essentially never literally circular, and a large circle is
+    # much more likely to be a door-swing arc or an annotation than a real
+    # boundary (found via real testing: a door-swing CIRCLE was large enough to
+    # get mistaken for a second floor region). Circles remain eligible as
+    # *obstacles* (columns are often drawn as circles) via the pass below,
+    # which is unaffected by this filter. ---
     boundary_candidates = sorted(
-        [s for s in closed_shapes if s["area_sqft"] >= MIN_BOUNDARY_AREA_SQFT],
+        [s for s in closed_shapes if s["area_sqft"] >= MIN_BOUNDARY_AREA_SQFT and s["dxftype"] != "CIRCLE"],
         key=lambda s: s["area_sqft"],
         reverse=True
     )
@@ -222,13 +349,19 @@ def extract(input_path: str) -> dict:
                          if (minx * scale) <= t["position_ft"][0] <= (maxx * scale)
                          and (miny * scale) <= t["position_ft"][1] <= (maxy * scale)]
 
-        boundary_layer_conf = "high" if _layer_hint_score(boundary["layer"], BOUNDARY_LAYER_HINTS) else "medium"
+        is_reconstructed = boundary.get("source") == "reconstructed"
+        has_wall_hint = _layer_hint_score(boundary["layer"], BOUNDARY_LAYER_HINTS)
+        if is_reconstructed:
+            boundary_layer_conf = "medium" if has_wall_hint else "low"
+        else:
+            boundary_layer_conf = "high" if has_wall_hint else "medium"
 
         regions.append({
             "region_id": f"region-{uuid.uuid4().hex[:8]}",
             "boundary": {
                 "source_handle": boundary["handle"],
                 "layer": boundary["layer"],
+                "source": boundary.get("source", "explicit"),
                 "area_sqft": round(b_area, 2),
                 "points_ft": boundary["points_ft"],
                 "bounding_box_ft": {
@@ -236,6 +369,9 @@ def extract(input_path: str) -> dict:
                     "max_x": round(maxx * scale, 2), "max_y": round(maxy * scale, 2)
                 },
                 "confidence": boundary_layer_conf,
+                "note": ("Reconstructed from discrete wall line segments — not one explicit closed "
+                          "polyline in the source file. Verify this boundary carefully before confirming."
+                          if is_reconstructed else None),
                 "status": "PROPOSED"
             },
             "obstacles": obstacles,
@@ -248,6 +384,7 @@ def extract(input_path: str) -> dict:
         "schema_version": "1.0",
         "source_filename": os.path.basename(input_path),
         "conversion_note": conversion_note,
+        "recovery_note": recovery_note,
         "units": units,
         "extraction_method": "generic-geometric (largest-closed-polyline heuristic + containment-based obstacle detection)",
         "total_entities_scanned": len(entities),

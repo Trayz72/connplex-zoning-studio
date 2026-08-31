@@ -1,6 +1,75 @@
 # STATUS
 
-Last updated: 2026-08-31 (third session, same day — PDF format now matches the real Connplex sheet)
+Last updated: 2026-08-31 (fourth session, same day — seat-mix editing + real-world stress testing)
+
+## Update: per-room seat-type/mix selection at edit time
+
+The architect can now pick a seat type (or mix two types by a front/back row
+ratio) per auditorium *after* zoning, on the canvas. Backend:
+`seat_engine.py` was generalized from a single hardcoded seat type
+(`SLIDER_SOFA`) to work off any registry seat type that has real width + row-
+step data (`selectable_seat_types()` — currently Slider Sofa, Duo Lounger,
+Premium Recliner, Duo Premium Recliner; Front Lounger and the Lunar Lounger
+are excluded because the SOP extract never gave them a row step, and a value
+wasn't invented for them), plus a two-type proportional-depth-split mix
+(explicitly documented as a heuristic, not a claimed company standard — no
+seat-mix ratio rule is decided yet). New endpoint `GET /api/seat-types`; rooms
+now carry an optional `seat_config`; `PUT /layout` recomputes real seat counts
+and the Area/Seat Chart from it. Verified with real API calls: Premium
+Recliner alone gave 72 seats vs. 63 for Slider Sofa in the same room (denser
+footprint, less clearance needed); a 60/40 Sofa/Duo-Lounger mix gave 55 seats
+split 35/20 — all real, computed numbers, not placeholders.
+
+## Update: real-world stress testing found and fixed 4 genuine bugs
+
+Downloaded real DXF floor plans from the internet (not project test data) and
+ran them through the full pipeline to test the "does this work on any floor
+plan" claim honestly, then re-ran the existing regression set (Dhule,
+Vadodara, the synthetic file) to make sure nothing broke. Found and fixed:
+
+1. **A boundary drawn as 5 separate wall LINE segments (no closed polyline at
+   all) produced zero regions.** This is the single most important fix today —
+   it's the same "composite wall segments, no single closed polyline" case
+   that even Connplex's own Dhule basement/ground floors hit (noted in the
+   legacy pipeline's own frozen documentation). `cad_extraction.py` now also
+   reconstructs closed boundaries from a network of line segments via
+   `shapely.ops.polygonize` (`_reconstruct_polygons_from_lines`), tagged
+   `source: "reconstructed"` with lower confidence and an explicit note —
+   never presented with the same certainty as an explicit closed polyline.
+2. **A door-swing arc (a CIRCLE entity) was large enough to get mistaken for
+   its own separate floor region.** Floor plates are essentially never
+   literally circular; circles are now excluded from *boundary* candidacy
+   (still eligible as *obstacles* — columns are often circles).
+3. **The line-reconstruction pass hung indefinitely on the real, complex Dhule
+   file** (1000+ entities) — a naive per-polygon-per-segment layer-attribution
+   loop was O(polygons × segments). Fixed with an STRtree spatial index and by
+   discarding sub-threshold polygons before attribution. Re-verified: Dhule
+   now extracts in 1.8s, Vadodara (the largest file, 2200+ closed shapes) in
+   3.6s — both previously untimed because this bug didn't exist until the
+   reconstruction feature was added, but it's a real fix, not a regression
+   note.
+4. **A malformed DXF (LWPOLYLINE entities missing required coordinate data)
+   crashed with a raw Python traceback if it reached deep enough.** Added an
+   automatic fallback to `ezdxf.recover` for spec-violations that are
+   genuinely recoverable, and confirmed the API still returns a clean 422 with
+   a specific message (not a 500) for the subset that truly aren't — verified
+   with the actual broken file, which even `ezdxf.recover` correctly refuses.
+
+Full regression re-run after all four fixes: Dhule (7 regions, 1.8s), Vadodara
+(63 regions, 3.6s), the synthetic ezdxf file (1 region), and both internet
+files (1 region each, one via reconstruction) all still pass. `theater.dwg`
+(a raw AutoCAD working file, not a finished deliverable) still correctly fails
+at DWG→DXF conversion — confirmed this is a genuine limitation of the free ODA
+File Converter itself (`XData size exceeded`), not something fixable in this
+codebase; the two real production Zoning Layout DWGs convert and extract fine.
+
+**Honest answer to "can zoning be done on any provided floor plan":** yes for
+real architectural CAD output with a discoverable boundary (explicit or
+reconstructable from walls) — verified today on 5 independent real/external
+files plus the 2 production Connplex files. No for files with corrupted
+entity data, or DWGs whose embedded data exceeds what the free ODA converter
+handles (a licensing/tooling question the original spec already flagged, not
+a code gap).
 
 ## Update: PDF export now matches Connplex's real drawing format
 

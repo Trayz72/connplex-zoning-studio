@@ -252,7 +252,13 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
 
     for room in body.rooms:
         if room["room_type"].startswith("AUDITORIUM"):
-            room["seat_estimate"] = seat_engine.estimate_seats(room["width_ft"], room["depth_ft"])
+            cfg = room.get("seat_config") or {}
+            room["seat_estimate"] = seat_engine.estimate_seats(
+                room["width_ft"], room["depth_ft"],
+                primary_seat_type_id=cfg.get("primary_seat_type_id", seat_engine.DEFAULT_SEAT_TYPE_ID),
+                secondary_seat_type_id=cfg.get("secondary_seat_type_id"),
+                primary_ratio_pct=cfg.get("primary_ratio_pct", 100),
+            )
             room["preset_fit"] = seat_engine.best_fit_preset(room["area_sqft"])
 
     boundary_poly = layout_engine.poly_from_points(body.boundary_points_ft)
@@ -366,6 +372,14 @@ def _bump_revision(project_id: str) -> str:
         layout["revision"] = new_rev
         storage.write_json(storage.layout_path(project_id), layout)
     return new_rev
+
+
+@app.get("/api/seat-types")
+def get_seat_types():
+    """Seat types with enough real registry data to drive the packing math —
+    what the architect can choose between when configuring an auditorium's
+    seat mix at edit time (spec Sec 20: seat mix is user-configurable)."""
+    return {"seat_types": seat_engine.selectable_seat_types()}
 
 
 @app.get("/api/health")
