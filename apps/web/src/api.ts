@@ -1,3 +1,14 @@
+export interface CurrentUser {
+  id: string;
+  email: string;
+  is_admin: boolean;
+  created_at: string;
+}
+
+export interface AdminUser extends CurrentUser {
+  project_count: number;
+}
+
 export interface Project {
   id: string;
   project_code: string;
@@ -61,6 +72,52 @@ export async function logout() {
     credentials: 'include'
   });
   return res.json();
+}
+
+/** Throws if there's no valid session — the one source of truth the frontend
+ * has for "am I actually logged in" (nothing checked this before; every page
+ * rendered regardless of session state). */
+export async function getCurrentUser(): Promise<CurrentUser> {
+  const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+  if (!res.ok) {
+    throw new Error('Not logged in');
+  }
+  const data = await res.json();
+  return data.user;
+}
+
+export async function getUsers(): Promise<AdminUser[]> {
+  const res = await fetch(`${API_BASE}/admin/users`, { credentials: 'include' });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: 'Failed to load users' }));
+    throw new Error(error.error || 'Failed to load users');
+  }
+  return res.json();
+}
+
+export async function setUserAdmin(id: string, isAdmin: boolean): Promise<AdminUser> {
+  const res = await fetch(`${API_BASE}/admin/users/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ is_admin: isAdmin })
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: 'Failed to update user' }));
+    throw new Error(error.error || 'Failed to update user');
+  }
+  return res.json();
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/admin/users/${id}`, {
+    method: 'DELETE',
+    credentials: 'include'
+  });
+  if (!res.ok && res.status !== 404) {
+    const error = await res.json().catch(() => ({ error: 'Failed to delete user' }));
+    throw new Error(error.error || 'Failed to delete user');
+  }
 }
 
 export async function getProjects(): Promise<Project[]> {

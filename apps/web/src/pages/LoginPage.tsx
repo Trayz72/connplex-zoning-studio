@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login, register } from '../api';
+import { useAuth } from '../AuthContext';
 
 export const LoginPage: React.FC = () => {
   const [mode, setMode] = useState<'SIGN_IN' | 'CREATE_ACCOUNT'>('SIGN_IN');
@@ -9,6 +10,7 @@ export const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { refresh } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +23,10 @@ export const LoginPage: React.FC = () => {
       } else {
         await register(email, password);
       }
+      // The app-wide auth state was fetched once on first load, before this
+      // login happened — refresh it now so RequireAuth sees the new session
+      // immediately instead of bouncing back to /login on the next render.
+      await refresh();
       navigate('/projects');
     } catch (err: any) {
       setError(err.message || (mode === 'SIGN_IN' ? 'Login failed' : 'Registration failed'));

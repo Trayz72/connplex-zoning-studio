@@ -2,23 +2,17 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import db from '../db.js';
 import { INTAKE_REQUIRED_FIELDS, computeIsIntakeComplete } from '../utils/intake.js';
+import { requireAuth } from '../middleware.js';
 
 const router = Router();
 
-function getAuthenticatedUserId(req) {
-  if (req.cookies && req.cookies.session_user_id) {
-    const user = db.prepare('SELECT id FROM users WHERE id = ?').get(req.cookies.session_user_id);
-    if (user) return user.id;
-  }
-  const headerUserId = req.headers['x-user-id'];
-  if (headerUserId) {
-    const user = db.prepare('SELECT id FROM users WHERE id = ?').get(headerUserId);
-    if (user) return user.id;
-  }
-  const firstUser = db.prepare('SELECT id FROM users ORDER BY created_at ASC LIMIT 1').get();
-  if (firstUser) return firstUser.id;
-  return null;
-}
+// Every route below requires a real session — previously this file resolved
+// identity itself and silently fell back to "the first user in the
+// database" when no session cookie was present, so every one of these
+// endpoints (including list/read of every project) was reachable with zero
+// authentication. That was a bug, not an intentional single-tenant
+// simplification: fixed by requiring requireAuth on the whole router.
+router.use(requireAuth);
 
 function generateNextProjectCode() {
   const rows = db.prepare('SELECT project_code FROM projects').all();
@@ -48,10 +42,7 @@ router.get('/', (req, res) => {
 
 // POST /projects - create a project
 router.post('/', (req, res) => {
-  const userId = getAuthenticatedUserId(req);
-  if (!userId) {
-    return res.status(401).json({ error: 'Unauthorized. Please log in first.' });
-  }
+  const userId = req.user.id;
 
   const id = crypto.randomUUID();
   const project_code = generateNextProjectCode();

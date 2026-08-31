@@ -1,6 +1,6 @@
 # STATUS
 
-Last updated: 2026-08-31 (seventh session, same day — dashboard cleanup, project delete, CAD classification accuracy)
+Last updated: 2026-08-31 (eighth session, same day — real authentication, admin/user management, brutal-testing pass)
 
 ## Is this deliverable? Can Connplex's architecture team start using it for zoning and seat counts?
 
@@ -68,6 +68,242 @@ day-to-day" rather than re-testing the happy path:
 - Real vector logo artwork (still a redraw, not their actual file — see the PDF
   format section below) and exact-format DWG template parity remain open, as
   before.
+
+## Update: real authentication, admin/user management, brutal-testing pass
+
+Triggered by the user reporting they couldn't log in or register. Root cause
+of *that specific* symptom: the backend services (`services/project`,
+`services/zoning-engine`) had been stopped at the end of the previous
+session and nobody had restarted them — there was no actual login bug at
+that moment. **This is now a standing operational risk worth naming
+explicitly: this app has no persistent hosting yet (see "Not deployed
+anywhere" below), so every session that stops the dev processes leaves the
+app unreachable until someone restarts them by hand.** Don't treat "restart
+the two services" as a one-off fix; it needs to stop being manual (see
+Punch List, Critical, item 1).
+
+Investigating "why can't I log in" further surfaced something much more
+important than that one symptom, though: **authentication was almost
+entirely decorative.**
+
+### Fixed: authentication was bypassable, not just occasionally broken
+
+- `services/project/src/routes/projects.js` resolved the current user with
+  a function that **silently fell back to "the first user ever created in
+  the database" whenever no session cookie was present.** Every project
+  list/read/create/update/delete endpoint was reachable with zero
+  authentication — anyone with network access to port 3001 could see and
+  modify every project without ever logging in. This was a real bug, not a
+  documented "single-tenant simplification" — nothing in the spec or prior
+  session notes called for this. Fixed: `requireAuth` middleware
+  (`services/project/src/middleware.js`) now rejects with a real 401 when
+  there's no valid session, applied to the entire `/projects` router and
+  the new `/admin` router.
+- **The frontend had no route guard at all.** `/projects`,
+  `/projects/:id/intake`, `/projects/:id/studio` all rendered — and made API
+  calls — whether or not anyone was logged in. Combined with the bug above,
+  logging in was, practically speaking, optional. Fixed: `AuthContext.tsx` +
+  a `RequireAuth` wrapper in `App.tsx` that checks a real session via the
+  new `GET /api/pm/auth/me` endpoint and redirects to `/login` otherwise.
+  Verified live: cleared the session, navigated straight to `/projects` and
+  `/admin`, confirmed both bounce to `/login`; confirmed `/projects` returns
+  a real 401 with no cookie via direct `curl`, not just a UI-level redirect.
+- **Email matching was case-sensitive** (`auth.js` compared raw
+  `req.body.email` against the stored value). Registering as
+  `Jane@Firm.com` and later logging in as `jane@firm.com` — a completely
+  ordinary thing for a real person to do — silently failed with "Invalid
+  email or password." Reproduced directly (not assumed): registered
+  `MixedCase@Example.com`, logged in as `mixedcase@EXAMPLE.com`, watched it
+  fail before the fix and succeed after. This is a second, very plausible
+  explanation for "why can't I log in," independent of the services being
+  down. Fixed by normalizing (trim + lowercase) email on both register and
+  login. **Not retroactive**: any account created before this fix keeps
+  whatever casing it was originally registered with — real accounts here
+  (`test@connplex.com`, `architect2@connplex.com`) both happen to already be
+  lowercase, so this doesn't affect them, but it's worth knowing if a
+  future account written directly to the DB (not through the API) ever has
+  mixed case.
+
+### Added: admin account + user management
+
+- `users.is_admin` (schema + migration for the existing DB — SQLite has no
+  `ADD COLUMN IF NOT EXISTS`, handled by checking `PRAGMA table_info` first).
+- The very first account ever created in a database with no admin yet is
+  auto-promoted to admin on server start (standard self-hosted-tool
+  bootstrap pattern) — in every environment this project has run in so far,
+  that's the seeded `test@connplex.com`. Confirmed live: on this session's
+  DB, `test@connplex.com` came up `is_admin: true` automatically.
+- `services/project/src/routes/admin.js` (mounted at `/api/pm/admin`, admin-
+  only): `GET /users` (every account + how many projects each created),
+  `PATCH /users/:id` (promote/demote — refuses to demote the last remaining
+  admin, verified live: attempted it, got a 409 with a clear message),
+  `DELETE /users/:id` (refuses to delete yourself while logged in as that
+  account, and refuses to delete a user who still owns projects rather than
+  either silently failing on the FK constraint or silently orphaning their
+  data — verified both refusals live).
+- `apps/web/src/pages/AdminPage.tsx` at `/admin`: a real table, promote/
+  revoke and delete-with-inline-confirm (same pattern as project delete).
+  Verified live in the browser as both an admin (full table, actions work)
+  and a fresh non-admin account (clean "you don't have admin access" state,
+  not a crash or a blank table).
+- Navbar (dashboard) now shows who's logged in, an "Admin" badge, and a
+  "Manage Users" link — only rendered for an actual admin.
+
+### Fixed: two more real bugs found by deliberately trying to break things
+
+- **A `ZeroDivisionError` crashed every zoning run against a region too
+  small/oddly-shaped to fit even the smallest auditorium preset**, as an
+  unhandled 500 with a raw Python traceback — not simulated, hit for real
+  while testing a small synthetic floor plate. Root cause:
+  `_place_support_zones` in `layout_engine.py` computed each support zone's
+  target size as a fraction of total auditorium area; when 0 auditoriums
+  fit, every target became `0`, and `target_area / w` where `w =
+  sqrt(0) = 0` is a bare division by zero. Fixed: zones with a `0` target
+  are now skipped with an honest warning ("its target area is 0 sqft
+  because no auditorium could be placed...") instead of crashing the whole
+  run. Re-verified the same input now returns `HTTP 200` with clear
+  warnings instead of `HTTP 500`.
+- **No top-level error boundary anywhere in the frontend** — confirmed by
+  grep, not assumed. Any unhandled render error, anywhere in the tree, blank-
+  screened the entire app with no recovery path and no indication anything
+  was even wrong. Added `ErrorBoundary.tsx` wrapping the whole app in
+  `main.tsx`: shows what broke and a "Back to Projects" button instead of a
+  silent white screen.
+
+### Full punch list for the next version
+
+Organized by how much it matters before real people rely on this daily, not
+by how interesting it is to build. Items already covered above are marked
+done; the rest are genuinely unaddressed and should be triaged, not assumed
+covered by anything above.
+
+**Critical — before this can be called "shippable" to anyone outside this session:**
+
+1. **No persistent hosting.** Confirmed today — the entire app going
+   unreachable is one `stop` or one machine restart away, with a manual
+   two-command recovery. This has now caused real end-user-visible downtime
+   at least once (this session's "why can't I log in"). Needs an actual
+   always-on host (even a single small VM running both services under
+   something like `pm2`/`systemd` would fix this) before anyone is told to
+   rely on this day-to-day. See "Running this project" in CLAUDE.md for the
+   exact processes that need to stay up.
+2. **`services/zoning-engine` has zero authentication of its own** — by
+   original design (see CLAUDE.md's module-boundary notes: "this service
+   knows nothing about users/auth"), on the assumption the frontend is the
+   only caller. Combined with wide-open CORS (`allow_origins=["*"]`) on that
+   service, anyone who can reach port 8000 directly (not just through the
+   web UI) can read/write/export **any** project's CAD data by guessing or
+   observing a project ID — no login required, independent of the auth
+   fixes above (those only cover `services/project`). Fine for a trusted
+   internal network; not fine the moment this is reachable from the open
+   internet. Needs a real decision (shared-secret header from the trusted
+   frontend, or teaching zoning-engine to validate the same session cookie)
+   before any deployment outside a private network — this is bigger than a
+   quick patch and changes a documented module boundary, so flagging rather
+   than silently changing it.
+3. **`services/project`'s CORS (`origin: true, credentials: true`)
+   reflects any request origin and allows credentialed requests from it** —
+   effectively as open as a wildcard for a credentialed API. Needs to be
+   locked to the real deployed frontend origin(s) via an env var once one
+   exists; there's no real production origin yet to lock it to today.
+4. **No automated test suite anywhere** — no unit tests, no integration
+   tests, no e2e tests, in either service or the frontend. Every "verified"
+   claim in this file (including today's) was a manual, one-off curl/browser
+   session, not a regression suite. That's how the `ZeroDivisionError` above
+   went unnoticed through several prior sessions of manual "happy path"
+   testing on room shapes that happened not to trigger it. At minimum:
+   backend unit tests for `layout_engine.py`/`seat_engine.py`/
+   `feasibility_engine.py` (pure functions, cheap to test, exactly where
+   today's crash lived) and one real end-to-end test of upload→zone→export.
+5. **No CI.** Nothing runs `tsc`, a lint, or any test automatically on a
+   change — every check in this session's history was a human (or an AI
+   session) remembering to run it by hand.
+
+**Important — real gaps that will surface in ordinary use, not edge cases:**
+
+6. No "forgot password" flow. A real user *will* forget their password;
+   today there is no recovery path at all except an admin deleting and
+   re-registering... except delete-user is blocked once they own any
+   projects (correctly, but that leaves no path forward at all right now).
+7. No rate limiting or lockout on login attempts — `POST /auth/login` can
+   be hit as fast as the network allows, indefinitely, from anywhere it's
+   reachable.
+8. No email verification on registration — anyone can register with any
+   email address, including one they don't own. Low risk on a trusted
+   internal tool, real risk the moment this is opened more broadly.
+9. No CSRF protection beyond `sameSite: 'lax'` cookies — adequate for
+   same-site navigation, not a substitute for a real CSRF token if this
+   ever serves a different frontend origin.
+10. Session cookies aren't marked `secure` — fine over local HTTP today,
+    **must** be set before serving this over HTTPS (an insecure cookie
+    still works over HTTPS, it's just also sendable over plain HTTP, which
+    defeats the point) — tie this to whenever hosting (item 1) happens.
+11. Password policy is length-only (≥8 chars) — no complexity/breach-list
+    check. Reasonable for v1, worth a decision if this scales past a small
+    trusted team.
+12. `generateNextProjectCode()` reads the current max and inserts in two
+    separate steps with no transaction. Tested this deliberately with 8
+    concurrent project-creation requests — no collision, because
+    `node:sqlite` here is synchronous and Node's single-threaded event loop
+    doesn't interleave between the read and the write within one process.
+    **This stops being safe the moment `services/project` ever runs as more
+    than one process** (e.g. a load-balanced/clustered production
+    deployment) — two separate OS processes reading/writing the same
+    SQLite file genuinely can race. Worth a real unique-constraint-retry
+    loop before scaling past one process, not before then.
+13. Every authenticated user currently sees **every** project from every
+    other user — there's no per-user visibility scoping, only the
+    (now-real) requirement to be logged in as *someone*. This matches how
+    the app has behaved since projects/registration were added and may be
+    the intended "one shared team workspace" model — but it was never an
+    explicit decision, just what fell out of not building per-user
+    filtering. Worth Connplex explicitly confirming this is desired before
+    calling it final, especially now that admin/member roles exist.
+14. `PATCH /admin/users/:id` and `DELETE /admin/users/:id` have no audit
+    trail — nothing records *which* admin promoted/deleted *which* account,
+    or when. Fine for a two-or-three-person team; a real gap the moment
+    "manage them" needs to answer "who did this."
+15. Deleting a user who owns projects is correctly *refused* rather than
+    silently breaking, but there's no UI path to actually resolve that
+    (reassign their projects to someone else, or bulk-delete their
+    projects first) — right now an admin has to go delete each of that
+    user's projects individually from the dashboard before the user delete
+    will succeed.
+
+**Polish / nice-to-have — real, but lower priority:**
+
+16. `services/zoning-engine/main.py`'s `select-candidate` endpoint's request
+    schema field is literally named `region_id` but is actually used as
+    `candidate_id` (`"""body.region_id is reused here as candidate_id for
+    simplicity of the shared schema."""`). The frontend already calls it
+    correctly, so this isn't a live bug — but it's a genuine landmine
+    (a natural `{"candidate_id": ...}` call would silently be ignored by
+    Pydantic and produce a misleading "Candidate not found" 404 instead of
+    a clear validation error). Confirmed this by tripping over it myself
+    during this session's testing. Worth a proper `candidate_id` field name
+    next time this endpoint is touched.
+17. Mobile: spot-checked the login page and dashboard at a 375px viewport —
+    both reflow cleanly with no overflow. **Not checked**: the zoning canvas
+    editor (`EditableCanvas.tsx`), which is a drag/resize-heavy SVG
+    interface that was explicitly built and tuned for mouse interaction
+    this session — real touch-drag behavior on a small screen is genuinely
+    unverified, not just "probably fine."
+18. No structured logging, error tracking (e.g. Sentry), or metrics in
+    either backend service — today, a production error is only visible if
+    someone happens to be tailing the process's stdout.
+19. No documented database backup strategy for either the SQLite file
+    (`services/project/data.sqlite`) or the zoning-engine's per-project
+    file storage (`services/zoning-engine/storage/`) — both are the only
+    copy of real project data once this is in real use.
+20. No pagination or search on the project dashboard or the admin user
+    list — fine at today's scale (single digits to low dozens), will need
+    it before either list realistically reaches "many projects, many
+    users."
+21. Items 1–7 from the pre-existing "Priority backlog" below (franchise-
+    tier UI gaps, production SPA routing fallback, multi-floor scoping,
+    exact PDF/DWG template parity, background zoning-run jobs) are all
+    still open and unchanged by this session — see that section rather than
+    treating this list as replacing it.
 
 ## Update: dashboard cleanup, real project delete, richer CAD component classification
 

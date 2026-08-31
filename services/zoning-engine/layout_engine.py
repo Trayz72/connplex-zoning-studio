@@ -163,6 +163,19 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
         targets.append((room_type, display_name, target, min_area, note))
 
     for room_type, display_name, target_area, min_area, note in targets:
+        if target_area <= 0:
+            # Real, reproducible crash found via brutal testing: a region too
+            # small/oddly-shaped to fit even the smallest auditorium preset
+            # leaves total_auditorium_area at 0, every support-zone target
+            # derived from it also becomes 0, and w = sqrt(0) = 0 made the
+            # next line's target_area / w a bare division by zero — an
+            # unhandled 500 on every zoning run against that region instead
+            # of an honest "couldn't fit anything here."
+            warnings.append(
+                f"Skipped {display_name} — its target area is 0 sqft because no auditorium "
+                f"could be placed in this region to size support zones against."
+            )
+            continue
         aspect = 1.6
         w = math.sqrt(target_area * aspect)
         h = target_area / w

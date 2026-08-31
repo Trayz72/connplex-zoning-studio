@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getProjects, createProject, deleteProject, logout, Project } from '../api';
 import { deleteProjectData } from '../services/zoningEngineApi';
+import { useAuth } from '../AuthContext';
 
 export const ProjectsPage: React.FC = () => {
+  const { user, refresh } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -56,10 +58,11 @@ export const ProjectsPage: React.FC = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
     } catch {
-      navigate('/login');
+      // fall through — clear local auth state and navigate away regardless
     }
+    await refresh();
+    navigate('/login');
   };
 
   return (
@@ -70,6 +73,16 @@ export const ProjectsPage: React.FC = () => {
           Connplex Zoning Studio
         </Link>
         <div className="nav-links">
+          {user && (
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              {user.email}{user.is_admin && <span className="admin-tag">Admin</span>}
+            </span>
+          )}
+          {user?.is_admin && (
+            <Link to="/admin" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+              Manage Users
+            </Link>
+          )}
           <button onClick={handleLogout} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
             Log Out
           </button>
