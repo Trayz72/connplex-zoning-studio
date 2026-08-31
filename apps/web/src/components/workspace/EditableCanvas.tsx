@@ -17,28 +17,15 @@ interface EditableCanvasProps {
   showCadLinework?: boolean;
 }
 
-// Same hue family per room type as ROOM_FILL in services/zoning-engine/export_pdf.py
-// — saturated here for a dark canvas background, pastel there for a printed white
-// page. Keep both in sync when either changes: before this fix they'd drifted
-// into unrelated colors per room type (e.g. washrooms were purple on-screen but
-// blue in the exported PDF), so the same room read as a different color depending
-// on whether you were looking at the editor or the deliverable.
-const ROOM_COLORS: Record<string, string> = {
-  AUDITORIUM: '#7c6fd6',   // violet
-  FOYER: '#3fb968',        // green
-  FNB: '#d68a3f',          // amber
-  WASHROOM: '#4a90d6',     // blue
-  BOX_OFFICE: '#d65f96',   // magenta
-  BOH: '#8a8a94'           // slate
-};
+// Deliberately no per-room-type color coding — every room renders as a
+// plain neutral box, distinguished only by its label and selection state.
+// A working CAD drawing reads room identity from its label, not an
+// arbitrary color an architect has to memorize; color here was an
+// editing-convenience decoration, not information.
+const ROOM_NEUTRAL = '#8b949e';
 
 const HANDLE_SCREEN_PX = 9;       // visible handle size, constant on screen regardless of zoom
 const HANDLE_HIT_SCREEN_PX = 26;  // invisible hit-area, much larger than the visible mark — this is the actual fix
-
-function roomColor(type: string): string {
-  const key = type.startsWith('AUDITORIUM') ? 'AUDITORIUM' : type;
-  return ROOM_COLORS[key] || '#6b7280';
-}
 
 function polygonBounds(points: number[][]) {
   const xs = points.map(p => p[0]);
@@ -249,7 +236,7 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
         style={{ flex: 1, width: '100%', touchAction: 'none', cursor: drag ? 'grabbing' : 'default' }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onClick={() => onSelectRoom(null)}
+        onPointerDown={() => onSelectRoom(null)}
       >
         <polygon points={boundaryPointsFt.map(p => p.join(',')).join(' ')} fill="#12161c" stroke="#e6edf3" strokeWidth={0.15} />
         {gridLines}
@@ -306,9 +293,9 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
               )}
               <polygon
                 points={room.geometry_points_ft.map(p => p.join(',')).join(' ')}
-                fill={roomColor(room.room_type)}
-                fillOpacity={isSelected ? 0.78 : isHovered ? 0.62 : 0.5}
-                stroke={isSelected ? '#ffffff' : roomColor(room.room_type)}
+                fill={ROOM_NEUTRAL}
+                fillOpacity={isSelected ? 0.32 : isHovered ? 0.24 : 0.16}
+                stroke={isSelected ? '#ffffff' : ROOM_NEUTRAL}
                 strokeWidth={isSelected ? ftPerHandlePx(1.5) : ftPerHandlePx(1)}
               />
               <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="#ffffff" style={{ pointerEvents: 'none', userSelect: 'none' }}>

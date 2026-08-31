@@ -1,6 +1,6 @@
 # STATUS
 
-Last updated: 2026-08-31 (ninth session, same day — deployment prep, M2/M6/M9/M10 milestone completion)
+Last updated: 2026-08-31 (tenth session, same day — real selection-persistence bug fix, color-coding removed from CAD/DXF/DWG and canvas)
 
 ## Is this deliverable? Can Connplex's architecture team start using it for zoning and seat counts?
 
@@ -68,6 +68,74 @@ day-to-day" rather than re-testing the happy path:
 - Real vector logo artwork (still a redraw, not their actual file — see the PDF
   format section below) and exact-format DWG template parity remain open, as
   before.
+
+## Update: real selection-persistence bug, and color-coding removed from CAD/DXF/DWG + canvas
+
+The user reported that selecting a room to resize/move it "should be simple
+and bug free" — implying it wasn't. It wasn't: a real, reproducible bug.
+
+### Fixed: a room never actually stayed selected
+
+`EditableCanvas.tsx`'s SVG had `onClick={() => onSelectRoom(null)}` on the
+whole canvas, meant to deselect on a background click. But clicking a room
+fires `handlePointerDown` first (which calls `stopPropagation()` on the
+**pointerdown** event and selects the room) — `stopPropagation()` on
+pointerdown does **not** stop the separate, later **click** event the
+browser generates from that same pointerdown+pointerup pair, and click
+bubbles independently up to the SVG regardless. So every room-select click
+immediately triggered the SVG's own `onClick` right after, deselecting
+whatever was just selected. Since resize handles only render when
+`isSelected`, this meant they'd flash in and vanish — matching exactly what
+was reported. Fixed by moving the deselect logic onto `onPointerDown`
+instead of `onClick`: a pointerdown that reaches the SVG's own handler can
+only have originated on the background (any pointerdown starting on a room
+or handle already calls `stopPropagation()`, so it never reaches this
+handler at all), so this is not a mixed-event-type footgun the way the
+original was.
+
+Verified properly, not just by reading the diff: dispatched the exact
+pointerdown→pointerup→click sequence via JS against a real room element
+and confirmed 8 resize handles remained in the DOM afterward (previously
+this exact sequence removed them); then did a real mouse-driven test in
+the browser — selected an auditorium, dragged a corner handle to resize it
+(65×45 → 88×45 ft, 162 → 225 seats, confirmed persisted server-side via a
+direct API read, not just the UI), attempted a move onto confirmed
+obstacles (correctly rejected with the real overlap amounts, reverted
+cleanly, selection stayed intact throughout — the existing collision
+validation was never broken, it just couldn't be reached before because
+nothing stayed selected long enough to drag).
+
+### Removed: per-room-type color coding from CAD export and the canvas — kept in the PDF
+
+Asked to remove color from "CAD" so exports look professional. Before
+changing anything, checked what the DXF/DWG export actually did (a
+per-layer AutoCAD color index — not a solid fill, already reasonably
+standard practice) and, since the whole point of this export format was
+always to match Connplex's real drawings, went and found the actual real
+reference PDF in this session (`1045- KESHAV LANDMARK...` — the same one
+this whole export pipeline was built against) to check whether color was
+actually part of "professional" here before guessing. **The real Connplex
+drawing itself uses colored room fills** — sent it to the user directly
+rather than assume. Given that, asked two scoped follow-up questions
+instead of applying one blanket answer: keep the PDF colored (it now
+genuinely matches Connplex's real deliverable — the point of the feature),
+but strip color from the DXF/DWG file and the editing canvas.
+
+- `export_dxf.py`: every layer (`EXISTING-BOUNDARY`, `PROPOSED-AUDITORIUM`,
+  etc.) now uses ACI color 7 (AutoCAD's default black/white foreground) —
+  differentiation is by layer *name* only, which is how a real architect
+  toggles/isolates room types in AutoCAD anyway, not a pre-baked color that
+  might clash with their firm's own layer standard. Verified by reading
+  the generated DXF back with `ezdxf` and confirming every layer's
+  `dxf.color` is 7 — not by eyeballing a render.
+- `EditableCanvas.tsx`: rooms render as a single neutral gray box
+  (`#8b949e`) regardless of type — identified only by their label, exactly
+  like a real monochrome CAD drawing relies on labels, not memorized
+  colors. Verified via a live DOM query that only one fill color exists
+  across every room polygon now (previously six, one per room type).
+- `export_pdf.py`: **unchanged**, deliberately — still uses the pastel
+  `ROOM_FILL` palette, now confirmed correct rather than assumed, since it
+  matches what Connplex's own real drawing does.
 
 ## Update: deployment prep + all four remaining spec milestones (M2, M6, M9, M10)
 

@@ -13,18 +13,26 @@ import ezdxf
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "cad-interop"))
 from convert import convert as oda_convert  # noqa: E402
 
-LAYER_COLORS = {
-    "EXISTING-BOUNDARY": 7, "EXISTING-OBSTACLE": 1,
-    "PROPOSED-AUDITORIUM": 5, "PROPOSED-FOYER": 3, "PROPOSED-FNB": 30,
-    "PROPOSED-WASHROOM": 4, "PROPOSED-BOX_OFFICE": 6, "PROPOSED-BOH": 8,
-    "PROPOSED-CIRCULATION": 9, "ANNOTATION": 7
-}
+# Plain black/white line work — standard practice for a working AutoCAD
+# file an architect re-opens to keep drafting: differentiate by layer NAME
+# (which every layer here already has, meaningfully) and toggle layer
+# visibility, not by a pre-baked color the architect didn't choose and that
+# may clash with their own firm's layer/color standard. ACI 7 is AutoCAD's
+# default foreground color (white on a dark viewport background, black on
+# a white plot/printout) — the same color CAD line work is drawn in by
+# default when a layer has no color of its own.
+LAYER_NAMES = [
+    "EXISTING-BOUNDARY", "EXISTING-OBSTACLE",
+    "PROPOSED-AUDITORIUM", "PROPOSED-FOYER", "PROPOSED-FNB",
+    "PROPOSED-WASHROOM", "PROPOSED-BOX_OFFICE", "PROPOSED-BOH",
+    "PROPOSED-CIRCULATION", "ANNOTATION"
+]
 
 
 def _ensure_layers(doc):
-    for name, color in LAYER_COLORS.items():
+    for name in LAYER_NAMES:
         if name not in doc.layers:
-            doc.layers.add(name, color=color)
+            doc.layers.add(name, color=7)
 
 
 def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, rooms, out_path: str, also_dwg: bool = True) -> dict:
