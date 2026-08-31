@@ -11,6 +11,18 @@ export async function getSeatTypes(): Promise<SelectableSeatType[]> {
   return data.seat_types;
 }
 
+/** Removes this project's uploaded CAD/geometry/zoning-run/layout/export
+ * files. Tolerant of a project that never had any zoning-engine data yet
+ * (nothing was ever uploaded) — that's not a failure, just a no-op. */
+export async function deleteProjectData(projectId: string): Promise<void> {
+  try {
+    await fetch(`${BASE}/${projectId}`, { method: 'DELETE' });
+  } catch {
+    // Best-effort cleanup: the project record itself (in the other service)
+    // is the source of truth for whether the project still exists.
+  }
+}
+
 export class ValidationRejectedError extends Error {
   errors: ValidationError[];
   constructor(message: string, errors: ValidationError[]) {

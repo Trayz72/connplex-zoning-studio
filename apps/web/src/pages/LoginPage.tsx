@@ -32,6 +32,7 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="login-container">
       <div className="login-card">
+        <div className="login-brand-mark" aria-hidden="true">CZ</div>
         <h1>Connplex Zoning Studio</h1>
         <p className="subtitle">
           {mode === 'SIGN_IN' ? 'Sign in to access your projects' : 'Create an account for your architecture team'}

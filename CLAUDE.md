@@ -15,23 +15,34 @@ canonical product spec and source of truth for business rules; treat this file a
 
 ## What actually exists here (read before assuming anything from the spec)
 
-There are now genuinely **two parallel systems** in this repo. Do not confuse them:
+> **Update, seventh same-day session:** the "two parallel systems" this section
+> originally described are down to **one**. The legacy demo pipeline's UI —
+> `/projects/:id/canvas`, `pages/ZoningStudio.tsx`, `pages/ZoningCanvasPlaceholder.tsx`,
+> `components/zoning/*`, `services/cadService.ts`, `types/zoning.ts` — was deleted
+> from `apps/web/` (nothing referenced it outside itself, and no in-app link pointed
+> at it any more; confirmed by grep before deletion). `services/cad-interop/`'s
+> scripts and frozen output under `test/output/` are untouched on disk (still real,
+> audited ground-truth data, still useful for spot-checking), but there is no UI
+> route left that displays them. `/projects/:id/studio` is now the only zoning
+> pipeline in the app. The two bullets below are kept for historical context on
+> why the split existed in the first place; don't take the route references in
+> them as current.
 
 - **The legacy demo pipeline** (`services/cad-interop/`, M0–M8): a sequence of
   standalone scripts run once, by hand, against the two real reference drawings
   (Dhule, Vadodara), with output frozen as static JSON/SVG under
   `services/cad-interop/test/output/` (symlinked into `apps/web/public/cad-data`).
-  Reachable in the UI via **"View Reference Demo"** / the `/projects/:id/canvas`
-  route (`ZoningStudio.tsx`). It only ever shows those two properties' frozen
-  geometry — uploading a different file here does nothing (`CadUploadModal.tsx` is
-  a `setTimeout`-based simulation that never sends a file anywhere). Kept as a
-  reference/demo because it's real, audited, and useful ground-truth data — not
-  because it's the primary product flow anymore.
-- **The real pipeline** (`services/zoning-engine/`, added in this session): a live
-  FastAPI service that actually accepts an arbitrary DWG/DXF upload, extracts
-  geometry generically (no per-file hardcoding), and runs the full flow through to
-  PDF/DXF/DWG export. Reachable via **`/projects/:id/studio`** — this is what
-  "Go to Zoning Canvas" on the intake page now links to, i.e. the primary flow.
+  ~~Reachable in the UI via "View Reference Demo" / the `/projects/:id/canvas`
+  route (`ZoningStudio.tsx`)~~ — that UI is now removed (see update note above). It
+  only ever showed those two properties' frozen geometry — uploading a different
+  file there did nothing (`CadUploadModal.tsx` was a `setTimeout`-based simulation
+  that never sent a file anywhere).
+- **The real pipeline** (`services/zoning-engine/`, added same day as the above):
+  a live FastAPI service that actually accepts an arbitrary DWG/DXF upload,
+  extracts geometry generically (no per-file hardcoding), and runs the full flow
+  through to PDF/DXF/DWG export. Reachable via **`/projects/:id/studio`** — this is
+  what "Go to Zoning Canvas" on the intake page links to, and, since the seventh
+  session, the *only* zoning pipeline in the app.
 
 1. **`services/zoning-engine/`** — the real, primary pipeline. FastAPI app
    (`main.py`, port 8000), file-based per-project storage
@@ -75,11 +86,12 @@ There are now genuinely **two parallel systems** in this repo. Do not confuse th
 4. **`services/rules-config/`** — the versioned Rules/Config registry (spec §21,
    §74–75, Product Principle #1). Now read by *both* pipelines.
 5. **`apps/web/`** — React + TypeScript + Vite SPA (`npm run dev`, port 5173,
-   proxies `/auth` + `/projects` to :3001 and `/api` to the zoning-engine on
-   :8000). Routes: `/login`, `/projects`, `/projects/:id/intake`,
-   **`/projects/:id/studio`** (new — the real workspace,
-   `pages/ZoningWorkspace.tsx` + `components/workspace/*`), `/projects/:id/canvas`
-   (legacy demo, `pages/ZoningStudio.tsx`), and an unused `ZoningCanvasPlaceholder`.
+   proxies `/api/pm` to :3001 and `/api` to the zoning-engine on :8000 — see
+   `vite.config.ts`, `/api/pm` listed first since it's the more specific rule).
+   Routes: `/login`, `/projects`, `/projects/:id/intake`, and
+   **`/projects/:id/studio`** (`pages/ZoningWorkspace.tsx` +
+   `components/workspace/*`) — the only zoning route since the seventh session
+   removed the legacy `/canvas` and `/placeholder` routes.
 6. **`docs/reference/`** — copies of the two reference DWGs plus `theater.dwg` (a
    native AutoCAD 2018+ working file), all genuinely usable as real test uploads
    against `/studio` now.

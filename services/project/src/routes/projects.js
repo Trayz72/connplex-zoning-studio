@@ -189,4 +189,15 @@ router.patch('/:id', (req, res) => {
   return res.json(formatProject(updated));
 });
 
+// DELETE /projects/:id - permanently remove a project and its intake record
+router.delete('/:id', (req, res) => {
+  const existing = db.prepare('SELECT * FROM projects WHERE id = ?').get(req.params.id);
+  if (!existing) {
+    return res.status(404).json({ error: 'Project not found' });
+  }
+  db.prepare('DELETE FROM floors WHERE project_id = ?').run(req.params.id);
+  db.prepare('DELETE FROM projects WHERE id = ?').run(req.params.id);
+  return res.status(204).end();
+});
+
 export default router;

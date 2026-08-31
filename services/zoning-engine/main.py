@@ -389,6 +389,18 @@ def _bump_revision(project_id: str) -> str:
     return new_rev
 
 
+@app.delete("/api/projects/{project_id}")
+def delete_project_data(project_id: str):
+    """Remove this project's uploaded CAD, geometry, zoning runs, layout and
+    exports. Called alongside the project-service's own project delete so no
+    orphaned files are left behind. Idempotent — deleting a project that never
+    had any CAD/zoning data here is not an error."""
+    import shutil
+    d = storage.project_dir(project_id)
+    shutil.rmtree(d, ignore_errors=True)
+    return {"deleted": True}
+
+
 @app.get("/api/seat-types")
 def get_seat_types():
     """Seat types with enough real registry data to drive the packing math —

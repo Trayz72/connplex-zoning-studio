@@ -1,6 +1,6 @@
 # STATUS
 
-Last updated: 2026-08-31 (sixth session, same day — visual/professional polish pass)
+Last updated: 2026-08-31 (seventh session, same day — dashboard cleanup, project delete, CAD classification accuracy)
 
 ## Is this deliverable? Can Connplex's architecture team start using it for zoning and seat counts?
 
@@ -68,6 +68,63 @@ day-to-day" rather than re-testing the happy path:
 - Real vector logo artwork (still a redraw, not their actual file — see the PDF
   format section below) and exact-format DWG template parity remain open, as
   before.
+
+## Update: dashboard cleanup, real project delete, richer CAD component classification
+
+Directly in response to: "remove all the other projects", "add the delete
+projects button", "make application clean", and "accurately capture
+components based on cad uploaded."
+
+- **Project delete is now real, not just a UI affordance.** `DELETE /projects/:id`
+  in `services/project` removes the project row (and its `floors` rows);
+  `DELETE /api/projects/{id}` in `services/zoning-engine` removes that
+  project's uploaded CAD/geometry/zoning-runs/layout/exports on disk. The
+  dashboard's new delete button asks for an inline confirmation on the card
+  itself (no native browser `confirm()` popup — kept consistent with the
+  rest of the UI) before calling both. Verified live: created a project,
+  deleted it through the UI, confirmed via a direct API call that it was
+  actually gone from the database, not just removed from the page's local
+  state.
+- **Cleared all 37 pre-existing projects** (all test/demo data accumulated
+  across this project's testing sessions — none were real client records)
+  using the new delete endpoints, plus 3 orphaned ad-hoc test directories
+  under `services/zoning-engine/storage/` that predated per-project cleanup.
+  Dashboard starts clean.
+- **Removed the entire legacy demo pipeline** (`/canvas` and `/placeholder`
+  routes, `pages/ZoningStudio.tsx`, `pages/ZoningCanvasPlaceholder.tsx`,
+  `pages/ReviewRevisionWorkflow.tsx`, `services/cadService.ts`,
+  `types/zoning.ts`, all of `components/zoning/*`) — confirmed via grep that
+  nothing in the real `/studio` pipeline referenced any of it, and that no
+  in-app link pointed at either route (`ProjectIntakePage` already always
+  navigated to `/studio`). This was the original fake pipeline the whole
+  project replaced (`CadUploadModal.tsx` ran a fake progress bar and never
+  uploaded anything — see `main.py`'s own docstring) — leaving it in the
+  repo, reachable by typing a URL, was dead weight that could show someone a
+  pre-baked fake Dhule layout and look like a real result. Removing it also
+  shrank the real production JS bundle from 305KB to 226KB (59 to 45
+  modules) — a genuine size reduction, not just fewer files on disk.
+- **More accurate CAD component classification.** Obstacles inside a
+  confirmed boundary were previously only ever tagged `COLUMN` (via a layer-
+  name hint) or a catch-all `UNCLASSIFIED_OBSTACLE`. Expanded the same
+  evidence-based layer-name-hint technique (real DXF layer metadata, not an
+  invented rule — matches standard AIA CAD layer-naming conventions like
+  A-DOOR, A-GLAZ, A-COLS that most real architectural files, including
+  Connplex's own, already follow) to also recognize DOOR, WINDOW, STAIRCASE,
+  WASHROOM_FIXTURE, and FURNITURE layers, each still carrying its own
+  confidence and requiring the same Confirm/Ignore review — nothing here is
+  presented with more certainty than the evidence supports. Verified on the
+  real Dhule DWG: 36 obstacles that would previously have been dumped into
+  the generic "unclassified" bucket are now correctly tagged `STAIRCASE`
+  from their real CAD layer name. Verified on the real Vadodara DWG too
+  (no regression — that file's layer names don't happen to hint at any of
+  the new categories, so it correctly still returns `COLUMN`/
+  `UNCLASSIFIED_OBSTACLE` only, rather than guessing).
+- **Consistent branding across every screen** — added the same small "CZ"
+  brand mark to both the navbar (dashboard, and by inheritance every page
+  using it) and the login card, previously plain text only. Refined the
+  project dashboard's cards (hover elevation, cleaner badges, project count
+  in the subtitle) and empty state (a real empty-state treatment instead of
+  a plain paragraph).
 
 ## Update: visual polish pass — CAD backdrop, resize UX, numeric editing, PDF export quality
 
@@ -215,10 +272,11 @@ on an interactive canvas → export PDF/DXF/DWG. All of it was built and verifie
 live in a browser this session, against files this session generated on the spot
 (not just the Dhule/Vadodara demo data).
 
-The legacy demo pipeline (Dhule/Vadodara, `/projects/:id/canvas`) still exists and
-still works — kept as a reference/demo, reachable via a "View Reference Demo" link
-— but it is no longer the primary flow. `/projects/:id/studio` (the new
-`services/zoning-engine/` pipeline) is what "Go to Zoning Canvas" now opens.
+**Update, seventh session:** the legacy demo pipeline described in this
+paragraph (`/projects/:id/canvas`, the pre-baked Dhule/Vadodara reference
+demo) has since been removed entirely — see "Update: dashboard cleanup, real
+project delete, richer CAD component classification" near the top of this
+file. `/projects/:id/studio` is now the only zoning pipeline in the app.
 
 Full technical detail on what was built, and exactly how each claim was verified,
 is in `CLAUDE.md` ("What was built in this session" → Part 2). This file is the
@@ -309,13 +367,13 @@ of this file) — this used to be the biggest gap and now isn't. What's left:
   block-structure parity with Connplex's AutoCAD templates (spec §7.3's own
   acceptance test needs their real DWG template, not just the reference PDF).
 
-### 5. `config over code` cleanup in the legacy `cadService.ts`
+### 5. ~~`config over code` cleanup in the legacy `cadService.ts`~~ — resolved (removed)
 
-Unchanged from before this session — `min_area_sqft` is still computed inline in
-`apps/web/src/services/cadService.ts` (the *legacy* demo-pipeline service) instead
-of read from the registry. Low effort; only affects `/canvas`, not `/studio`
-(which already reads registry-driven minimums throughout
-`services/zoning-engine/`).
+`cadService.ts` and the whole legacy `/canvas` demo pipeline it belonged to
+were deleted in the seventh session rather than fixed — see "Update: dashboard
+cleanup..." near the top of this file. `/studio` (the only remaining
+pipeline) already reads registry-driven minimums throughout
+`services/zoning-engine/`, so this item no longer applies.
 
 ### 6. Minor: stale collision-hint banner
 

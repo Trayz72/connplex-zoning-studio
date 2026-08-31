@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getProjects, createProject, logout, Project } from '../api';
+import { getProjects, createProject, deleteProject, logout, Project } from '../api';
+import { deleteProjectData } from '../services/zoningEngineApi';
 
 export const ProjectsPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const fetchProjectsList = async () => {
@@ -35,6 +38,21 @@ export const ProjectsPage: React.FC = () => {
     }
   };
 
+  const handleDeleteProject = async (id: string) => {
+    setDeletingId(id);
+    setError(null);
+    try {
+      await deleteProject(id);
+      await deleteProjectData(id);
+      setProjects(prev => prev.filter(p => p.id !== id));
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete project');
+    } finally {
+      setDeletingId(null);
+      setConfirmingDeleteId(null);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -48,6 +66,7 @@ export const ProjectsPage: React.FC = () => {
     <div className="app-container">
       <header className="navbar">
         <Link to="/projects" className="brand">
+          <span className="brand-mark">CZ</span>
           Connplex Zoning Studio
         </Link>
         <div className="nav-links">
@@ -60,9 +79,10 @@ export const ProjectsPage: React.FC = () => {
       <main className="main-content">
         <div className="page-header">
           <div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 700 }}>Projects Dashboard</h1>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 700 }}>Projects</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-              Manage property intake and zoning plans
+              {loading ? 'Manage property intake and zoning plans' :
+                `${projects.length} project${projects.length === 1 ? '' : 's'} — manage property intake and zoning plans`}
             </p>
           </div>
           <button
@@ -71,23 +91,18 @@ export const ProjectsPage: React.FC = () => {
             className="btn btn-primary"
             id="create-project-btn"
           >
-            {creating ? 'Creating...' : '+ Create New Project'}
+            {creating ? 'Creating…' : '+ Create New Project'}
           </button>
         </div>
 
         {error && <div className="alert-box alert-error">{error}</div>}
 
         {loading ? (
-          <p style={{ color: 'var(--text-secondary)' }}>Loading projects...</p>
+          <p style={{ color: 'var(--text-secondary)' }}>Loading projects…</p>
         ) : projects.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '3rem',
-            background: 'var(--bg-secondary)',
-            borderRadius: '8px',
-            border: '1px solid var(--border-color)'
-          }}>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>No projects created yet.</p>
+          <div className="empty-state">
+            <div className="empty-state-icon" aria-hidden="true">⬚</div>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>No projects created yet.</p>
             <button onClick={handleCreateProject} className="btn btn-primary">
               Create Your First Project
             </button>
@@ -98,30 +113,63 @@ export const ProjectsPage: React.FC = () => {
               <div key={project.id} className="project-card">
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <span className="project-code-badge">Project #{project.project_code}</span>
+                    <span className="project-code-badge">#{project.project_code}</span>
                     <span className={`badge ${project.is_intake_complete ? 'badge-complete' : 'badge-incomplete'}`}>
-                      {project.is_intake_complete ? 'Intake complete: Yes' : 'Intake complete: No'}
+                      {project.is_intake_complete ? 'Intake complete' : 'Intake pending'}
                     </span>
                   </div>
-                  <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>
+                  <h2 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '0.6rem' }}>
                     {project.property_name || 'Untitled Property'}
                   </h2>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.25rem' }}>
-                    <strong>Client:</strong> {project.client_name || '—'}
+                    <strong style={{ color: 'var(--text-primary)' }}>Client:</strong> {project.client_name || '—'}
                   </p>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                    <strong>Location:</strong> {project.city ? `${project.city}, ${project.state || ''}` : '—'}
+                    <strong style={{ color: 'var(--text-primary)' }}>Location:</strong> {project.city ? `${project.city}, ${project.state || ''}` : '—'}
                   </p>
                 </div>
-                <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'flex-end' }}>
-                  <Link
-                    to={`/projects/${project.id}/intake`}
-                    className="btn btn-secondary"
-                    style={{ width: '100%', textAlign: 'center' }}
-                  >
-                    Open Intake Form
-                  </Link>
-                </div>
+
+                {confirmingDeleteId === project.id ? (
+                  <div className="project-card-confirm">
+                    <span>Delete this project? This can't be undone.</span>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button
+                        className="btn btn-danger"
+                        style={{ flex: 1 }}
+                        disabled={deletingId === project.id}
+                        onClick={() => handleDeleteProject(project.id)}
+                      >
+                        {deletingId === project.id ? 'Deleting…' : 'Delete'}
+                      </button>
+                      <button
+                        className="btn btn-secondary"
+                        style={{ flex: 1 }}
+                        disabled={deletingId === project.id}
+                        onClick={() => setConfirmingDeleteId(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ marginTop: '1.25rem', display: 'flex', gap: '0.5rem' }}>
+                    <Link
+                      to={`/projects/${project.id}/intake`}
+                      className="btn btn-secondary"
+                      style={{ flex: 1, textAlign: 'center' }}
+                    >
+                      Open
+                    </Link>
+                    <button
+                      className="btn btn-icon-danger"
+                      title="Delete project"
+                      aria-label="Delete project"
+                      onClick={() => setConfirmingDeleteId(project.id)}
+                    >
+                      🗑
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

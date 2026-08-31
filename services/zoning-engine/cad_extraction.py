@@ -50,6 +50,32 @@ UNIT_TO_FEET = {
 COLUMN_LAYER_HINTS = ["column", "col", "grid", "struct"]
 BOUNDARY_LAYER_HINTS = ["wall", "boundary", "outline"]
 
+# Standard AutoCAD architectural layer-naming conventions (A-DOOR, A-GLAZ,
+# A-FURN, etc. per the AIA CAD Layer Guidelines most real firms follow) — this
+# reads real metadata already present in the file, the same evidence-based
+# technique already used for COLUMN_LAYER_HINTS above, not an invented rule.
+# Order matters: checked most-specific-first so e.g. "door" doesn't also
+# match a generic "furniture" catch-all.
+OBSTACLE_LAYER_HINTS = [
+    ("COLUMN", COLUMN_LAYER_HINTS),
+    ("DOOR", ["door", "-dr", "_dr"]),
+    ("WINDOW", ["window", "glaz", "-win", "_win"]),
+    ("STAIRCASE", ["stair", "stnc"]),
+    ("WASHROOM_FIXTURE", ["sanit", "toilet", "plumb", "fixture"]),
+    ("FURNITURE", ["furn", "equip"]),
+]
+
+
+def _classify_obstacle_layer(layer_name):
+    """Match a closed shape's layer name against known architectural layer
+    conventions. Returns (classification, matched) — matched=False means no
+    layer evidence exists, so the caller must fall back to shape heuristics
+    or an honest UNCLASSIFIED_OBSTACLE rather than guessing a type."""
+    for classification, hints in OBSTACLE_LAYER_HINTS:
+        if _layer_hint_score(layer_name, hints):
+            return classification, True
+    return "UNCLASSIFIED_OBSTACLE", False
+
 
 def _get_units(doc):
     insunits = doc.header.get("$INSUNITS", 0)
@@ -357,7 +383,7 @@ def extract(input_path: str) -> dict:
             if s["polygon"].area == 0 or inter / s["polygon"].area < CONTAINMENT_THRESHOLD:
                 continue
 
-            layer_is_column = _layer_hint_score(s["layer"], COLUMN_LAYER_HINTS)
+            classification, layer_matched = _classify_obstacle_layer(s["layer"])
             is_squarish = 0.0
             try:
                 sminx, sminy, smaxx, smaxy = s["polygon"].bounds
@@ -366,9 +392,14 @@ def extract(input_path: str) -> dict:
             except Exception:
                 pass
 
-            if layer_is_column:
+            if layer_matched:
                 confidence = "high"
             elif is_squarish > 0.6 and s["area_sqft"] < 20:
+                # Shape alone doesn't tell us *what* it is without a layer hint —
+                # only a column is safe to infer this way (compact + squarish is
+                # a strong structural-column signal in practice); anything else
+                # without layer evidence stays honestly unclassified.
+                classification = "COLUMN"
                 confidence = "medium"
             else:
                 confidence = "low"
@@ -380,7 +411,7 @@ def extract(input_path: str) -> dict:
                 "dxftype": s["dxftype"],
                 "area_sqft": round(s["area_sqft"], 3),
                 "points_ft": s["points_ft"],
-                "classification": "COLUMN" if layer_is_column else "UNCLASSIFIED_OBSTACLE",
+                "classification": classification,
                 "confidence": confidence,
                 "status": "PROPOSED"  # frontend must move this to CONFIRMED or IGNORED before a zoning run
             })

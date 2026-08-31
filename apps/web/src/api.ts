@@ -108,3 +108,13 @@ export async function updateProject(id: string, data: Partial<Project>): Promise
   }
   return res.json();
 }
+
+export async function deleteProject(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/projects/${id}`, {
+    method: 'DELETE',
+    credentials: 'include'
+  });
+  if (!res.ok && res.status !== 404) {
+    throw new Error('Failed to delete project');
+  }
+}

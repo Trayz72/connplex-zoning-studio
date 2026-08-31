@@ -1,6 +1,6 @@
-// Types for the REAL (non-demo) zoning-engine pipeline. Kept separate from
-// types/zoning.ts, which describes the pre-baked Dhule/Vadodara demo dataset —
-// the two data models are genuinely different shapes and should not be conflated.
+// Types for the real zoning-engine pipeline (the only pipeline in the app —
+// the earlier pre-baked demo dataset and its /canvas, /placeholder pages and
+// components/zoning/* have been removed).
 
 export interface Obstacle {
   id: string;
