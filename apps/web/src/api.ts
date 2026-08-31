@@ -120,12 +120,39 @@ export async function deleteUser(id: string): Promise<void> {
   }
 }
 
-export async function getProjects(): Promise<Project[]> {
-  const res = await fetch(`${API_BASE}/projects`, {
+export interface ProjectFilters {
+  q?: string;
+  city?: string;
+  state?: string;
+  status?: string;
+}
+
+export async function getProjects(filters?: ProjectFilters): Promise<Project[]> {
+  const params = new URLSearchParams();
+  if (filters?.q) params.set('q', filters.q);
+  if (filters?.city) params.set('city', filters.city);
+  if (filters?.state) params.set('state', filters.state);
+  if (filters?.status) params.set('status', filters.status);
+  const qs = params.toString();
+  const res = await fetch(`${API_BASE}/projects${qs ? `?${qs}` : ''}`, {
     credentials: 'include'
   });
   if (!res.ok) {
     throw new Error('Failed to fetch projects');
+  }
+  return res.json();
+}
+
+export interface ProjectFilterOptions {
+  cities: string[];
+  states: string[];
+  statuses: string[];
+}
+
+export async function getProjectFilterOptions(): Promise<ProjectFilterOptions> {
+  const res = await fetch(`${API_BASE}/projects/filters`, { credentials: 'include' });
+  if (!res.ok) {
+    throw new Error('Failed to fetch filter options');
   }
   return res.json();
 }
@@ -174,4 +201,44 @@ export async function deleteProject(id: string): Promise<void> {
   if (!res.ok && res.status !== 404) {
     throw new Error('Failed to delete project');
   }
+}
+
+export const RULES_CATEGORIES = ['seat_types', 'auditorium_presets', 'franchise_tiers', 'planning_norms', 'viability_rules'] as const;
+export type RulesCategory = typeof RULES_CATEGORIES[number];
+
+export interface RulesRegistry {
+  schema_version: string;
+  title: string;
+  description: string;
+  generated: string;
+  sources: any[];
+  seat_types: any[];
+  auditorium_presets: any[];
+  franchise_tiers: any[];
+  planning_norms: any[];
+  viability_rules: any[];
+  not_evaluable_today: string[];
+}
+
+export async function getRulesConfig(): Promise<RulesRegistry> {
+  const res = await fetch(`${API_BASE}/admin/rules-config`, { credentials: 'include' });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: 'Failed to load rules config' }));
+    throw new Error(error.error || 'Failed to load rules config');
+  }
+  return res.json();
+}
+
+export async function saveRulesCategory(category: RulesCategory, items: any[]): Promise<RulesRegistry> {
+  const res = await fetch(`${API_BASE}/admin/rules-config/${category}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ items })
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: 'Failed to save' }));
+    throw new Error(error.error || 'Failed to save');
+  }
+  return res.json();
 }

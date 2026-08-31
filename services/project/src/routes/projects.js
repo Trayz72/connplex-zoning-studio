@@ -34,10 +34,49 @@ function formatProject(row) {
   };
 }
 
-// GET /projects - list projects
+// GET /projects - list projects, optionally filtered (spec M10: dashboard
+// search/filter by city, state, status; franchise tier is deliberately not
+// included here — it's captured per-region in the zoning-engine's
+// requirements step, not stored on the Project record at all today, so
+// filtering by it from this endpoint would mean querying a second service
+// per row rather than a real, honest filter).
 router.get('/', (req, res) => {
-  const rows = db.prepare('SELECT * FROM projects ORDER BY created_at DESC').all();
+  const { q, city, state, status } = req.query;
+  const clauses = [];
+  const params = [];
+
+  if (q && typeof q === 'string' && q.trim()) {
+    clauses.push('(property_name LIKE ? OR client_name LIKE ? OR project_code LIKE ?)');
+    const like = `%${q.trim()}%`;
+    params.push(like, like, like);
+  }
+  if (city && typeof city === 'string') {
+    clauses.push('city = ?');
+    params.push(city);
+  }
+  if (state && typeof state === 'string') {
+    clauses.push('state = ?');
+    params.push(state);
+  }
+  if (status && typeof status === 'string') {
+    clauses.push('property_status = ?');
+    params.push(status);
+  }
+
+  const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+  const rows = db.prepare(`SELECT * FROM projects ${where} ORDER BY created_at DESC`).all(...params);
   return res.json(rows.map(formatProject));
+});
+
+// GET /projects/filters - distinct values actually present, so the
+// dashboard's filter dropdowns reflect real data instead of a hardcoded
+// guess at what cities/states exist. Must stay above GET /:id or Express
+// would try to treat "filters" as a project id.
+router.get('/filters', (req, res) => {
+  const cities = db.prepare('SELECT DISTINCT city FROM projects WHERE city IS NOT NULL AND city != \'\' ORDER BY city').all().map(r => r.city);
+  const states = db.prepare('SELECT DISTINCT state FROM projects WHERE state IS NOT NULL AND state != \'\' ORDER BY state').all().map(r => r.state);
+  const statuses = db.prepare('SELECT DISTINCT property_status FROM projects WHERE property_status IS NOT NULL AND property_status != \'\' ORDER BY property_status').all().map(r => r.property_status);
+  return res.json({ cities, states, statuses });
 });
 
 // POST /projects - create a project

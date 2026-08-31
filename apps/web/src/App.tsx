@@ -6,6 +6,7 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { ProjectIntakePage } from './pages/ProjectIntakePage';
 import { ZoningWorkspace } from './pages/ZoningWorkspace';
 import { AdminPage } from './pages/AdminPage';
+import { AdminRulesPage } from './pages/AdminRulesPage';
 
 /** Every route past /login needs this — previously nothing checked session
  * state client-side at all, so /projects, /projects/:id/studio etc. rendered
@@ -36,6 +37,7 @@ export const App: React.FC = () => {
           <Route path="/projects/:id/intake" element={<RequireAuth><ProjectIntakePage /></RequireAuth>} />
           <Route path="/projects/:id/studio" element={<RequireAuth><ZoningWorkspace /></RequireAuth>} />
           <Route path="/admin" element={<RequireAuth><AdminPage /></RequireAuth>} />
+          <Route path="/admin/rules" element={<RequireAuth><AdminRulesPage /></RequireAuth>} />
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/projects" replace />} />
         </Routes>

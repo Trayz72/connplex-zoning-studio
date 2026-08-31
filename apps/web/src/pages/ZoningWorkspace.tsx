@@ -217,7 +217,14 @@ export const ZoningWorkspace: React.FC = () => {
       <div style={{ flex: 1, overflow: 'auto' }}>
         {step === 'UPLOAD' && id && <UploadStep projectId={id} onUploaded={handleUploaded} />}
         {step === 'GEOMETRY_REVIEW' && geometry && <GeometryReviewStep geometry={geometry} onConfirmed={handleGeometryConfirmed} onStartOver={handleStartOver} />}
-        {step === 'REQUIREMENTS' && <RequirementsStep initial={requirements} clearHeightHint={project?.beam_bottom_clear_height} onSubmit={handleRequirementsSubmit} />}
+        {step === 'REQUIREMENTS' && (
+          <RequirementsStep
+            initial={requirements}
+            clearHeightHint={project?.beam_bottom_clear_height}
+            boundaryPointsFt={geometry?.regions.find(r => r.region_id === regionId)?.boundary.points_ft}
+            onSubmit={handleRequirementsSubmit}
+          />
+        )}
         {step === 'RUN' && id && <RunStep projectId={id} regionId={regionId} onLayoutReady={handleLayoutReady} />}
 
         {step === 'EDIT' && layout && (

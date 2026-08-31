@@ -71,6 +71,13 @@ export interface Requirements {
   franchise_tier_id: string | null;
   support_zone_area_overrides_sqft: Record<string, number>;
   clear_height_ft: number | null;
+  /** Where the main entrance is, in the same ft coordinate space as the
+   * confirmed boundary. Optional and architect-marked — nothing in CAD
+   * extraction detects doors/entrances today, so this is real user input,
+   * not a derived value. Used only to place Foyer/F&B/Washroom zones per
+   * the SOP's entry-sightline rules (spec M6); when null, that placement
+   * logic is skipped rather than guessing where the entrance is. */
+  entry_point_ft: [number, number] | null;
 }
 
 export interface SeatEstimate {

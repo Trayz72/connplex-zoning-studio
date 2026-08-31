@@ -83,3 +83,23 @@ def export_dir(project_id: str) -> str:
     d = path_in(project_id, "exports")
     os.makedirs(d, exist_ok=True)
     return d
+
+
+def export_history_path(project_id: str) -> str:
+    """Spec M9: 'a project can show its full export history, matching the
+    paper Revisions-table concept.' Every export appends one record here —
+    the files in exports/ already existed, but nothing previously tracked
+    *when* each was generated or under what revision/remarks, so there was
+    no way to list that history even though the files themselves survived."""
+    return path_in(project_id, "exports", "history.json")
+
+
+def append_export_record(project_id: str, record: dict):
+    path = export_history_path(project_id)
+    history = read_json(path) or []
+    history.insert(0, record)  # newest first
+    write_json(path, history)
+
+
+def read_export_history(project_id: str) -> list:
+    return read_json(export_history_path(project_id)) or []

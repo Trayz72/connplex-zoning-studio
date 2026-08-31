@@ -1,6 +1,6 @@
 # STATUS
 
-Last updated: 2026-08-31 (eighth session, same day — real authentication, admin/user management, brutal-testing pass)
+Last updated: 2026-08-31 (ninth session, same day — deployment prep, M2/M6/M9/M10 milestone completion)
 
 ## Is this deliverable? Can Connplex's architecture team start using it for zoning and seat counts?
 
@@ -68,6 +68,134 @@ day-to-day" rather than re-testing the happy path:
 - Real vector logo artwork (still a redraw, not their actual file — see the PDF
   format section below) and exact-format DWG template parity remain open, as
   before.
+
+## Update: deployment prep + all four remaining spec milestones (M2, M6, M9, M10)
+
+Triggered by a DevOps-focused ask: can this be hosted on Render.com, what's
+the directory structure, is DXF/DWG really supported, and — after that —
+build out every milestone that wasn't done yet. Full detail (Render
+feasibility, DWG/Xvfb requirement, directory map) is in the new
+**[DEPLOYMENT.md](DEPLOYMENT.md)**, not repeated here. This section covers
+the milestone work and the production-readiness cleanup.
+
+### Production-readiness cleanup
+
+- **Unified the color palette.** The interactive canvas and the PDF export
+  used completely uncoordinated colors for the same room types (washrooms
+  purple on-screen, blue in the PDF; back-of-house gray on-screen, pink in
+  the PDF). One coordinated hue family now, saturated for the dark canvas,
+  pastel for the printed PDF, scoped to exactly the room types the pipeline
+  produces.
+- **Removed real dead weight**: two broken legacy test scripts referencing
+  routes that no longer exist, a stale "View Reference Demo" link to the
+  deleted `/canvas` route, and a symlink bundling **39MB of frozen legacy
+  demo data into every production frontend build** for no reason — `dist/`
+  went from 39MB to 252KB.
+- **Fixed a real spec-compliance gap**, found by testing it directly: a
+  project with incomplete intake data could be reached at
+  `/projects/:id/studio` via direct URL with zero gate — the intake page
+  only ever disabled a button, it never actually blocked the route.
+
+### M2 — Rules/Config admin UI (was a real, unimplemented gap — now done)
+
+Built `/admin/rules`: a real CRUD UI over all 5 registry categories (seat
+types, auditorium presets, franchise tiers, planning norms, viability
+rules), each record editable as raw JSON with its full provenance
+(`source`, `approval_status`) visible, not hidden behind a dumbed-down form.
+
+The write path deliberately lives in `services/project` (`routes/
+rulesConfig.js`), not `services/zoning-engine`, even though the registry
+file itself is read by the zoning engine — because `services/project` has
+real admin auth and `services/zoning-engine` has none by design. Putting a
+write endpoint on the auth-less service would have meant anyone who could
+reach it could rewrite business rules with zero login. Every save writes a
+timestamped backup of the whole file first (a basic safety net, not full
+RuleSet version history, which is a deliberately bigger, separate model for
+zoning-run inputs per the spec).
+
+Fixed a real bug found while building this: `rules_registry.py`'s cache
+never invalidated, so an edit — even by hand-editing the JSON file directly
+— would silently not take effect until the zoning-engine process was
+restarted. Now checks the file's mtime on every load, so a change made by
+either service (or a human editing the file) takes effect on the very next
+request, no restart needed. Verified end-to-end in the browser: edited a
+real seat-type's `notes` field through the admin UI, confirmed the change
+landed on disk with a backup written, and confirmed a fresh read via
+`rules_registry.py` (simulating the running zoning-engine) saw the new
+value immediately.
+
+### M6 — Adjacency-aware auto-layout (was a real, unimplemented gap — now done)
+
+The SOP's actual rules (§4.4/§9, reproduced in spec §2.8) are: "Foyer (at
+main entry level)...", "F&B: visible from entry...", "Washrooms: ... not
+directly visible from foyer." Implementing these honestly required facing a
+real gap first: **nothing in this codebase has ever had a concept of where
+a building's entrance is** — confirmed by grep, not assumed. CAD extraction
+doesn't detect doors. Rather than invent a plausible-sounding rule (e.g.
+"assume the entrance is on the boundary's longest edge"), which the
+project's own anti-hallucination principle rules out, added a real way for
+the architect to provide this — a click-to-mark entry-point picker on the
+real confirmed boundary outline, in the Requirements step
+(`EntryPointPicker` in `RequirementsStep.tsx`). When left unmarked, the
+sightline rules are honestly skipped with a stated reason, not guessed at.
+
+With a real entry point, `layout_engine.py`'s `_place_support_zones` now:
+places the Foyer at the position closest to the entrance; prefers an F&B
+position with an unobstructed sightline from the entrance; prefers a
+Washroom position *without* a sightline from the Foyer. Placement still
+succeeds even when a preference can't be satisfied (a warning says so
+honestly instead of the room silently vanishing or the rule being silently
+faked).
+
+Found and fixed two real bugs while verifying this against actual geometry,
+not just reading the code back:
+1. A naive sightline check made the Foyer block its own "F&B visible from
+   entry" rule on every real test, because the Foyer legitimately sits
+   between the literal entry point and everything else by design — the
+   Foyer is now excluded from what counts as "blocking" that specific
+   check (the SOP's real intent is "visible once you're in from the entry
+   area," not an unobstructed line through where the foyer itself stands).
+2. The Washroom's "hidden from foyer" check started its sightline at the
+   Foyer's own centroid, which trivially self-intersects the Foyer polygon
+   it starts inside of — meaning the check would have reported every
+   placement as "hidden" regardless of real geometry. Fixed the same way.
+
+Verified two ways: an isolated geometry test (open room, no obstacles)
+proving both rules can genuinely be satisfied when the floor plate allows
+it; and a real run against the actual ~500-column Dhule floor, which
+correctly and honestly reports it *couldn't* always achieve a clear
+sightline given that much column density — a real result, not a bug, and
+exactly the kind of honest "couldn't do it, here's why" the project's
+principles call for over a silently-faked success.
+
+### M9 — Export history (was a real, unimplemented gap — now done)
+
+Added `storage.append_export_record`/`read_export_history` and a `GET
+/export-history` endpoint — every PDF/DXF/DWG export now appends a record
+(revision, format, timestamp, drawn-by, checked-by, remarks) to
+`storage/<project>/exports/history.json`. `ExportPanel.tsx` shows the full
+history and now has an optional remarks field before each export ("e.g.
+Revised after client walkthrough"). Verified live: exported the same
+project twice with different remarks, confirmed both appear correctly
+ordered (newest first) with the right auto-incremented revision numbers.
+
+### M10 — Dashboard search/filter (was a real, unimplemented gap — now done)
+
+Added free-text search (property name, client name, project code) and
+city/state/status filters to the project dashboard, backed by a real
+server-side `WHERE` query in `GET /projects` (not a client-side filter over
+an already-fetched list) plus a `GET /projects/filters` endpoint returning
+the distinct values actually present, so the dropdowns reflect real data.
+Verified each filter independently against seeded test projects with known
+city/state/status values.
+
+**Deliberately not implemented**: filtering by franchise tier. That value
+lives per-region in `services/zoning-engine`'s requirements data, not on
+the Project record in `services/project` at all — filtering the dashboard
+by it would mean querying a second service per row, not a real filter.
+Flagging this as an open architecture question (should franchise tier move
+to the Project record, captured at intake?) rather than silently skipping
+it without a trace.
 
 ## Update: real authentication, admin/user management, brutal-testing pass
 

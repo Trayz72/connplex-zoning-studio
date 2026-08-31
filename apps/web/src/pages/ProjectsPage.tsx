@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getProjects, createProject, deleteProject, logout, Project } from '../api';
+import { getProjects, getProjectFilterOptions, createProject, deleteProject, logout, Project, ProjectFilterOptions } from '../api';
 import { deleteProjectData } from '../services/zoningEngineApi';
 import { useAuth } from '../AuthContext';
 
@@ -12,11 +12,17 @@ export const ProjectsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState('');
+  const [cityFilter, setCityFilter] = useState('');
+  const [stateFilter, setStateFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [filterOptions, setFilterOptions] = useState<ProjectFilterOptions>({ cities: [], states: [], statuses: [] });
   const navigate = useNavigate();
 
   const fetchProjectsList = async () => {
     try {
-      const data = await getProjects();
+      const data = await getProjects({ q: search, city: cityFilter, state: stateFilter, status: statusFilter });
       setProjects(data);
     } catch (err: any) {
       setError(err.message || 'Failed to load projects');
@@ -25,9 +31,25 @@ export const ProjectsPage: React.FC = () => {
     }
   };
 
+  // Debounce the free-text search so we're not firing a request per
+  // keystroke; dropdown filters apply immediately since they're discrete.
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput), 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
   useEffect(() => {
     fetchProjectsList();
-  }, []);
+  }, [search, cityFilter, stateFilter, statusFilter]);
+
+  useEffect(() => {
+    getProjectFilterOptions().then(setFilterOptions).catch(() => {});
+  }, [projects.length]);
+
+  const hasActiveFilters = Boolean(search || cityFilter || stateFilter || statusFilter);
+  const clearFilters = () => {
+    setSearchInput(''); setSearch(''); setCityFilter(''); setStateFilter(''); setStatusFilter('');
+  };
 
   const handleCreateProject = async () => {
     setCreating(true);
@@ -79,9 +101,14 @@ export const ProjectsPage: React.FC = () => {
             </span>
           )}
           {user?.is_admin && (
-            <Link to="/admin" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
-              Manage Users
-            </Link>
+            <>
+              <Link to="/admin/rules" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+                Rules &amp; Config
+              </Link>
+              <Link to="/admin" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+                Manage Users
+              </Link>
+            </>
           )}
           <button onClick={handleLogout} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
             Log Out
@@ -108,6 +135,34 @@ export const ProjectsPage: React.FC = () => {
           </button>
         </div>
 
+        <div className="filter-bar">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by property, client, or project #…"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            style={{ flex: '1 1 240px', minWidth: 0 }}
+          />
+          <select className="form-control" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} style={{ flex: '0 1 160px' }}>
+            <option value="">All cities</option>
+            {filterOptions.cities.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <select className="form-control" value={stateFilter} onChange={(e) => setStateFilter(e.target.value)} style={{ flex: '0 1 160px' }}>
+            <option value="">All states</option>
+            {filterOptions.states.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <select className="form-control" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ flex: '0 1 180px' }}>
+            <option value="">All statuses</option>
+            {filterOptions.statuses.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          {hasActiveFilters && (
+            <button className="btn btn-secondary" style={{ fontSize: '0.82rem' }} onClick={clearFilters}>
+              Clear filters
+            </button>
+          )}
+        </div>
+
         {error && <div className="alert-box alert-error">{error}</div>}
 
         {loading ? (
@@ -115,10 +170,19 @@ export const ProjectsPage: React.FC = () => {
         ) : projects.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state-icon" aria-hidden="true">⬚</div>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>No projects created yet.</p>
-            <button onClick={handleCreateProject} className="btn btn-primary">
-              Create Your First Project
-            </button>
+            {hasActiveFilters ? (
+              <>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>No projects match these filters.</p>
+                <button onClick={clearFilters} className="btn btn-secondary">Clear filters</button>
+              </>
+            ) : (
+              <>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>No projects created yet.</p>
+                <button onClick={handleCreateProject} className="btn btn-primary">
+                  Create Your First Project
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <div className="project-grid">

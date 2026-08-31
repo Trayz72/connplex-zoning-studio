@@ -15,7 +15,7 @@ calls both. See CLAUDE.md for the module-boundary rationale.
 import os
 import uuid
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, Tuple
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -48,6 +48,11 @@ class RequirementsIn(BaseModel):
     # Feeds VR_CLEAR_HEIGHT_EXISTING, which was previously always
     # INSUFFICIENT_DATA even when this value existed at intake.
     clear_height_ft: Optional[float] = None
+    # Architect-marked main entrance, real user input (nothing in CAD
+    # extraction detects doors) — feeds the SOP's entry-sightline placement
+    # rules (spec M6) when present; those rules are skipped, not guessed
+    # at, when this is None.
+    entry_point_ft: Optional[Tuple[float, float]] = None
 
 
 class GeometryUpdateIn(BaseModel):
@@ -343,6 +348,12 @@ def export_pdf_endpoint(project_id: str, body: ExportIn):
     out_path = os.path.join(storage.export_dir(project_id), f"{project_id}_{body.sheet_type.replace(' ', '_')}_{rev}.pdf")
     export_pdf.render_pdf(meta, layout["boundary_points_ft"], layout["rooms"], enriched["area_seat_chart"], enriched["feasibility"],
                            out_path, body.sheet_type, obstacles=layout.get("obstacles"), region_meta=region_meta)
+    storage.append_export_record(project_id, {
+        "revision": rev, "sheet_type": body.sheet_type, "format": "pdf",
+        "filename": os.path.basename(out_path), "generated_at": datetime.now(timezone.utc).isoformat(),
+        "drawn_by": meta.get("drawn_by", "-"), "checked_by": meta.get("checked_by", "-"),
+        "remarks": meta.get("remarks", "")
+    })
     return FileResponse(out_path, filename=os.path.basename(out_path), media_type="application/pdf")
 
 
@@ -363,8 +374,29 @@ def export_cad_endpoint(project_id: str, body: ExportIn):
     if body.format == "dwg":
         if not result["dwg_path"]:
             raise HTTPException(500, f"DXF export succeeded but DWG conversion failed: {result['dwg_conversion_error']}")
+        storage.append_export_record(project_id, {
+            "revision": rev, "sheet_type": body.sheet_type, "format": "dwg",
+            "filename": os.path.basename(result["dwg_path"]), "generated_at": datetime.now(timezone.utc).isoformat(),
+            "drawn_by": meta.get("drawn_by", "-"), "checked_by": meta.get("checked_by", "-"),
+            "remarks": meta.get("remarks", "")
+        })
         return FileResponse(result["dwg_path"], filename=os.path.basename(result["dwg_path"]), media_type="application/octet-stream")
+
+    storage.append_export_record(project_id, {
+        "revision": rev, "sheet_type": body.sheet_type, "format": "dxf",
+        "filename": os.path.basename(result["dxf_path"]), "generated_at": datetime.now(timezone.utc).isoformat(),
+        "drawn_by": meta.get("drawn_by", "-"), "checked_by": meta.get("checked_by", "-"),
+        "remarks": meta.get("remarks", "")
+    })
     return FileResponse(result["dxf_path"], filename=os.path.basename(result["dxf_path"]), media_type="application/dxf")
+
+
+@app.get("/api/projects/{project_id}/export-history")
+def get_export_history(project_id: str):
+    """Spec M9 deliverable: 'a project can show its full export history.'
+    Every past PDF/DXF/DWG export, newest first, with the revision it was
+    generated at and whatever drawn-by/checked-by/remarks were supplied."""
+    return {"history": storage.read_export_history(project_id)}
 
 
 def _enrich_with_requirements(project_id: str, layout: dict) -> dict:

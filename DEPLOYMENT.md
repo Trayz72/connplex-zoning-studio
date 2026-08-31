@@ -201,26 +201,24 @@ If you go the Docker route on Render for `services/zoning-engine`:
 
 The spec (`Connplex_Zoning_Studio_Spec.pdf` §9) defines M0–M10. Checked each
 one's actual acceptance criteria against this codebase directly (including
-live-testing two of them this session and finding real gaps, not assuming
-past session notes were still accurate):
+live-testing every one of them, not assuming past session notes were still
+accurate):
 
 | Milestone | Status | Note |
 |---|---|---|
-| M0 — Foundational skeleton | Done, one gap fixed this session | Spec calls for Postgres; this uses SQLite (§2 explains the tradeoff). **The "cannot reach canvas with incomplete intake" acceptance criterion was failing** — verified live, a fresh project with no intake data loaded the full workspace with zero gate. Fixed this session (`ZoningWorkspace.tsx` now redirects to intake if incomplete). |
-| M1 — CAD interop PoC | Partial | DXF works natively; DWG works via ODA for 2 of 3 reference files (theater.dwg fails — see §3). APS (spec's recommended path) was never implemented, only the ODA fallback. |
-| M2 — Rules/config layer + admin UI | **Partial — real gap** | The registry itself exists and is genuinely data-driven (`rules_registry_v1.json`), but **no admin UI to edit it exists** — confirmed by search, there's no CRUD screen anywhere in `apps/web/src`. Today, changing a rule value means hand-editing JSON and redeploying, which is exactly what Product Principle #2 says not to do. This is a real, unimplemented milestone, not a polish item. |
+| M0 — Foundational skeleton | Done | Spec calls for Postgres; this uses SQLite (§2 explains the tradeoff). The "cannot reach canvas with incomplete intake" acceptance criterion was failing (verified live) — fixed and re-verified: `ZoningWorkspace.tsx` now redirects to intake if incomplete. |
+| M1 — CAD interop PoC | Partial | DXF works natively; DWG works via ODA for 2 of 3 reference files (theater.dwg fails — see §3). APS (spec's recommended path) was never implemented, only the ODA fallback. Unchanged this session — this is a licensing/vendor decision, not a code gap. |
+| M2 — Rules/config layer + admin UI | **Done** | Built `/admin/rules` — a real CRUD UI over all 5 registry categories (seat types, auditorium presets, franchise tiers, planning norms, viability rules), gated to actual admin sessions (the write path lives in `services/project`, which has real auth — `services/zoning-engine` has none by design, so it was never a safe place for a write endpoint). Every save writes a timestamped backup first. Verified end-to-end: edited a real seat-type record through the UI, confirmed the change landed on disk, and confirmed `services/zoning-engine` picked it up **without a restart** (fixed a real bug along the way — its registry cache never invalidated). |
 | M3 — Feasibility engine | Done | Clear height + column-grid spacing wired in; a "Feasibility Check" view shows pass/fail per rule. |
 | M4 — Manual zoning canvas | Done | Move/resize/live area-seat panel/overlap warnings all real and tested this session and prior ones. |
 | M5 — Auto-layout v1 (auditoriums) | Done | Maximizes seats, avoids obstacles, respects seats-per-screen floor. |
-| M6 — Auto-layout v2 (support zones) | **Partial** | Foyer/F&B/Washroom/Box Office/BOH are all placed automatically — but the spec's specific adjacency rules (washrooms hidden from foyer sightline, F&B visible from entry, foyer at entry level) are **not implemented**; placement is a generic largest-fit rectangle scan with no sightline/adjacency awareness. Real gap against the spec's stated acceptance criteria for this milestone. |
+| M6 — Auto-layout v2 (support zones) | **Done, with an honest scope note** | The SOP's adjacency rules ("F&B visible from entry", "washrooms not directly visible from foyer", "foyer at main entry level") are real geometric sightline checks now (`layout_engine.py`), driven by a real architect-marked entry point (a new click-to-mark picker in the Requirements step — nothing in CAD extraction detects doors, so this is genuine user input, not inferred). When no entry point is marked, the rules are honestly skipped with a stated reason rather than guessed at. Verified two ways: an isolated geometry test proving the mechanism succeeds when the floor plate allows it, and a real run against the actual 500-column Dhule floor, which correctly reports it *couldn't* always satisfy the sightline preference — a genuine result given that much column density, not a bug. |
 | M7 — Area & Seat Chart | Done | Live panel matches the reference table's column structure; PDF export reproduces it. |
 | M8 — Exact-match export | Done | Rewritten to match the real Connplex sheet format (title block, legends, revisions, area/seat chart) — verified visually against real exports multiple times this project. Logo is a drawn approximation, not their vector art (documented, not hidden). |
-| M9 — Versioning/housekeeping | **Partial** | Revision auto-increments correctly on each export (R0→R1→…, verified). **No export-history view exists** — past exports live in `storage/<project>/exports/` but there's no UI listing them, so the spec's "show full export history" deliverable isn't there. |
-| M10 — Polish | **Partial** | No search/filter on the project dashboard (spec explicitly calls for city/state/status/tier filters). The `floors` table exists and is unused, correctly leaving room for multi-floor later per spec — confirmed by schema review. Error-state handling improved this session (top-level error boundary added). A brand-new user genuinely can complete the full pipeline unaided today — verified live, repeatedly, this session. |
+| M9 — Versioning/housekeeping | **Done** | Revision auto-increments correctly on each export (R0→R1→…, verified). Added a real export-history log (`storage/<project>/exports/history.json`, one record per export with revision/format/timestamp/drawn-by/checked-by/remarks) and a UI panel showing it, plus an optional remarks field before each export. Verified: exported twice with different remarks, confirmed both showed up correctly ordered with the right revision numbers. |
+| M10 — Polish | **Done** | Added search (property/client/project #) and city/state/status filters to the project dashboard, backed by a real server-side query — verified all four independently against seeded test data. Franchise-tier filtering deliberately **not** included: that data lives per-region in `services/zoning-engine`'s requirements, not on the Project record, so filtering by it from the dashboard would mean querying a second service per row rather than a real filter — flag this as a future decision, not a silently dropped feature. The `floors` table exists and is unused, correctly leaving room for multi-floor later per spec. Error-state handling improved (top-level error boundary added). A brand-new user genuinely can complete the full pipeline unaided today — verified live, repeatedly. |
 
-**Bottom line: M0, M3, M4, M5, M7, M8 are done. M1 is real but incomplete
-for DWG. M2, M6, M9, M10 each have a genuine, specific, unimplemented piece**
-— not vague polish, but concrete missing deliverables (an admin UI, sightline
-rules, an export-history screen, dashboard search). Building all four
-properly is a meaningfully sized chunk of work, not a quick pass — worth
-prioritizing rather than doing partially across all four at once.
+**Bottom line: M0, M2, M3, M4, M5, M6, M7, M8, M9, M10 are done. M1 is real
+but incomplete for DWG** (theater.dwg, and the spec's recommended APS path
+was never built — both are vendor/licensing decisions, not something a code
+change closes without a licensing decision from Connplex first).

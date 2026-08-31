@@ -68,6 +68,9 @@ export const AdminPage: React.FC = () => {
           Connplex Zoning Studio
         </Link>
         <div className="nav-links">
+          <Link to="/admin/rules" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+            Rules &amp; Config
+          </Link>
           <Link to="/projects" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
             ← All Projects
           </Link>

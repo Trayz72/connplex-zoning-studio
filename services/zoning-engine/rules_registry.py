@@ -1,5 +1,13 @@
 """Loads the shared, versioned Rules/Config registry (Product Principle #1: config
-over code — nothing in this service hardcodes a business/architectural number)."""
+over code — nothing in this service hardcodes a business/architectural number).
+
+Read-only from this service's side, deliberately — the admin-editable write
+path (spec M2's admin UI) lives in services/project instead, because that's
+the service with real users/sessions/admin auth. zoning-engine has no auth
+model at all by design (see CLAUDE.md's module-boundary notes), so an edit
+endpoint here would mean anyone who can reach this service could rewrite
+business rules with zero authentication. Both services read the same file on
+disk, so this only needs to notice when it changes underneath it."""
 import json
 import os
 
@@ -8,13 +16,24 @@ REGISTRY_PATH = os.path.join(
 )
 
 _cache = None
+_cache_mtime = None
 
 
 def load():
-    global _cache
-    if _cache is None:
+    """Re-reads the file whenever its mtime has moved since the last load —
+    a cheap stat() call, so an edit made through the admin UI (a separate
+    process, services/project) takes effect on this service's very next
+    request instead of needing a restart or an explicit cross-service
+    reload call this service's own auth-less API surface shouldn't expose."""
+    global _cache, _cache_mtime
+    try:
+        current_mtime = os.path.getmtime(REGISTRY_PATH)
+    except OSError:
+        current_mtime = None
+    if _cache is None or current_mtime != _cache_mtime:
         with open(REGISTRY_PATH, "r", encoding="utf-8") as f:
             _cache = json.load(f)
+        _cache_mtime = current_mtime
     return _cache
 
 

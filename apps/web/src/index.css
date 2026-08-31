@@ -241,6 +241,19 @@ header.navbar .nav-links {
   border-bottom: 1px solid var(--border-color);
 }
 
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.filter-bar .form-control {
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+}
+
 .project-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));

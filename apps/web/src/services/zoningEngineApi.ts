@@ -155,3 +155,21 @@ export async function exportCad(projectId: string, projectMeta: Record<string, a
   });
   await downloadFile(res, `${projectId}_zoning_layout.${format}`);
 }
+
+export interface ExportHistoryEntry {
+  revision: string;
+  sheet_type: string;
+  format: string;
+  filename: string;
+  generated_at: string;
+  drawn_by: string;
+  checked_by: string;
+  remarks: string;
+}
+
+export async function getExportHistory(projectId: string): Promise<ExportHistoryEntry[]> {
+  const res = await fetch(`${BASE}/${projectId}/export-history`);
+  if (!res.ok) throw new Error('Failed to load export history');
+  const data = await res.json();
+  return data.history;
+}

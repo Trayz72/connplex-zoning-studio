@@ -96,6 +96,69 @@ def _scan_place(usable_poly, placed_polys, w, h, bbox, allow_rotate=True):
     return None
 
 
+def _has_sightline(usable_poly, placed_polys, from_point, rect):
+    """A straight, unobstructed line from from_point to rect's centroid:
+    stays inside the usable area (not blocked by a wall/column — obstacles
+    are already holes in usable_poly, so a line crossing one leaves the
+    polygon) and doesn't cross anything already placed."""
+    from shapely.geometry import LineString
+    c = rect.centroid
+    line = LineString([from_point, (c.x, c.y)])
+    if not usable_poly.contains(line):
+        return False
+    return not any(line.intersects(p) for p in placed_polys)
+
+
+def _scan_place_best(usable_poly, placed_polys, w, h, bbox, allow_rotate=True, score_fn=None, prefer_fn=None, max_candidates=80):
+    """Same first-fit grid scan as _scan_place, but collects up to
+    max_candidates valid positions instead of stopping at the first one, so a
+    placement can be chosen for *where* it sits, not just *that* it fits.
+    prefer_fn is a soft constraint (e.g. "has a sightline from the entry") —
+    placement still succeeds using the unfiltered candidates if none satisfy
+    it, per Product Principle #7 (never silently invent a placement that
+    contradicts real geometry, but never silently drop a room either)."""
+    minx, miny, maxx, maxy = bbox
+    orientations = [(w, h)]
+    if allow_rotate and abs(w - h) > 1e-6:
+        orientations.append((h, w))
+
+    candidates = []
+    y = miny
+    while y + min(h, w) <= maxy and len(candidates) < max_candidates:
+        x = minx
+        while x + min(h, w) <= maxx and len(candidates) < max_candidates:
+            for ow, oh in orientations:
+                if x + ow > maxx or y + oh > maxy:
+                    continue
+                cand = _rect(x, y, ow, oh)
+                if not usable_poly.contains(cand.buffer(-0.01)):
+                    continue
+                clearance = cand.buffer(AISLE_CLEARANCE_FT / 2)
+                if any(clearance.intersects(p) for p in placed_polys):
+                    continue
+                candidates.append((x, y, ow, oh))
+                if len(candidates) >= max_candidates:
+                    break
+            x += GRID_STEP_FT
+        y += GRID_STEP_FT
+
+    if not candidates:
+        return None, False
+    if score_fn is None and prefer_fn is None:
+        return candidates[0], False
+
+    pool = candidates
+    satisfied_preference = False
+    if prefer_fn:
+        preferred = [c for c in candidates if prefer_fn(c)]
+        if preferred:
+            pool = preferred
+            satisfied_preference = True
+
+    best = min(pool, key=score_fn) if score_fn else pool[0]
+    return best, satisfied_preference
+
+
 def _place_auditoriums(usable_poly, bbox, presets, max_count, preset_order):
     placed = []
     placed_polys = []
@@ -162,6 +225,20 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
             )
         targets.append((room_type, display_name, target, min_area, note))
 
+    # Real entry point marked by the architect (spec M6 / SOP §4.4-§9): "Foyer
+    # (at main entry level)", "F&B: visible from entry", "Washrooms: ... not
+    # directly visible from foyer". Nothing in CAD extraction detects doors,
+    # so this is only applied when the architect actually marked one —
+    # skipped, with an honest note, rather than guessed at, otherwise.
+    entry_point = requirements.get("entry_point_ft") if requirements else None
+    foyer_rect = None
+    if entry_point is None:
+        warnings.append(
+            "No main entrance was marked, so Foyer/F&B/Washroom placement used generic "
+            "first-fit packing only — the SOP's entry-facing/sightline rules (§4.4/§9) "
+            "were not applied. Mark the entrance in Requirements to enable them."
+        )
+
     for room_type, display_name, target_area, min_area, note in targets:
         if target_area <= 0:
             # Real, reproducible crash found via brutal testing: a region too
@@ -179,11 +256,49 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
         aspect = 1.6
         w = math.sqrt(target_area * aspect)
         h = target_area / w
-        placement = _scan_place(usable_poly, placed_polys, w, h, bbox)
+
+        score_fn = prefer_fn = None
+        if entry_point is not None:
+            if room_type == "FOYER":
+                # "Foyer (at main entry level)" — closest available position to the entrance.
+                score_fn = lambda c: (_rect(*c).centroid.x - entry_point[0]) ** 2 + (_rect(*c).centroid.y - entry_point[1]) ** 2
+            elif room_type == "FNB":
+                # "F&B: visible from entry" — the foyer itself is deliberately excluded from
+                # what counts as "blocking" this: the foyer is the entry transition space by
+                # design, sits between the literal entry point and everything else, and a
+                # first version of this check (that didn't exclude it) found the foyer
+                # blocking its own "visible from entry" requirement on every real test —
+                # the SOP's intent is "visible once you're in from the entry/foyer area",
+                # not an unobstructed line through where the foyer itself stands.
+                blockers = [p for p in placed_polys if p is not foyer_rect]
+                prefer_fn = lambda c: _has_sightline(usable_poly, blockers, entry_point, _rect(*c))
+            elif room_type == "WASHROOM":
+                # "Washrooms: ... not directly visible from foyer" — sightline from the
+                # foyer's centroid if one was placed, otherwise falls back to generic
+                # placement (this specific rule is meaningless with no foyer to be hidden
+                # from). The foyer itself is excluded from the blocking set here too — a
+                # sightline starting at the foyer's own centroid trivially "intersects" the
+                # foyer polygon it starts inside of, which would make every placement look
+                # hidden regardless of real geometry.
+                if foyer_rect is not None:
+                    foyer_centroid = (foyer_rect.centroid.x, foyer_rect.centroid.y)
+                    blockers = [p for p in placed_polys if p is not foyer_rect]
+                    prefer_fn = lambda c: not _has_sightline(usable_poly, blockers, foyer_centroid, _rect(*c))
+
+        if score_fn or prefer_fn:
+            best, satisfied = _scan_place_best(usable_poly, placed_polys, w, h, bbox, score_fn=score_fn, prefer_fn=prefer_fn)
+            placement = best
+            if placement and prefer_fn and not satisfied:
+                rule_desc = "a sightline from the entry" if room_type == "FNB" else "no direct sightline from the foyer"
+                warnings.append(f"{display_name} placed, but no available position gave it {rule_desc} — used the best fit available instead.")
+        else:
+            placement = _scan_place(usable_poly, placed_polys, w, h, bbox)
 
         shrink_note = None
         if not placement:
             # Try shrinking toward the minimum before giving up — never invent space that isn't there.
+            # Sightline/entry preferences are dropped once shrinking — a smaller-than-target
+            # room that actually fits beats a correctly-placed room that doesn't exist.
             for factor in (0.75, 0.5, 0.35):
                 w2 = math.sqrt(target_area * factor * aspect)
                 h2 = (target_area * factor) / w2
@@ -200,6 +315,8 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
 
         x, y, w, h = placement
         rect = _rect(x, y, w, h)
+        if room_type == "FOYER":
+            foyer_rect = rect
         placed_polys.append(rect)
         zone = {
             "room_id": f"{room_type.lower()}-{uuid.uuid4().hex[:8]}",

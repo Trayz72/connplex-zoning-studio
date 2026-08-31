@@ -15,3 +15,8 @@ services/cad-interop/oda/
 # Runtime per-project data (uploaded CAD files, generated geometry/layouts/exports) —
 # user-generated at runtime, not source. See services/zoning-engine/storage.py.
 services/zoning-engine/storage/*/
+
+# Timestamped safety-net backups written before every admin-UI rules-registry
+# save (see rules_registry.py's save_category) — runtime recovery files, not
+# source; the current registry itself stays committed as normal.
+services/rules-config/registry/*.backup.*.json
