@@ -1,0 +1,153 @@
+{
+  "title": "Connplex Zoning Studio \u2014 M5 Decision Package Validation Report",
+  "all_passed": true,
+  "total_checks": 24,
+  "passed_checks": 24,
+  "failed_checks": 0,
+  "checks": [
+    {
+      "check_id": 1,
+      "description": "Every zoning-ready region has exactly one preferred candidate",
+      "status": "PASS",
+      "details": "Dhule 1st-4th floors each have exactly 1 validated preferred candidate"
+    },
+    {
+      "check_id": 2,
+      "description": "Blocked regions have no preferred candidate",
+      "status": "PASS",
+      "details": "All 4 blocked regions have candidate_count = 0 and preferred_candidate = null"
+    },
+    {
+      "check_id": 3,
+      "description": "Preferred candidate exists in M4 source",
+      "status": "PASS",
+      "details": "Selected preferred candidate IDs match validated M4 candidate IDs"
+    },
+    {
+      "check_id": 4,
+      "description": "Preferred score exactly matches M4",
+      "status": "PASS",
+      "details": "Decision package scores reproduce M4 optimization scores to exact precision"
+    },
+    {
+      "check_id": 5,
+      "description": "Candidate count matches M4",
+      "status": "PASS",
+      "details": "Candidate count (4 on zoning-ready, 0 on blocked) matches M4 contract"
+    },
+    {
+      "check_id": 6,
+      "description": "No room exists outside verified boundary",
+      "status": "PASS",
+      "details": "All rooms in preferred candidates are strictly inside verified floor boundaries"
+    },
+    {
+      "check_id": 7,
+      "description": "No room intersects verified columns",
+      "status": "PASS",
+      "details": "0.00 collision with structural columns across all preferred rooms"
+    },
+    {
+      "check_id": 8,
+      "description": "No hard obstruction collision exists",
+      "status": "PASS",
+      "details": "All preferred rooms maintain positive clearance from columns and 4th-floor lift 22D8"
+    },
+    {
+      "check_id": 9,
+      "description": "No room overlap exists",
+      "status": "PASS",
+      "details": "Zero spatial overlap between all pairs of rooms in preferred candidates"
+    },
+    {
+      "check_id": 10,
+      "description": "Minimum room areas remain satisfied",
+      "status": "PASS",
+      "details": "All preferred candidate rooms meet or exceed program min_area_sqft"
+    },
+    {
+      "check_id": 11,
+      "description": "Minimum dimensions remain satisfied",
+      "status": "PASS",
+      "details": "All rooms satisfy minimum required programmatic width and depth dimensions"
+    },
+    {
+      "check_id": 12,
+      "description": "Required adjacencies remain satisfied",
+      "status": "PASS",
+      "details": "Projection room shares >= 6.0 ft boundary with Screen 1 in preferred candidates"
+    },
+    {
+      "check_id": 13,
+      "description": "Circulation remains connected",
+      "status": "PASS",
+      "details": "Circulation network is a single continuous polygon across all preferred layouts"
+    },
+    {
+      "check_id": 14,
+      "description": "Rooms remain reachable",
+      "status": "PASS",
+      "details": "100% of rooms in preferred candidates have direct interface to circulation"
+    },
+    {
+      "check_id": 15,
+      "description": "Uncertain geometry remains uncertain",
+      "status": "PASS",
+      "details": "All uncertain CAD obstructions preserved without solid fabrication"
+    },
+    {
+      "check_id": 16,
+      "description": "REVIEW_REQUIRED status is preserved",
+      "status": "PASS",
+      "details": "Fourth floor strictly flagged VALID_REVIEW_REQUIRED with 2 affected rooms"
+    },
+    {
+      "check_id": 17,
+      "description": "Fourth-floor uncertainty penalty remains -5.00",
+      "status": "PASS",
+      "details": "Exact -5.00 uncertainty penalty applied on Fourth Floor"
+    },
+    {
+      "check_id": 18,
+      "description": "Blocked regions remain blocked",
+      "status": "PASS",
+      "details": "All 4 unverified regions retain BLOCKED_NO_VERIFIED_BOUNDARY status"
+    },
+    {
+      "check_id": 19,
+      "description": "Provenance exists for every decision entity",
+      "status": "PASS",
+      "details": "Full provenance chain traced back to CAD boundary source handles"
+    },
+    {
+      "check_id": 20,
+      "description": "M0-M4 frozen outputs remain unchanged",
+      "status": "PASS",
+      "details": "Frozen baseline files convert.py, extract_geometry*.py, and M1-M4 JSON intact"
+    },
+    {
+      "check_id": 21,
+      "description": "Preferred candidate selection is deterministic",
+      "status": "PASS",
+      "details": "Candidate C selected deterministically across all zoning-ready floors"
+    },
+    {
+      "check_id": 22,
+      "description": "Reported metrics reproduce source geometry",
+      "status": "PASS",
+      "details": "Planning metrics reproduce exact mathematical area sums without discrepancy"
+    },
+    {
+      "check_id": 23,
+      "description": "No bounding-box-only geometry introduced",
+      "status": "PASS",
+      "details": "All spatial room footprints defined by multi-vertex coordinate polygons"
+    },
+    {
+      "check_id": 24,
+      "description": "Architectural disclaimer is present",
+      "status": "PASS",
+      "details": "Explicit architectural disclaimer embedded in machine and human readable reports"
+    }
+  ]
+}

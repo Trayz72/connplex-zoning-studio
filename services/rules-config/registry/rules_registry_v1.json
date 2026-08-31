@@ -1,0 +1,257 @@
+{
+  "schema_version": "1.0",
+  "title": "Connplex Zoning Studio — Rules & Config Registry",
+  "description": "Central, versioned, source-backed rule/catalogue data. Application and layout-engine code must read these values, never hardcode them (Master Context Product Principle #1 / §74-75). Every value below carries an approval_status; only DECIDED / SOURCE_BACKED entries may act as production hard constraints. ENGINEERING_ASSUMPTION entries are clearly marked and must not be silently promoted.",
+  "generated": "2026-08-31",
+  "sources": [
+    { "id": "SOP", "name": "CCL_ZONING_SOP_26.05.2026.pdf", "org": "Connplex Cinemas Limited", "note": "Image-based PDF; exact figures should be re-verified against the scan before promoting a value to a stricter status." },
+    { "id": "FEASIBILITY_MANUAL", "name": "CONNPLEX Cinemas - PRE-DEAL FEASIBILITY CRITERIA MANUAL.pdf", "org": "Connplex Cinemas Limited" },
+    { "id": "SPEC", "name": "Connplex_Zoning_Studio_Spec.pdf", "org": "Connplex Cinemas Limited / project spec v1.0", "note": "Reconciled/derived from SOP + Feasibility Manual + franchise brochure + ROI sheet." }
+  ],
+
+  "seat_types": [
+    {
+      "id": "SLIDER_SOFA",
+      "name": "Slider Sofa",
+      "category": "STANDARD",
+      "width_in_before_slide": 30,
+      "width_in_after_slide": 38,
+      "depth_in_before_slide": 32,
+      "depth_in_after_slide": 38,
+      "back_height_in_before_recline": 43,
+      "back_height_in_after_recline": 41,
+      "min_row_step_ft": 4.25,
+      "min_row_step_display": "4'-3\"",
+      "allowed_presets": ["60_SEAT", "90_SEAT", "125_SEAT"],
+      "source": "SOP",
+      "source_section": "§4.2-4.3",
+      "approval_status": "SOURCE_BACKED"
+    },
+    {
+      "id": "FRONT_LOUNGER",
+      "name": "Front Lounger",
+      "category": "STANDARD",
+      "length_in_side_elevation": 68,
+      "width_in_front_view": 32,
+      "min_row_step_ft": null,
+      "min_row_step_display": "TBD — not stated in source",
+      "notes": "Reclines with leg-rest extension; row step not given in SOP extract.",
+      "allowed_presets": ["60_SEAT", "90_SEAT", "125_SEAT"],
+      "source": "SOP",
+      "source_section": "§4.2-4.3",
+      "approval_status": "SOURCE_BACKED_INCOMPLETE"
+    },
+    {
+      "id": "DUO_LOUNGER",
+      "name": "Duo Lounger",
+      "category": "DELUXE",
+      "width_in": 53,
+      "length_in": 60,
+      "back_height_in": 39,
+      "seats_per_unit": 2,
+      "min_row_step_ft": 6.5,
+      "min_row_step_display": "6'-6\"",
+      "allowed_presets": ["90_SEAT"],
+      "source": "SOP",
+      "source_section": "§4.2-4.3",
+      "approval_status": "SOURCE_BACKED"
+    },
+    {
+      "id": "RECLINER_LOUNGER_GENERIC",
+      "name": "Recliner / Lounger (generic)",
+      "category": "DELUXE",
+      "min_row_step_ft": 7.0,
+      "min_row_step_display": "7'-0\"",
+      "notes": "Generic entry in source table with no footprint dims — do not use for area/seat-count math until disambiguated against a named SKU.",
+      "allowed_presets": [],
+      "source": "SOP",
+      "approval_status": "AMBIGUOUS_REQUIRES_APPROVAL"
+    },
+    {
+      "id": "PREMIUM_RECLINER",
+      "name": "Premium Recliner",
+      "category": "LUXURY",
+      "depth_in_closed": 34,
+      "depth_in_open_after_recline": 69,
+      "seat_width_in": 22,
+      "back_height_in_before_recline": 69,
+      "min_row_step_ft": 5.75,
+      "min_row_step_display": "≈ 5'-9\" (derived from 69in open depth; NOT an explicit SOP row-step figure)",
+      "min_row_step_provenance": "ENGINEERING_ASSUMPTION",
+      "allowed_presets": ["90_SEAT", "125_SEAT"],
+      "source": "SOP",
+      "source_section": "§4.2-4.3 + seat spec pages",
+      "approval_status": "SOURCE_BACKED_PARTIAL"
+    },
+    {
+      "id": "DUO_PREMIUM_RECLINER",
+      "name": "Duo Premium Recliner (Primus)",
+      "category": "LUXURY",
+      "width_in": 73,
+      "length_in": 89,
+      "height_in": 42,
+      "seats_per_unit": 2,
+      "min_row_step_ft": 7.5,
+      "min_row_step_display": "7'-6\"",
+      "notes": "Individual recline switches, shared armrest enclosure.",
+      "allowed_presets": ["125_SEAT"],
+      "source": "SOP",
+      "source_section": "§4.2-4.3",
+      "approval_status": "SOURCE_BACKED"
+    },
+    {
+      "id": "DUO_RECLINER_LOUNGER_LUNAR",
+      "name": "Duo Recliner Lounger (Lunar Lounger)",
+      "category": "LUXURY",
+      "width_in": 65,
+      "width_display": "5'5\" O/O",
+      "depth_in_approx": 60,
+      "notes": "Chaise-style with ottoman; row step not stated in source.",
+      "min_row_step_ft": null,
+      "allowed_presets": ["125_SEAT"],
+      "source": "SOP",
+      "approval_status": "SOURCE_BACKED_INCOMPLETE"
+    }
+  ],
+
+  "auditorium_presets": [
+    {
+      "id": "60_SEAT",
+      "name": "60-seat auditorium",
+      "target_seats": 60,
+      "width_min_ft": 30,
+      "length_min_ft": 45,
+      "length_max_ft": 50,
+      "clear_height_min_ft": 10,
+      "seating_mix": ["SLIDER_SOFA", "FRONT_LOUNGER"],
+      "min_area_sqft": 1350,
+      "source": "SOP",
+      "source_section": "§4.1",
+      "approval_status": "SOURCE_BACKED"
+    },
+    {
+      "id": "90_SEAT",
+      "name": "90-seat auditorium",
+      "target_seats": 90,
+      "width_min_ft": 40,
+      "length_min_ft": 50,
+      "length_max_ft": 65,
+      "clear_height_min_ft": 12,
+      "seating_mix": ["SLIDER_SOFA", "FRONT_LOUNGER", "PREMIUM_RECLINER", "DUO_LOUNGER"],
+      "min_area_sqft": 2000,
+      "source": "SOP",
+      "source_section": "§4.1",
+      "approval_status": "SOURCE_BACKED"
+    },
+    {
+      "id": "125_SEAT",
+      "name": "125-seat auditorium",
+      "target_seats": 125,
+      "width_min_ft": 45,
+      "width_max_ft": 50,
+      "length_min_ft": 65,
+      "length_max_ft": 70,
+      "clear_height_min_ft": 14,
+      "clear_height_preferred_ft": 16,
+      "seating_mix": ["SLIDER_SOFA", "FRONT_LOUNGER", "PREMIUM_RECLINER", "DUO_PREMIUM_RECLINER"],
+      "min_area_sqft": 2925,
+      "source": "SOP",
+      "source_section": "§4.1",
+      "approval_status": "SOURCE_BACKED"
+    }
+  ],
+
+  "franchise_tiers": [
+    {
+      "id": "EXPRESS",
+      "name": "Express",
+      "aka": ["Smart"],
+      "naming_conflict_note": "Brochure calls this tier 'Express'; the ROI spreadsheet calls the equivalent tier 'Smart'. UNRESOLVED — Open Item #2 in spec §10. Flag to Connplex before relying on this tier name in a client-facing export.",
+      "area_min_sqft": 5000,
+      "area_max_sqft": 7000,
+      "min_screens": 2,
+      "max_screens": 4,
+      "min_seats": 150,
+      "height_min_ft": 10,
+      "height_max_ft": 12,
+      "allowed_seat_types": ["SLIDER_SOFA", "FRONT_LOUNGER"],
+      "foyer_to_screen_ratio": "30:70",
+      "franchisee_fee_per_screen_inr_lacs": 5,
+      "source": "SPEC",
+      "source_section": "§2.9",
+      "approval_status": "SOURCE_BACKED"
+    },
+    {
+      "id": "SIGNATURE",
+      "name": "Signature",
+      "area_min_sqft": 6000,
+      "area_max_sqft": 8000,
+      "min_screens": 3,
+      "max_screens": 4,
+      "min_seats": 175,
+      "height_min_ft": 11,
+      "height_max_ft": 12,
+      "allowed_seat_types": ["SLIDER_SOFA", "FRONT_LOUNGER", "DUO_LOUNGER"],
+      "foyer_to_screen_ratio": "40:60",
+      "franchisee_fee_per_screen_inr_lacs": 5,
+      "source": "SPEC",
+      "source_section": "§2.9",
+      "approval_status": "SOURCE_BACKED"
+    },
+    {
+      "id": "LUXURIANCE",
+      "name": "Luxuriance",
+      "area_min_sqft": 8000,
+      "area_max_sqft": 10000,
+      "min_screens": 3,
+      "max_screens": 6,
+      "min_seats": 200,
+      "height_min_ft": 12,
+      "height_max_ft": 14,
+      "allowed_seat_types": ["PREMIUM_RECLINER", "DUO_PREMIUM_RECLINER"],
+      "foyer_to_screen_ratio": "40:60",
+      "franchisee_fee_per_screen_inr_lacs": 5,
+      "source": "SPEC",
+      "source_section": "§2.9",
+      "approval_status": "SOURCE_BACKED"
+    }
+  ],
+
+  "planning_norms": [
+    { "id": "SCREEN_TO_BACK_WALL_MIN_FT", "value": 3.0, "unit": "ft", "description": "Screen-to-back-wall distance >= 3 ft.", "source": "SOP", "source_section": "§4.4/§9", "approval_status": "SOURCE_BACKED" },
+    { "id": "FIRST_ROW_DISTANCE_RULE", "value": null, "formula": "first_row_distance_ft >= screen_width_ft", "description": "First-row distance >= screen width. Requires a screen_width input not yet captured by intake — cannot be evaluated numerically until that field exists.", "source": "SOP", "source_section": "§4.4/§9", "approval_status": "SOURCE_BACKED_NOT_EVALUABLE" },
+    { "id": "CENTRAL_AISLE_MIN_FT", "value": 3.5, "unit": "ft", "description": "Central aisle >= 3'6\".", "source": "SOP", "source_section": "§4.4/§9", "approval_status": "SOURCE_BACKED" },
+    { "id": "SIDE_CLEARANCE_ASSUMPTION_FT", "value": 1.5, "unit": "ft", "description": "Wall-to-seat side clearance used by the v1 seat-packing estimator. NOT stated explicitly in the SOP extract available to this project.", "source": "ENGINEERING_ASSUMPTION", "approval_status": "REQUIRES_APPROVAL" },
+    { "id": "REAR_CLEARANCE_ASSUMPTION_FT", "value": 2.0, "unit": "ft", "description": "Rear circulation clearance used by the v1 seat-packing estimator. NOT stated explicitly in the SOP extract available to this project.", "source": "ENGINEERING_ASSUMPTION", "approval_status": "REQUIRES_APPROVAL" },
+    { "id": "FOYER_REQUIRED_FUNCTIONS", "value": ["Box office", "Waiting", "F&B", "Washrooms", "Electrical room", "Server room", "Store room"], "description": "Foyer at main entry level must include these functions.", "source": "SOP", "source_section": "§4.4/§9", "approval_status": "SOURCE_BACKED" },
+    { "id": "WASHROOM_ADJACENCY_RULE", "value": "near plumbing shaft; not directly visible from foyer; easily accessible", "description": "Qualitative adjacency rule, not yet machine-checkable without a sightline model.", "source": "SOP", "approval_status": "SOURCE_BACKED_QUALITATIVE" },
+    { "id": "FNB_ADJACENCY_RULE", "value": "visible from entry; adequate circulation; plumbing lines available", "source": "SOP", "approval_status": "SOURCE_BACKED_QUALITATIVE" },
+    { "id": "SEPARATE_ENTRY_EXIT_FLOW", "value": "no cross-movement between entry/exit flows; separate entry & exit flow per auditorium; direct fire-exit access from circulation", "source": "SOP", "approval_status": "SOURCE_BACKED_QUALITATIVE" }
+  ],
+
+  "viability_rules": [
+    { "rule_id": "VR_CLEAR_HEIGHT_EXISTING", "property_type_scope": "EXISTING_BUILDING", "metric": "clear_height_ft", "operator": ">=", "threshold": 10.0, "unit": "ft", "severity": "HARD", "message_template": "Clear height below 10'-0\" minimum — NOT VIABLE.", "source": "SOP+FEASIBILITY_MANUAL", "source_section": "SOP §3.1 / Manual §1.1", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_COLUMN_GRID_WIDTH_EXISTING", "property_type_scope": "EXISTING_BUILDING", "metric": "column_grid_width_ft", "operator": ">=", "threshold": 20.0, "threshold_preferred": 22.0, "unit": "ft", "severity": "HARD", "message_template": "Structural column grid width below 20 ft absolute minimum — NOT VIABLE.", "source": "SOP", "source_section": "§3.2", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_COLUMN_GRID_LENGTH_EXISTING", "property_type_scope": "EXISTING_BUILDING", "metric": "column_grid_length_ft", "operator": ">=", "threshold": 30.0, "threshold_preferred": 35.0, "unit": "ft", "severity": "HARD", "message_template": "Structural column grid length below 30 ft absolute minimum — NOT VIABLE.", "source": "SOP", "source_section": "§3.2", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_MIN_CARPET_AREA_EXISTING", "property_type_scope": "EXISTING_BUILDING", "metric": "carpet_area_sqft", "operator": ">=", "threshold": 6000, "unit": "sqft", "severity": "HARD", "message_template": "Carpet area below 6,000 sq.ft minimum.", "source": "FEASIBILITY_MANUAL", "source_section": "§1.1", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_SEATS_PER_SCREEN_SOP_FLOOR", "property_type_scope": "EXISTING_BUILDING", "metric": "seats_per_screen", "operator": ">=", "threshold": 55, "unit": "seats", "severity": "WARNING", "message_template": "Seats per screen below the SOP's 55-60 layout-efficiency floor.", "source": "SOP", "source_section": "§3.3", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_SEATS_PER_SCREEN_FEASIBILITY_HARD", "property_type_scope": "EXISTING_BUILDING", "metric": "seats_per_screen", "operator": ">=", "threshold": 60, "unit": "seats", "severity": "HARD", "message_template": "Seats per screen below the Pre-Deal Feasibility Manual's 60-seat/screen hard minimum.", "source": "FEASIBILITY_MANUAL", "source_section": "§1.2", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_LEGAL_MIN_TOTAL_SEATS", "property_type_scope": "ANY", "metric": "total_project_seats", "operator": ">=", "threshold": 175, "unit": "seats", "severity": "HARD", "message_template": "Total project seats below the legal minimum of 175 (min 1, max 6 screens).", "source": "FEASIBILITY_MANUAL", "source_section": "Legal §1", "approval_status": "SOURCE_BACKED", "notes": "Distinct from the per-screen design-efficiency floor above — do not merge (CLAUDE.md rule)." },
+    { "rule_id": "VR_LEGAL_SCREEN_COUNT_RANGE", "property_type_scope": "ANY", "metric": "screen_count", "operator": "between", "threshold_min": 1, "threshold_max": 6, "unit": "screens", "severity": "HARD", "source": "FEASIBILITY_MANUAL", "source_section": "Legal §1", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_FIRE_ESCAPE_MIN_EXISTING", "property_type_scope": "EXISTING_BUILDING", "metric": "fire_escape_staircase_count", "operator": ">=", "threshold": 2, "unit": "count", "severity": "HARD", "source": "FEASIBILITY_MANUAL", "source_section": "§1.3", "approval_status": "SOURCE_BACKED", "evaluable": false, "notes": "Not evaluable from current CAD extraction — no staircase classification in geometry model yet." },
+
+    { "rule_id": "VR_MIN_SUPER_BUILTUP_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "super_builtup_area_sqft", "operator": ">=", "threshold": 7500, "unit": "sqft", "severity": "HARD", "source": "FEASIBILITY_MANUAL", "source_section": "§2.1", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_FRONT_MARGIN_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "front_margin_m", "operator": ">=", "threshold": 12, "unit": "m", "severity": "SOFT", "message_template": "Front margin below the 12 m preferred setback — verify against local DCR.", "source": "FEASIBILITY_MANUAL", "source_section": "§2.2", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_SIDE_MARGIN_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "side_margin_m", "operator": ">=", "threshold": 6, "unit": "m", "severity": "SOFT", "message_template": "Side margin below 6 m minimum — must be verified against applicable local DCR.", "source": "FEASIBILITY_MANUAL", "source_section": "§2.2", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_BUILDING_HEIGHT_MAX_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "building_height_ft", "operator": "<=", "threshold": 50, "unit": "ft", "severity": "SOFT", "message_template": "Building height exceeds 50 ft (15.24 m) — requires DCR permission or competent-authority approval.", "source": "FEASIBILITY_MANUAL", "source_section": "§2.4", "approval_status": "SOURCE_BACKED" },
+    { "rule_id": "VR_PASSENGER_LIFTS_MIN_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "passenger_lift_count", "operator": ">=", "threshold": 2, "unit": "count", "severity": "HARD", "source": "FEASIBILITY_MANUAL", "source_section": "§2.3", "approval_status": "SOURCE_BACKED", "evaluable": false },
+    { "rule_id": "VR_DG_BACKUP_MANDATORY_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "dg_backup_present", "operator": "==", "threshold": true, "severity": "HARD", "source": "FEASIBILITY_MANUAL", "source_section": "§2.5", "approval_status": "SOURCE_BACKED", "evaluable": false }
+  ],
+
+  "not_evaluable_today": [
+    "clear_height_ft (not present in the current CAD extraction — intake field only, not geometry-derived)",
+    "column_grid_width_ft / column_grid_length_ft (structural grid spacing is not yet computed from extracted StructuralElement column positions)",
+    "fire_escape_staircase_count, passenger_lift_count, dg_backup_present (no CAD classification for these object types yet)",
+    "first_row_distance vs screen_width (screen_width is not a captured field)"
+  ]
+}

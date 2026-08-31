@@ -1,0 +1,171 @@
+{
+  "title": "Connplex Zoning Studio \u2014 M6 Architect Review Validation Report",
+  "all_passed": true,
+  "total_checks": 27,
+  "passed_checks": 27,
+  "failed_checks": 0,
+  "checks": [
+    {
+      "check_id": 1,
+      "description": "M5 decision record exists",
+      "status": "PASS",
+      "details": "Authoritative M5 decision record loaded with all 8 plan regions"
+    },
+    {
+      "check_id": 2,
+      "description": "Every decision-ready floor has a review package",
+      "status": "PASS",
+      "details": "Dhule 1st-4th floors each have comprehensive review packages with >= 11 review items"
+    },
+    {
+      "check_id": 3,
+      "description": "Blocked regions remain blocked",
+      "status": "PASS",
+      "details": "All 4 unverified regions retain BLOCKED review status"
+    },
+    {
+      "check_id": 4,
+      "description": "M5 preferred candidate ID is preserved",
+      "status": "PASS",
+      "details": "Review package preserves exact M5 preferred candidate IDs (Candidate C)"
+    },
+    {
+      "check_id": 5,
+      "description": "M5 preferred score is preserved",
+      "status": "PASS",
+      "details": "M5 optimization scores preserved to exact precision across all floors"
+    },
+    {
+      "check_id": 6,
+      "description": "M5 room geometry is unchanged",
+      "status": "PASS",
+      "details": "Underlying M5 room coordinate geometries remain 100% unaltered"
+    },
+    {
+      "check_id": 7,
+      "description": "M5 circulation geometry is unchanged",
+      "status": "PASS",
+      "details": "Circulation polygon network geometry remains identical to M5 baseline"
+    },
+    {
+      "check_id": 8,
+      "description": "M5 obstruction geometry is unchanged",
+      "status": "PASS",
+      "details": "Zero obstruction collision baseline preserved without alteration"
+    },
+    {
+      "check_id": 9,
+      "description": "M5 provenance is preserved",
+      "status": "PASS",
+      "details": "Full provenance chain linking review records to M5 decision record intact"
+    },
+    {
+      "check_id": 10,
+      "description": "Every required room has a review item",
+      "status": "PASS",
+      "details": "All 6 required cinema program rooms have dedicated review items"
+    },
+    {
+      "check_id": 11,
+      "description": "Circulation has a review item",
+      "status": "PASS",
+      "details": "Dedicated review item covering circulation connectivity and corridor widths"
+    },
+    {
+      "check_id": 12,
+      "description": "Structural clearance has a review item",
+      "status": "PASS",
+      "details": "Dedicated review item tracking column and obstruction clearances"
+    },
+    {
+      "check_id": 13,
+      "description": "Hard obstructions have review coverage",
+      "status": "PASS",
+      "details": "Hard obstructions and verified column exclusion covered by review items"
+    },
+    {
+      "check_id": 14,
+      "description": "Uncertain geometry has review coverage",
+      "status": "PASS",
+      "details": "Uncertain stairs and shafts covered by non-subtracted review items"
+    },
+    {
+      "check_id": 15,
+      "description": "Fourth-floor RESTROOMS review item exists",
+      "status": "PASS",
+      "details": "Fourth floor RESTROOMS explicitly flagged with review_status: REVIEW_REQUIRED"
+    },
+    {
+      "check_id": 16,
+      "description": "Fourth-floor MANAGER_OFFICE review item exists",
+      "status": "PASS",
+      "details": "Fourth floor MANAGER_OFFICE explicitly flagged with review_status: REVIEW_REQUIRED"
+    },
+    {
+      "check_id": 17,
+      "description": "Fourth-floor unclosed partition review item exists",
+      "status": "PASS",
+      "details": "Dedicated review item covering unclosed CAD partition linework on Fourth Floor"
+    },
+    {
+      "check_id": 18,
+      "description": "Fourth-floor -5.00 uncertainty penalty is preserved",
+      "status": "PASS",
+      "details": "Exact -5.00 uncertainty penalty documented in fourth floor review item"
+    },
+    {
+      "check_id": 19,
+      "description": "Initial review states are NOT_REVIEWED",
+      "status": "PASS",
+      "details": "All initial item review states on unflagged floors are NOT_REVIEWED"
+    },
+    {
+      "check_id": 20,
+      "description": "Initial overall decisions are PENDING_REVIEW",
+      "status": "PASS",
+      "details": "All zoning-ready floors initialize with overall_decision: PENDING_REVIEW"
+    },
+    {
+      "check_id": 21,
+      "description": "No reviewer identity is fabricated",
+      "status": "PASS",
+      "details": "Reviewer identity fields remain strictly null/unassigned"
+    },
+    {
+      "check_id": 22,
+      "description": "No license number is fabricated",
+      "status": "PASS",
+      "details": "Reviewer license reference field remains strictly null"
+    },
+    {
+      "check_id": 23,
+      "description": "No architectural approval claim is generated",
+      "status": "PASS",
+      "details": "Explicit disclaimer prevents statutory or professional approval claims"
+    },
+    {
+      "check_id": 24,
+      "description": "Every review item has provenance",
+      "status": "PASS",
+      "details": "100% of review items contain auditable provenance metadata"
+    },
+    {
+      "check_id": 25,
+      "description": "M0-M5 outputs remain byte-for-byte unchanged where applicable",
+      "status": "PASS",
+      "details": "Frozen baseline outputs convert.py, extract_geometry*.py, and M1-M5 files intact"
+    },
+    {
+      "check_id": 26,
+      "description": "Review package generation is deterministic",
+      "status": "PASS",
+      "details": "Repeated generation produces identical JSON output and hash signatures"
+    },
+    {
+      "check_id": 27,
+      "description": "Blocked regions cannot receive ACCEPTED room decisions",
+      "status": "PASS",
+      "details": "Blocked regions cannot transition to ACCEPTED without verified boundary"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "project-service",
+  "version": "1.0.0",
+  "description": "Connplex Zoning Studio - Project Service",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

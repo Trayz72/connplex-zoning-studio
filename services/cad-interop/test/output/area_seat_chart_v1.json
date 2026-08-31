@@ -1,0 +1,295 @@
+{
+  "schema_version": "1.0",
+  "title": "Connplex Zoning Studio \u2014 Area & Seat Chart Snapshot (M8)",
+  "note": "Structure mirrors the real Dhule/Vadodara reference drawings' Area/Seat Chart table exactly (spec \u00a72.11 item 2).",
+  "regions": [
+    {
+      "region_id": "dhule-first-floor",
+      "plan_region": "FIRST FLOOR PLAN",
+      "preferred_candidate_id": "dhule-first-floor-candidate-c",
+      "screen_rows": [
+        {
+          "location": "SCREEN 1 (AUDITORIUM)",
+          "area_sqft": 744.0,
+          "lounger": 0,
+          "sofa_slider": 28,
+          "duo_lounger": 0,
+          "premium_recliner": 0,
+          "total_seats": 28,
+          "seat_estimate_status": "OK"
+        },
+        {
+          "location": "SCREEN 2 (AUDITORIUM)",
+          "area_sqft": 798.0,
+          "lounger": 0,
+          "sofa_slider": 30,
+          "duo_lounger": 0,
+          "premium_recliner": 0,
+          "total_seats": 30,
+          "seat_estimate_status": "OK"
+        }
+      ],
+      "total_screen_row": {
+        "location": "TOTAL SCREEN",
+        "area_sqft": 1542.0,
+        "lounger": 0,
+        "sofa_slider": 58,
+        "duo_lounger": 0,
+        "premium_recliner": 0,
+        "total_seats": 58
+      },
+      "foyer_row": {
+        "location": "FOYER (Box Office + Washrooms + F&B + Electrical + Service)",
+        "area_sqft": 655.45,
+        "components": [
+          {
+            "location": "PROJECTION ROOM",
+            "area_sqft": 130.5
+          },
+          {
+            "location": "FOYER",
+            "area_sqft": 355.6
+          },
+          {
+            "location": "WASHROOMS",
+            "area_sqft": 109.35
+          },
+          {
+            "location": "MANAGER OFFICE",
+            "area_sqft": 60.0
+          }
+        ],
+        "note": "Current room program has no separate Box Office / F&B / Electrical-Server-Store zones (see CLAUDE.md audit notes) \u2014 this subtotal currently reflects only the room types the frozen geometry pipeline generates."
+      },
+      "exit_passage_row": {
+        "location": "EXIT PASSAGE",
+        "area_sqft": 796.76
+      },
+      "grand_total_row": {
+        "location": "TOTAL",
+        "area_sqft": 2994.21,
+        "lounger": 0,
+        "sofa_slider": 58,
+        "duo_lounger": 0,
+        "premium_recliner": 0,
+        "total_seats": 58
+      }
+    },
+    {
+      "region_id": "dhule-second-floor",
+      "plan_region": "SECOND FLOOR PLAN",
+      "preferred_candidate_id": "dhule-second-floor-candidate-c",
+      "screen_rows": [
+        {
+          "location": "SCREEN 1 (AUDITORIUM)",
+          "area_sqft": 744.0,
+          "lounger": 0,
+          "sofa_slider": 28,
+          "duo_lounger": 0,
+          "premium_recliner": 0,
+          "total_seats": 28,
+          "seat_estimate_status": "OK"
+        },
+        {
+          "location": "SCREEN 2 (AUDITORIUM)",
+          "area_sqft": 798.0,
+          "lounger": 0,
+          "sofa_slider": 30,
+          "duo_lounger": 0,
+          "premium_recliner": 0,
+          "total_seats": 30,
+          "seat_estimate_status": "OK"
+        }
+      ],
+      "total_screen_row": {
+        "location": "TOTAL SCREEN",
+        "area_sqft": 1542.0,
+        "lounger": 0,
+        "sofa_slider": 58,
+        "duo_lounger": 0,
+        "premium_recliner": 0,
+        "total_seats": 58
+      },
+      "foyer_row": {
+        "location": "FOYER (Box Office + Washrooms + F&B + Electrical + Service)",
+        "area_sqft": 655.45,
+        "components": [
+          {
+            "location": "PROJECTION ROOM",
+            "area_sqft": 130.5
+          },
+          {
+            "location": "FOYER",
+            "area_sqft": 355.6
+          },
+          {
+            "location": "WASHROOMS",
+            "area_sqft": 109.35
+          },
+          {
+            "location": "MANAGER OFFICE",
+            "area_sqft": 60.0
+          }
+        ],
+        "note": "Current room program has no separate Box Office / F&B / Electrical-Server-Store zones (see CLAUDE.md audit notes) \u2014 this subtotal currently reflects only the room types the frozen geometry pipeline generates."
+      },
+      "exit_passage_row": {
+        "location": "EXIT PASSAGE",
+        "area_sqft": 796.76
+      },
+      "grand_total_row": {
+        "location": "TOTAL",
+        "area_sqft": 2994.21,
+        "lounger": 0,
+        "sofa_slider": 58,
+        "duo_lounger": 0,
+        "premium_recliner": 0,
+        "total_seats": 58
+      }
+    },
+    {
+      "region_id": "dhule-third-floor",
+      "plan_region": "THIRD FLOOR PLAN",
+      "preferred_candidate_id": "dhule-third-floor-candidate-c",
+      "screen_rows": [
+        {
+          "location": "SCREEN 1 (AUDITORIUM)",
+          "area_sqft": 744.0,
+          "lounger": 0,
+          "sofa_slider": 28,
+          "duo_lounger": 0,
+          "premium_recliner": 0,
+          "total_seats": 28,
+          "seat_estimate_status": "OK"
+        },
+        {
+          "location": "SCREEN 2 (AUDITORIUM)",
+          "area_sqft": 798.0,
+          "lounger": 0,
+          "sofa_slider": 30,
+          "duo_lounger": 0,
+          "premium_recliner": 0,
+          "total_seats": 30,
+          "seat_estimate_status": "OK"
+        }
+      ],
+      "total_screen_row": {
+        "location": "TOTAL SCREEN",
+        "area_sqft": 1542.0,
+        "lounger": 0,
+        "sofa_slider": 58,
+        "duo_lounger": 0,
+        "premium_recliner": 0,
+        "total_seats": 58
+      },
+      "foyer_row": {
+        "location": "FOYER (Box Office + Washrooms + F&B + Electrical + Service)",
+        "area_sqft": 655.45,
+        "components": [
+          {
+            "location": "PROJECTION ROOM",
+            "area_sqft": 130.5
+          },
+          {
+            "location": "FOYER",
+            "area_sqft": 355.6
+          },
+          {
+            "location": "WASHROOMS",
+            "area_sqft": 109.35
+          },
+          {
+            "location": "MANAGER OFFICE",
+            "area_sqft": 60.0
+          }
+        ],
+        "note": "Current room program has no separate Box Office / F&B / Electrical-Server-Store zones (see CLAUDE.md audit notes) \u2014 this subtotal currently reflects only the room types the frozen geometry pipeline generates."
+      },
+      "exit_passage_row": {
+        "location": "EXIT PASSAGE",
+        "area_sqft": 796.76
+      },
+      "grand_total_row": {
+        "location": "TOTAL",
+        "area_sqft": 2994.21,
+        "lounger": 0,
+        "sofa_slider": 58,
+        "duo_lounger": 0,
+        "premium_recliner": 0,
+        "total_seats": 58
+      }
+    },
+    {
+      "region_id": "dhule-fourth-floor",
+      "plan_region": "FOURTH FLOOR PLAN",
+      "preferred_candidate_id": "dhule-fourth-floor-candidate-c",
+      "screen_rows": [
+        {
+          "location": "SCREEN 1 (AUDITORIUM)",
+          "area_sqft": 744.0,
+          "lounger": 0,
+          "sofa_slider": 28,
+          "duo_lounger": 0,
+          "premium_recliner": 0,
+          "total_seats": 28,
+          "seat_estimate_status": "OK"
+        },
+        {
+          "location": "SCREEN 2 (AUDITORIUM)",
+          "area_sqft": 798.0,
+          "lounger": 0,
+          "sofa_slider": 30,
+          "duo_lounger": 0,
+          "premium_recliner": 0,
+          "total_seats": 30,
+          "seat_estimate_status": "OK"
+        }
+      ],
+      "total_screen_row": {
+        "location": "TOTAL SCREEN",
+        "area_sqft": 1542.0,
+        "lounger": 0,
+        "sofa_slider": 58,
+        "duo_lounger": 0,
+        "premium_recliner": 0,
+        "total_seats": 58
+      },
+      "foyer_row": {
+        "location": "FOYER (Box Office + Washrooms + F&B + Electrical + Service)",
+        "area_sqft": 655.45,
+        "components": [
+          {
+            "location": "PROJECTION ROOM",
+            "area_sqft": 130.5
+          },
+          {
+            "location": "FOYER",
+            "area_sqft": 355.6
+          },
+          {
+            "location": "WASHROOMS",
+            "area_sqft": 109.35
+          },
+          {
+            "location": "MANAGER OFFICE",
+            "area_sqft": 60.0
+          }
+        ],
+        "note": "Current room program has no separate Box Office / F&B / Electrical-Server-Store zones (see CLAUDE.md audit notes) \u2014 this subtotal currently reflects only the room types the frozen geometry pipeline generates."
+      },
+      "exit_passage_row": {
+        "location": "EXIT PASSAGE",
+        "area_sqft": 796.76
+      },
+      "grand_total_row": {
+        "location": "TOTAL",
+        "area_sqft": 2994.21,
+        "lounger": 0,
+        "sofa_slider": 58,
+        "duo_lounger": 0,
+        "premium_recliner": 0,
+        "total_seats": 58
+      }
+    }
+  ]
+}

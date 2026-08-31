@@ -1,0 +1,97 @@
+{
+  "title": "Connplex Zoning Studio \u2014 Decision Summary",
+  "architectural_disclaimer": "DISCLAIMER: This computational decision package is generated for design decision-support only. It does NOT constitute architectural approval, statutory code compliance certification, structural engineering clearance, or construction documentation. All room dimensions, structural clearances, egress paths, and layout configurations must be independently reviewed and certified by a licensed professional architect and registered structural engineer.",
+  "total_regions": 8,
+  "zoning_ready_floors_count": 4,
+  "blocked_regions_count": 4,
+  "floors": [
+    {
+      "region_id": "dhule-basement",
+      "plan_region": "BASEMENT FLOOR PLAN",
+      "decision_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "preferred_candidate": null,
+      "preferred_score": null,
+      "total_room_area_sqft": null,
+      "circulation_area_sqft": null,
+      "efficiency_ratio": null,
+      "review_required_count": 0
+    },
+    {
+      "region_id": "dhule-ground",
+      "plan_region": "GROUND FLOOR PLAN",
+      "decision_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "preferred_candidate": null,
+      "preferred_score": null,
+      "total_room_area_sqft": null,
+      "circulation_area_sqft": null,
+      "efficiency_ratio": null,
+      "review_required_count": 0
+    },
+    {
+      "region_id": "dhule-first-floor",
+      "plan_region": "FIRST FLOOR PLAN",
+      "decision_status": "DECISION_READY",
+      "preferred_candidate": "Candidate C",
+      "preferred_score": 90.28,
+      "total_room_area_sqft": 2197.45,
+      "circulation_area_sqft": 796.76,
+      "efficiency_ratio": 0.4214,
+      "review_required_count": 0
+    },
+    {
+      "region_id": "dhule-second-floor",
+      "plan_region": "SECOND FLOOR PLAN",
+      "decision_status": "DECISION_READY",
+      "preferred_candidate": "Candidate C",
+      "preferred_score": 90.27,
+      "total_room_area_sqft": 2197.45,
+      "circulation_area_sqft": 796.76,
+      "efficiency_ratio": 0.4213,
+      "review_required_count": 0
+    },
+    {
+      "region_id": "dhule-third-floor",
+      "plan_region": "THIRD FLOOR PLAN",
+      "decision_status": "DECISION_READY",
+      "preferred_candidate": "Candidate C",
+      "preferred_score": 90.27,
+      "total_room_area_sqft": 2197.45,
+      "circulation_area_sqft": 796.76,
+      "efficiency_ratio": 0.4213,
+      "review_required_count": 0
+    },
+    {
+      "region_id": "dhule-fourth-floor",
+      "plan_region": "FOURTH FLOOR PLAN",
+      "decision_status": "VALID_REVIEW_REQUIRED",
+      "preferred_candidate": "Candidate C",
+      "preferred_score": 85.24,
+      "total_room_area_sqft": 2197.45,
+      "circulation_area_sqft": 796.76,
+      "efficiency_ratio": 0.4208,
+      "review_required_count": 2
+    },
+    {
+      "region_id": "vadodara-option-1",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+      "decision_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "preferred_candidate": null,
+      "preferred_score": null,
+      "total_room_area_sqft": null,
+      "circulation_area_sqft": null,
+      "efficiency_ratio": null,
+      "review_required_count": 0
+    },
+    {
+      "region_id": "vadodara-option-2",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+      "decision_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "preferred_candidate": null,
+      "preferred_score": null,
+      "total_room_area_sqft": null,
+      "circulation_area_sqft": null,
+      "efficiency_ratio": null,
+      "review_required_count": 0
+    }
+  ]
+}

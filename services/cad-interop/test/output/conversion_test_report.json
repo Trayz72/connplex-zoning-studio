@@ -1,0 +1,58 @@
+{
+  "tests": [
+    {
+      "file": "theater.dwg",
+      "source_path": "/home/tanishq/connplex-v1/services/cad-interop/test/theater.dwg",
+      "dwg_to_dxf": {
+        "status": "FAIL",
+        "exit_code": 1,
+        "input_size": 621158,
+        "output_size": 0,
+        "error": "OdError thrown during readFile of drawing \"/tmp/tmpkbj1uj23/theater.dwg\" :\n  XData size exceeded: <object> (2B00BC)"
+      },
+      "dxf_to_dwg": {
+        "status": "SKIPPED",
+        "exit_code": null,
+        "input_size": 0,
+        "output_size": 0,
+        "error": "DXF generation failed; cannot test reverse conversion"
+      }
+    },
+    {
+      "file": "dhule.dwg",
+      "source_path": "/home/tanishq/connplex-v1/services/cad-interop/test/1022_MARUTI NANDAN BUSINESS HUB,DHULE,MAHARASHTRA_ZONING LAYOUT_5.08.2026.dwg",
+      "dwg_to_dxf": {
+        "status": "PASS",
+        "exit_code": 0,
+        "input_size": 2116885,
+        "output_size": 5130768,
+        "error": null
+      },
+      "dxf_to_dwg": {
+        "status": "PASS",
+        "exit_code": 0,
+        "input_size": 5130768,
+        "output_size": 766264,
+        "error": null
+      }
+    },
+    {
+      "file": "vadodara.dwg",
+      "source_path": "/home/tanishq/connplex-v1/services/cad-interop/test/1045- KESHAV LANDMARK_VADODARA ,GUJRAT_ZONING LAYOUT_20.05.2026.dwg",
+      "dwg_to_dxf": {
+        "status": "PASS",
+        "exit_code": 0,
+        "input_size": 2548702,
+        "output_size": 17913481,
+        "error": null
+      },
+      "dxf_to_dwg": {
+        "status": "PASS",
+        "exit_code": 0,
+        "input_size": 17913481,
+        "output_size": 1673947,
+        "error": null
+      }
+    }
+  ]
+}

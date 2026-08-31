@@ -1,0 +1,103 @@
+{
+  "title": "Connplex Zoning Studio \u2014 M4 Layout Optimization & Scoring Report",
+  "scoring_model_weights": {
+    "area_efficiency_max_pts": 25.0,
+    "circulation_max_pts": 20.0,
+    "adjacency_max_pts": 20.0,
+    "proportion_max_pts": 15.0,
+    "clearance_max_pts": 10.0,
+    "simplicity_max_pts": 10.0,
+    "uncertainty_penalty_pts": 5.0,
+    "max_possible_score": 100.0
+  },
+  "optimization_summary": [
+    {
+      "region_id": "dhule-basement",
+      "plan_region": "BASEMENT FLOOR PLAN",
+      "status": "BLOCKED",
+      "candidates_generated": 0,
+      "preferred_candidate": null,
+      "reason": "No verified closed exterior boundary"
+    },
+    {
+      "region_id": "dhule-ground",
+      "plan_region": "GROUND FLOOR PLAN",
+      "status": "BLOCKED",
+      "candidates_generated": 0,
+      "preferred_candidate": null,
+      "reason": "No verified closed exterior boundary"
+    },
+    {
+      "region_id": "dhule-first-floor",
+      "plan_region": "FIRST FLOOR PLAN",
+      "status": "OPTIMIZED",
+      "candidates_count": 4,
+      "preferred_candidate": "dhule-first-floor-candidate-c",
+      "preferred_score": 90.28,
+      "scores_overview": {
+        "dhule-first-floor-candidate-a": 86.82,
+        "dhule-first-floor-candidate-b": 87.7,
+        "dhule-first-floor-candidate-c": 90.28,
+        "dhule-first-floor-candidate-d": 88.26
+      }
+    },
+    {
+      "region_id": "dhule-second-floor",
+      "plan_region": "SECOND FLOOR PLAN",
+      "status": "OPTIMIZED",
+      "candidates_count": 4,
+      "preferred_candidate": "dhule-second-floor-candidate-c",
+      "preferred_score": 90.27,
+      "scores_overview": {
+        "dhule-second-floor-candidate-a": 86.81,
+        "dhule-second-floor-candidate-b": 87.7,
+        "dhule-second-floor-candidate-c": 90.27,
+        "dhule-second-floor-candidate-d": 88.26
+      }
+    },
+    {
+      "region_id": "dhule-third-floor",
+      "plan_region": "THIRD FLOOR PLAN",
+      "status": "OPTIMIZED",
+      "candidates_count": 4,
+      "preferred_candidate": "dhule-third-floor-candidate-c",
+      "preferred_score": 90.27,
+      "scores_overview": {
+        "dhule-third-floor-candidate-a": 86.81,
+        "dhule-third-floor-candidate-b": 87.7,
+        "dhule-third-floor-candidate-c": 90.27,
+        "dhule-third-floor-candidate-d": 88.26
+      }
+    },
+    {
+      "region_id": "dhule-fourth-floor",
+      "plan_region": "FOURTH FLOOR PLAN",
+      "status": "OPTIMIZED",
+      "candidates_count": 4,
+      "preferred_candidate": "dhule-fourth-floor-candidate-c",
+      "preferred_score": 85.24,
+      "scores_overview": {
+        "dhule-fourth-floor-candidate-a": 81.79,
+        "dhule-fourth-floor-candidate-b": 82.68,
+        "dhule-fourth-floor-candidate-c": 85.24,
+        "dhule-fourth-floor-candidate-d": 83.23
+      }
+    },
+    {
+      "region_id": "vadodara-option-1",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+      "status": "BLOCKED",
+      "candidates_generated": 0,
+      "preferred_candidate": null,
+      "reason": "No verified closed exterior boundary"
+    },
+    {
+      "region_id": "vadodara-option-2",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+      "status": "BLOCKED",
+      "candidates_generated": 0,
+      "preferred_candidate": null,
+      "reason": "No verified closed exterior boundary"
+    }
+  ]
+}

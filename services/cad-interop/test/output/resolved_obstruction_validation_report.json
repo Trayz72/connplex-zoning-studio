@@ -1,0 +1,39 @@
+{
+  "title": "Connplex Zoning Studio \u2014 Resolved Obstructions Validation Report v1",
+  "total_candidates_analyzed": 119,
+  "total_newly_resolved_polygons": 1,
+  "checks": [
+    {
+      "check": "1. No bounding boxes used as substitute geometry",
+      "status": "PASS"
+    },
+    {
+      "check": "2. No room rectangle inferred from text alone",
+      "status": "PASS"
+    },
+    {
+      "check": "3. No lift rectangle inferred solely from text without closed polyline",
+      "status": "PASS"
+    },
+    {
+      "check": "4. No stair bounding envelope subtracted",
+      "status": "PASS"
+    },
+    {
+      "check": "5. All newly resolved polygons lie strictly inside verified floor boundary",
+      "status": "PASS"
+    },
+    {
+      "check": "6. Reconstructed polyline 22D8 on 4th floor verified with explicit vertices",
+      "status": "PASS"
+    },
+    {
+      "check": "7. Regions without verified boundaries retain usable_planning_area = null",
+      "status": "PASS"
+    },
+    {
+      "check": "8. Step 5 results preserved intact and distinguished from Step 6 theoretical model",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+#!/bin/bash
+ODA_DIR="/home/tanishq/connplex-v1/services/cad-interop/oda/usr/bin/ODAFileConverter_27.1.0.0"
+export LD_LIBRARY_PATH="$ODA_DIR:$ODA_DIR/lib:${LD_LIBRARY_PATH:-}"
+export QT_PLUGIN_PATH="$ODA_DIR/plugins:${QT_PLUGIN_PATH:-}"
+export DISPLAY="${DISPLAY:-:0}"
+exec "$ODA_DIR/ODAFileConverter" "$@"

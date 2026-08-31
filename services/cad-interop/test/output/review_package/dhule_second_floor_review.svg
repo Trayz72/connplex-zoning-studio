@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1250" width="1600" height="1250">
+  <rect width="1600" height="1250" fill="#f1f5f9" />
+<rect x="0" y="0" width="1600" height="140" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" /><text x="80" y="38" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Architect Review Package — SECOND FLOOR PLAN</text><text x="80" y="62" font-family="Inter, sans-serif" font-size="12" fill="#475569">Candidate C (Adjacency-Optimized) | M5 Score: 90.27 | Overall Decision: PENDING_REVIEW</text><g transform="translate(940, 22)">  <rect width="580" height="42" rx="6" fill="#f8fafc" stroke="#0284c7" stroke-width="1.5" />  <text x="290" y="26" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#0284c7" text-anchor="middle">HUMAN REVIEW STATUS: NOT_REVIEWED</text></g><g transform="translate(80, 90)">  <text x="0" y="10" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#334155">Review Items: 11 total | Unreviewed: 11 | Review Required: 0 | Reviewer: Unassigned  </text></g><g transform="translate(80, 114)">  <text x="0" y="10" font-family="Inter, sans-serif" font-size="9.5" font-weight="500" fill="#dc2626">NOTICE: Human Review Interface. Does NOT constitute statutory approval, building code certification, or construction readiness.  </text></g>
+  <g id="review_layout_layer">
+    <path d="M 221.2 206.4 L 1378.8 206.4 L 1378.8 1133.6 L 221.2 1133.6 Z" stroke="#059669" stroke-width="3.5" fill="#f8fafc" />
+    <path d="M 1344.5 1126.5 L 304.2 1126.5 L 228.4 1126.5 L 228.4 1105.0 L 228.4 697.2 L 228.4 664.3 L 228.4 296.5 L 228.4 217.8 L 304.2 217.8 L 822.2 217.8 L 822.2 296.5 L 304.2 296.5 L 304.2 353.8 L 321.4 353.8 L 328.5 353.8 L 414.4 353.8 L 443.0 353.8 L 443.0 375.2 L 443.0 518.3 L 414.4 518.3 L 414.4 375.2 L 328.5 375.2 L 328.5 518.3 L 304.2 518.3 L 304.2 664.3 L 929.5 664.3 L 929.5 697.2 L 304.2 697.2 L 304.2 1105.0 L 1344.5 1105.0 Z" stroke="#cbd5e1" stroke-width="1.5" fill="#e2e8f0" fill-opacity="0.8" />
+    <path d="M 747.8 1040.6 L 747.8 697.2 L 304.2 697.2 L 304.2 1040.6 Z" stroke="#4338ca" stroke-width="2.5" fill="rgba(99, 102, 241, 0.28)" />
+    <g transform="translate(526.1, 869.0)">  <rect x="-105" y="-22" width="210" height="44" rx="5" fill="#ffffff" fill-opacity="0.95" stroke="#4338ca" stroke-width="1.2" />  <text x="0" y="-7" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#312e81" text-anchor="middle">Screen 1 (Auditorium)</text>  <text x="0" y="7" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="#64748b" text-anchor="middle">744.0 sqft</text>  <text x="0" y="18" font-family="Inter, sans-serif" font-size="8.5" font-weight="700" fill="#0369a1" text-anchor="middle">[NOT_REVIEWED]</text></g>
+    <path d="M 733.5 1105.0 L 733.5 1040.6 L 318.5 1040.6 L 318.5 1105.0 Z" stroke="#0891b2" stroke-width="2.5" fill="rgba(6, 182, 212, 0.32)" />
+    <g transform="translate(526.1, 1072.9)">  <rect x="-105" y="-22" width="210" height="44" rx="5" fill="#ffffff" fill-opacity="0.95" stroke="#0891b2" stroke-width="1.2" />  <text x="0" y="-7" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#155e75" text-anchor="middle">Projection Booth</text>  <text x="0" y="7" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="#64748b" text-anchor="middle">130.5 sqft</text>  <text x="0" y="18" font-family="Inter, sans-serif" font-size="8.5" font-weight="700" fill="#0369a1" text-anchor="middle">[NOT_REVIEWED]</text></g>
+    <path d="M 929.5 1097.9 L 929.5 697.2 L 747.8 697.2 L 747.8 1097.9 Z" stroke="#d97706" stroke-width="2.5" fill="rgba(245, 158, 11, 0.28)" />
+    <g transform="translate(838.7, 897.6)">  <rect x="-105" y="-22" width="210" height="44" rx="5" fill="#ffffff" fill-opacity="0.95" stroke="#d97706" stroke-width="1.2" />  <text x="0" y="-7" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">Public Foyer &amp; Concession</text>  <text x="0" y="7" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="#64748b" text-anchor="middle">355.6 sqft</text>  <text x="0" y="18" font-family="Inter, sans-serif" font-size="8.5" font-weight="700" fill="#0369a1" text-anchor="middle">[NOT_REVIEWED]</text></g>
+    <path d="M 1337.4 1097.9 L 1337.4 697.2 L 929.5 697.2 L 929.5 1097.9 Z" stroke="#6366f1" stroke-width="2.5" fill="rgba(129, 140, 248, 0.28)" />
+    <g transform="translate(1133.5, 897.6)">  <rect x="-105" y="-22" width="210" height="44" rx="5" fill="#ffffff" fill-opacity="0.95" stroke="#6366f1" stroke-width="1.2" />  <text x="0" y="-7" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#3730a3" text-anchor="middle">Screen 2 (Auditorium)</text>  <text x="0" y="7" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="#64748b" text-anchor="middle">798.0 sqft</text>  <text x="0" y="18" font-family="Inter, sans-serif" font-size="8.5" font-weight="700" fill="#0369a1" text-anchor="middle">[NOT_REVIEWED]</text></g>
+    <path d="M 558.9 518.3 L 558.9 325.1 L 443.0 325.1 L 443.0 518.3 Z" stroke="#059669" stroke-width="2.5" fill="rgba(16, 185, 129, 0.28)" />
+    <g transform="translate(501.0, 421.8)">  <rect x="-105" y="-22" width="210" height="44" rx="5" fill="#ffffff" fill-opacity="0.95" stroke="#059669" stroke-width="1.2" />  <text x="0" y="-7" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#065f46" text-anchor="middle">Restrooms / Washroom Core</text>  <text x="0" y="7" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="#64748b" text-anchor="middle">109.35 sqft</text>  <text x="0" y="18" font-family="Inter, sans-serif" font-size="8.5" font-weight="700" fill="#0369a1" text-anchor="middle">[NOT_REVIEWED]</text></g>
+    <path d="M 414.4 518.3 L 414.4 375.2 L 328.5 375.2 L 328.5 518.3 Z" stroke="#7c3aed" stroke-width="2.5" fill="rgba(139, 92, 246, 0.28)" />
+    <g transform="translate(371.5, 446.8)">  <rect x="-105" y="-22" width="210" height="44" rx="5" fill="#ffffff" fill-opacity="0.95" stroke="#7c3aed" stroke-width="1.2" />  <text x="0" y="-7" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#5b21b6" text-anchor="middle">Manager &amp; Staff Office</text>  <text x="0" y="7" font-family="Inter, sans-serif" font-size="9" font-weight="600" fill="#64748b" text-anchor="middle">60.0 sqft</text>  <text x="0" y="18" font-family="Inter, sans-serif" font-size="8.5" font-weight="700" fill="#0369a1" text-anchor="middle">[NOT_REVIEWED]</text></g>
+    <path d="M 312.2 345.1 L 312.2 335.4 L 321.9 335.4 L 321.9 345.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 561.2 660.4 L 561.2 650.7 L 570.9 650.7 L 570.9 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 647.6 310.0 L 647.6 300.2 L 657.3 300.2 L 657.3 310.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 647.6 435.5 L 647.6 425.7 L 657.3 425.7 L 657.3 435.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 647.6 534.9 L 647.6 525.2 L 657.3 525.2 L 657.3 534.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 647.6 660.4 L 647.6 650.7 L 657.3 650.7 L 657.3 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 741.5 310.0 L 741.5 300.2 L 751.2 300.2 L 751.2 310.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 741.5 435.5 L 741.5 425.7 L 751.2 425.7 L 751.2 435.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 741.5 534.9 L 741.5 525.2 L 751.2 525.2 L 751.2 534.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 741.5 660.4 L 741.5 650.7 L 751.2 650.7 L 751.2 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 846.0 304.5 L 846.0 300.2 L 858.8 300.2 L 858.8 304.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 312.2 535.9 L 312.2 525.2 L 322.9 525.2 L 322.9 535.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 846.0 383.2 L 846.0 378.9 L 856.7 378.9 L 856.7 383.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 902.5 383.2 L 898.2 383.2 L 898.2 372.5 L 902.5 372.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 902.5 313.1 L 898.2 313.1 L 898.2 300.2 L 902.5 300.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 902.5 435.5 L 898.2 435.5 L 898.2 426.9 L 902.5 426.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 986.7 310.0 L 986.7 300.2 L 996.4 300.2 L 996.4 310.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 986.7 435.5 L 986.7 425.7 L 996.4 425.7 L 996.4 435.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1080.6 310.0 L 1080.6 300.2 L 1090.4 300.2 L 1090.4 310.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1080.6 435.5 L 1080.6 425.7 L 1090.4 425.7 L 1090.4 435.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 312.2 660.4 L 312.2 650.7 L 321.9 650.7 L 321.9 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 839.5 533.8 L 839.5 525.2 L 848.1 525.2 L 848.1 533.8 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 848.1 593.9 L 843.8 593.9 L 843.8 583.2 L 848.1 583.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 838.4 660.4 L 838.4 650.7 L 848.1 650.7 L 848.1 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 986.7 534.9 L 986.7 525.2 L 996.4 525.2 L 996.4 534.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 986.7 660.4 L 986.7 650.7 L 996.4 650.7 L 996.4 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 426.0 346.1 L 426.0 335.4 L 436.7 335.4 L 436.7 346.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1080.6 660.4 L 1080.6 650.7 L 1090.4 650.7 L 1090.4 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1080.6 534.9 L 1080.6 525.2 L 1090.4 525.2 L 1090.4 534.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 426.0 538.1 L 426.0 525.2 L 438.9 525.2 L 438.9 538.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 426.0 660.4 L 426.0 650.7 L 435.7 650.7 L 435.7 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 902.5 533.8 L 898.2 533.8 L 898.2 525.2 L 902.5 525.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 561.2 310.0 L 561.2 300.2 L 570.9 300.2 L 570.9 310.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 902.5 593.9 L 898.2 593.9 L 898.2 583.2 L 902.5 583.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 561.2 435.5 L 561.2 424.7 L 571.9 424.7 L 571.9 435.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 561.2 535.9 L 561.2 525.2 L 571.9 525.2 L 571.9 535.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 846.0 411.9 L 846.0 402.6 L 878.9 402.6 L 878.9 435.5 L 846.0 435.5 L 846.0 426.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 846.0 411.8 L 848.8 411.8 L 848.8 405.4 L 876.0 405.4 L 876.0 432.6 L 848.8 432.6 L 848.8 426.2 L 846.0 426.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1052.0 432.6 L 1045.6 432.6 L 1045.6 389.7 L 1079.9 389.7 L 1079.9 432.6 L 1073.5 432.6 L 1073.5 435.5 L 1082.8 435.5 L 1082.8 386.8 L 1042.7 386.8 L 1042.7 435.5 L 1052.0 435.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 940.4 525.2 L 932.5 525.2 L 932.5 527.4 L 938.2 527.4 L 938.2 570.3 L 902.5 570.3 L 902.5 533.8 L 900.3 533.8 L 900.3 572.4 L 940.4 572.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 908.2 525.2 L 902.5 525.2 L 902.5 527.4 L 908.2 527.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1275.2 310.9 L 1270.9 310.9 L 1270.9 300.2 L 1275.2 300.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1275.2 412.1 L 1270.9 412.1 L 1270.9 401.4 L 1275.2 401.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1266.6 530.0 L 1266.6 523.6 L 1275.2 523.6 L 1275.2 530.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1317.6 660.4 L 1317.6 656.1 L 1327.4 656.1 L 1327.4 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1266.1 660.4 L 1266.1 656.1 L 1275.8 656.1 L 1275.8 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1277.3 585.2 L 1277.3 589.5 L 1266.5 589.5 L 1266.5 585.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1327.4 585.2 L 1327.4 589.5 L 1316.6 589.5 L 1316.6 585.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 1140.7 660.4 L 1140.7 654.0 L 1149.3 654.0 L 1149.3 660.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626" />
+    <path d="M 846.0 658.3 L 1353.9 658.3 L 1353.9 302.4 L 846.0 302.4 Z" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 820.6 468.2 L 914.4 468.2 L 914.4 374.3 L 820.6 374.3 Z" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 1022.5 462.9 L 1116.3 462.9 L 1116.3 369.0 L 1022.5 369.0 Z" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 879.4 592.1 L 973.2 592.1 L 973.2 498.2 L 879.4 498.2 Z" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 1258.0 613.1 L 1351.9 613.1 L 1351.9 519.2 L 1258.0 519.2 Z" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 1258.0 581.5 L 1351.9 581.5 L 1351.9 487.6 L 1258.0 487.6 Z" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+    <path d="M 902.5 591.8 L 938.2 591.8 L 938.2 572.5 L 902.5 572.5 Z" stroke="#ea580c" stroke-width="1.5" stroke-dasharray="6,4" fill="none" />
+  </g>
+<g transform="translate(0, 1205)">  <rect width="1600" height="45" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />  <text x="800.0" y="26" font-family="Inter, sans-serif" font-size="9" fill="#64748b" text-anchor="middle">DISCLAIMER: This document and associated review records represent a human-review interface and computational baseline. This system does NOT constitute statutory architectural approval, certified building-code compliance, structural engineering clearance, fire-safety certification, or construction-readiness documentation. Final construction drawings and life-safety compliance must be prepared, sealed, and certified by an appropriately licensed professional architect and registered structural engineer.</text></g>
+</svg>

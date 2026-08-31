@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Connplex Zoning Studio — Cinema Zoning Program Requirements Contract",
+  "description": "Deterministic spatial and architectural program requirements contract for M2-M3 candidate cinema zoning generation.",
+  "version": "1.0",
+  "facility_type": "TWIN_SCREEN_CINEMA_MULTIPLEX",
+  "rooms": [
+    {
+      "room_type": "AUDITORIUM_1",
+      "display_name": "Screen 1 (Auditorium)",
+      "min_area_sqft": 700.0,
+      "max_area_sqft": 1200.0,
+      "target_area_sqft": 744.0,
+      "min_width_ft": 20.0,
+      "min_depth_ft": 20.0,
+      "priority": 1
+    },
+    {
+      "room_type": "AUDITORIUM_2",
+      "display_name": "Screen 2 (Auditorium)",
+      "min_area_sqft": 700.0,
+      "max_area_sqft": 1200.0,
+      "target_area_sqft": 784.0,
+      "min_width_ft": 20.0,
+      "min_depth_ft": 20.0,
+      "priority": 2
+    },
+    {
+      "room_type": "FOYER_CONCESSION",
+      "display_name": "Public Foyer & Concession",
+      "min_area_sqft": 300.0,
+      "max_area_sqft": 600.0,
+      "target_area_sqft": 352.8,
+      "min_width_ft": 10.0,
+      "min_depth_ft": 15.0,
+      "priority": 3
+    },
+    {
+      "room_type": "PROJECTION_ROOM",
+      "display_name": "Projection Booth",
+      "min_area_sqft": 80.0,
+      "max_area_sqft": 200.0,
+      "target_area_sqft": 104.0,
+      "min_width_ft": 4.0,
+      "min_depth_ft": 15.0,
+      "priority": 4
+    },
+    {
+      "room_type": "RESTROOMS",
+      "display_name": "Restrooms / Washroom Core",
+      "min_area_sqft": 90.0,
+      "max_area_sqft": 200.0,
+      "target_area_sqft": 109.35,
+      "min_width_ft": 6.0,
+      "min_depth_ft": 10.0,
+      "priority": 5
+    },
+    {
+      "room_type": "MANAGER_OFFICE",
+      "display_name": "Manager & Staff Office",
+      "min_area_sqft": 50.0,
+      "max_area_sqft": 120.0,
+      "target_area_sqft": 60.0,
+      "min_width_ft": 5.0,
+      "min_depth_ft": 8.0,
+      "priority": 6
+    }
+  ],
+  "required_adjacencies": [
+    {
+      "from_room_type": "PROJECTION_ROOM",
+      "to_room_type": "AUDITORIUM_1",
+      "relationship": "DIRECT_ADJACENT",
+      "min_shared_boundary_ft": 6.0
+    },
+    {
+      "from_room_type": "AUDITORIUM_1",
+      "to_room_type": "FOYER_CONCESSION",
+      "relationship": "DIRECT_OR_CIRCULATION",
+      "min_shared_boundary_ft": 0.0
+    },
+    {
+      "from_room_type": "AUDITORIUM_2",
+      "to_room_type": "FOYER_CONCESSION",
+      "relationship": "DIRECT_OR_CIRCULATION",
+      "min_shared_boundary_ft": 0.0
+    }
+  ],
+  "preferred_adjacencies": [
+    {
+      "from_room_type": "RESTROOMS",
+      "to_room_type": "FOYER_CONCESSION",
+      "relationship": "DIRECT_OR_CIRCULATION"
+    },
+    {
+      "from_room_type": "MANAGER_OFFICE",
+      "to_room_type": "FOYER_CONCESSION",
+      "relationship": "DIRECT_OR_CIRCULATION"
+    }
+  ],
+  "circulation_constraints": {
+    "primary_corridor_min_width_ft": 5.0,
+    "secondary_corridor_min_width_ft": 2.0,
+    "egress_path_unobstructed": true
+  },
+  "global_constraints": {
+    "allow_unverified_regions": false,
+    "strictly_avoid_hard_obstructions": true,
+    "preserve_column_clearance_ft": 0.0,
+    "respect_stair_egress_zones": true
+  }
+}

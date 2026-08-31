@@ -1,0 +1,45 @@
+{
+  "title": "Connplex Zoning Studio \u2014 Obstruction Validation Report v1",
+  "checks": [
+    {
+      "check": "1. Every column has valid non-empty geometry",
+      "status": "PASS"
+    },
+    {
+      "check": "2. Every obstruction belongs to a PlanRegion",
+      "status": "PASS"
+    },
+    {
+      "check": "3. No title-block geometry becomes an obstruction",
+      "status": "PASS"
+    },
+    {
+      "check": "4. No drawing-frame geometry becomes an obstruction",
+      "status": "PASS"
+    },
+    {
+      "check": "5. No schedule geometry becomes an obstruction",
+      "status": "PASS"
+    },
+    {
+      "check": "6. Plumbing circles do not become columns",
+      "status": "PASS"
+    },
+    {
+      "check": "7. Furniture is not classified as structural obstruction",
+      "status": "PASS"
+    },
+    {
+      "check": "8. Doors/windows are not classified as solid obstruction polygons",
+      "status": "PASS"
+    },
+    {
+      "check": "9. Every generated obstruction has source provenance",
+      "status": "PASS"
+    },
+    {
+      "check": "10. No obstruction silently generated from bounding box without geometric justification",
+      "status": "PASS"
+    }
+  ]
+}

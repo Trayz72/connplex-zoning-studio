@@ -1,0 +1,3452 @@
+{
+  "dhule": {
+    "source_file": "1022_MARUTI NANDAN BUSINESS HUB,DHULE,MAHARASHTRA_ZONING LAYOUT_5.08.2026.dxf",
+    "units": {
+      "INSUNITS_raw": 2,
+      "INSUNITS_interpreted": "Feet",
+      "MEASUREMENT_raw": 1,
+      "MEASUREMENT_interpreted": "Metric (mm/m)",
+      "dimension_evidence": [
+        {
+          "handle": "4BF",
+          "measurement": 2.272,
+          "text": ""
+        },
+        {
+          "handle": "4D8",
+          "measurement": 40.799,
+          "text": ""
+        },
+        {
+          "handle": "4EA",
+          "measurement": 26.717,
+          "text": ""
+        },
+        {
+          "handle": "4FE",
+          "measurement": 1.5,
+          "text": ""
+        },
+        {
+          "handle": "50E",
+          "measurement": 0.65,
+          "text": ""
+        },
+        {
+          "handle": "51D",
+          "measurement": 1.5,
+          "text": ""
+        },
+        {
+          "handle": "52D",
+          "measurement": 1.5,
+          "text": ""
+        },
+        {
+          "handle": "53D",
+          "measurement": 1.5,
+          "text": ""
+        }
+      ],
+      "text_annotation_evidence": [
+        "NET USAGE AREA 15893 SQ FT (Text handle 16D9D)",
+        "ROOM LABELS: G. TOILET 3.98X5.40, SHOP 4.50X2.95, HALL 19.25x13.15",
+        "ROAD WIDENING AREA = 536.00 SQ.M., OPEN SPACE 460.21 SQ.M. (Text handles 2544, 253A)"
+      ],
+      "unit_scale_conclusion": "INSUNITS specifies Feet (2), but architectural room tags quote meters (e.g. 4.50m x 2.95m), while coordinates are in Feet (122 ft x 117 ft podium, 81 ft x 65 ft cinema floors)."
+    },
+    "top_50_closed_regions": [
+      {
+        "entity_handle": "2A1A",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 125353.02,
+        "bounding_box": {
+          "min_x": 1354.38,
+          "min_y": 1265.69,
+          "max_x": 2116.83,
+          "max_y": 1430.1
+        },
+        "width": 762.46,
+        "height": 164.41,
+        "vertex_count": 4,
+        "aspect_ratio": 4.64
+      },
+      {
+        "entity_handle": "278F",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 14294.79,
+        "bounding_box": {
+          "min_x": 1375.3,
+          "min_y": 1293.47,
+          "max_x": 1497.38,
+          "max_y": 1410.56
+        },
+        "width": 122.08,
+        "height": 117.09,
+        "vertex_count": 4,
+        "aspect_ratio": 1.04
+      },
+      {
+        "entity_handle": "27F1",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 14294.79,
+        "bounding_box": {
+          "min_x": 1503.58,
+          "min_y": 1293.47,
+          "max_x": 1625.66,
+          "max_y": 1410.56
+        },
+        "width": 122.08,
+        "height": 117.09,
+        "vertex_count": 4,
+        "aspect_ratio": 1.04
+      },
+      {
+        "entity_handle": "278E",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 14056.62,
+        "bounding_box": {
+          "min_x": 1375.8,
+          "min_y": 1293.97,
+          "max_x": 1496.88,
+          "max_y": 1410.06
+        },
+        "width": 121.08,
+        "height": 116.09,
+        "vertex_count": 4,
+        "aspect_ratio": 1.04
+      },
+      {
+        "entity_handle": "27F0",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 14056.62,
+        "bounding_box": {
+          "min_x": 1504.08,
+          "min_y": 1293.97,
+          "max_x": 1625.16,
+          "max_y": 1410.06
+        },
+        "width": 121.08,
+        "height": 116.09,
+        "vertex_count": 4,
+        "aspect_ratio": 1.04
+      },
+      {
+        "entity_handle": "284A",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6873.64,
+        "bounding_box": {
+          "min_x": 1655.67,
+          "min_y": 1308.8,
+          "max_x": 1741.44,
+          "max_y": 1388.94
+        },
+        "width": 85.77,
+        "height": 80.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "28A3",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6873.64,
+        "bounding_box": {
+          "min_x": 1761.68,
+          "min_y": 1308.8,
+          "max_x": 1847.45,
+          "max_y": 1388.94
+        },
+        "width": 85.77,
+        "height": 80.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "28FC",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6873.64,
+        "bounding_box": {
+          "min_x": 1863.18,
+          "min_y": 1308.8,
+          "max_x": 1948.95,
+          "max_y": 1388.94
+        },
+        "width": 85.77,
+        "height": 80.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "2955",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6873.64,
+        "bounding_box": {
+          "min_x": 1964.01,
+          "min_y": 1308.75,
+          "max_x": 2049.78,
+          "max_y": 1388.89
+        },
+        "width": 85.77,
+        "height": 80.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "53CB",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6873.64,
+        "bounding_box": {
+          "min_x": 1761.68,
+          "min_y": 1166.92,
+          "max_x": 1847.45,
+          "max_y": 1247.06
+        },
+        "width": 85.77,
+        "height": 80.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "5424",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6873.64,
+        "bounding_box": {
+          "min_x": 1863.18,
+          "min_y": 1166.92,
+          "max_x": 1948.95,
+          "max_y": 1247.06
+        },
+        "width": 85.77,
+        "height": 80.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "2849",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6708.73,
+        "bounding_box": {
+          "min_x": 1656.17,
+          "min_y": 1309.3,
+          "max_x": 1740.94,
+          "max_y": 1388.44
+        },
+        "width": 84.77,
+        "height": 79.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "28A2",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6708.73,
+        "bounding_box": {
+          "min_x": 1762.18,
+          "min_y": 1309.3,
+          "max_x": 1846.95,
+          "max_y": 1388.44
+        },
+        "width": 84.77,
+        "height": 79.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "28FB",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6708.73,
+        "bounding_box": {
+          "min_x": 1863.68,
+          "min_y": 1309.3,
+          "max_x": 1948.45,
+          "max_y": 1388.44
+        },
+        "width": 84.77,
+        "height": 79.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "2954",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6708.73,
+        "bounding_box": {
+          "min_x": 1964.51,
+          "min_y": 1309.25,
+          "max_x": 2049.28,
+          "max_y": 1388.39
+        },
+        "width": 84.77,
+        "height": 79.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "53CA",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6708.73,
+        "bounding_box": {
+          "min_x": 1762.18,
+          "min_y": 1167.42,
+          "max_x": 1846.95,
+          "max_y": 1246.56
+        },
+        "width": 84.77,
+        "height": 79.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "5423",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 6708.73,
+        "bounding_box": {
+          "min_x": 1863.68,
+          "min_y": 1167.42,
+          "max_x": 1948.45,
+          "max_y": 1246.56
+        },
+        "width": 84.77,
+        "height": 79.14,
+        "vertex_count": 4,
+        "aspect_ratio": 1.07
+      },
+      {
+        "entity_handle": "7F4",
+        "layer": "H",
+        "entity_type": "LWPOLYLINE",
+        "area": 5329.81,
+        "bounding_box": {
+          "min_x": 1658.22,
+          "min_y": 1321.04,
+          "max_x": 1739.71,
+          "max_y": 1386.45
+        },
+        "width": 81.5,
+        "height": 65.4,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "13DE",
+        "layer": "H",
+        "entity_type": "LWPOLYLINE",
+        "area": 5329.81,
+        "bounding_box": {
+          "min_x": 1764.23,
+          "min_y": 1321.04,
+          "max_x": 1845.72,
+          "max_y": 1386.44
+        },
+        "width": 81.5,
+        "height": 65.4,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "17C6",
+        "layer": "H",
+        "entity_type": "LWPOLYLINE",
+        "area": 5329.81,
+        "bounding_box": {
+          "min_x": 1865.73,
+          "min_y": 1321.04,
+          "max_x": 1947.22,
+          "max_y": 1386.44
+        },
+        "width": 81.5,
+        "height": 65.4,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "21D9",
+        "layer": "H",
+        "entity_type": "LWPOLYLINE",
+        "area": 5329.81,
+        "bounding_box": {
+          "min_x": 1966.56,
+          "min_y": 1320.99,
+          "max_x": 2048.05,
+          "max_y": 1386.39
+        },
+        "width": 81.5,
+        "height": 65.4,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "4BED",
+        "layer": "H",
+        "entity_type": "LWPOLYLINE",
+        "area": 5329.81,
+        "bounding_box": {
+          "min_x": 1764.23,
+          "min_y": 1179.17,
+          "max_x": 1845.72,
+          "max_y": 1244.57
+        },
+        "width": 81.5,
+        "height": 65.4,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "4F4D",
+        "layer": "H",
+        "entity_type": "LWPOLYLINE",
+        "area": 5329.81,
+        "bounding_box": {
+          "min_x": 1865.73,
+          "min_y": 1179.17,
+          "max_x": 1947.22,
+          "max_y": 1244.57
+        },
+        "width": 81.5,
+        "height": 65.4,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "C1E7",
+        "layer": "H",
+        "entity_type": "LWPOLYLINE",
+        "area": 5329.81,
+        "bounding_box": {
+          "min_x": 1764.23,
+          "min_y": 1086.66,
+          "max_x": 1845.72,
+          "max_y": 1152.06
+        },
+        "width": 81.5,
+        "height": 65.4,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "C51B",
+        "layer": "H",
+        "entity_type": "LWPOLYLINE",
+        "area": 5329.81,
+        "bounding_box": {
+          "min_x": 1865.73,
+          "min_y": 1086.66,
+          "max_x": 1947.22,
+          "max_y": 1152.06
+        },
+        "width": 81.5,
+        "height": 65.4,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "14D13",
+        "layer": "H",
+        "entity_type": "LWPOLYLINE",
+        "area": 5329.81,
+        "bounding_box": {
+          "min_x": 1764.23,
+          "min_y": 994.16,
+          "max_x": 1845.72,
+          "max_y": 1059.56
+        },
+        "width": 81.5,
+        "height": 65.4,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "14FDC",
+        "layer": "H",
+        "entity_type": "LWPOLYLINE",
+        "area": 5329.81,
+        "bounding_box": {
+          "min_x": 1865.73,
+          "min_y": 994.16,
+          "max_x": 1947.22,
+          "max_y": 1059.56
+        },
+        "width": 81.5,
+        "height": 65.4,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "6A8",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 5242.04,
+        "bounding_box": {
+          "min_x": 1658.52,
+          "min_y": 1321.34,
+          "max_x": 1739.41,
+          "max_y": 1386.15
+        },
+        "width": 80.9,
+        "height": 64.8,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "1393",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 5242.04,
+        "bounding_box": {
+          "min_x": 1764.53,
+          "min_y": 1321.34,
+          "max_x": 1845.42,
+          "max_y": 1386.14
+        },
+        "width": 80.9,
+        "height": 64.8,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "177B",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 5242.04,
+        "bounding_box": {
+          "min_x": 1866.03,
+          "min_y": 1321.34,
+          "max_x": 1946.92,
+          "max_y": 1386.14
+        },
+        "width": 80.9,
+        "height": 64.8,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "21D8",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 5242.04,
+        "bounding_box": {
+          "min_x": 1966.86,
+          "min_y": 1321.29,
+          "max_x": 2047.75,
+          "max_y": 1386.09
+        },
+        "width": 80.9,
+        "height": 64.8,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "4BA2",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 5242.04,
+        "bounding_box": {
+          "min_x": 1764.53,
+          "min_y": 1179.47,
+          "max_x": 1845.42,
+          "max_y": 1244.27
+        },
+        "width": 80.9,
+        "height": 64.8,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "4F02",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 5242.04,
+        "bounding_box": {
+          "min_x": 1866.03,
+          "min_y": 1179.47,
+          "max_x": 1946.92,
+          "max_y": 1244.27
+        },
+        "width": 80.9,
+        "height": 64.8,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "C19C",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 5242.04,
+        "bounding_box": {
+          "min_x": 1764.53,
+          "min_y": 1086.96,
+          "max_x": 1845.42,
+          "max_y": 1151.76
+        },
+        "width": 80.9,
+        "height": 64.8,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "C4D0",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 5242.04,
+        "bounding_box": {
+          "min_x": 1866.03,
+          "min_y": 1086.96,
+          "max_x": 1946.92,
+          "max_y": 1151.76
+        },
+        "width": 80.9,
+        "height": 64.8,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "14CC8",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 5242.04,
+        "bounding_box": {
+          "min_x": 1764.53,
+          "min_y": 994.46,
+          "max_x": 1845.42,
+          "max_y": 1059.26
+        },
+        "width": 80.9,
+        "height": 64.8,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "14F91",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 5242.04,
+        "bounding_box": {
+          "min_x": 1866.03,
+          "min_y": 994.46,
+          "max_x": 1946.92,
+          "max_y": 1059.26
+        },
+        "width": 80.9,
+        "height": 64.8,
+        "vertex_count": 4,
+        "aspect_ratio": 1.25
+      },
+      {
+        "entity_handle": "2792",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 1086.93,
+        "bounding_box": {
+          "min_x": 1375.8,
+          "min_y": 1293.97,
+          "max_x": 1496.88,
+          "max_y": 1302.94
+        },
+        "width": 121.08,
+        "height": 8.98,
+        "vertex_count": 4,
+        "aspect_ratio": 13.49
+      },
+      {
+        "entity_handle": "27F4",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 1086.93,
+        "bounding_box": {
+          "min_x": 1504.08,
+          "min_y": 1293.97,
+          "max_x": 1625.16,
+          "max_y": 1302.94
+        },
+        "width": 121.08,
+        "height": 8.98,
+        "vertex_count": 4,
+        "aspect_ratio": 13.49
+      },
+      {
+        "entity_handle": "284D",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 760.99,
+        "bounding_box": {
+          "min_x": 1656.17,
+          "min_y": 1309.3,
+          "max_x": 1740.94,
+          "max_y": 1318.28
+        },
+        "width": 84.77,
+        "height": 8.98,
+        "vertex_count": 4,
+        "aspect_ratio": 9.44
+      },
+      {
+        "entity_handle": "28A6",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 760.99,
+        "bounding_box": {
+          "min_x": 1762.18,
+          "min_y": 1309.3,
+          "max_x": 1846.95,
+          "max_y": 1318.28
+        },
+        "width": 84.77,
+        "height": 8.98,
+        "vertex_count": 4,
+        "aspect_ratio": 9.44
+      },
+      {
+        "entity_handle": "28FF",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 760.99,
+        "bounding_box": {
+          "min_x": 1863.68,
+          "min_y": 1309.3,
+          "max_x": 1948.45,
+          "max_y": 1318.28
+        },
+        "width": 84.77,
+        "height": 8.98,
+        "vertex_count": 4,
+        "aspect_ratio": 9.44
+      },
+      {
+        "entity_handle": "2958",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 760.99,
+        "bounding_box": {
+          "min_x": 1964.51,
+          "min_y": 1309.25,
+          "max_x": 2049.28,
+          "max_y": 1318.22
+        },
+        "width": 84.77,
+        "height": 8.98,
+        "vertex_count": 4,
+        "aspect_ratio": 9.44
+      },
+      {
+        "entity_handle": "53CE",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 760.99,
+        "bounding_box": {
+          "min_x": 1762.18,
+          "min_y": 1167.42,
+          "max_x": 1846.95,
+          "max_y": 1176.4
+        },
+        "width": 84.77,
+        "height": 8.98,
+        "vertex_count": 4,
+        "aspect_ratio": 9.44
+      },
+      {
+        "entity_handle": "5427",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 760.99,
+        "bounding_box": {
+          "min_x": 1863.68,
+          "min_y": 1167.42,
+          "max_x": 1948.45,
+          "max_y": 1176.4
+        },
+        "width": 84.77,
+        "height": 8.98,
+        "vertex_count": 4,
+        "aspect_ratio": 9.44
+      },
+      {
+        "entity_handle": "C86F",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 490.81,
+        "bounding_box": {
+          "min_x": 1825.14,
+          "min_y": 1087.23,
+          "max_x": 1838.03,
+          "max_y": 1137.69
+        },
+        "width": 12.89,
+        "height": 50.46,
+        "vertex_count": 14,
+        "aspect_ratio": 3.91
+      },
+      {
+        "entity_handle": "152D3",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 490.81,
+        "bounding_box": {
+          "min_x": 1825.14,
+          "min_y": 994.72,
+          "max_x": 1838.03,
+          "max_y": 1045.18
+        },
+        "width": 12.89,
+        "height": 50.46,
+        "vertex_count": 14,
+        "aspect_ratio": 3.91
+      },
+      {
+        "entity_handle": "153BA",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 490.81,
+        "bounding_box": {
+          "min_x": 1825.14,
+          "min_y": 994.72,
+          "max_x": 1838.03,
+          "max_y": 1045.18
+        },
+        "width": 12.89,
+        "height": 50.46,
+        "vertex_count": 14,
+        "aspect_ratio": 3.91
+      },
+      {
+        "entity_handle": "AECD",
+        "layer": "0",
+        "entity_type": "LWPOLYLINE",
+        "area": 489.89,
+        "bounding_box": {
+          "min_x": 1825.14,
+          "min_y": 1179.73,
+          "max_x": 1838.03,
+          "max_y": 1230.19
+        },
+        "width": 12.89,
+        "height": 50.46,
+        "vertex_count": 12,
+        "aspect_ratio": 3.91
+      },
+      {
+        "entity_handle": "23EA",
+        "layer": "DIAMENTION",
+        "entity_type": "LWPOLYLINE",
+        "area": 411.72,
+        "bounding_box": {
+          "min_x": 1408.18,
+          "min_y": 1354.41,
+          "max_x": 1425.73,
+          "max_y": 1378.78
+        },
+        "width": 17.55,
+        "height": 24.37,
+        "vertex_count": 8,
+        "aspect_ratio": 1.39
+      }
+    ],
+    "spatial_clusters": [
+      {
+        "min_x": 0.0,
+        "max_x": 0.0,
+        "min_y": 0.0,
+        "max_y": 0.0,
+        "width": 0.0,
+        "height": 0.0,
+        "total_entity_count": 112,
+        "major_layers": {
+          "DIAMENTION": 85,
+          "0": 17,
+          "wall": 8,
+          "S-DIM": 2
+        }
+      },
+      {
+        "min_x": 1354.38,
+        "max_x": 2116.83,
+        "min_y": 994.16,
+        "max_y": 1430.1,
+        "width": 762.46,
+        "height": 435.94,
+        "total_entity_count": 13151,
+        "major_layers": {
+          "wall": 4036,
+          "Wall_TMOS": 1595,
+          "tex": 1402,
+          "WIN": 1043,
+          "0": 1012,
+          "stair": 894,
+          "TEXT 1 RDH": 616,
+          "COLUMN (DCPL)": 589
+        }
+      },
+      {
+        "min_x": 2241.73,
+        "max_x": 2248.23,
+        "min_y": 5290.34,
+        "max_y": 5310.95,
+        "width": 6.5,
+        "height": 20.61,
+        "total_entity_count": 60,
+        "major_layers": {
+          "WALL 1 RDH": 60
+        }
+      },
+      {
+        "min_x": 2343.66,
+        "max_x": 2447.66,
+        "min_y": 7079.6,
+        "max_y": 7086.47,
+        "width": 104.0,
+        "height": 6.87,
+        "total_entity_count": 63,
+        "major_layers": {
+          "0": 63
+        }
+      }
+    ],
+    "six_individual_floor_plans": [
+      {
+        "plan_name": "BASEMENT FLOOR PLAN",
+        "bounding_box": {
+          "min_x": 1354.0,
+          "min_y": 1265.0,
+          "max_x": 1498.0,
+          "max_y": 1420.0
+        },
+        "width": 144.0,
+        "height": 155.0,
+        "total_entity_count": 808,
+        "column_dcpl_count": 52,
+        "column_hatch_count": 0,
+        "wall_count": 148,
+        "major_layers": {
+          "bike": 228,
+          "wall": 109,
+          "hatch_wall": 86,
+          "stair": 76,
+          "tex": 66,
+          "COLUMN (DCPL)": 52,
+          "Wall_TMOS": 39,
+          "Staircase_TMOS": 27
+        }
+      },
+      {
+        "plan_name": "GROUND FLOOR PLAN",
+        "bounding_box": {
+          "min_x": 1503.0,
+          "min_y": 1265.0,
+          "max_x": 1626.0,
+          "max_y": 1420.0
+        },
+        "width": 123.0,
+        "height": 155.0,
+        "total_entity_count": 2003,
+        "column_dcpl_count": 52,
+        "column_hatch_count": 0,
+        "wall_count": 959,
+        "major_layers": {
+          "wall": 920,
+          "tex": 385,
+          "WIN": 155,
+          "bike": 145,
+          "stair": 91,
+          "COLUMN (DCPL)": 52,
+          "hatch_wall": 39,
+          "Wall_TMOS": 39
+        }
+      },
+      {
+        "plan_name": "FIRST FLOOR PLAN",
+        "bounding_box": {
+          "min_x": 1655.0,
+          "min_y": 1308.0,
+          "max_x": 1742.0,
+          "max_y": 1395.0
+        },
+        "width": 87.0,
+        "height": 87.0,
+        "total_entity_count": 1703,
+        "column_dcpl_count": 53,
+        "column_hatch_count": 0,
+        "wall_count": 898,
+        "major_layers": {
+          "wall": 859,
+          "tex": 364,
+          "WIN": 194,
+          "stair": 59,
+          "COLUMN (DCPL)": 53,
+          "Wall_TMOS": 39,
+          "H": 30,
+          "Staircase_TMOS": 27
+        }
+      },
+      {
+        "plan_name": "SECOND FLOOR PLAN",
+        "bounding_box": {
+          "min_x": 1761.0,
+          "min_y": 1308.0,
+          "max_x": 1848.0,
+          "max_y": 1395.0
+        },
+        "width": 87.0,
+        "height": 87.0,
+        "total_entity_count": 954,
+        "column_dcpl_count": 49,
+        "column_hatch_count": 0,
+        "wall_count": 357,
+        "major_layers": {
+          "Wall_TMOS": 189,
+          "wall": 168,
+          "TEXT 1 RDH": 111,
+          "0": 104,
+          "stair": 78,
+          "WIN": 72,
+          "tex": 56,
+          "COLUMN (DCPL)": 49
+        }
+      },
+      {
+        "plan_name": "THIRD FLOOR PLAN",
+        "bounding_box": {
+          "min_x": 1863.0,
+          "min_y": 1308.0,
+          "max_x": 1950.0,
+          "max_y": 1395.0
+        },
+        "width": 87.0,
+        "height": 87.0,
+        "total_entity_count": 1230,
+        "column_dcpl_count": 49,
+        "column_hatch_count": 0,
+        "wall_count": 340,
+        "major_layers": {
+          "TEXT 1 RDH": 394,
+          "Wall_TMOS": 171,
+          "wall": 169,
+          "0": 121,
+          "WIN": 75,
+          "stair": 74,
+          "tex": 67,
+          "COLUMN (DCPL)": 49
+        }
+      },
+      {
+        "plan_name": "FOURTH FLOOR PLAN",
+        "bounding_box": {
+          "min_x": 1964.0,
+          "min_y": 1308.0,
+          "max_x": 2050.0,
+          "max_y": 1395.0
+        },
+        "width": 86.0,
+        "height": 87.0,
+        "total_entity_count": 1579,
+        "column_dcpl_count": 40,
+        "column_hatch_count": 0,
+        "wall_count": 906,
+        "major_layers": {
+          "wall": 860,
+          "WIN": 121,
+          "door": 91,
+          "tex": 86,
+          "H": 65,
+          "stair": 60,
+          "DUCT (DCPL)": 58,
+          "Railing_TMOS": 54
+        }
+      }
+    ],
+    "floor_plan_labels": [
+      {
+        "exact_text": "Opp. Police Pared Ground , Sharanpur Road, Nashik-2",
+        "entity_handle": "27DC",
+        "layer": "TEXT",
+        "insertion_point": [
+          1479.4,
+          1296.54
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1419.4,
+          "max_x": 1539.4,
+          "min_y": 1231.54,
+          "max_y": 1351.54
+        },
+        "nearby_entity_count": 287,
+        "nearby_columns_count": 0,
+        "nearby_walls_count": 32,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "278F",
+          "27F1",
+          "278E",
+          "27F0",
+          "2792",
+          "27F4",
+          "27DD"
+        ]
+      },
+      {
+        "exact_text": "Opp. Police Pared Ground , Sharanpur Road, Nashik-2",
+        "entity_handle": "2835",
+        "layer": "TEXT",
+        "insertion_point": [
+          1607.68,
+          1296.54
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1547.68,
+          "max_x": 1667.68,
+          "min_y": 1231.54,
+          "max_y": 1351.54
+        },
+        "nearby_entity_count": 688,
+        "nearby_columns_count": 0,
+        "nearby_walls_count": 331,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "27F1",
+          "27F0",
+          "284A",
+          "2849",
+          "7F4",
+          "6A8",
+          "27F4",
+          "284D",
+          "2836"
+        ]
+      },
+      {
+        "exact_text": "Opp. Police Pared Ground , Sharanpur Road, Nashik-2",
+        "entity_handle": "288E",
+        "layer": "TEXT",
+        "insertion_point": [
+          1723.47,
+          1311.88
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1663.47,
+          "max_x": 1783.47,
+          "min_y": 1246.88,
+          "max_y": 1366.88
+        },
+        "nearby_entity_count": 1228,
+        "nearby_columns_count": 33,
+        "nearby_walls_count": 647,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "284A",
+          "28A3",
+          "53CB",
+          "2849",
+          "28A2",
+          "7F4",
+          "13DE",
+          "6A8",
+          "1393"
+        ]
+      },
+      {
+        "exact_text": "Opp. Police Pared Ground , Sharanpur Road, Nashik-2",
+        "entity_handle": "28E7",
+        "layer": "TEXT",
+        "insertion_point": [
+          1829.47,
+          1311.88
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1769.47,
+          "max_x": 1889.47,
+          "min_y": 1246.88,
+          "max_y": 1366.88
+        },
+        "nearby_entity_count": 672,
+        "nearby_columns_count": 31,
+        "nearby_walls_count": 256,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "28A3",
+          "28FC",
+          "53CB",
+          "5424",
+          "28A2",
+          "28FB",
+          "13DE",
+          "17C6",
+          "1393"
+        ]
+      },
+      {
+        "exact_text": "Opp. Police Pared Ground , Sharanpur Road, Nashik-2",
+        "entity_handle": "2940",
+        "layer": "TEXT",
+        "insertion_point": [
+          1930.98,
+          1311.88
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1870.98,
+          "max_x": 1990.98,
+          "min_y": 1246.88,
+          "max_y": 1366.88
+        },
+        "nearby_entity_count": 1139,
+        "nearby_columns_count": 33,
+        "nearby_walls_count": 405,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "28FC",
+          "2955",
+          "5424",
+          "28FB",
+          "2954",
+          "17C6",
+          "21D9",
+          "177B",
+          "21D8"
+        ]
+      },
+      {
+        "exact_text": "Opp. Police Pared Ground , Sharanpur Road, Nashik-2",
+        "entity_handle": "2999",
+        "layer": "TEXT",
+        "insertion_point": [
+          2031.81,
+          1311.82
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1971.81,
+          "max_x": 2091.81,
+          "min_y": 1246.82,
+          "max_y": 1366.82
+        },
+        "nearby_entity_count": 840,
+        "nearby_columns_count": 21,
+        "nearby_walls_count": 465,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "2955",
+          "2954",
+          "21D9",
+          "21D8",
+          "2958",
+          "299A",
+          "1D87",
+          "1DEB",
+          "1D86"
+        ]
+      },
+      {
+        "exact_text": "BASEMENT FLOOR PLAN",
+        "entity_handle": "29AD",
+        "layer": "tex",
+        "insertion_point": [
+          1431.42,
+          1346.5
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1371.42,
+          "max_x": 1491.42,
+          "min_y": 1281.5,
+          "max_y": 1401.5
+        },
+        "nearby_entity_count": 799,
+        "nearby_columns_count": 52,
+        "nearby_walls_count": 234,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "278F",
+          "278E",
+          "2792",
+          "23EA",
+          "27DD",
+          "24C1"
+        ]
+      },
+      {
+        "exact_text": "GROUND FLOOR PLAN",
+        "entity_handle": "29C0",
+        "layer": "tex",
+        "insertion_point": [
+          1551.17,
+          1345.1
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1491.17,
+          "max_x": 1611.17,
+          "min_y": 1280.1,
+          "max_y": 1400.1
+        },
+        "nearby_entity_count": 1959,
+        "nearby_columns_count": 52,
+        "nearby_walls_count": 1000,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "278F",
+          "27F1",
+          "278E",
+          "27F0",
+          "2792",
+          "27F4",
+          "27DD",
+          "2836"
+        ]
+      },
+      {
+        "exact_text": "FIRST FLOOR PLAN",
+        "entity_handle": "29D2",
+        "layer": "tex",
+        "insertion_point": [
+          1687.99,
+          1350.66
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1627.99,
+          "max_x": 1747.99,
+          "min_y": 1285.66,
+          "max_y": 1405.66
+        },
+        "nearby_entity_count": 1703,
+        "nearby_columns_count": 53,
+        "nearby_walls_count": 898,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "284A",
+          "2849",
+          "7F4",
+          "6A8",
+          "284D",
+          "288F"
+        ]
+      },
+      {
+        "exact_text": "SECOND FLOOR PLAN",
+        "entity_handle": "29E4",
+        "layer": "tex",
+        "insertion_point": [
+          1793.29,
+          1350.56
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1733.29,
+          "max_x": 1853.29,
+          "min_y": 1285.56,
+          "max_y": 1405.56
+        },
+        "nearby_entity_count": 1239,
+        "nearby_columns_count": 52,
+        "nearby_walls_count": 510,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "284A",
+          "28A3",
+          "2849",
+          "28A2",
+          "7F4",
+          "13DE",
+          "6A8",
+          "1393",
+          "284D"
+        ]
+      },
+      {
+        "exact_text": "THIRD FLOOR PLAN",
+        "entity_handle": "29F6",
+        "layer": "tex",
+        "insertion_point": [
+          1895.41,
+          1350.68
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1835.41,
+          "max_x": 1955.41,
+          "min_y": 1285.68,
+          "max_y": 1405.68
+        },
+        "nearby_entity_count": 1594,
+        "nearby_columns_count": 56,
+        "nearby_walls_count": 477,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "28A3",
+          "28FC",
+          "28A2",
+          "28FB",
+          "13DE",
+          "17C6",
+          "1393",
+          "177B",
+          "28A6"
+        ]
+      },
+      {
+        "exact_text": "FOURTH FLOOR PLAN",
+        "entity_handle": "2A08",
+        "layer": "tex",
+        "insertion_point": [
+          1990.56,
+          1350.15
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1930.56,
+          "max_x": 2050.56,
+          "min_y": 1285.15,
+          "max_y": 1405.15
+        },
+        "nearby_entity_count": 2257,
+        "nearby_columns_count": 48,
+        "nearby_walls_count": 1042,
+        "nearby_candidate_closed_polygon_handles": [
+          "2A1A",
+          "28FC",
+          "2955",
+          "28FB",
+          "2954",
+          "17C6",
+          "21D9",
+          "177B",
+          "21D8",
+          "28FF"
+        ]
+      },
+      {
+        "exact_text": "Opp. Police Pared Ground , Sharanpur Road, Nashik-2",
+        "entity_handle": "540F",
+        "layer": "TEXT",
+        "insertion_point": [
+          1829.47,
+          1170.0
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1769.47,
+          "max_x": 1889.47,
+          "min_y": 1105.0,
+          "max_y": 1225.0
+        },
+        "nearby_entity_count": 1384,
+        "nearby_columns_count": 86,
+        "nearby_walls_count": 561,
+        "nearby_candidate_closed_polygon_handles": [
+          "53CB",
+          "5424",
+          "53CA",
+          "5423",
+          "4BED",
+          "4F4D",
+          "C1E7",
+          "C51B",
+          "4BA2",
+          "4F02"
+        ]
+      },
+      {
+        "exact_text": "Opp. Police Pared Ground , Sharanpur Road, Nashik-2",
+        "entity_handle": "5468",
+        "layer": "TEXT",
+        "insertion_point": [
+          1930.98,
+          1170.0
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1870.98,
+          "max_x": 1990.98,
+          "min_y": 1105.0,
+          "max_y": 1225.0
+        },
+        "nearby_entity_count": 1185,
+        "nearby_columns_count": 76,
+        "nearby_walls_count": 476,
+        "nearby_candidate_closed_polygon_handles": [
+          "5424",
+          "5423",
+          "4F4D",
+          "C51B",
+          "4F02",
+          "C4D0",
+          "5427",
+          "AED1",
+          "C873",
+          "5469"
+        ]
+      },
+      {
+        "exact_text": "SECOND FLOOR PLAN",
+        "entity_handle": "547C",
+        "layer": "tex",
+        "insertion_point": [
+          1793.29,
+          1208.69
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1733.29,
+          "max_x": 1853.29,
+          "min_y": 1143.69,
+          "max_y": 1263.69
+        },
+        "nearby_entity_count": 1048,
+        "nearby_columns_count": 57,
+        "nearby_walls_count": 395,
+        "nearby_candidate_closed_polygon_handles": [
+          "53CB",
+          "53CA",
+          "4BED",
+          "C1E7",
+          "4BA2",
+          "C19C",
+          "53CE",
+          "AECD",
+          "5410"
+        ]
+      },
+      {
+        "exact_text": "THIRD FLOOR PLAN",
+        "entity_handle": "548E",
+        "layer": "tex",
+        "insertion_point": [
+          1895.41,
+          1208.8
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1835.41,
+          "max_x": 1955.41,
+          "min_y": 1143.8,
+          "max_y": 1263.8
+        },
+        "nearby_entity_count": 1338,
+        "nearby_columns_count": 65,
+        "nearby_walls_count": 521,
+        "nearby_candidate_closed_polygon_handles": [
+          "53CB",
+          "5424",
+          "53CA",
+          "5423",
+          "4BED",
+          "4F4D",
+          "C1E7",
+          "C51B",
+          "4BA2",
+          "4F02"
+        ]
+      },
+      {
+        "exact_text": "SECOND FLOOR PLAN",
+        "entity_handle": "C815",
+        "layer": "tex",
+        "insertion_point": [
+          1793.29,
+          1116.18
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1733.29,
+          "max_x": 1853.29,
+          "min_y": 1051.18,
+          "max_y": 1171.18
+        },
+        "nearby_entity_count": 889,
+        "nearby_columns_count": 57,
+        "nearby_walls_count": 385,
+        "nearby_candidate_closed_polygon_handles": [
+          "53CB",
+          "53CA",
+          "C1E7",
+          "14D13",
+          "C19C",
+          "14CC8",
+          "53CE",
+          "C86F",
+          "5410",
+          "14B78"
+        ]
+      },
+      {
+        "exact_text": "THIRD FLOOR PLAN",
+        "entity_handle": "C824",
+        "layer": "tex",
+        "insertion_point": [
+          1895.41,
+          1116.3
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1835.41,
+          "max_x": 1955.41,
+          "min_y": 1051.3,
+          "max_y": 1171.3
+        },
+        "nearby_entity_count": 1159,
+        "nearby_columns_count": 65,
+        "nearby_walls_count": 512,
+        "nearby_candidate_closed_polygon_handles": [
+          "53CB",
+          "5424",
+          "53CA",
+          "5423",
+          "C1E7",
+          "C51B",
+          "14D13",
+          "14FDC",
+          "C19C",
+          "C4D0"
+        ]
+      },
+      {
+        "exact_text": "SECOND FLOOR PLAN",
+        "entity_handle": "152B4",
+        "layer": "tex",
+        "insertion_point": [
+          1793.29,
+          1023.68
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1733.29,
+          "max_x": 1853.29,
+          "min_y": 958.68,
+          "max_y": 1078.68
+        },
+        "nearby_entity_count": 764,
+        "nearby_columns_count": 49,
+        "nearby_walls_count": 339,
+        "nearby_candidate_closed_polygon_handles": [
+          "14D13",
+          "14CC8",
+          "152D3",
+          "153BA",
+          "152EA",
+          "152E9",
+          "152EB"
+        ]
+      },
+      {
+        "exact_text": "THIRD FLOOR PLAN",
+        "entity_handle": "152C3",
+        "layer": "tex",
+        "insertion_point": [
+          1895.41,
+          1023.79
+        ],
+        "nearby_geometry_bounding_box": {
+          "min_x": 1835.41,
+          "max_x": 1955.41,
+          "min_y": 958.79,
+          "max_y": 1078.79
+        },
+        "nearby_entity_count": 1029,
+        "nearby_columns_count": 56,
+        "nearby_walls_count": 459,
+        "nearby_candidate_closed_polygon_handles": [
+          "14D13",
+          "14FDC",
+          "14CC8",
+          "14F91",
+          "152D3",
+          "153BA",
+          "152D7",
+          "152D4",
+          "152D6",
+          "152D5"
+        ]
+      }
+    ],
+    "candidate_122x117_regions": [
+      {
+        "entity_handle": "278F",
+        "layer": "0",
+        "area": 14294.79,
+        "dimensions": "122.08 x 117.09",
+        "bounding_box": {
+          "min_x": 1375.3,
+          "min_y": 1293.47,
+          "max_x": 1497.38,
+          "max_y": 1410.56
+        },
+        "total_entities_contained": 808,
+        "layer_breakdown": {
+          "bike": 228,
+          "wall": 109,
+          "hatch_wall": 86,
+          "stair": 76,
+          "tex": 66,
+          "COLUMN (DCPL)": 52,
+          "Wall_TMOS": 39,
+          "Staircase_TMOS": 27,
+          "H": 27,
+          "0": 24,
+          "F4": 21,
+          "DIAMENTION": 11
+        },
+        "entity_type_breakdown": {
+          "LINE": 406,
+          "INSERT": 228,
+          "LWPOLYLINE": 87,
+          "MTEXT": 79,
+          "CIRCLE": 4,
+          "TEXT": 4
+        },
+        "specific_tracked_counts": {
+          "wall": 109,
+          "Wall_TMOS": 39,
+          "COLUMN (DCPL)": 52,
+          "COLUMN HATCH (DCPL)": 0,
+          "stair": 76,
+          "door": 2,
+          "WIN": 5,
+          "DUCT (DCPL)": 8
+        },
+        "first_8_text_labels": [
+          {
+            "text": "UP",
+            "handle": "2337",
+            "layer": "tex",
+            "pos": [
+              1446.0,
+              1378.28
+            ]
+          },
+          {
+            "text": "UP",
+            "handle": "2343",
+            "layer": "tex",
+            "pos": [
+              1449.41,
+              1363.47
+            ]
+          },
+          {
+            "text": "LIFT\n2.00X2.00",
+            "handle": "2360",
+            "layer": "tex",
+            "pos": [
+              1446.98,
+              1371.13
+            ]
+          },
+          {
+            "text": "STORAGE-1\n15.90x13.12",
+            "handle": "2372",
+            "layer": "tex",
+            "pos": [
+              1416.92,
+              1369.68
+            ]
+          },
+          {
+            "text": "STORAGE-2\n17.25x9.15",
+            "handle": "2374",
+            "layer": "tex",
+            "pos": [
+              1417.19,
+              1359.33
+            ]
+          },
+          {
+            "text": "EXIT",
+            "handle": "23CD",
+            "layer": "tex",
+            "pos": [
+              1471.19,
+              1379.66
+            ]
+          },
+          {
+            "text": "ENTRY",
+            "handle": "23D2",
+            "layer": "tex",
+            "pos": [
+              1473.99,
+              1379.66
+            ]
+          },
+          {
+            "text": "DN",
+            "handle": "23E6",
+            "layer": "tex",
+            "pos": [
+              1417.9,
+              1377.68
+            ]
+          }
+        ]
+      },
+      {
+        "entity_handle": "27F1",
+        "layer": "0",
+        "area": 14294.79,
+        "dimensions": "122.08 x 117.09",
+        "bounding_box": {
+          "min_x": 1503.58,
+          "min_y": 1293.47,
+          "max_x": 1625.66,
+          "max_y": 1410.56
+        },
+        "total_entities_contained": 2003,
+        "layer_breakdown": {
+          "wall": 920,
+          "tex": 385,
+          "WIN": 155,
+          "bike": 145,
+          "stair": 91,
+          "COLUMN (DCPL)": 52,
+          "hatch_wall": 39,
+          "Wall_TMOS": 39,
+          "Staircase_TMOS": 30,
+          "H": 29,
+          "0": 24,
+          "WI": 22
+        },
+        "entity_type_breakdown": {
+          "LINE": 1364,
+          "MTEXT": 344,
+          "INSERT": 145,
+          "LWPOLYLINE": 88,
+          "TEXT": 58,
+          "CIRCLE": 4
+        },
+        "specific_tracked_counts": {
+          "wall": 920,
+          "Wall_TMOS": 39,
+          "COLUMN (DCPL)": 52,
+          "COLUMN HATCH (DCPL)": 0,
+          "stair": 91,
+          "door": 14,
+          "WIN": 155,
+          "DUCT (DCPL)": 4
+        },
+        "first_8_text_labels": [
+          {
+            "text": "4.18 M.",
+            "handle": "8A0",
+            "layer": "tex",
+            "pos": [
+              1510.93,
+              1384.39
+            ]
+          },
+          {
+            "text": "OPEN SPACE\n460.21 SQ.M.",
+            "handle": "8A7",
+            "layer": "tex",
+            "pos": [
+              1597.4,
+              1390.77
+            ]
+          },
+          {
+            "text": "AMENITY (PARKING)\n511.35 sq.m.",
+            "handle": "8A9",
+            "layer": "tex",
+            "pos": [
+              1608.9,
+              1309.81
+            ]
+          },
+          {
+            "text": "AREA NOT IN POSSESSION 574.00 SQ.M.",
+            "handle": "8AF",
+            "layer": "tex",
+            "pos": [
+              1563.9,
+              1391.41
+            ]
+          },
+          {
+            "text": "ROAD WIDENING AREA \n= 536.00 SQ.M.",
+            "handle": "8B1",
+            "layer": "tex",
+            "pos": [
+              1521.24,
+              1376.0
+            ]
+          },
+          {
+            "text": "600.00 SQ.M.",
+            "handle": "8B3",
+            "layer": "tex",
+            "pos": [
+              1523.02,
+              1370.74
+            ]
+          },
+          {
+            "text": "UP",
+            "handle": "AEA",
+            "layer": "tex",
+            "pos": [
+              1575.52,
+              1378.28
+            ]
+          },
+          {
+            "text": "UP",
+            "handle": "BFF",
+            "layer": "tex",
+            "pos": [
+              1578.93,
+              1363.47
+            ]
+          }
+        ]
+      },
+      {
+        "entity_handle": "278E",
+        "layer": "0",
+        "area": 14056.62,
+        "dimensions": "121.08 x 116.09",
+        "bounding_box": {
+          "min_x": 1375.8,
+          "min_y": 1293.97,
+          "max_x": 1496.88,
+          "max_y": 1410.06
+        },
+        "total_entities_contained": 808,
+        "layer_breakdown": {
+          "bike": 228,
+          "wall": 109,
+          "hatch_wall": 86,
+          "stair": 76,
+          "tex": 66,
+          "COLUMN (DCPL)": 52,
+          "Wall_TMOS": 39,
+          "Staircase_TMOS": 27,
+          "H": 27,
+          "0": 24,
+          "F4": 21,
+          "DIAMENTION": 11
+        },
+        "entity_type_breakdown": {
+          "LINE": 406,
+          "INSERT": 228,
+          "LWPOLYLINE": 87,
+          "MTEXT": 79,
+          "CIRCLE": 4,
+          "TEXT": 4
+        },
+        "specific_tracked_counts": {
+          "wall": 109,
+          "Wall_TMOS": 39,
+          "COLUMN (DCPL)": 52,
+          "COLUMN HATCH (DCPL)": 0,
+          "stair": 76,
+          "door": 2,
+          "WIN": 5,
+          "DUCT (DCPL)": 8
+        },
+        "first_8_text_labels": [
+          {
+            "text": "UP",
+            "handle": "2337",
+            "layer": "tex",
+            "pos": [
+              1446.0,
+              1378.28
+            ]
+          },
+          {
+            "text": "UP",
+            "handle": "2343",
+            "layer": "tex",
+            "pos": [
+              1449.41,
+              1363.47
+            ]
+          },
+          {
+            "text": "LIFT\n2.00X2.00",
+            "handle": "2360",
+            "layer": "tex",
+            "pos": [
+              1446.98,
+              1371.13
+            ]
+          },
+          {
+            "text": "STORAGE-1\n15.90x13.12",
+            "handle": "2372",
+            "layer": "tex",
+            "pos": [
+              1416.92,
+              1369.68
+            ]
+          },
+          {
+            "text": "STORAGE-2\n17.25x9.15",
+            "handle": "2374",
+            "layer": "tex",
+            "pos": [
+              1417.19,
+              1359.33
+            ]
+          },
+          {
+            "text": "EXIT",
+            "handle": "23CD",
+            "layer": "tex",
+            "pos": [
+              1471.19,
+              1379.66
+            ]
+          },
+          {
+            "text": "ENTRY",
+            "handle": "23D2",
+            "layer": "tex",
+            "pos": [
+              1473.99,
+              1379.66
+            ]
+          },
+          {
+            "text": "DN",
+            "handle": "23E6",
+            "layer": "tex",
+            "pos": [
+              1417.9,
+              1377.68
+            ]
+          }
+        ]
+      },
+      {
+        "entity_handle": "27F0",
+        "layer": "0",
+        "area": 14056.62,
+        "dimensions": "121.08 x 116.09",
+        "bounding_box": {
+          "min_x": 1504.08,
+          "min_y": 1293.97,
+          "max_x": 1625.16,
+          "max_y": 1410.06
+        },
+        "total_entities_contained": 2003,
+        "layer_breakdown": {
+          "wall": 920,
+          "tex": 385,
+          "WIN": 155,
+          "bike": 145,
+          "stair": 91,
+          "COLUMN (DCPL)": 52,
+          "hatch_wall": 39,
+          "Wall_TMOS": 39,
+          "Staircase_TMOS": 30,
+          "H": 29,
+          "0": 24,
+          "WI": 22
+        },
+        "entity_type_breakdown": {
+          "LINE": 1364,
+          "MTEXT": 344,
+          "INSERT": 145,
+          "LWPOLYLINE": 88,
+          "TEXT": 58,
+          "CIRCLE": 4
+        },
+        "specific_tracked_counts": {
+          "wall": 920,
+          "Wall_TMOS": 39,
+          "COLUMN (DCPL)": 52,
+          "COLUMN HATCH (DCPL)": 0,
+          "stair": 91,
+          "door": 14,
+          "WIN": 155,
+          "DUCT (DCPL)": 4
+        },
+        "first_8_text_labels": [
+          {
+            "text": "4.18 M.",
+            "handle": "8A0",
+            "layer": "tex",
+            "pos": [
+              1510.93,
+              1384.39
+            ]
+          },
+          {
+            "text": "OPEN SPACE\n460.21 SQ.M.",
+            "handle": "8A7",
+            "layer": "tex",
+            "pos": [
+              1597.4,
+              1390.77
+            ]
+          },
+          {
+            "text": "AMENITY (PARKING)\n511.35 sq.m.",
+            "handle": "8A9",
+            "layer": "tex",
+            "pos": [
+              1608.9,
+              1309.81
+            ]
+          },
+          {
+            "text": "AREA NOT IN POSSESSION 574.00 SQ.M.",
+            "handle": "8AF",
+            "layer": "tex",
+            "pos": [
+              1563.9,
+              1391.41
+            ]
+          },
+          {
+            "text": "ROAD WIDENING AREA \n= 536.00 SQ.M.",
+            "handle": "8B1",
+            "layer": "tex",
+            "pos": [
+              1521.24,
+              1376.0
+            ]
+          },
+          {
+            "text": "600.00 SQ.M.",
+            "handle": "8B3",
+            "layer": "tex",
+            "pos": [
+              1523.02,
+              1370.74
+            ]
+          },
+          {
+            "text": "UP",
+            "handle": "AEA",
+            "layer": "tex",
+            "pos": [
+              1575.52,
+              1378.28
+            ]
+          },
+          {
+            "text": "UP",
+            "handle": "BFF",
+            "layer": "tex",
+            "pos": [
+              1578.93,
+              1363.47
+            ]
+          }
+        ]
+      }
+    ],
+    "structural_layers": {
+      "COLUMN (DCPL)": {
+        "entity_count": 589,
+        "entity_types": {
+          "LWPOLYLINE": 589
+        },
+        "bounding_box": {
+          "min_x": 1408.18,
+          "min_y": 1027.53,
+          "max_x": 2027.6,
+          "max_y": 1379.59
+        },
+        "representative_dimensions": [
+          {
+            "dim": "0.68 x 0.68",
+            "count": 261
+          },
+          {
+            "dim": "0.3 x 0.75",
+            "count": 92
+          },
+          {
+            "dim": "0.75 x 0.75",
+            "count": 50
+          },
+          {
+            "dim": "0.3 x 0.9",
+            "count": 24
+          },
+          {
+            "dim": "0.3 x 0.6",
+            "count": 24
+          },
+          {
+            "dim": "0.3 x 0.68",
+            "count": 23
+          }
+        ],
+        "regular_intervals_evidence": "Entities are arranged on an architectural structural column grid with repeated spacing across X and Y corresponding to the column bays of each plan.",
+        "spatial_location_summary": "Located squarely inside the floor plan regions (Basement, Ground, and Upper floors) from X=1408 to X=2028."
+      },
+      "COLUMN HATCH (DCPL)": {
+        "entity_count": 542,
+        "entity_types": {
+          "HATCH": 542
+        },
+        "bounding_box": {
+          "min_x": 0,
+          "min_y": 0,
+          "max_x": 0,
+          "max_y": 0
+        },
+        "representative_dimensions": [],
+        "regular_intervals_evidence": "Entities are arranged on an architectural structural column grid with repeated spacing across X and Y corresponding to the column bays of each plan.",
+        "spatial_location_summary": "Located squarely inside the floor plan regions (Basement, Ground, and Upper floors) from X=1408 to X=2028."
+      }
+    }
+  },
+  "vadodara": {
+    "source_file": "1045- KESHAV LANDMARK_VADODARA ,GUJRAT_ZONING LAYOUT_20.05.2026.dxf",
+    "units": {
+      "INSUNITS_raw": 1,
+      "INSUNITS_interpreted": "Inches",
+      "MEASUREMENT_raw": 0,
+      "MEASUREMENT_interpreted": "English (inches/ft)",
+      "dimension_evidence": [
+        {
+          "handle": "5C7FA",
+          "measurement": 174.477,
+          "text": "{\\H1.25x;450MM\\P(MINIMUM)}"
+        },
+        {
+          "handle": "5C7FB",
+          "measurement": 98.479,
+          "text": "{\\H1.25x;230MM\\P(MINIMUM)}"
+        },
+        {
+          "handle": "6D08D",
+          "measurement": 23.997,
+          "text": "{\\H2x;4\"}"
+        },
+        {
+          "handle": "6D1E4",
+          "measurement": 17.559,
+          "text": ""
+        },
+        {
+          "handle": "6D1F0",
+          "measurement": 25.214,
+          "text": ""
+        },
+        {
+          "handle": "6D1FC",
+          "measurement": 43.945,
+          "text": ""
+        },
+        {
+          "handle": "6D208",
+          "measurement": 4.422,
+          "text": ""
+        },
+        {
+          "handle": "6D214",
+          "measurement": 15.549,
+          "text": ""
+        }
+      ],
+      "text_annotation_evidence": [
+        "NET USAGE AREA = 10,962 SQ. FT.",
+        "NET USAGE AREA = 10,305 SQ. FT.",
+        "SCREEN 1 92 SOFA SLIDER 92",
+        "SCREEN 2 117 SOFA SLIDER :104 FRONT LOUNGER :13",
+        "SCREEN 3 119 SOFA SLIDER :106 FRONT LOUNGER :13",
+        "WALL dimensions: 4.5, 9.0, 120.0 inches (4.5\" = 115mm brick wall, 9\" = 230mm wall, 120\" = 10ft bay)"
+      ],
+      "unit_scale_conclusion": "INSUNITS specifies Inches (1). Coordinates are in inches (e.g. wall thickness 4.5 inches, screens length ~400-500 inches). Floor area text calculates in SQ. FT. (10,962 sq ft)."
+    },
+    "top_50_closed_regions": [
+      {
+        "entity_handle": "8285A",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 159310202.52,
+        "bounding_box": {
+          "min_x": 59503.52,
+          "min_y": 1159.96,
+          "max_x": 67852.07,
+          "max_y": 20242.35
+        },
+        "width": 8348.55,
+        "height": 19082.39,
+        "vertex_count": 4,
+        "aspect_ratio": 2.29
+      },
+      {
+        "entity_handle": "5C60E",
+        "layer": "4 upvc pip",
+        "entity_type": "LWPOLYLINE",
+        "area": 7219277.17,
+        "bounding_box": {
+          "min_x": 4888.84,
+          "min_y": 7792.93,
+          "max_x": 8084.17,
+          "max_y": 10052.25
+        },
+        "width": 3195.33,
+        "height": 2259.32,
+        "vertex_count": 4,
+        "aspect_ratio": 1.41
+      },
+      {
+        "entity_handle": "5C60D",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 6944160.67,
+        "bounding_box": {
+          "min_x": 4913.58,
+          "min_y": 7817.67,
+          "max_x": 8059.42,
+          "max_y": 10027.5
+        },
+        "width": 3145.84,
+        "height": 2209.83,
+        "vertex_count": 8,
+        "aspect_ratio": 1.42
+      },
+      {
+        "entity_handle": "5C60C",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 6886676.03,
+        "bounding_box": {
+          "min_x": 4919.08,
+          "min_y": 7823.17,
+          "max_x": 8053.92,
+          "max_y": 10022.01
+        },
+        "width": 3134.84,
+        "height": 2198.84,
+        "vertex_count": 8,
+        "aspect_ratio": 1.43
+      },
+      {
+        "entity_handle": "5C6FD",
+        "layer": "4 upvc pip",
+        "entity_type": "LWPOLYLINE",
+        "area": 5494808.38,
+        "bounding_box": {
+          "min_x": 1807.19,
+          "min_y": 8093.24,
+          "max_x": 4594.88,
+          "max_y": 10064.34
+        },
+        "width": 2787.69,
+        "height": 1971.1,
+        "vertex_count": 4,
+        "aspect_ratio": 1.41
+      },
+      {
+        "entity_handle": "5C6FC",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 5285408.96,
+        "bounding_box": {
+          "min_x": 1828.78,
+          "min_y": 8114.83,
+          "max_x": 4573.29,
+          "max_y": 10042.75
+        },
+        "width": 2744.52,
+        "height": 1927.92,
+        "vertex_count": 8,
+        "aspect_ratio": 1.42
+      },
+      {
+        "entity_handle": "5C6FB",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 5241655.68,
+        "bounding_box": {
+          "min_x": 1833.58,
+          "min_y": 8119.63,
+          "max_x": 4568.5,
+          "max_y": 10037.95
+        },
+        "width": 2734.92,
+        "height": 1918.32,
+        "vertex_count": 8,
+        "aspect_ratio": 1.43
+      },
+      {
+        "entity_handle": "5C51F",
+        "layer": "4 upvc pip",
+        "entity_type": "LWPOLYLINE",
+        "area": 5023740.39,
+        "bounding_box": {
+          "min_x": 8459.41,
+          "min_y": 8037.61,
+          "max_x": 11124.93,
+          "max_y": 9922.33
+        },
+        "width": 2665.52,
+        "height": 1884.71,
+        "vertex_count": 4,
+        "aspect_ratio": 1.41
+      },
+      {
+        "entity_handle": "5C51E",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 4832292.71,
+        "bounding_box": {
+          "min_x": 8480.05,
+          "min_y": 8058.26,
+          "max_x": 11104.29,
+          "max_y": 9901.68
+        },
+        "width": 2624.24,
+        "height": 1843.43,
+        "vertex_count": 8,
+        "aspect_ratio": 1.42
+      },
+      {
+        "entity_handle": "5C51D",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 4792290.38,
+        "bounding_box": {
+          "min_x": 8484.64,
+          "min_y": 8062.84,
+          "max_x": 11099.7,
+          "max_y": 9897.1
+        },
+        "width": 2615.06,
+        "height": 1834.25,
+        "vertex_count": 8,
+        "aspect_ratio": 1.43
+      },
+      {
+        "entity_handle": "5BE4E",
+        "layer": "4 upvc pip",
+        "entity_type": "LWPOLYLINE",
+        "area": 4151851.56,
+        "bounding_box": {
+          "min_x": 19086.61,
+          "min_y": 8125.42,
+          "max_x": 21509.81,
+          "max_y": 9838.79
+        },
+        "width": 2423.2,
+        "height": 1713.37,
+        "vertex_count": 4,
+        "aspect_ratio": 1.41
+      },
+      {
+        "entity_handle": "5C252",
+        "layer": "4 upvc pip",
+        "entity_type": "LWPOLYLINE",
+        "area": 4151851.56,
+        "bounding_box": {
+          "min_x": 16490.39,
+          "min_y": 8125.42,
+          "max_x": 18913.59,
+          "max_y": 9838.79
+        },
+        "width": 2423.2,
+        "height": 1713.37,
+        "vertex_count": 4,
+        "aspect_ratio": 1.41
+      },
+      {
+        "entity_handle": "5C341",
+        "layer": "4 upvc pip",
+        "entity_type": "LWPOLYLINE",
+        "area": 4151851.56,
+        "bounding_box": {
+          "min_x": 13894.17,
+          "min_y": 8125.42,
+          "max_x": 16317.37,
+          "max_y": 9838.79
+        },
+        "width": 2423.2,
+        "height": 1713.37,
+        "vertex_count": 4,
+        "aspect_ratio": 1.41
+      },
+      {
+        "entity_handle": "5C430",
+        "layer": "4 upvc pip",
+        "entity_type": "LWPOLYLINE",
+        "area": 4151851.56,
+        "bounding_box": {
+          "min_x": 11297.95,
+          "min_y": 8125.42,
+          "max_x": 13721.15,
+          "max_y": 9838.79
+        },
+        "width": 2423.2,
+        "height": 1713.37,
+        "vertex_count": 4,
+        "aspect_ratio": 1.41
+      },
+      {
+        "entity_handle": "6C217",
+        "layer": "4 upvc pip",
+        "entity_type": "LWPOLYLINE",
+        "area": 4151851.56,
+        "bounding_box": {
+          "min_x": 16490.39,
+          "min_y": 6074.1,
+          "max_x": 18913.59,
+          "max_y": 7787.47
+        },
+        "width": 2423.2,
+        "height": 1713.37,
+        "vertex_count": 4,
+        "aspect_ratio": 1.41
+      },
+      {
+        "entity_handle": "5BE4D",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 3993630.34,
+        "bounding_box": {
+          "min_x": 19105.38,
+          "min_y": 8144.18,
+          "max_x": 21491.05,
+          "max_y": 9820.03
+        },
+        "width": 2385.67,
+        "height": 1675.84,
+        "vertex_count": 8,
+        "aspect_ratio": 1.42
+      },
+      {
+        "entity_handle": "5C251",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 3993630.34,
+        "bounding_box": {
+          "min_x": 16509.16,
+          "min_y": 8144.18,
+          "max_x": 18894.83,
+          "max_y": 9820.03
+        },
+        "width": 2385.67,
+        "height": 1675.84,
+        "vertex_count": 8,
+        "aspect_ratio": 1.42
+      },
+      {
+        "entity_handle": "5C340",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 3993630.34,
+        "bounding_box": {
+          "min_x": 13912.94,
+          "min_y": 8144.18,
+          "max_x": 16298.61,
+          "max_y": 9820.03
+        },
+        "width": 2385.67,
+        "height": 1675.84,
+        "vertex_count": 8,
+        "aspect_ratio": 1.42
+      },
+      {
+        "entity_handle": "5C42F",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 3993630.34,
+        "bounding_box": {
+          "min_x": 11316.72,
+          "min_y": 8144.18,
+          "max_x": 13702.39,
+          "max_y": 9820.03
+        },
+        "width": 2385.67,
+        "height": 1675.84,
+        "vertex_count": 8,
+        "aspect_ratio": 1.42
+      },
+      {
+        "entity_handle": "6C216",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 3993630.34,
+        "bounding_box": {
+          "min_x": 16509.16,
+          "min_y": 6092.86,
+          "max_x": 18894.83,
+          "max_y": 7768.7
+        },
+        "width": 2385.67,
+        "height": 1675.84,
+        "vertex_count": 8,
+        "aspect_ratio": 1.42
+      },
+      {
+        "entity_handle": "5BE4B",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 3960570.57,
+        "bounding_box": {
+          "min_x": 19109.55,
+          "min_y": 8148.35,
+          "max_x": 21486.88,
+          "max_y": 9815.86
+        },
+        "width": 2377.33,
+        "height": 1667.5,
+        "vertex_count": 8,
+        "aspect_ratio": 1.43
+      },
+      {
+        "entity_handle": "5C250",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 3960570.57,
+        "bounding_box": {
+          "min_x": 16513.33,
+          "min_y": 8148.35,
+          "max_x": 18890.66,
+          "max_y": 9815.86
+        },
+        "width": 2377.33,
+        "height": 1667.5,
+        "vertex_count": 8,
+        "aspect_ratio": 1.43
+      },
+      {
+        "entity_handle": "5C33F",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 3960570.57,
+        "bounding_box": {
+          "min_x": 13917.11,
+          "min_y": 8148.35,
+          "max_x": 16294.44,
+          "max_y": 9815.86
+        },
+        "width": 2377.33,
+        "height": 1667.5,
+        "vertex_count": 8,
+        "aspect_ratio": 1.43
+      },
+      {
+        "entity_handle": "5C42E",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 3960570.57,
+        "bounding_box": {
+          "min_x": 11320.89,
+          "min_y": 8148.35,
+          "max_x": 13698.22,
+          "max_y": 9815.86
+        },
+        "width": 2377.33,
+        "height": 1667.5,
+        "vertex_count": 8,
+        "aspect_ratio": 1.43
+      },
+      {
+        "entity_handle": "6C215",
+        "layer": "A-HATCH",
+        "entity_type": "LWPOLYLINE",
+        "area": 3960570.57,
+        "bounding_box": {
+          "min_x": 16513.33,
+          "min_y": 6097.03,
+          "max_x": 18890.66,
+          "max_y": 7764.53
+        },
+        "width": 2377.33,
+        "height": 1667.5,
+        "vertex_count": 8,
+        "aspect_ratio": 1.43
+      },
+      {
+        "entity_handle": "539C5",
+        "layer": "wall",
+        "entity_type": "LWPOLYLINE",
+        "area": 3009854.64,
+        "bounding_box": {
+          "min_x": 4964.21,
+          "min_y": 7875.59,
+          "max_x": 6420.98,
+          "max_y": 9977.06
+        },
+        "width": 1456.77,
+        "height": 2101.47,
+        "vertex_count": 4,
+        "aspect_ratio": 1.44
+      },
+      {
+        "entity_handle": "5FB29",
+        "layer": "SUNK",
+        "entity_type": "LWPOLYLINE",
+        "area": 668190.48,
+        "bounding_box": {
+          "min_x": 5426.15,
+          "min_y": 8258.17,
+          "max_x": 5958.99,
+          "max_y": 9512.17
+        },
+        "width": 532.85,
+        "height": 1254.0,
+        "vertex_count": 12,
+        "aspect_ratio": 2.35
+      },
+      {
+        "entity_handle": "82F15",
+        "layer": "text",
+        "entity_type": "LWPOLYLINE",
+        "area": 205256.25,
+        "bounding_box": {
+          "min_x": 64498.87,
+          "min_y": 3848.87,
+          "max_x": 64806.37,
+          "max_y": 4516.37
+        },
+        "width": 307.5,
+        "height": 667.5,
+        "vertex_count": 4,
+        "aspect_ratio": 2.17
+      },
+      {
+        "entity_handle": "82E5F",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 193933.06,
+        "bounding_box": {
+          "min_x": 65332.87,
+          "min_y": 3885.7,
+          "max_x": 65640.37,
+          "max_y": 4516.37
+        },
+        "width": 307.5,
+        "height": 630.68,
+        "vertex_count": 4,
+        "aspect_ratio": 2.05
+      },
+      {
+        "entity_handle": "82D9E",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 192558.91,
+        "bounding_box": {
+          "min_x": 64902.69,
+          "min_y": 3466.37,
+          "max_x": 65236.54,
+          "max_y": 4043.15
+        },
+        "width": 333.85,
+        "height": 576.78,
+        "vertex_count": 4,
+        "aspect_ratio": 1.73
+      },
+      {
+        "entity_handle": "81C96",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 188030.25,
+        "bounding_box": {
+          "min_x": 63663.76,
+          "min_y": 3857.87,
+          "max_x": 63953.26,
+          "max_y": 4507.37
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 4,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "81CA0",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 188030.25,
+        "bounding_box": {
+          "min_x": 62820.76,
+          "min_y": 3857.87,
+          "max_x": 63110.26,
+          "max_y": 4507.37
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 4,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "82E65",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 188030.25,
+        "bounding_box": {
+          "min_x": 64507.87,
+          "min_y": 3857.87,
+          "max_x": 64797.37,
+          "max_y": 4507.37
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 4,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "7ECA2",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 186140.25,
+        "bounding_box": {
+          "min_x": 43062.55,
+          "min_y": 8625.67,
+          "max_x": 43352.05,
+          "max_y": 9275.17
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 6,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "7ECBE",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 186140.25,
+        "bounding_box": {
+          "min_x": 42219.55,
+          "min_y": 8625.67,
+          "max_x": 42509.05,
+          "max_y": 9275.17
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 6,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "7F30F",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 186140.25,
+        "bounding_box": {
+          "min_x": 44633.08,
+          "min_y": 8625.67,
+          "max_x": 44922.58,
+          "max_y": 9275.17
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 6,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "7F319",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 186140.25,
+        "bounding_box": {
+          "min_x": 43790.08,
+          "min_y": 8625.67,
+          "max_x": 44079.58,
+          "max_y": 9275.17
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 6,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "7F827",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 186140.25,
+        "bounding_box": {
+          "min_x": 43062.55,
+          "min_y": 10483.26,
+          "max_x": 43352.05,
+          "max_y": 11132.76
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 6,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "7F831",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 186140.25,
+        "bounding_box": {
+          "min_x": 42219.55,
+          "min_y": 10483.26,
+          "max_x": 42509.05,
+          "max_y": 11132.76
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 6,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "7FDF7",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 186140.25,
+        "bounding_box": {
+          "min_x": 44633.08,
+          "min_y": 10483.26,
+          "max_x": 44922.58,
+          "max_y": 11132.76
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 6,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "7FE01",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 186140.25,
+        "bounding_box": {
+          "min_x": 43790.08,
+          "min_y": 10483.26,
+          "max_x": 44079.58,
+          "max_y": 11132.76
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 6,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "81ECA",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 186140.25,
+        "bounding_box": {
+          "min_x": 63663.76,
+          "min_y": 10396.64,
+          "max_x": 63953.26,
+          "max_y": 11046.14
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 6,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "81ED0",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 186140.25,
+        "bounding_box": {
+          "min_x": 62820.76,
+          "min_y": 10396.64,
+          "max_x": 63110.26,
+          "max_y": 11046.14
+        },
+        "width": 289.5,
+        "height": 649.5,
+        "vertex_count": 6,
+        "aspect_ratio": 2.24
+      },
+      {
+        "entity_handle": "82DAC",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 177369.88,
+        "bounding_box": {
+          "min_x": 65341.87,
+          "min_y": 3894.7,
+          "max_x": 65631.37,
+          "max_y": 4507.37
+        },
+        "width": 289.5,
+        "height": 612.68,
+        "vertex_count": 4,
+        "aspect_ratio": 2.12
+      },
+      {
+        "entity_handle": "82CEA",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 176491.55,
+        "bounding_box": {
+          "min_x": 64911.69,
+          "min_y": 3475.37,
+          "max_x": 65227.54,
+          "max_y": 4034.15
+        },
+        "width": 315.85,
+        "height": 558.78,
+        "vertex_count": 4,
+        "aspect_ratio": 1.77
+      },
+      {
+        "entity_handle": "7B397",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 169361.96,
+        "bounding_box": {
+          "min_x": 30899.59,
+          "min_y": 8770.22,
+          "max_x": 31198.09,
+          "max_y": 9337.59
+        },
+        "width": 298.5,
+        "height": 567.37,
+        "vertex_count": 4,
+        "aspect_ratio": 1.9
+      },
+      {
+        "entity_handle": "7E249",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 168042.95,
+        "bounding_box": {
+          "min_x": 41492.03,
+          "min_y": 8792.95,
+          "max_x": 41781.53,
+          "max_y": 9395.17
+        },
+        "width": 289.5,
+        "height": 602.22,
+        "vertex_count": 6,
+        "aspect_ratio": 2.08
+      },
+      {
+        "entity_handle": "7E250",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 168042.95,
+        "bounding_box": {
+          "min_x": 40649.03,
+          "min_y": 8792.95,
+          "max_x": 40938.53,
+          "max_y": 9395.17
+        },
+        "width": 289.5,
+        "height": 602.22,
+        "vertex_count": 6,
+        "aspect_ratio": 2.08
+      },
+      {
+        "entity_handle": "7E4A5",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 168042.95,
+        "bounding_box": {
+          "min_x": 38350.97,
+          "min_y": 8792.95,
+          "max_x": 38640.47,
+          "max_y": 9395.17
+        },
+        "width": 289.5,
+        "height": 602.22,
+        "vertex_count": 6,
+        "aspect_ratio": 2.08
+      },
+      {
+        "entity_handle": "7E4AB",
+        "layer": "WALLS",
+        "entity_type": "LWPOLYLINE",
+        "area": 168042.95,
+        "bounding_box": {
+          "min_x": 37507.97,
+          "min_y": 8792.95,
+          "max_x": 37797.47,
+          "max_y": 9395.17
+        },
+        "width": 289.5,
+        "height": 602.22,
+        "vertex_count": 6,
+        "aspect_ratio": 2.08
+      }
+    ],
+    "spatial_clusters": [
+      {
+        "min_x": 1807.19,
+        "max_x": 21509.81,
+        "min_y": 3656.49,
+        "max_y": 10064.34,
+        "width": 19702.62,
+        "height": 6407.85,
+        "total_entity_count": 18746,
+        "major_layers": {
+          "wall": 6702,
+          "02WINDOW & DOTTED": 2413,
+          "COLD WATER": 1749,
+          "SHOP TEXT": 1166,
+          "4. UPCV": 1069,
+          "Bathing": 965,
+          "RAILING": 916,
+          "Nstair": 843
+        }
+      },
+      {
+        "min_x": 24343.44,
+        "max_x": 44931.58,
+        "min_y": 8234.17,
+        "max_y": 13506.31,
+        "width": 20588.14,
+        "height": 5272.14,
+        "total_entity_count": 10602,
+        "major_layers": {
+          "wall": 4344,
+          "RAILING": 2043,
+          "Railing 01": 806,
+          "WINDOW": 683,
+          "Nstair": 612,
+          "WALLS": 457,
+          "PROJ.": 316,
+          "COLD WATER": 248
+        }
+      },
+      {
+        "min_x": 59503.52,
+        "max_x": 67852.07,
+        "min_y": 1159.96,
+        "max_y": 20242.35,
+        "width": 8348.55,
+        "height": 19082.39,
+        "total_entity_count": 872,
+        "major_layers": {
+          "wall": 349,
+          "RAILING": 156,
+          "WALLS": 93,
+          "Railing 01": 74,
+          "Nstair": 72,
+          "text": 41,
+          "WINDOW": 31,
+          "PROJ.": 28
+        }
+      },
+      {
+        "min_x": 62811.76,
+        "max_x": 67035.87,
+        "min_y": 3466.37,
+        "max_y": 4994.87,
+        "width": 4224.11,
+        "height": 1528.5,
+        "total_entity_count": 1070,
+        "major_layers": {
+          "wall": 388,
+          "RAILING": 175,
+          "WALLS": 128,
+          "Nstair": 108,
+          "Railing 01": 80,
+          "text": 59,
+          "GF": 37,
+          "PROJ.": 26
+        }
+      },
+      {
+        "min_x": 62811.76,
+        "max_x": 67035.87,
+        "min_y": 16393.92,
+        "max_y": 18070.08,
+        "width": 4224.11,
+        "height": 1676.16,
+        "total_entity_count": 787,
+        "major_layers": {
+          "wall": 349,
+          "RAILING": 156,
+          "Railing 01": 74,
+          "Nstair": 72,
+          "WALLS": 51,
+          "WINDOW": 31,
+          "PROJ.": 28,
+          "02WINDOW & DOTTED": 20
+        }
+      }
+    ],
+    "option_regions": [
+      {
+        "region_name": "Option 1 (Level / Layout A - Lower)",
+        "bounding_box": {
+          "min_x": 62000.0,
+          "min_y": 3200.0,
+          "max_x": 67500.0,
+          "max_y": 5500.0
+        },
+        "entity_count": 1071,
+        "major_layers": {
+          "wall": 388,
+          "RAILING": 175,
+          "WALLS": 129,
+          "Nstair": 108,
+          "Railing 01": 80,
+          "text": 59,
+          "GF": 37,
+          "PROJ.": 26
+        },
+        "candidate_closed_polygons_count": 49,
+        "candidate_structural_entities_count": 15,
+        "representative_text_labels": [
+          "LIFT",
+          "LIFT",
+          "SCREEN 3\n72\nSOFA SLIDER 64\nFRONT LOUNGER 8",
+          "PROJECTOR ROOM",
+          "BOX\nOFFICE",
+          "CINEMA\nENTRY / EXIT",
+          "SCREEN 2\n15\nDUO LOUNGER 15",
+          "SCREEN 1\n49\nSOFA SLIDER 49\nFRONT LOUNGER 0",
+          "SCREEN 4\n72\nSOFA SLIDER 64\nFRONT LOUNGER 8",
+          "SCREEN 5\n69\nSOFA SLIDER 61\nFRONT LOUNGER 8"
+        ]
+      },
+      {
+        "region_name": "Option 2 (Level / Layout B - Upper)",
+        "bounding_box": {
+          "min_x": 62000.0,
+          "min_y": 9800.0,
+          "max_x": 67500.0,
+          "max_y": 12000.0
+        },
+        "entity_count": 872,
+        "major_layers": {
+          "wall": 349,
+          "RAILING": 156,
+          "WALLS": 93,
+          "Railing 01": 74,
+          "Nstair": 72,
+          "text": 41,
+          "WINDOW": 31,
+          "PROJ.": 28
+        },
+        "candidate_closed_polygons_count": 30,
+        "candidate_structural_entities_count": 13,
+        "representative_text_labels": [
+          "LIFT",
+          "LIFT",
+          "SCREEN 3\n72\nSOFA SLIDER 64\nFRONT LOUNGER 8",
+          "PROJECTOR ROOM",
+          "STORAGE\nAREA",
+          "BOX\nOFFICE",
+          "CINEMA\nENTRY / EXIT",
+          "SCREEN 1\n49\nSOFA SLIDER 49\nFRONT LOUNGER 0",
+          "SCREEN 3\n72\nSOFA SLIDER 64\nFRONT LOUNGER 8",
+          "SCREEN 5\n69\nSOFA SLIDER 61\nFRONT LOUNGER 8"
+        ]
+      },
+      {
+        "region_name": "Area Table & Schedule Region",
+        "bounding_box": {
+          "min_x": 62000.0,
+          "min_y": 16500.0,
+          "max_x": 67500.0,
+          "max_y": 18500.0
+        },
+        "entity_count": 762,
+        "major_layers": {
+          "wall": 337,
+          "RAILING": 149,
+          "Railing 01": 72,
+          "Nstair": 72,
+          "WALLS": 49,
+          "WINDOW": 31,
+          "PROJ.": 26,
+          "02WINDOW & DOTTED": 20
+        },
+        "candidate_closed_polygons_count": 7,
+        "candidate_structural_entities_count": 13,
+        "representative_text_labels": [
+          "LIFT",
+          "LIFT",
+          "NET USAGE AREA =\n10,305 SQ. FT.",
+          "LIFT",
+          "LIFT",
+          "NET USAGE AREA =\n10,962 SQ. FT."
+        ]
+      }
+    ],
+    "structural_layers": {
+      "column_01": {
+        "entity_count": 23,
+        "entity_types": {
+          "INSERT": 23
+        },
+        "bounding_box": {
+          "min_x": -126217.36,
+          "min_y": 637606.33,
+          "max_x": -109697.64,
+          "max_y": 639657.65
+        },
+        "representative_dimensions": [
+          {
+            "dim": "0.0 x 0.0",
+            "count": 23
+          }
+        ],
+        "repetition_pattern_and_location": "Displaced block reference insertions at X \u2248 -115,000, Y \u2248 638,000"
+      },
+      "18 R.C.C.": {
+        "entity_count": 8,
+        "entity_types": {
+          "LINE": 8
+        },
+        "bounding_box": {
+          "min_x": 4175.7,
+          "min_y": 6784.66,
+          "max_x": 21203.93,
+          "max_y": 8910.69
+        },
+        "representative_dimensions": [
+          {
+            "dim": "0.0 x 58.5",
+            "count": 5
+          },
+          {
+            "dim": "0.0 x 64.35",
+            "count": 1
+          },
+          {
+            "dim": "0.0 x 77.14",
+            "count": 1
+          },
+          {
+            "dim": "0.0 x 67.3",
+            "count": 1
+          }
+        ],
+        "repetition_pattern_and_location": "Horizontal schedule lines in the residential block area"
+      },
+      "12 R.C.C.": {
+        "entity_count": 8,
+        "entity_types": {
+          "LINE": 8
+        },
+        "bounding_box": {
+          "min_x": 4175.7,
+          "min_y": 6761.87,
+          "max_x": 21203.93,
+          "max_y": 8884.46
+        },
+        "representative_dimensions": [
+          {
+            "dim": "0.0 x 58.5",
+            "count": 5
+          },
+          {
+            "dim": "0.0 x 64.35",
+            "count": 1
+          },
+          {
+            "dim": "0.0 x 77.14",
+            "count": 1
+          },
+          {
+            "dim": "0.0 x 67.3",
+            "count": 1
+          }
+        ],
+        "repetition_pattern_and_location": "Horizontal schedule lines in the residential block area"
+      },
+      "9 R.C.C.": {
+        "entity_count": 8,
+        "entity_types": {
+          "LINE": 8
+        },
+        "bounding_box": {
+          "min_x": 4175.7,
+          "min_y": 6739.07,
+          "max_x": 21203.93,
+          "max_y": 8858.24
+        },
+        "representative_dimensions": [
+          {
+            "dim": "0.0 x 58.5",
+            "count": 5
+          },
+          {
+            "dim": "0.0 x 64.35",
+            "count": 1
+          },
+          {
+            "dim": "0.0 x 77.14",
+            "count": 1
+          },
+          {
+            "dim": "0.0 x 67.3",
+            "count": 1
+          }
+        ],
+        "repetition_pattern_and_location": "Horizontal schedule lines in the residential block area"
+      },
+      "6 R.C.C.": {
+        "entity_count": 8,
+        "entity_types": {
+          "LINE": 8
+        },
+        "bounding_box": {
+          "min_x": 4175.7,
+          "min_y": 6716.27,
+          "max_x": 21203.93,
+          "max_y": 8832.01
+        },
+        "representative_dimensions": [
+          {
+            "dim": "0.0 x 58.5",
+            "count": 5
+          },
+          {
+            "dim": "0.0 x 64.35",
+            "count": 1
+          },
+          {
+            "dim": "0.0 x 77.14",
+            "count": 1
+          },
+          {
+            "dim": "0.0 x 67.3",
+            "count": 1
+          }
+        ],
+        "repetition_pattern_and_location": "Horizontal schedule lines in the residential block area"
+      },
+      "4 R.C.C.": {
+        "entity_count": 8,
+        "entity_types": {
+          "LINE": 8
+        },
+        "bounding_box": {
+          "min_x": 4175.7,
+          "min_y": 6693.48,
+          "max_x": 21203.93,
+          "max_y": 8805.78
+        },
+        "representative_dimensions": [
+          {
+            "dim": "0.0 x 58.5",
+            "count": 5
+          },
+          {
+            "dim": "0.0 x 64.35",
+            "count": 1
+          },
+          {
+            "dim": "0.0 x 77.14",
+            "count": 1
+          },
+          {
+            "dim": "0.0 x 67.3",
+            "count": 1
+          }
+        ],
+        "repetition_pattern_and_location": "Horizontal schedule lines in the residential block area"
+      },
+      "BLOCK": {
+        "entity_count": 240,
+        "entity_types": {
+          "TEXT": 232,
+          "MTEXT": 8
+        },
+        "bounding_box": {
+          "min_x": 1822.1,
+          "min_y": 6394.52,
+          "max_x": 21097.45,
+          "max_y": 10029.32
+        },
+        "representative_dimensions": [
+          {
+            "dim": "0.0 x 0.0",
+            "count": 240
+          }
+        ],
+        "repetition_pattern_and_location": "Text block identifiers ('BLOCK A', 'BLOCK B') across the residential complex"
+      }
+    }
+  }
+}

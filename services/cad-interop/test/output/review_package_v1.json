@@ -1,0 +1,1039 @@
+{
+  "schema_version": "1.0",
+  "title": "Connplex Zoning Studio \u2014 Milestone M6 Architect Review & Decision Package",
+  "description": "Structured human-review package providing auditability, individual item review, and decision tracking over M5 computational decisions.",
+  "architectural_disclaimer": "DISCLAIMER: This document and associated review records represent a human-review interface and computational baseline. This system does NOT constitute statutory architectural approval, certified building-code compliance, structural engineering clearance, fire-safety certification, or construction-readiness documentation. Final construction drawings and life-safety compliance must be prepared, sealed, and certified by an appropriately licensed professional architect and registered structural engineer.",
+  "review_session": {
+    "session_id": "review-session-m6-001",
+    "status": "PENDING_REVIEW",
+    "reviewer_identity_assigned": false
+  },
+  "regions": [
+    {
+      "region_id": "dhule-basement",
+      "document": "dhule",
+      "plan_region": "BASEMENT FLOOR PLAN",
+      "m5_preferred_candidate_id": null,
+      "m5_preferred_score": null,
+      "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "review_status": "BLOCKED",
+      "reviewer": {
+        "reviewer_name": null,
+        "reviewer_role": null,
+        "reviewer_license_reference": null
+      },
+      "review_timestamp": null,
+      "overall_decision": "BLOCKED",
+      "review_items": [
+        {
+          "item_id": "dhule-basement-blocker-01",
+          "item_type": "BOUNDARY_VERIFICATION_BLOCKER",
+          "source_entity_id": "dhule-basement",
+          "description": "Verified exterior boundary required before architectural zoning review can commence.",
+          "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+          "review_status": "BLOCKED",
+          "reviewer_comment": "Zoning review blocked until closed outer exterior wall linework is verified in CAD model space.",
+          "requested_action": "RECONSTRUCT_EXTERIOR_BOUNDARY_GEOMETRY",
+          "provenance": {
+            "source": "CAD_Forensic_Extraction_v2",
+            "boundary_status": "NOT_VERIFIED"
+          }
+        }
+      ],
+      "review_comments": [],
+      "requested_revisions": [
+        "Provide verified closed exterior boundary polylines."
+      ],
+      "provenance": {
+        "boundary_status": "NOT_VERIFIED",
+        "input_decision_record": "zoning_decision_v1.json"
+      }
+    },
+    {
+      "region_id": "dhule-ground",
+      "document": "dhule",
+      "plan_region": "GROUND FLOOR PLAN",
+      "m5_preferred_candidate_id": null,
+      "m5_preferred_score": null,
+      "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "review_status": "BLOCKED",
+      "reviewer": {
+        "reviewer_name": null,
+        "reviewer_role": null,
+        "reviewer_license_reference": null
+      },
+      "review_timestamp": null,
+      "overall_decision": "BLOCKED",
+      "review_items": [
+        {
+          "item_id": "dhule-ground-blocker-01",
+          "item_type": "BOUNDARY_VERIFICATION_BLOCKER",
+          "source_entity_id": "dhule-ground",
+          "description": "Verified exterior boundary required before architectural zoning review can commence.",
+          "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+          "review_status": "BLOCKED",
+          "reviewer_comment": "Zoning review blocked until closed outer exterior wall linework is verified in CAD model space.",
+          "requested_action": "RECONSTRUCT_EXTERIOR_BOUNDARY_GEOMETRY",
+          "provenance": {
+            "source": "CAD_Forensic_Extraction_v2",
+            "boundary_status": "NOT_VERIFIED"
+          }
+        }
+      ],
+      "review_comments": [],
+      "requested_revisions": [
+        "Provide verified closed exterior boundary polylines."
+      ],
+      "provenance": {
+        "boundary_status": "NOT_VERIFIED",
+        "input_decision_record": "zoning_decision_v1.json"
+      }
+    },
+    {
+      "region_id": "dhule-first-floor",
+      "document": "dhule",
+      "plan_region": "FIRST FLOOR PLAN",
+      "m5_preferred_candidate_id": "dhule-first-floor-candidate-c",
+      "m5_preferred_score": 90.28,
+      "computational_status": "DECISION_READY",
+      "review_status": "NOT_REVIEWED",
+      "reviewer": {
+        "reviewer_name": null,
+        "reviewer_role": null,
+        "reviewer_license_reference": null
+      },
+      "review_timestamp": null,
+      "overall_decision": "PENDING_REVIEW",
+      "review_items": [
+        {
+          "item_id": "dhule-first-floor-review-auditorium_1",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-first-floor-candidate-c-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "area_sqft": 744.0,
+          "dimensions": "31.0 x 24.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-first-floor-candidate-c",
+            "boundary_handle": "6A8"
+          }
+        },
+        {
+          "item_id": "dhule-first-floor-review-projection_room",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-first-floor-candidate-c-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "area_sqft": 130.5,
+          "dimensions": "29.0 x 4.5 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-first-floor-candidate-c",
+            "boundary_handle": "6A8"
+          }
+        },
+        {
+          "item_id": "dhule-first-floor-review-foyer_concession",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-first-floor-candidate-c-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "area_sqft": 355.6,
+          "dimensions": "12.7 x 28.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-first-floor-candidate-c",
+            "boundary_handle": "6A8"
+          }
+        },
+        {
+          "item_id": "dhule-first-floor-review-auditorium_2",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-first-floor-candidate-c-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "area_sqft": 798.0,
+          "dimensions": "28.5 x 28.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-first-floor-candidate-c",
+            "boundary_handle": "6A8"
+          }
+        },
+        {
+          "item_id": "dhule-first-floor-review-restrooms",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-first-floor-candidate-c-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "area_sqft": 109.35,
+          "dimensions": "8.1 x 13.5 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-first-floor-candidate-c",
+            "boundary_handle": "6A8"
+          }
+        },
+        {
+          "item_id": "dhule-first-floor-review-manager_office",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-first-floor-candidate-c-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "area_sqft": 60.0,
+          "dimensions": "6.0 x 10.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-first-floor-candidate-c",
+            "boundary_handle": "6A8"
+          }
+        },
+        {
+          "item_id": "dhule-first-floor-review-circulation",
+          "item_type": "CIRCULATION_NETWORK",
+          "source_entity_id": "dhule-first-floor-candidate-c-circulation",
+          "area_sqft": 796.76,
+          "is_connected": true,
+          "touches_all_rooms": true,
+          "primary_corridor_width_ft": 5.5,
+          "minimum_corridor_width_ft": 2.0,
+          "computational_status": "CONNECTED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-first-floor-candidate-c",
+            "boundary_handle": "6A8"
+          }
+        },
+        {
+          "item_id": "dhule-first-floor-review-structural-clearance",
+          "item_type": "STRUCTURAL_CLEARANCE",
+          "source_entity_id": "dhule-first-floor-structural-grid",
+          "hard_obstruction_collisions": 0,
+          "minimum_room_column_clearance_ft": 0.1596,
+          "minimum_corridor_column_clearance_ft": 0.2599,
+          "columns_avoided_count": 53,
+          "computational_status": "ZERO_COLLISION_VERIFIED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "columns_source": "DXF_Layer_COLUMN_(DCPL)",
+            "columns_count": 53
+          }
+        },
+        {
+          "item_id": "dhule-first-floor-review-hard-obstructions",
+          "item_type": "HARD_OBSTRUCTIONS",
+          "source_entity_id": "dhule-first-floor-hard-obstructions",
+          "verified_columns_count": 53,
+          "additional_verified_obstructions_count": 0,
+          "computational_status": "SUBTRACTED_AND_AVOIDED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "provenance_handles": [
+              "6AB",
+              "6AE",
+              "6B0",
+              "6B2",
+              "6B4"
+            ]
+          }
+        },
+        {
+          "item_id": "dhule-first-floor-review-uncertain-geometry",
+          "item_type": "UNCERTAIN_GEOMETRY",
+          "source_entity_id": "dhule-first-floor-uncertain-obstructions",
+          "uncertain_obstructions_count": 11,
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "computational_status": "PRESERVED_AS_WARNINGS",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": "Inspect open stair linework and unclosed partition boundaries before construction sign-off.",
+          "requested_action": "FIELD_VERIFY_OPEN_CAD_LINEWORK",
+          "provenance": {
+            "status": "FOOTPRINT_UNCERTAIN"
+          }
+        },
+        {
+          "item_id": "dhule-first-floor-review-adjacencies",
+          "item_type": "ADJACENCY_RELATIONSHIPS",
+          "source_entity_id": "dhule-first-floor-adjacencies",
+          "projection_to_auditorium_shared_wall_ft": 29.0,
+          "satisfaction_rate": "100%",
+          "computational_status": "SATISFIED_OPTIMAL",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "program_schema": "zoning_program_v1.json"
+          }
+        }
+      ],
+      "review_comments": [],
+      "requested_revisions": [
+        "Review candidate room proportions and concession egress access."
+      ],
+      "provenance": {
+        "m5_decision_source": "zoning_decision_v1.json",
+        "preferred_candidate": "dhule-first-floor-candidate-c",
+        "boundary_handle": "6A8"
+      }
+    },
+    {
+      "region_id": "dhule-second-floor",
+      "document": "dhule",
+      "plan_region": "SECOND FLOOR PLAN",
+      "m5_preferred_candidate_id": "dhule-second-floor-candidate-c",
+      "m5_preferred_score": 90.27,
+      "computational_status": "DECISION_READY",
+      "review_status": "NOT_REVIEWED",
+      "reviewer": {
+        "reviewer_name": null,
+        "reviewer_role": null,
+        "reviewer_license_reference": null
+      },
+      "review_timestamp": null,
+      "overall_decision": "PENDING_REVIEW",
+      "review_items": [
+        {
+          "item_id": "dhule-second-floor-review-auditorium_1",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-second-floor-candidate-c-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "area_sqft": 744.0,
+          "dimensions": "31.0 x 24.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-second-floor-candidate-c",
+            "boundary_handle": "1393"
+          }
+        },
+        {
+          "item_id": "dhule-second-floor-review-projection_room",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-second-floor-candidate-c-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "area_sqft": 130.5,
+          "dimensions": "29.0 x 4.5 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-second-floor-candidate-c",
+            "boundary_handle": "1393"
+          }
+        },
+        {
+          "item_id": "dhule-second-floor-review-foyer_concession",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-second-floor-candidate-c-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "area_sqft": 355.6,
+          "dimensions": "12.7 x 28.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-second-floor-candidate-c",
+            "boundary_handle": "1393"
+          }
+        },
+        {
+          "item_id": "dhule-second-floor-review-auditorium_2",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-second-floor-candidate-c-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "area_sqft": 798.0,
+          "dimensions": "28.5 x 28.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-second-floor-candidate-c",
+            "boundary_handle": "1393"
+          }
+        },
+        {
+          "item_id": "dhule-second-floor-review-restrooms",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-second-floor-candidate-c-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "area_sqft": 109.35,
+          "dimensions": "8.1 x 13.5 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-second-floor-candidate-c",
+            "boundary_handle": "1393"
+          }
+        },
+        {
+          "item_id": "dhule-second-floor-review-manager_office",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-second-floor-candidate-c-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "area_sqft": 60.0,
+          "dimensions": "6.0 x 10.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-second-floor-candidate-c",
+            "boundary_handle": "1393"
+          }
+        },
+        {
+          "item_id": "dhule-second-floor-review-circulation",
+          "item_type": "CIRCULATION_NETWORK",
+          "source_entity_id": "dhule-second-floor-candidate-c-circulation",
+          "area_sqft": 796.76,
+          "is_connected": true,
+          "touches_all_rooms": true,
+          "primary_corridor_width_ft": 5.5,
+          "minimum_corridor_width_ft": 2.0,
+          "computational_status": "CONNECTED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-second-floor-candidate-c",
+            "boundary_handle": "1393"
+          }
+        },
+        {
+          "item_id": "dhule-second-floor-review-structural-clearance",
+          "item_type": "STRUCTURAL_CLEARANCE",
+          "source_entity_id": "dhule-second-floor-structural-grid",
+          "hard_obstruction_collisions": 0,
+          "minimum_room_column_clearance_ft": 0.1595,
+          "minimum_corridor_column_clearance_ft": 0.2599,
+          "columns_avoided_count": 49,
+          "computational_status": "ZERO_COLLISION_VERIFIED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "columns_source": "DXF_Layer_COLUMN_(DCPL)",
+            "columns_count": 49
+          }
+        },
+        {
+          "item_id": "dhule-second-floor-review-hard-obstructions",
+          "item_type": "HARD_OBSTRUCTIONS",
+          "source_entity_id": "dhule-second-floor-hard-obstructions",
+          "verified_columns_count": 49,
+          "additional_verified_obstructions_count": 0,
+          "computational_status": "SUBTRACTED_AND_AVOIDED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "provenance_handles": [
+              "1395",
+              "1397",
+              "1399",
+              "139B",
+              "139D"
+            ]
+          }
+        },
+        {
+          "item_id": "dhule-second-floor-review-uncertain-geometry",
+          "item_type": "UNCERTAIN_GEOMETRY",
+          "source_entity_id": "dhule-second-floor-uncertain-obstructions",
+          "uncertain_obstructions_count": 11,
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "computational_status": "PRESERVED_AS_WARNINGS",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": "Inspect open stair linework and unclosed partition boundaries before construction sign-off.",
+          "requested_action": "FIELD_VERIFY_OPEN_CAD_LINEWORK",
+          "provenance": {
+            "status": "FOOTPRINT_UNCERTAIN"
+          }
+        },
+        {
+          "item_id": "dhule-second-floor-review-adjacencies",
+          "item_type": "ADJACENCY_RELATIONSHIPS",
+          "source_entity_id": "dhule-second-floor-adjacencies",
+          "projection_to_auditorium_shared_wall_ft": 29.0,
+          "satisfaction_rate": "100%",
+          "computational_status": "SATISFIED_OPTIMAL",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "program_schema": "zoning_program_v1.json"
+          }
+        }
+      ],
+      "review_comments": [],
+      "requested_revisions": [
+        "Review candidate room proportions and concession egress access."
+      ],
+      "provenance": {
+        "m5_decision_source": "zoning_decision_v1.json",
+        "preferred_candidate": "dhule-second-floor-candidate-c",
+        "boundary_handle": "1393"
+      }
+    },
+    {
+      "region_id": "dhule-third-floor",
+      "document": "dhule",
+      "plan_region": "THIRD FLOOR PLAN",
+      "m5_preferred_candidate_id": "dhule-third-floor-candidate-c",
+      "m5_preferred_score": 90.27,
+      "computational_status": "DECISION_READY",
+      "review_status": "NOT_REVIEWED",
+      "reviewer": {
+        "reviewer_name": null,
+        "reviewer_role": null,
+        "reviewer_license_reference": null
+      },
+      "review_timestamp": null,
+      "overall_decision": "PENDING_REVIEW",
+      "review_items": [
+        {
+          "item_id": "dhule-third-floor-review-auditorium_1",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-third-floor-candidate-c-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "area_sqft": 744.0,
+          "dimensions": "31.0 x 24.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-third-floor-candidate-c",
+            "boundary_handle": "177B"
+          }
+        },
+        {
+          "item_id": "dhule-third-floor-review-projection_room",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-third-floor-candidate-c-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "area_sqft": 130.5,
+          "dimensions": "29.0 x 4.5 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-third-floor-candidate-c",
+            "boundary_handle": "177B"
+          }
+        },
+        {
+          "item_id": "dhule-third-floor-review-foyer_concession",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-third-floor-candidate-c-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "area_sqft": 355.6,
+          "dimensions": "12.7 x 28.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-third-floor-candidate-c",
+            "boundary_handle": "177B"
+          }
+        },
+        {
+          "item_id": "dhule-third-floor-review-auditorium_2",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-third-floor-candidate-c-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "area_sqft": 798.0,
+          "dimensions": "28.5 x 28.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-third-floor-candidate-c",
+            "boundary_handle": "177B"
+          }
+        },
+        {
+          "item_id": "dhule-third-floor-review-restrooms",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-third-floor-candidate-c-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "area_sqft": 109.35,
+          "dimensions": "8.1 x 13.5 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-third-floor-candidate-c",
+            "boundary_handle": "177B"
+          }
+        },
+        {
+          "item_id": "dhule-third-floor-review-manager_office",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-third-floor-candidate-c-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "area_sqft": 60.0,
+          "dimensions": "6.0 x 10.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-third-floor-candidate-c",
+            "boundary_handle": "177B"
+          }
+        },
+        {
+          "item_id": "dhule-third-floor-review-circulation",
+          "item_type": "CIRCULATION_NETWORK",
+          "source_entity_id": "dhule-third-floor-candidate-c-circulation",
+          "area_sqft": 796.76,
+          "is_connected": true,
+          "touches_all_rooms": true,
+          "primary_corridor_width_ft": 5.5,
+          "minimum_corridor_width_ft": 2.0,
+          "computational_status": "CONNECTED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-third-floor-candidate-c",
+            "boundary_handle": "177B"
+          }
+        },
+        {
+          "item_id": "dhule-third-floor-review-structural-clearance",
+          "item_type": "STRUCTURAL_CLEARANCE",
+          "source_entity_id": "dhule-third-floor-structural-grid",
+          "hard_obstruction_collisions": 0,
+          "minimum_room_column_clearance_ft": 0.1596,
+          "minimum_corridor_column_clearance_ft": 0.2599,
+          "columns_avoided_count": 49,
+          "computational_status": "ZERO_COLLISION_VERIFIED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "columns_source": "DXF_Layer_COLUMN_(DCPL)",
+            "columns_count": 49
+          }
+        },
+        {
+          "item_id": "dhule-third-floor-review-hard-obstructions",
+          "item_type": "HARD_OBSTRUCTIONS",
+          "source_entity_id": "dhule-third-floor-hard-obstructions",
+          "verified_columns_count": 49,
+          "additional_verified_obstructions_count": 0,
+          "computational_status": "SUBTRACTED_AND_AVOIDED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "provenance_handles": [
+              "177D",
+              "177F",
+              "1781",
+              "1783",
+              "1785"
+            ]
+          }
+        },
+        {
+          "item_id": "dhule-third-floor-review-uncertain-geometry",
+          "item_type": "UNCERTAIN_GEOMETRY",
+          "source_entity_id": "dhule-third-floor-uncertain-obstructions",
+          "uncertain_obstructions_count": 11,
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "computational_status": "PRESERVED_AS_WARNINGS",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": "Inspect open stair linework and unclosed partition boundaries before construction sign-off.",
+          "requested_action": "FIELD_VERIFY_OPEN_CAD_LINEWORK",
+          "provenance": {
+            "status": "FOOTPRINT_UNCERTAIN"
+          }
+        },
+        {
+          "item_id": "dhule-third-floor-review-adjacencies",
+          "item_type": "ADJACENCY_RELATIONSHIPS",
+          "source_entity_id": "dhule-third-floor-adjacencies",
+          "projection_to_auditorium_shared_wall_ft": 29.0,
+          "satisfaction_rate": "100%",
+          "computational_status": "SATISFIED_OPTIMAL",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "program_schema": "zoning_program_v1.json"
+          }
+        }
+      ],
+      "review_comments": [],
+      "requested_revisions": [
+        "Review candidate room proportions and concession egress access."
+      ],
+      "provenance": {
+        "m5_decision_source": "zoning_decision_v1.json",
+        "preferred_candidate": "dhule-third-floor-candidate-c",
+        "boundary_handle": "177B"
+      }
+    },
+    {
+      "region_id": "dhule-fourth-floor",
+      "document": "dhule",
+      "plan_region": "FOURTH FLOOR PLAN",
+      "m5_preferred_candidate_id": "dhule-fourth-floor-candidate-c",
+      "m5_preferred_score": 85.24,
+      "computational_status": "VALID_REVIEW_REQUIRED",
+      "review_status": "REVIEW_REQUIRED",
+      "reviewer": {
+        "reviewer_name": null,
+        "reviewer_role": null,
+        "reviewer_license_reference": null
+      },
+      "review_timestamp": null,
+      "overall_decision": "PENDING_REVIEW",
+      "review_items": [
+        {
+          "item_id": "dhule-fourth-floor-review-auditorium_1",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-fourth-floor-candidate-c-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "area_sqft": 744.0,
+          "dimensions": "31.0 x 24.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-fourth-floor-candidate-c",
+            "boundary_handle": "21D8"
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-projection_room",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-fourth-floor-candidate-c-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "area_sqft": 130.5,
+          "dimensions": "29.0 x 4.5 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-fourth-floor-candidate-c",
+            "boundary_handle": "21D8"
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-foyer_concession",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-fourth-floor-candidate-c-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "area_sqft": 355.6,
+          "dimensions": "12.7 x 28.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-fourth-floor-candidate-c",
+            "boundary_handle": "21D8"
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-auditorium_2",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-fourth-floor-candidate-c-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "area_sqft": 798.0,
+          "dimensions": "28.5 x 28.0 ft",
+          "computational_status": "VALID",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-fourth-floor-candidate-c",
+            "boundary_handle": "21D8"
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-restrooms",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-fourth-floor-candidate-c-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "area_sqft": 109.35,
+          "dimensions": "8.1 x 13.5 ft",
+          "computational_status": "REVIEW_REQUIRED",
+          "review_status": "REVIEW_REQUIRED",
+          "reviewer_comment": "Special review required: intersects unclosed CAD partition linework in model space.",
+          "requested_action": "VERIFY_PARTITION_INTEGRITY",
+          "provenance": {
+            "source_candidate_id": "dhule-fourth-floor-candidate-c",
+            "boundary_handle": "21D8"
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-manager_office",
+          "item_type": "PROGRAM_ROOM",
+          "source_entity_id": "dhule-fourth-floor-candidate-c-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "area_sqft": 60.0,
+          "dimensions": "6.0 x 10.0 ft",
+          "computational_status": "REVIEW_REQUIRED",
+          "review_status": "REVIEW_REQUIRED",
+          "reviewer_comment": "Special review required: intersects unclosed CAD partition linework in model space.",
+          "requested_action": "VERIFY_PARTITION_INTEGRITY",
+          "provenance": {
+            "source_candidate_id": "dhule-fourth-floor-candidate-c",
+            "boundary_handle": "21D8"
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-circulation",
+          "item_type": "CIRCULATION_NETWORK",
+          "source_entity_id": "dhule-fourth-floor-candidate-c-circulation",
+          "area_sqft": 796.76,
+          "is_connected": true,
+          "touches_all_rooms": true,
+          "primary_corridor_width_ft": 5.5,
+          "minimum_corridor_width_ft": 2.0,
+          "computational_status": "CONNECTED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "source_candidate_id": "dhule-fourth-floor-candidate-c",
+            "boundary_handle": "21D8"
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-structural-clearance",
+          "item_type": "STRUCTURAL_CLEARANCE",
+          "source_entity_id": "dhule-fourth-floor-structural-grid",
+          "hard_obstruction_collisions": 0,
+          "minimum_room_column_clearance_ft": 0.1596,
+          "minimum_corridor_column_clearance_ft": 0.255,
+          "columns_avoided_count": 40,
+          "computational_status": "ZERO_COLLISION_VERIFIED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "columns_source": "DXF_Layer_COLUMN_(DCPL)",
+            "columns_count": 40
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-hard-obstructions",
+          "item_type": "HARD_OBSTRUCTIONS",
+          "source_entity_id": "dhule-fourth-floor-hard-obstructions",
+          "verified_columns_count": 40,
+          "additional_verified_obstructions_count": 1,
+          "computational_status": "SUBTRACTED_AND_AVOIDED",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "provenance_handles": [
+              "1B9C",
+              "1C0B",
+              "1C68",
+              "1C69",
+              "1C79"
+            ]
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-uncertain-geometry",
+          "item_type": "UNCERTAIN_GEOMETRY",
+          "source_entity_id": "dhule-fourth-floor-uncertain-obstructions",
+          "uncertain_obstructions_count": 43,
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "computational_status": "PRESERVED_AS_WARNINGS",
+          "review_status": "REVIEW_REQUIRED",
+          "reviewer_comment": "Inspect open stair linework and unclosed partition boundaries before construction sign-off.",
+          "requested_action": "FIELD_VERIFY_OPEN_CAD_LINEWORK",
+          "provenance": {
+            "status": "FOOTPRINT_UNCERTAIN"
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-adjacencies",
+          "item_type": "ADJACENCY_RELATIONSHIPS",
+          "source_entity_id": "dhule-fourth-floor-adjacencies",
+          "projection_to_auditorium_shared_wall_ft": 29.0,
+          "satisfaction_rate": "100%",
+          "computational_status": "SATISFIED_OPTIMAL",
+          "review_status": "NOT_REVIEWED",
+          "reviewer_comment": null,
+          "requested_action": null,
+          "provenance": {
+            "program_schema": "zoning_program_v1.json"
+          }
+        },
+        {
+          "item_id": "dhule-fourth-floor-review-unclosed-partitions",
+          "item_type": "UNCLOSED_CAD_PARTITION_LINEWORK",
+          "source_entity_id": "dhule-fourth-floor-partitions",
+          "affected_rooms": [
+            "RESTROOMS",
+            "MANAGER_OFFICE"
+          ],
+          "uncertainty_penalty": -5.0,
+          "computational_status": "VALID_REVIEW_REQUIRED",
+          "review_status": "REVIEW_REQUIRED",
+          "reviewer_comment": "Unclosed residential/commercial CAD partition linework intersects candidate Restrooms and Manager Office footprints.",
+          "requested_action": "ARCHITECT_FIELD_MEASUREMENT_AND_WALL_CONFIRMATION",
+          "provenance": {
+            "cad_layer": "WALLS",
+            "inspection_note": "Open linework preserved without solid obstruction fabrication"
+          }
+        }
+      ],
+      "review_comments": [],
+      "requested_revisions": [
+        "Verify fourth-floor unclosed CAD partition linework on-site."
+      ],
+      "provenance": {
+        "m5_decision_source": "zoning_decision_v1.json",
+        "preferred_candidate": "dhule-fourth-floor-candidate-c",
+        "boundary_handle": "21D8"
+      }
+    },
+    {
+      "region_id": "vadodara-option-1",
+      "document": "vadodara",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+      "m5_preferred_candidate_id": null,
+      "m5_preferred_score": null,
+      "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "review_status": "BLOCKED",
+      "reviewer": {
+        "reviewer_name": null,
+        "reviewer_role": null,
+        "reviewer_license_reference": null
+      },
+      "review_timestamp": null,
+      "overall_decision": "BLOCKED",
+      "review_items": [
+        {
+          "item_id": "vadodara-option-1-blocker-01",
+          "item_type": "BOUNDARY_VERIFICATION_BLOCKER",
+          "source_entity_id": "vadodara-option-1",
+          "description": "Verified exterior boundary required before architectural zoning review can commence.",
+          "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+          "review_status": "BLOCKED",
+          "reviewer_comment": "Zoning review blocked until closed outer exterior wall linework is verified in CAD model space.",
+          "requested_action": "RECONSTRUCT_EXTERIOR_BOUNDARY_GEOMETRY",
+          "provenance": {
+            "source": "CAD_Forensic_Extraction_v2",
+            "boundary_status": "NOT_VERIFIED"
+          }
+        }
+      ],
+      "review_comments": [],
+      "requested_revisions": [
+        "Provide verified closed exterior boundary polylines."
+      ],
+      "provenance": {
+        "boundary_status": "NOT_VERIFIED",
+        "input_decision_record": "zoning_decision_v1.json"
+      }
+    },
+    {
+      "region_id": "vadodara-option-2",
+      "document": "vadodara",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+      "m5_preferred_candidate_id": null,
+      "m5_preferred_score": null,
+      "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "review_status": "BLOCKED",
+      "reviewer": {
+        "reviewer_name": null,
+        "reviewer_role": null,
+        "reviewer_license_reference": null
+      },
+      "review_timestamp": null,
+      "overall_decision": "BLOCKED",
+      "review_items": [
+        {
+          "item_id": "vadodara-option-2-blocker-01",
+          "item_type": "BOUNDARY_VERIFICATION_BLOCKER",
+          "source_entity_id": "vadodara-option-2",
+          "description": "Verified exterior boundary required before architectural zoning review can commence.",
+          "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+          "review_status": "BLOCKED",
+          "reviewer_comment": "Zoning review blocked until closed outer exterior wall linework is verified in CAD model space.",
+          "requested_action": "RECONSTRUCT_EXTERIOR_BOUNDARY_GEOMETRY",
+          "provenance": {
+            "source": "CAD_Forensic_Extraction_v2",
+            "boundary_status": "NOT_VERIFIED"
+          }
+        }
+      ],
+      "review_comments": [],
+      "requested_revisions": [
+        "Provide verified closed exterior boundary polylines."
+      ],
+      "provenance": {
+        "boundary_status": "NOT_VERIFIED",
+        "input_decision_record": "zoning_decision_v1.json"
+      }
+    }
+  ]
+}

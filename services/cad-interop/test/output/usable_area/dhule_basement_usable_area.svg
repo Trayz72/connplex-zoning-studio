@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" width="1600" height="1200">
+  <rect x="0" y="0" width="1600" height="1200" fill="#f8fafc" />
+<rect x="0" y="0" width="1600" height="130" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
+<text x="80" y="38" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#0f172a">Usable Planning Area — BASEMENT FLOOR PLAN</text>
+<text x="80" y="62" font-family="Inter, sans-serif" font-size="12" fill="#475569">Deterministic Architectural Planning Area Model | Units: Feet</text>
+<g transform="translate(1080, 20)">
+  <rect x="0" y="0" width="440" height="34" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
+  <text x="220" y="22" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#b45309" text-anchor="middle">USABLE PLANNING AREA: NULL (INSUFFICIENT BOUNDARY EVIDENCE)</text>
+</g>
+<g transform="translate(80, 95)">
+<line x1="0" y1="12" x2="24" y2="12" stroke="#059669" stroke-width="3.0" />
+<text x="28" y="16" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#334155">VERIFIED BOUNDARY</text>
+<rect x="170" y="4" width="20" height="15" rx="2" fill="rgba(16, 185, 129, 0.25)" stroke="#059669" stroke-width="1.5" />
+<text x="198" y="16" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#334155">USABLE PLANNING AREA</text>
+<rect x="360" y="4" width="20" height="15" rx="2" fill="#dc2626" stroke="#991b1b" stroke-width="1.2" />
+<text x="388" y="16" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#334155">HARD EXCLUSION (COLUMN)</text>
+<rect x="570" y="4" width="20" height="15" rx="2" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-dasharray="6,4" />
+<text x="598" y="16" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#334155">UNCERTAIN (NOT SUBTRACTED)</text>
+<line x1="800" y1="12" x2="824" y2="12" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="6,4" />
+<text x="828" y="16" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#334155">PLAN BBOX</text>
+</g>
+  <g id="usable_area_layer">
+    <line x1="698.4" y1="577.1" x2="698.4" y2="447.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="699.2" y1="576.2" x2="699.2" y2="524.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="699.2" y1="523.2" x2="699.2" y2="448.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="698.4" y1="447.5" x2="779.6" y2="447.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="788.2" y1="447.5" x2="789.0" y2="447.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="699.2" y1="448.4" x2="779.6" y2="448.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="932.7" y1="460.0" x2="932.8" y2="460.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="932.7" y1="460.9" x2="932.8" y2="460.9" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1082.2" y1="433.5" x2="1082.2" y2="523.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1081.3" y1="433.5" x2="1081.3" y2="523.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1102.1" y1="577.1" x2="1078.7" y2="577.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1102.1" y1="576.2" x2="1078.7" y2="576.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="933.6" y1="550.5" x2="911.1" y2="550.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="932.8" y1="549.7" x2="911.9" y2="549.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="932.8" y1="549.7" x2="932.8" y2="526.6" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="932.8" y1="465.7" x2="932.8" y2="434.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="933.6" y1="550.5" x2="933.6" y2="525.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="933.6" y1="466.6" x2="933.6" y2="433.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="911.1" y1="465.7" x2="932.8" y2="465.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="911.1" y1="466.6" x2="933.6" y2="466.6" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="911.1" y1="465.7" x2="911.1" y2="466.6" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="911.1" y1="465.7" x2="911.1" y2="466.6" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="911.1" y1="525.7" x2="911.1" y2="550.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="911.9" y1="526.6" x2="911.9" y2="549.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="911.1" y1="434.4" x2="911.1" y2="433.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="698.4" y1="577.1" x2="797.6" y2="577.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="797.6" y1="577.1" x2="995.4" y2="577.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="699.2" y1="576.2" x2="797.6" y2="576.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="798.5" y1="576.2" x2="1019.2" y2="576.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="797.6" y1="524.0" x2="797.6" y2="439.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="789.0" y1="524.0" x2="789.0" y2="447.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="788.2" y1="523.2" x2="788.2" y2="447.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="779.6" y1="448.4" x2="779.6" y2="447.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="797.6" y1="438.1" x2="797.6" y2="422.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="797.6" y1="577.1" x2="797.6" y2="524.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="798.5" y1="576.2" x2="798.5" y2="523.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="798.5" y1="523.2" x2="798.5" y2="423.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="911.1" y1="474.3" x2="924.2" y2="474.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="911.1" y1="487.4" x2="924.2" y2="487.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="924.2" y1="474.3" x2="924.2" y2="487.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="699.2" y1="523.2" x2="788.2" y2="523.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="798.5" y1="523.2" x2="798.5" y2="523.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="699.2" y1="524.0" x2="789.0" y2="524.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="797.6" y1="524.0" x2="797.6" y2="524.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1047.1" y1="422.1" x2="1047.1" y2="529.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1046.2" y1="423.0" x2="1046.2" y2="529.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="797.6" y1="422.1" x2="1047.1" y2="422.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="798.5" y1="423.0" x2="1046.2" y2="423.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1047.1" y1="529.0" x2="1046.2" y2="529.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="914.5" y1="433.5" x2="932.3" y2="433.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="914.5" y1="434.4" x2="932.3" y2="434.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="797.6" y1="439.0" x2="753.4" y2="439.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="797.6" y1="438.1" x2="753.4" y2="438.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="753.4" y1="439.0" x2="753.4" y2="438.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="798.5" y1="554.3" x2="797.6" y2="554.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1019.2" y1="576.2" x2="1047.8" y2="576.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1078.5" y1="576.2" x2="1085.9" y2="576.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="996.3" y1="577.1" x2="1047.8" y2="577.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1078.7" y1="548.3" x2="1102.1" y2="548.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1078.7" y1="547.1" x2="1096.4" y2="547.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1102.9" y1="577.1" x2="1102.9" y2="547.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1102.1" y1="577.1" x2="1102.1" y2="548.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1078.7" y1="547.4" x2="1078.7" y2="548.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="947.9" y1="524.0" x2="948.7" y2="524.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="935.3" y1="524.0" x2="933.6" y2="524.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="948.7" y1="524.0" x2="948.7" y2="523.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="935.3" y1="524.0" x2="935.3" y2="523.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="947.9" y1="542.0" x2="933.6" y2="542.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="947.9" y1="541.1" x2="933.6" y2="541.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="937.6" y1="524.0" x2="933.6" y2="524.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="937.6" y1="523.2" x2="933.6" y2="523.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="937.6" y1="523.2" x2="937.6" y2="524.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1047.8" y1="576.2" x2="1047.8" y2="577.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="911.1" y1="525.7" x2="911.9" y2="525.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="995.4" y1="779.5" x2="995.4" y2="577.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="996.3" y1="778.7" x2="996.3" y2="577.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="995.4" y1="779.5" x2="1128.6" y2="779.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="996.3" y1="778.7" x2="1127.7" y2="778.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1128.6" y1="779.5" x2="1128.6" y2="576.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1127.7" y1="778.7" x2="1127.7" y2="577.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1128.6" y1="576.2" x2="1102.9" y2="576.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1127.7" y1="577.1" x2="1102.9" y2="577.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1097.7" y1="547.1" x2="1102.9" y2="547.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1083.0" y1="548.3" x2="1100.6" y2="548.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1086.9" y1="536.4" x2="1086.9" y2="537.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1083.0" y1="548.3" x2="1083.0" y2="547.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1083.0" y1="548.3" x2="1100.6" y2="548.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1100.6" y1="539.7" x2="1100.6" y2="540.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1100.6" y1="534.6" x2="1088.1" y2="534.6" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1100.6" y1="548.3" x2="1100.6" y2="534.6" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="534.6" x2="1087.0" y2="534.6" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="534.6" x2="1087.0" y2="535.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="544.0" x2="1087.0" y2="547.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="535.7" x2="1088.1" y2="538.8" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="535.7" x2="1099.5" y2="535.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1099.5" y1="535.7" x2="1099.5" y2="547.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1099.5" y1="547.1" x2="1083.0" y2="547.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1083.0" y1="547.1" x2="1083.0" y2="548.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="538.8" x2="1087.0" y2="538.8" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="544.0" x2="1087.0" y2="544.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="535.7" x2="1087.0" y2="538.8" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="544.0" x2="1088.1" y2="547.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="544.0" x2="1087.0" y2="544.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="538.8" x2="1087.0" y2="538.8" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="535.7" x2="1087.0" y2="534.8" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1100.6" y1="527.1" x2="1100.6" y2="527.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1100.6" y1="522.0" x2="1088.1" y2="522.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="522.0" x2="1087.0" y2="522.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="522.0" x2="1087.0" y2="523.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1082.2" y1="523.1" x2="1099.5" y2="523.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1099.5" y1="523.1" x2="1099.5" y2="534.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1099.5" y1="534.5" x2="1087.0" y2="534.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="534.5" x2="1087.0" y2="535.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="526.3" x2="1087.0" y2="526.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="535.7" x2="1100.6" y2="535.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="531.4" x2="1087.0" y2="531.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1100.6" y1="535.7" x2="1100.6" y2="522.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="523.1" x2="1087.0" y2="526.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="531.4" x2="1087.0" y2="534.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="523.1" x2="1088.1" y2="526.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="531.4" x2="1088.1" y2="534.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="531.4" x2="1087.0" y2="531.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1088.1" y1="526.3" x2="1087.0" y2="526.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1087.0" y1="522.0" x2="1082.2" y2="522.0" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1081.3" y1="523.1" x2="1082.2" y2="523.1" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="513.7" y1="870.6" x2="1189.0" y2="870.6" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="550.9" y1="870.6" x2="550.9" y2="921.8" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1049.3" y1="870.6" x2="1049.3" y2="921.8" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1049.3" y1="870.6" x2="1049.3" y2="921.8" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="550.9" y1="881.7" x2="1046.8" y2="881.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="545.6" y1="897.4" x2="521.8" y2="897.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="533.7" y1="885.5" x2="533.7" y2="909.3" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="545.6" y1="897.4" x2="533.7" y2="885.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="533.7" y1="885.5" x2="521.8" y2="897.4" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="1046.8" y1="870.6" x2="1046.8" y2="921.8" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="930.3" y1="625.2" x2="928.4" y2="621.7" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="929.7" y1="623.2" x2="928.8" y2="621.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="929.0" y1="623.6" x2="928.1" y2="621.9" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="936.0" y1="625.0" x2="933.6" y2="626.2" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="927.0" y1="629.8" x2="929.3" y2="628.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <line x1="934.2" y1="632.4" x2="932.6" y2="629.5" stroke="#e2e8f0" stroke-width="0.6"></line>
+    <path d="M 389.4 1087.0 L 1210.6 1087.0 L 1210.6 203.0 L 389.4 203.0 Z" stroke="#94a3b8" stroke-width="1.2" fill="none" stroke-dasharray="6,4"><title>Plan Region BBox: BASEMENT FLOOR PLAN</title></path>
+    <path d="M 510.9 256.9 L 1207.0 256.9 L 1207.0 924.6 L 510.9 924.6 Z" stroke="#2563eb" stroke-width="2.0" fill="none" stroke-dasharray="8,4"><title>Framing Rectangle: [278F]</title></path>
+    <g transform="translate(480.0, 623.0)">  <rect width="640" height="44" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" />  <text x="320.0" y="27" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">USABLE PLANNING AREA = NULL (NO VERIFIED CLOSED BOUNDARY)</text></g>
+    <path d="M 753.4 576.2 L 1102.1 576.2 L 1102.1 434.4 L 753.4 434.4 Z" stroke="#ea580c" stroke-width="1.8" fill="none" stroke-dasharray="6,4"><title>Uncertain: Staircase Footprint (Not Subtracted)</title></path>
+    <g transform="translate(854.0, 494.3)">  <rect width="147.5" height="22" rx="3" fill="#ffffff" stroke="#ea580c" stroke-width="1.2" />  <text x="73.8" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#c2410c" text-anchor="middle">STAIR (UNCERTAIN)</text></g>
+    <path d="M 900.9 500.4 L 938.3 500.4 L 938.3 463.0 L 900.9 463.0 Z" stroke="#4338ca" stroke-width="1.8" fill="none" stroke-dasharray="6,4"><title>Uncertain: Lift Core [2360] (Line-based, Not Subtracted)</title></path>
+    <g transform="translate(849.6, 470.7)">  <rect width="140.0" height="22" rx="3" fill="#ffffff" stroke="#4338ca" stroke-width="1.2" />  <text x="70.0" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#3730a3" text-anchor="middle">LIFT (UNCERTAIN)</text></g>
+    <path d="M 981.4 498.3 L 1018.8 498.3 L 1018.8 460.9 L 981.4 460.9 Z" stroke="#4338ca" stroke-width="1.8" fill="none" stroke-dasharray="6,4"><title>Uncertain: Lift Core [2492] (Line-based, Not Subtracted)</title></path>
+    <g transform="translate(930.1, 468.6)">  <rect width="140.0" height="22" rx="3" fill="#ffffff" stroke="#4338ca" stroke-width="1.2" />  <text x="70.0" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#3730a3" text-anchor="middle">LIFT (UNCERTAIN)</text></g>
+    <path d="M 924.4 549.8 L 961.8 549.8 L 961.8 512.4 L 924.4 512.4 Z" stroke="#4338ca" stroke-width="1.8" fill="none" stroke-dasharray="6,4"><title>Uncertain: Lift Core [24A2] (Line-based, Not Subtracted)</title></path>
+    <g transform="translate(873.1, 520.1)">  <rect width="140.0" height="22" rx="3" fill="#ffffff" stroke="#4338ca" stroke-width="1.2" />  <text x="70.0" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#3730a3" text-anchor="middle">LIFT (UNCERTAIN)</text></g>
+    <path d="M 1075.3 558.2 L 1112.7 558.2 L 1112.7 520.8 L 1075.3 520.8 Z" stroke="#4338ca" stroke-width="1.8" fill="none" stroke-dasharray="6,4"><title>Uncertain: Lift Core [26DD] (Line-based, Not Subtracted)</title></path>
+    <g transform="translate(1024.0, 528.5)">  <rect width="140.0" height="22" rx="3" fill="#ffffff" stroke="#4338ca" stroke-width="1.2" />  <text x="70.0" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#3730a3" text-anchor="middle">LIFT (UNCERTAIN)</text></g>
+    <path d="M 1075.3 545.6 L 1112.7 545.6 L 1112.7 508.2 L 1075.3 508.2 Z" stroke="#4338ca" stroke-width="1.8" fill="none" stroke-dasharray="6,4"><title>Uncertain: Lift Core [26F4] (Line-based, Not Subtracted)</title></path>
+    <g transform="translate(1024.0, 515.9)">  <rect width="140.0" height="22" rx="3" fill="#ffffff" stroke="#4338ca" stroke-width="1.2" />  <text x="70.0" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#3730a3" text-anchor="middle">LIFT (UNCERTAIN)</text></g>
+    <path d="M 920.8 550.6 L 1004.9 550.6 L 1004.9 460.9 L 920.8 460.9 Z" stroke="#0891b2" stroke-width="1.8" fill="none" stroke-dasharray="4,4"><title>Uncertain: Duct Opening (Line-based, Not Subtracted)</title></path>
+    <g transform="translate(892.8, 494.7)">  <rect width="140.0" height="22" rx="3" fill="#ffffff" stroke="#0891b2" stroke-width="1.2" />  <text x="70.0" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#0e7490" text-anchor="middle">DUCT (UNCERTAIN)</text></g>
+    <path d="M 731.1 507.1 L 765.3 507.1 L 765.3 472.9 L 731.1 472.9 Z" stroke="#d97706" stroke-width="1.5" fill="none" stroke-dasharray="4,4"><title>Uncertain Room: XQC;{\FCENTURY GOTHIC|B1|I0|C0|P34;STORAGE-1 }15.90X13.12</title></path>
+    <g transform="translate(678.2, 479.0)">  <rect width="140.0" height="22" rx="3" fill="#ffffff" stroke="#d97706" stroke-width="1.2" />  <text x="70.0" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#b45309" text-anchor="middle">ROOM (UNCERTAIN)</text></g>
+    <path d="M 732.7 566.1 L 766.9 566.1 L 766.9 531.9 L 732.7 531.9 Z" stroke="#d97706" stroke-width="1.5" fill="none" stroke-dasharray="4,4"><title>Uncertain Room: XQC;{\FCENTURY GOTHIC|B1|I0|C0|P34;STORAGE-2 }17.25X9.15</title></path>
+    <g transform="translate(679.8, 538.0)">  <rect width="140.0" height="22" rx="3" fill="#ffffff" stroke="#d97706" stroke-width="1.2" />  <text x="70.0" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#b45309" text-anchor="middle">ROOM (UNCERTAIN)</text></g>
+  </g>
+</svg>

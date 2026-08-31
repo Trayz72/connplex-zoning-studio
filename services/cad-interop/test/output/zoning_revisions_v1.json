@@ -1,0 +1,1788 @@
+{
+  "schema_version": "1.0",
+  "title": "Connplex Zoning Studio \u2014 Milestone M7 Audited Revision Records",
+  "architectural_disclaimer": "DISCLAIMER: This computational revision document and associated geometry records represent an iterative decision-support layer. This system does NOT constitute statutory architectural approval, certified building-code compliance, structural engineering clearance, fire-safety certification, or construction-readiness documentation. Final construction drawings and life-safety compliance must be prepared, sealed, and certified by an appropriately licensed professional architect and registered structural engineer.",
+  "total_requests_processed": 8,
+  "validated_revisions_count": 4,
+  "failed_revisions_count": 4,
+  "revisions": [
+    {
+      "revision_id": "dhule-first-floor-rev-01",
+      "region_id": "dhule-first-floor",
+      "source_candidate_id": "dhule-first-floor-candidate-c",
+      "source_m5_decision_id": "dhule-first-floor-decision-v1",
+      "request_status": "VALIDATED",
+      "validation_error": null,
+      "requested_changes": [
+        {
+          "type": "INCREASE_ROOM_AREA",
+          "room_id": "AUDITORIUM_2",
+          "target_area_sqft": 820.4
+        }
+      ],
+      "reviewer_comment": "Increase Auditorium 2 capacity to accommodate larger screen seating layout.",
+      "reviewer_identity": null,
+      "created_at": "2026-08-27T12:05:00Z",
+      "score_before": 90.28,
+      "score_after": 90.24,
+      "score_delta": -0.04,
+      "revised_candidate": {
+        "revision_candidate_id": "dhule-first-floor-candidate-c-rev-01",
+        "candidate_label": "Revision 01 (Human-Requested)",
+        "source_candidate_id": "dhule-first-floor-candidate-c",
+        "total_score": 90.24,
+        "score_breakdown": {
+          "area_efficiency": 23.14,
+          "circulation_quality": 20.0,
+          "adjacency_satisfaction": 18.0,
+          "room_proportions": 10.6,
+          "structural_clearance": 8.5,
+          "layout_simplicity": 10.0,
+          "uncertainty_penalty": 0.0
+        },
+        "status": "VALID",
+        "rooms": [
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-01-auditorium_1",
+            "room_type": "AUDITORIUM_1",
+            "display_name": "Screen 1 (Auditorium)",
+            "area_sqft": 744.0,
+            "width_ft": 31.0,
+            "depth_ft": 24.0,
+            "aspect_ratio": 1.29,
+            "centroid": [
+              1679.82,
+              1339.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1695.317,
+                  1327.8446
+                ],
+                [
+                  1695.317,
+                  1351.8446
+                ],
+                [
+                  1664.317,
+                  1351.8446
+                ],
+                [
+                  1664.317,
+                  1327.8446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-02-projection_room",
+            "room_type": "PROJECTION_ROOM",
+            "display_name": "Projection Booth",
+            "area_sqft": 130.5,
+            "width_ft": 29.0,
+            "depth_ft": 4.5,
+            "aspect_ratio": 6.44,
+            "centroid": [
+              1679.82,
+              1325.59
+            ],
+            "nearest_hard_obstruction_distance_ft": 26.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1694.317,
+                  1323.3446
+                ],
+                [
+                  1694.317,
+                  1327.8446
+                ],
+                [
+                  1665.317,
+                  1327.8446
+                ],
+                [
+                  1665.317,
+                  1323.3446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-03-foyer_concession",
+            "room_type": "FOYER_CONCESSION",
+            "display_name": "Public Foyer & Concession",
+            "area_sqft": 355.6,
+            "width_ft": 12.7,
+            "depth_ft": 28.0,
+            "aspect_ratio": 2.2,
+            "centroid": [
+              1701.67,
+              1337.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1708.017,
+                  1323.8446
+                ],
+                [
+                  1708.017,
+                  1351.8446
+                ],
+                [
+                  1695.317,
+                  1351.8446
+                ],
+                [
+                  1695.317,
+                  1323.8446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-04-auditorium_2",
+            "room_type": "AUDITORIUM_2",
+            "display_name": "Screen 2 (Auditorium)",
+            "area_sqft": 820.47,
+            "width_ft": 28.9,
+            "depth_ft": 28.39,
+            "aspect_ratio": 1.02,
+            "centroid": [
+              1722.467,
+              1338.0396
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1736.9170000000001,
+                  1323.8446
+                ],
+                [
+                  1736.9170000000001,
+                  1352.2346
+                ],
+                [
+                  1708.017,
+                  1352.2346
+                ],
+                [
+                  1708.017,
+                  1323.8446
+                ],
+                [
+                  1736.9170000000001,
+                  1323.8446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-05-restrooms",
+            "room_type": "RESTROOMS",
+            "display_name": "Restrooms / Washroom Core",
+            "area_sqft": 109.35,
+            "width_ft": 8.1,
+            "depth_ft": 13.5,
+            "aspect_ratio": 1.67,
+            "centroid": [
+              1678.07,
+              1371.09
+            ],
+            "nearest_hard_obstruction_distance_ft": 0.1596,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1682.117,
+                  1364.3446
+                ],
+                [
+                  1682.117,
+                  1377.8446
+                ],
+                [
+                  1674.017,
+                  1377.8446
+                ],
+                [
+                  1674.017,
+                  1364.3446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-06-manager_office",
+            "room_type": "MANAGER_OFFICE",
+            "display_name": "Manager & Staff Office",
+            "area_sqft": 60.0,
+            "width_ft": 6.0,
+            "depth_ft": 10.0,
+            "aspect_ratio": 1.67,
+            "centroid": [
+              1669.02,
+              1369.34
+            ],
+            "nearest_hard_obstruction_distance_ft": 0.62,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1672.017,
+                  1364.3446
+                ],
+                [
+                  1672.017,
+                  1374.3446
+                ],
+                [
+                  1666.017,
+                  1374.3446
+                ],
+                [
+                  1666.017,
+                  1364.3446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          }
+        ],
+        "circulation": [
+          {
+            "circulation_id": "dhule-first-floor-candidate-c-circulation",
+            "type": "CONTINUOUS_CORRIDOR_SPINE",
+            "area_sqft": 796.76,
+            "is_connected": true,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1737.017,
+                  1321.8446
+                ],
+                [
+                  1664.317,
+                  1321.8446
+                ],
+                [
+                  1659.017,
+                  1321.8446
+                ],
+                [
+                  1659.017,
+                  1323.3446
+                ],
+                [
+                  1659.017,
+                  1351.8446
+                ],
+                [
+                  1659.017,
+                  1354.1446
+                ],
+                [
+                  1659.017,
+                  1379.8446
+                ],
+                [
+                  1659.017,
+                  1385.3446
+                ],
+                [
+                  1664.317,
+                  1385.3446
+                ],
+                [
+                  1700.517,
+                  1385.3446
+                ],
+                [
+                  1700.517,
+                  1379.8446
+                ],
+                [
+                  1664.317,
+                  1379.8446
+                ],
+                [
+                  1664.317,
+                  1375.8446
+                ],
+                [
+                  1665.517,
+                  1375.8446
+                ],
+                [
+                  1666.017,
+                  1375.8446
+                ],
+                [
+                  1672.017,
+                  1375.8446
+                ],
+                [
+                  1674.017,
+                  1375.8446
+                ],
+                [
+                  1674.017,
+                  1374.3446
+                ],
+                [
+                  1674.017,
+                  1364.3446
+                ],
+                [
+                  1672.017,
+                  1364.3446
+                ],
+                [
+                  1672.017,
+                  1374.3446
+                ],
+                [
+                  1666.017,
+                  1374.3446
+                ],
+                [
+                  1666.017,
+                  1364.3446
+                ],
+                [
+                  1664.317,
+                  1364.3446
+                ],
+                [
+                  1664.317,
+                  1354.1446
+                ],
+                [
+                  1708.017,
+                  1354.1446
+                ],
+                [
+                  1708.017,
+                  1351.8446
+                ],
+                [
+                  1664.317,
+                  1351.8446
+                ],
+                [
+                  1664.317,
+                  1323.3446
+                ],
+                [
+                  1737.017,
+                  1323.3446
+                ]
+              ],
+              "holes": []
+            },
+            "touches_all_rooms": true,
+            "provenance": {
+              "source_boundary": "6A8"
+            }
+          }
+        ],
+        "planning_metrics": {
+          "total_room_area_sqft": 2219.92,
+          "circulation_area_sqft": 796.76,
+          "total_allocated_area_sqft": 3016.68,
+          "unallocated_area_sqft": 2198.38,
+          "allocation_efficiency_pct": 57.85,
+          "projection_to_auditorium_shared_wall_ft": 29.0,
+          "minimum_column_clearance_ft": 0.16
+        },
+        "provenance": {
+          "source_m5_candidate": "dhule-first-floor-candidate-c",
+          "boundary_handle": "6A8",
+          "revision_request_id": "dhule-first-floor-rev-01"
+        }
+      }
+    },
+    {
+      "revision_id": "dhule-first-floor-rev-02",
+      "region_id": "dhule-first-floor",
+      "source_candidate_id": "dhule-first-floor-candidate-c",
+      "request_status": "VALIDATION_FAILED",
+      "validation_error": "HARD_OBSTRUCTION_COLLISION: MANAGER_OFFICE collides with structural column",
+      "requested_changes": [
+        {
+          "type": "MOVE_ROOM",
+          "room_id": "MANAGER_OFFICE",
+          "delta_x_ft": 1.5,
+          "delta_y_ft": -1.0
+        }
+      ],
+      "reviewer_comment": "Shift manager office southeast toward column grid.",
+      "reviewer_identity": null,
+      "created_at": "2026-08-27T12:10:00Z",
+      "score_before": 90.28,
+      "score_after": null,
+      "score_delta": null,
+      "revised_candidate": null
+    },
+    {
+      "revision_id": "dhule-first-floor-rev-03",
+      "region_id": "dhule-first-floor",
+      "source_candidate_id": "dhule-first-floor-candidate-c",
+      "source_m5_decision_id": "dhule-first-floor-decision-v1",
+      "request_status": "VALIDATED",
+      "validation_error": null,
+      "requested_changes": [
+        {
+          "type": "CHANGE_ROOM_ADJACENCY",
+          "room_id": "PROJECTION_ROOM",
+          "target_width_ft": 27.0
+        }
+      ],
+      "reviewer_comment": "Reconfigure projection room throw wall to match dual-lens projection equipment.",
+      "reviewer_identity": null,
+      "created_at": "2026-08-27T12:15:00Z",
+      "score_before": 90.28,
+      "score_after": 90.0,
+      "score_delta": -0.28,
+      "revised_candidate": {
+        "revision_candidate_id": "dhule-first-floor-candidate-c-rev-03",
+        "candidate_label": "Revision 03 (Human-Requested)",
+        "source_candidate_id": "dhule-first-floor-candidate-c",
+        "total_score": 90.0,
+        "score_breakdown": {
+          "area_efficiency": 22.9,
+          "circulation_quality": 20.0,
+          "adjacency_satisfaction": 18.0,
+          "room_proportions": 10.6,
+          "structural_clearance": 8.5,
+          "layout_simplicity": 10.0,
+          "uncertainty_penalty": 0.0
+        },
+        "status": "VALID",
+        "rooms": [
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-01-auditorium_1",
+            "room_type": "AUDITORIUM_1",
+            "display_name": "Screen 1 (Auditorium)",
+            "area_sqft": 744.0,
+            "width_ft": 31.0,
+            "depth_ft": 24.0,
+            "aspect_ratio": 1.29,
+            "centroid": [
+              1679.82,
+              1339.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1695.317,
+                  1327.8446
+                ],
+                [
+                  1695.317,
+                  1351.8446
+                ],
+                [
+                  1664.317,
+                  1351.8446
+                ],
+                [
+                  1664.317,
+                  1327.8446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-02-projection_room",
+            "room_type": "PROJECTION_ROOM",
+            "display_name": "Projection Booth",
+            "area_sqft": 121.5,
+            "width_ft": 27.0,
+            "depth_ft": 4.5,
+            "aspect_ratio": 6.44,
+            "centroid": [
+              1679.817,
+              1325.5946
+            ],
+            "nearest_hard_obstruction_distance_ft": 26.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1693.317,
+                  1323.3446
+                ],
+                [
+                  1693.317,
+                  1327.8446
+                ],
+                [
+                  1666.317,
+                  1327.8446
+                ],
+                [
+                  1666.317,
+                  1323.3446
+                ],
+                [
+                  1693.317,
+                  1323.3446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-03-foyer_concession",
+            "room_type": "FOYER_CONCESSION",
+            "display_name": "Public Foyer & Concession",
+            "area_sqft": 355.6,
+            "width_ft": 12.7,
+            "depth_ft": 28.0,
+            "aspect_ratio": 2.2,
+            "centroid": [
+              1701.67,
+              1337.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1708.017,
+                  1323.8446
+                ],
+                [
+                  1708.017,
+                  1351.8446
+                ],
+                [
+                  1695.317,
+                  1351.8446
+                ],
+                [
+                  1695.317,
+                  1323.8446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-04-auditorium_2",
+            "room_type": "AUDITORIUM_2",
+            "display_name": "Screen 2 (Auditorium)",
+            "area_sqft": 798.0,
+            "width_ft": 28.5,
+            "depth_ft": 28.0,
+            "aspect_ratio": 1.02,
+            "centroid": [
+              1722.27,
+              1337.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1736.517,
+                  1323.8446
+                ],
+                [
+                  1736.517,
+                  1351.8446
+                ],
+                [
+                  1708.017,
+                  1351.8446
+                ],
+                [
+                  1708.017,
+                  1323.8446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-05-restrooms",
+            "room_type": "RESTROOMS",
+            "display_name": "Restrooms / Washroom Core",
+            "area_sqft": 109.35,
+            "width_ft": 8.1,
+            "depth_ft": 13.5,
+            "aspect_ratio": 1.67,
+            "centroid": [
+              1678.07,
+              1371.09
+            ],
+            "nearest_hard_obstruction_distance_ft": 0.1596,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1682.117,
+                  1364.3446
+                ],
+                [
+                  1682.117,
+                  1377.8446
+                ],
+                [
+                  1674.017,
+                  1377.8446
+                ],
+                [
+                  1674.017,
+                  1364.3446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-first-floor-candidate-c-room-06-manager_office",
+            "room_type": "MANAGER_OFFICE",
+            "display_name": "Manager & Staff Office",
+            "area_sqft": 60.0,
+            "width_ft": 6.0,
+            "depth_ft": 10.0,
+            "aspect_ratio": 1.67,
+            "centroid": [
+              1669.02,
+              1369.34
+            ],
+            "nearest_hard_obstruction_distance_ft": 0.62,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1672.017,
+                  1364.3446
+                ],
+                [
+                  1672.017,
+                  1374.3446
+                ],
+                [
+                  1666.017,
+                  1374.3446
+                ],
+                [
+                  1666.017,
+                  1364.3446
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "6A8",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          }
+        ],
+        "circulation": [
+          {
+            "circulation_id": "dhule-first-floor-candidate-c-circulation",
+            "type": "CONTINUOUS_CORRIDOR_SPINE",
+            "area_sqft": 796.76,
+            "is_connected": true,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1737.017,
+                  1321.8446
+                ],
+                [
+                  1664.317,
+                  1321.8446
+                ],
+                [
+                  1659.017,
+                  1321.8446
+                ],
+                [
+                  1659.017,
+                  1323.3446
+                ],
+                [
+                  1659.017,
+                  1351.8446
+                ],
+                [
+                  1659.017,
+                  1354.1446
+                ],
+                [
+                  1659.017,
+                  1379.8446
+                ],
+                [
+                  1659.017,
+                  1385.3446
+                ],
+                [
+                  1664.317,
+                  1385.3446
+                ],
+                [
+                  1700.517,
+                  1385.3446
+                ],
+                [
+                  1700.517,
+                  1379.8446
+                ],
+                [
+                  1664.317,
+                  1379.8446
+                ],
+                [
+                  1664.317,
+                  1375.8446
+                ],
+                [
+                  1665.517,
+                  1375.8446
+                ],
+                [
+                  1666.017,
+                  1375.8446
+                ],
+                [
+                  1672.017,
+                  1375.8446
+                ],
+                [
+                  1674.017,
+                  1375.8446
+                ],
+                [
+                  1674.017,
+                  1374.3446
+                ],
+                [
+                  1674.017,
+                  1364.3446
+                ],
+                [
+                  1672.017,
+                  1364.3446
+                ],
+                [
+                  1672.017,
+                  1374.3446
+                ],
+                [
+                  1666.017,
+                  1374.3446
+                ],
+                [
+                  1666.017,
+                  1364.3446
+                ],
+                [
+                  1664.317,
+                  1364.3446
+                ],
+                [
+                  1664.317,
+                  1354.1446
+                ],
+                [
+                  1708.017,
+                  1354.1446
+                ],
+                [
+                  1708.017,
+                  1351.8446
+                ],
+                [
+                  1664.317,
+                  1351.8446
+                ],
+                [
+                  1664.317,
+                  1323.3446
+                ],
+                [
+                  1737.017,
+                  1323.3446
+                ]
+              ],
+              "holes": []
+            },
+            "touches_all_rooms": true,
+            "provenance": {
+              "source_boundary": "6A8"
+            }
+          }
+        ],
+        "planning_metrics": {
+          "total_room_area_sqft": 2188.45,
+          "circulation_area_sqft": 796.76,
+          "total_allocated_area_sqft": 2985.21,
+          "unallocated_area_sqft": 2229.85,
+          "allocation_efficiency_pct": 57.24,
+          "projection_to_auditorium_shared_wall_ft": 27.0,
+          "minimum_column_clearance_ft": 0.16
+        },
+        "provenance": {
+          "source_m5_candidate": "dhule-first-floor-candidate-c",
+          "boundary_handle": "6A8",
+          "revision_request_id": "dhule-first-floor-rev-03"
+        }
+      }
+    },
+    {
+      "revision_id": "dhule-basement-rev-01",
+      "region_id": "dhule-basement",
+      "source_candidate_id": "dhule-basement-candidate-none",
+      "request_status": "VALIDATION_FAILED",
+      "validation_error": "BLOCKED_REGION_NO_BOUNDARY: Region lacks verified exterior boundary. Revisions prohibited.",
+      "requested_changes": [
+        {
+          "type": "INCREASE_ROOM_AREA",
+          "room_id": "AUDITORIUM_1",
+          "target_area_sqft": 800.0
+        }
+      ],
+      "reviewer_comment": "Attempting zoning layout on basement floor.",
+      "reviewer_identity": null,
+      "created_at": "2026-08-27T12:20:00Z",
+      "revised_candidate": null
+    },
+    {
+      "revision_id": "dhule-fourth-floor-rev-01",
+      "region_id": "dhule-fourth-floor",
+      "source_candidate_id": "dhule-fourth-floor-candidate-c",
+      "request_status": "VALIDATION_FAILED",
+      "validation_error": "REJECTED_UNCERTAINTY_TAMPERING: Cannot clear Fourth Floor uncertainty without on-site field verification.",
+      "requested_changes": [
+        {
+          "type": "REVIEW_UNCERTAIN_GEOMETRY",
+          "room_id": "RESTROOMS",
+          "action": "FORCE_CLEAR_WARNING"
+        }
+      ],
+      "revised_candidate": null
+    },
+    {
+      "revision_id": "dhule-first-floor-rev-04",
+      "region_id": "dhule-first-floor",
+      "source_candidate_id": "dhule-first-floor-candidate-c",
+      "request_status": "VALIDATION_FAILED",
+      "validation_error": "BOUNDING_BOX_GEOMETRY_REJECTED: Revisions must produce explicit coordinate polygons, not 2-point bounding boxes.",
+      "requested_changes": [
+        {
+          "type": "MOVE_ROOM",
+          "room_id": "FOYER_CONCESSION",
+          "delta_x_ft": 0.0,
+          "delta_y_ft": 0.0
+        }
+      ],
+      "revised_candidate": null
+    },
+    {
+      "revision_id": "dhule-second-floor-rev-01",
+      "region_id": "dhule-second-floor",
+      "source_candidate_id": "dhule-second-floor-candidate-c",
+      "source_m5_decision_id": "dhule-second-floor-decision-v1",
+      "request_status": "VALIDATED",
+      "validation_error": null,
+      "requested_changes": [
+        {
+          "type": "CHANGE_ROOM_PROPORTION",
+          "room_id": "RESTROOMS",
+          "target_width_ft": 7.8
+        }
+      ],
+      "reviewer_comment": "Adjust restroom width for accessible stall clearance.",
+      "reviewer_identity": null,
+      "created_at": "2026-08-27T12:35:00Z",
+      "score_before": 90.27,
+      "score_after": 90.06,
+      "score_delta": -0.21,
+      "revised_candidate": {
+        "revision_candidate_id": "dhule-second-floor-candidate-c-rev-01",
+        "candidate_label": "Revision 01 (Human-Requested)",
+        "source_candidate_id": "dhule-second-floor-candidate-c",
+        "total_score": 90.06,
+        "score_breakdown": {
+          "area_efficiency": 22.96,
+          "circulation_quality": 20.0,
+          "adjacency_satisfaction": 18.0,
+          "room_proportions": 10.6,
+          "structural_clearance": 8.5,
+          "layout_simplicity": 10.0,
+          "uncertainty_penalty": 0.0
+        },
+        "status": "VALID",
+        "rooms": [
+          {
+            "room_id": "dhule-second-floor-candidate-c-room-01-auditorium_1",
+            "room_type": "AUDITORIUM_1",
+            "display_name": "Screen 1 (Auditorium)",
+            "area_sqft": 744.0,
+            "width_ft": 31.0,
+            "depth_ft": 24.0,
+            "aspect_ratio": 1.29,
+            "centroid": [
+              1785.83,
+              1339.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1801.3261,
+                  1327.844
+                ],
+                [
+                  1801.3261,
+                  1351.844
+                ],
+                [
+                  1770.3261,
+                  1351.844
+                ],
+                [
+                  1770.3261,
+                  1327.844
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "1393",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-second-floor-candidate-c-room-02-projection_room",
+            "room_type": "PROJECTION_ROOM",
+            "display_name": "Projection Booth",
+            "area_sqft": 130.5,
+            "width_ft": 29.0,
+            "depth_ft": 4.5,
+            "aspect_ratio": 6.44,
+            "centroid": [
+              1785.83,
+              1325.59
+            ],
+            "nearest_hard_obstruction_distance_ft": 26.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1800.3261,
+                  1323.344
+                ],
+                [
+                  1800.3261,
+                  1327.844
+                ],
+                [
+                  1771.3261,
+                  1327.844
+                ],
+                [
+                  1771.3261,
+                  1323.344
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "1393",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-second-floor-candidate-c-room-03-foyer_concession",
+            "room_type": "FOYER_CONCESSION",
+            "display_name": "Public Foyer & Concession",
+            "area_sqft": 355.6,
+            "width_ft": 12.7,
+            "depth_ft": 28.0,
+            "aspect_ratio": 2.2,
+            "centroid": [
+              1807.68,
+              1337.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1814.0261,
+                  1323.844
+                ],
+                [
+                  1814.0261,
+                  1351.844
+                ],
+                [
+                  1801.3261,
+                  1351.844
+                ],
+                [
+                  1801.3261,
+                  1323.844
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "1393",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-second-floor-candidate-c-room-04-auditorium_2",
+            "room_type": "AUDITORIUM_2",
+            "display_name": "Screen 2 (Auditorium)",
+            "area_sqft": 798.0,
+            "width_ft": 28.5,
+            "depth_ft": 28.0,
+            "aspect_ratio": 1.02,
+            "centroid": [
+              1828.28,
+              1337.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1842.5261,
+                  1323.844
+                ],
+                [
+                  1842.5261,
+                  1351.844
+                ],
+                [
+                  1814.0261,
+                  1351.844
+                ],
+                [
+                  1814.0261,
+                  1323.844
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "1393",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-second-floor-candidate-c-room-05-restrooms",
+            "room_type": "RESTROOMS",
+            "display_name": "Restrooms / Washroom Core",
+            "area_sqft": 109.36,
+            "width_ft": 7.8,
+            "depth_ft": 14.02,
+            "aspect_ratio": 1.67,
+            "centroid": [
+              1783.9261,
+              1371.354
+            ],
+            "nearest_hard_obstruction_distance_ft": 0.1595,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1787.8261,
+                  1364.344
+                ],
+                [
+                  1787.8261,
+                  1378.364
+                ],
+                [
+                  1780.0261,
+                  1378.364
+                ],
+                [
+                  1780.0261,
+                  1364.344
+                ],
+                [
+                  1787.8261,
+                  1364.344
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "1393",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-second-floor-candidate-c-room-06-manager_office",
+            "room_type": "MANAGER_OFFICE",
+            "display_name": "Manager & Staff Office",
+            "area_sqft": 60.0,
+            "width_ft": 6.0,
+            "depth_ft": 10.0,
+            "aspect_ratio": 1.67,
+            "centroid": [
+              1775.03,
+              1369.34
+            ],
+            "nearest_hard_obstruction_distance_ft": 0.62,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1778.0261,
+                  1364.344
+                ],
+                [
+                  1778.0261,
+                  1374.344
+                ],
+                [
+                  1772.0261,
+                  1374.344
+                ],
+                [
+                  1772.0261,
+                  1364.344
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "1393",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          }
+        ],
+        "circulation": [
+          {
+            "circulation_id": "dhule-second-floor-candidate-c-circulation",
+            "type": "CONTINUOUS_CORRIDOR_SPINE",
+            "area_sqft": 796.76,
+            "is_connected": true,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1843.0261,
+                  1321.844
+                ],
+                [
+                  1770.3261,
+                  1321.844
+                ],
+                [
+                  1765.0261,
+                  1321.844
+                ],
+                [
+                  1765.0261,
+                  1323.344
+                ],
+                [
+                  1765.0261,
+                  1351.844
+                ],
+                [
+                  1765.0261,
+                  1354.144
+                ],
+                [
+                  1765.0261,
+                  1379.844
+                ],
+                [
+                  1765.0261,
+                  1385.344
+                ],
+                [
+                  1770.3261,
+                  1385.344
+                ],
+                [
+                  1806.5261,
+                  1385.344
+                ],
+                [
+                  1806.5261,
+                  1379.844
+                ],
+                [
+                  1770.3261,
+                  1379.844
+                ],
+                [
+                  1770.3261,
+                  1375.844
+                ],
+                [
+                  1771.5261,
+                  1375.844
+                ],
+                [
+                  1772.0261,
+                  1375.844
+                ],
+                [
+                  1778.0261,
+                  1375.844
+                ],
+                [
+                  1780.0261,
+                  1375.844
+                ],
+                [
+                  1780.0261,
+                  1374.344
+                ],
+                [
+                  1780.0261,
+                  1364.344
+                ],
+                [
+                  1778.0261,
+                  1364.344
+                ],
+                [
+                  1778.0261,
+                  1374.344
+                ],
+                [
+                  1772.0261,
+                  1374.344
+                ],
+                [
+                  1772.0261,
+                  1364.344
+                ],
+                [
+                  1770.3261,
+                  1364.344
+                ],
+                [
+                  1770.3261,
+                  1354.144
+                ],
+                [
+                  1814.0261,
+                  1354.144
+                ],
+                [
+                  1814.0261,
+                  1351.844
+                ],
+                [
+                  1770.3261,
+                  1351.844
+                ],
+                [
+                  1770.3261,
+                  1323.344
+                ],
+                [
+                  1843.0261,
+                  1323.344
+                ]
+              ],
+              "holes": []
+            },
+            "touches_all_rooms": true,
+            "provenance": {
+              "source_boundary": "1393"
+            }
+          }
+        ],
+        "planning_metrics": {
+          "total_room_area_sqft": 2197.46,
+          "circulation_area_sqft": 796.76,
+          "total_allocated_area_sqft": 2994.22,
+          "unallocated_area_sqft": 2221.97,
+          "allocation_efficiency_pct": 57.4,
+          "projection_to_auditorium_shared_wall_ft": 29.0,
+          "minimum_column_clearance_ft": 0.44
+        },
+        "provenance": {
+          "source_m5_candidate": "dhule-second-floor-candidate-c",
+          "boundary_handle": "1393",
+          "revision_request_id": "dhule-second-floor-rev-01"
+        }
+      }
+    },
+    {
+      "revision_id": "dhule-third-floor-rev-01",
+      "region_id": "dhule-third-floor",
+      "source_candidate_id": "dhule-third-floor-candidate-c",
+      "source_m5_decision_id": "dhule-third-floor-decision-v1",
+      "request_status": "VALIDATED",
+      "validation_error": null,
+      "requested_changes": [
+        {
+          "type": "INCREASE_CIRCULATION",
+          "delta_width_ft": 0.6
+        }
+      ],
+      "reviewer_comment": "Widen primary gathering concourse by 0.6 ft.",
+      "reviewer_identity": null,
+      "created_at": "2026-08-27T12:40:00Z",
+      "score_before": 90.27,
+      "score_after": 92.1,
+      "score_delta": 1.83,
+      "revised_candidate": {
+        "revision_candidate_id": "dhule-third-floor-candidate-c-rev-01",
+        "candidate_label": "Revision 01 (Human-Requested)",
+        "source_candidate_id": "dhule-third-floor-candidate-c",
+        "total_score": 92.1,
+        "score_breakdown": {
+          "area_efficiency": 25.0,
+          "circulation_quality": 20.0,
+          "adjacency_satisfaction": 18.0,
+          "room_proportions": 10.6,
+          "structural_clearance": 8.5,
+          "layout_simplicity": 10.0,
+          "uncertainty_penalty": 0.0
+        },
+        "status": "VALID",
+        "rooms": [
+          {
+            "room_id": "dhule-third-floor-candidate-c-room-01-auditorium_1",
+            "room_type": "AUDITORIUM_1",
+            "display_name": "Screen 1 (Auditorium)",
+            "area_sqft": 744.0,
+            "width_ft": 31.0,
+            "depth_ft": 24.0,
+            "aspect_ratio": 1.29,
+            "centroid": [
+              1887.33,
+              1339.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1902.8271,
+                  1327.844
+                ],
+                [
+                  1902.8271,
+                  1351.844
+                ],
+                [
+                  1871.8271,
+                  1351.844
+                ],
+                [
+                  1871.8271,
+                  1327.844
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "177B",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-third-floor-candidate-c-room-02-projection_room",
+            "room_type": "PROJECTION_ROOM",
+            "display_name": "Projection Booth",
+            "area_sqft": 130.5,
+            "width_ft": 29.0,
+            "depth_ft": 4.5,
+            "aspect_ratio": 6.44,
+            "centroid": [
+              1887.33,
+              1325.59
+            ],
+            "nearest_hard_obstruction_distance_ft": 26.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1901.8271,
+                  1323.344
+                ],
+                [
+                  1901.8271,
+                  1327.844
+                ],
+                [
+                  1872.8271,
+                  1327.844
+                ],
+                [
+                  1872.8271,
+                  1323.344
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "177B",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-third-floor-candidate-c-room-03-foyer_concession",
+            "room_type": "FOYER_CONCESSION",
+            "display_name": "Public Foyer & Concession",
+            "area_sqft": 355.6,
+            "width_ft": 12.7,
+            "depth_ft": 28.0,
+            "aspect_ratio": 2.2,
+            "centroid": [
+              1909.18,
+              1337.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1915.5271,
+                  1323.844
+                ],
+                [
+                  1915.5271,
+                  1351.844
+                ],
+                [
+                  1902.8271,
+                  1351.844
+                ],
+                [
+                  1902.8271,
+                  1323.844
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "177B",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-third-floor-candidate-c-room-04-auditorium_2",
+            "room_type": "AUDITORIUM_2",
+            "display_name": "Screen 2 (Auditorium)",
+            "area_sqft": 798.0,
+            "width_ft": 28.5,
+            "depth_ft": 28.0,
+            "aspect_ratio": 1.02,
+            "centroid": [
+              1929.78,
+              1337.84
+            ],
+            "nearest_hard_obstruction_distance_ft": 2.5684,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1944.0271,
+                  1323.844
+                ],
+                [
+                  1944.0271,
+                  1351.844
+                ],
+                [
+                  1915.5271,
+                  1351.844
+                ],
+                [
+                  1915.5271,
+                  1323.844
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "177B",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-third-floor-candidate-c-room-05-restrooms",
+            "room_type": "RESTROOMS",
+            "display_name": "Restrooms / Washroom Core",
+            "area_sqft": 109.35,
+            "width_ft": 8.1,
+            "depth_ft": 13.5,
+            "aspect_ratio": 1.67,
+            "centroid": [
+              1885.58,
+              1371.09
+            ],
+            "nearest_hard_obstruction_distance_ft": 0.1596,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1889.6271,
+                  1364.344
+                ],
+                [
+                  1889.6271,
+                  1377.844
+                ],
+                [
+                  1881.5271,
+                  1377.844
+                ],
+                [
+                  1881.5271,
+                  1364.344
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "177B",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          },
+          {
+            "room_id": "dhule-third-floor-candidate-c-room-06-manager_office",
+            "room_type": "MANAGER_OFFICE",
+            "display_name": "Manager & Staff Office",
+            "area_sqft": 60.0,
+            "width_ft": 6.0,
+            "depth_ft": 10.0,
+            "aspect_ratio": 1.67,
+            "centroid": [
+              1876.53,
+              1369.34
+            ],
+            "nearest_hard_obstruction_distance_ft": 0.62,
+            "circulation_access_distance_ft": 0.0,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1879.5271,
+                  1364.344
+                ],
+                [
+                  1879.5271,
+                  1374.344
+                ],
+                [
+                  1873.5271,
+                  1374.344
+                ],
+                [
+                  1873.5271,
+                  1364.344
+                ]
+              ],
+              "holes": []
+            },
+            "status": "VALID",
+            "uncertain_warnings": [],
+            "provenance": {
+              "source_boundary": "177B",
+              "generation_rule": "Adjacency-Optimized Layout"
+            }
+          }
+        ],
+        "circulation": [
+          {
+            "circulation_id": "dhule-third-floor-candidate-c-circulation",
+            "type": "CONTINUOUS_CORRIDOR_SPINE",
+            "area_sqft": 4991.1,
+            "is_connected": true,
+            "geometry": {
+              "type": "Polygon",
+              "exterior": [
+                [
+                  1945.1271,
+                  1321.844
+                ],
+                [
+                  1945.1271,
+                  1385.344
+                ],
+                [
+                  1866.5271,
+                  1385.344
+                ],
+                [
+                  1866.5271,
+                  1321.844
+                ],
+                [
+                  1945.1271,
+                  1321.844
+                ]
+              ],
+              "holes": []
+            },
+            "touches_all_rooms": true,
+            "provenance": {
+              "source_boundary": "177B"
+            }
+          }
+        ],
+        "planning_metrics": {
+          "total_room_area_sqft": 2197.45,
+          "circulation_area_sqft": 4991.1,
+          "total_allocated_area_sqft": 7188.55,
+          "unallocated_area_sqft": -1972.35,
+          "allocation_efficiency_pct": 137.81,
+          "projection_to_auditorium_shared_wall_ft": 29.0,
+          "minimum_column_clearance_ft": 0.16
+        },
+        "provenance": {
+          "source_m5_candidate": "dhule-third-floor-candidate-c",
+          "boundary_handle": "177B",
+          "revision_request_id": "dhule-third-floor-rev-01"
+        }
+      }
+    }
+  ]
+}

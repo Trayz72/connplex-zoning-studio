@@ -1,0 +1,884 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" width="1600" height="1200">
+  <rect x="0" y="0" width="1600" height="1200" fill="#f8fafc" />
+<rect x="0" y="0" width="1600" height="130" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
+<text x="80" y="40" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Boundary Verification — Cinema Zoning Studio — Option 2 (Upper Layout / Screens 1–5)</text>
+<text x="80" y="66" font-family="Inter, sans-serif" font-size="13" fill="#475569">Plan: Cinema Zoning Studio — Option 2 (Upper Layout / Screens 1–5) | Canonical Units: Feet | Area: None (Unclosed) | Status: INSUFFICIENT_EVIDENCE</text>
+<g transform="translate(1280, 24)">
+  <rect x="0" y="0" width="240" height="34" rx="17" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" />
+  <circle cx="20" cy="17" r="5" fill="#b45309" />
+  <text x="35" y="22" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#b45309">STATUS: INSUFFICIENT_EVIDENCE</text>
+</g>
+<g transform="translate(80, 95)">
+<line x1="0" y1="12" x2="28" y2="12" stroke="#94a3b8" stroke-width="1.0" />
+<text x="34" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">SOURCE CAD</text>
+<line x1="130" y1="12" x2="158" y2="12" stroke="#64748b" stroke-width="1.5" stroke-dasharray="6,4" />
+<text x="164" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">PLAN BBOX</text>
+<line x1="260" y1="12" x2="288" y2="12" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="10,5" />
+<text x="294" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">FRAMING</text>
+<rect x="390" y="4" width="22" height="15" rx="2" fill="rgba(16, 185, 129, 0.15)" stroke="#059669" stroke-width="2.5" />
+<text x="424" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">VERIFIED BOUNDARY</text>
+<line x1="560" y1="12" x2="588" y2="12" stroke="#7c3aed" stroke-width="2.0" stroke-dasharray="6,3" />
+<text x="594" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">CANDIDATE LOOPS</text>
+<rect x="720" y="4" width="22" height="15" rx="2" fill="#dc2626" stroke="#991b1b" stroke-width="1.2" />
+<text x="754" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">COLUMNS</text>
+</g>
+  <g id="boundaries_layer">
+    <line x1="546.1" y1="609.8" x2="546.1" y2="566.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CDB | Layer: RAILING</title></line>
+    <line x1="546.4" y1="609.8" x2="546.4" y2="566.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CDC | Layer: RAILING</title></line>
+    <line x1="546.8" y1="609.8" x2="546.8" y2="566.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CDD | Layer: RAILING</title></line>
+    <line x1="547.1" y1="609.8" x2="547.1" y2="566.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CDE | Layer: RAILING</title></line>
+    <line x1="512.4" y1="497.9" x2="512.4" y2="567.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CDF | Layer: wall</title></line>
+    <line x1="514.5" y1="497.9" x2="514.5" y2="510.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CE0 | Layer: wall</title></line>
+    <line x1="555.5" y1="497.9" x2="555.5" y2="499.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CE1 | Layer: wall</title></line>
+    <line x1="556.6" y1="497.9" x2="556.6" y2="499.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CE2 | Layer: wall</title></line>
+    <line x1="585.7" y1="497.9" x2="585.7" y2="499.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CE3 | Layer: wall</title></line>
+    <line x1="613.7" y1="504.6" x2="613.7" y2="542.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CE4 | Layer: wall</title></line>
+    <line x1="614.8" y1="497.9" x2="614.8" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CE5 | Layer: wall</title></line>
+    <line x1="612.7" y1="503.5" x2="612.7" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CE6 | Layer: wall</title></line>
+    <line x1="614.8" y1="497.9" x2="612.7" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CE7 | Layer: wall</title></line>
+    <line x1="594.1" y1="554.4" x2="594.1" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CE8 | Layer: wall</title></line>
+    <line x1="567.8" y1="497.9" x2="567.8" y2="499.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CE9 | Layer: wall</title></line>
+    <line x1="582.2" y1="555.4" x2="582.2" y2="565.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CEA | Layer: RAILING</title></line>
+    <line x1="583.2" y1="555.4" x2="583.2" y2="565.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CEB | Layer: RAILING</title></line>
+    <line x1="513.5" y1="511.6" x2="513.5" y2="567.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CEC | Layer: wall</title></line>
+    <line x1="514.5" y1="511.6" x2="514.5" y2="510.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CED | Layer: wall</title></line>
+    <line x1="514.5" y1="510.6" x2="514.5" y2="510.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CEE | Layer: wall</title></line>
+    <line x1="514.5" y1="511.6" x2="513.5" y2="511.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CEF | Layer: wall</title></line>
+    <line x1="555.5" y1="497.9" x2="514.5" y2="497.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CF0 | Layer: RAILING</title></line>
+    <line x1="555.5" y1="499.0" x2="514.5" y2="499.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CF1 | Layer: RAILING</title></line>
+    <line x1="567.8" y1="497.9" x2="556.6" y2="497.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CF2 | Layer: RAILING</title></line>
+    <line x1="567.8" y1="499.0" x2="556.6" y2="499.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CF3 | Layer: RAILING</title></line>
+    <line x1="556.6" y1="497.9" x2="555.5" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CF4 | Layer: wall</title></line>
+    <line x1="514.5" y1="497.9" x2="512.4" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CF5 | Layer: wall</title></line>
+    <line x1="555.5" y1="498.6" x2="514.5" y2="498.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CF6 | Layer: RAILING</title></line>
+    <line x1="555.5" y1="498.3" x2="514.5" y2="498.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CF7 | Layer: RAILING</title></line>
+    <line x1="567.8" y1="498.6" x2="556.6" y2="498.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CF8 | Layer: RAILING</title></line>
+    <line x1="567.8" y1="498.3" x2="556.6" y2="498.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CF9 | Layer: RAILING</title></line>
+    <line x1="585.7" y1="497.9" x2="567.8" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CFA | Layer: wall</title></line>
+    <line x1="585.7" y1="499.0" x2="567.8" y2="499.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CFB | Layer: wall</title></line>
+    <line x1="612.7" y1="497.9" x2="585.7" y2="497.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CFC | Layer: RAILING</title></line>
+    <line x1="612.7" y1="499.0" x2="585.7" y2="499.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81CFD | Layer: RAILING</title></line>
+    <line x1="612.7" y1="504.6" x2="612.7" y2="503.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CFE | Layer: wall</title></line>
+    <line x1="612.7" y1="503.5" x2="612.7" y2="503.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81CFF | Layer: wall</title></line>
+    <line x1="612.7" y1="504.6" x2="613.7" y2="504.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D00 | Layer: wall</title></line>
+    <line x1="612.7" y1="498.6" x2="585.7" y2="498.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D01 | Layer: RAILING</title></line>
+    <line x1="612.7" y1="498.3" x2="585.7" y2="498.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D02 | Layer: RAILING</title></line>
+    <line x1="583.2" y1="565.6" x2="583.2" y2="566.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D03 | Layer: wall</title></line>
+    <line x1="582.9" y1="555.4" x2="582.9" y2="565.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D04 | Layer: RAILING</title></line>
+    <line x1="582.5" y1="555.4" x2="582.5" y2="565.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D05 | Layer: RAILING</title></line>
+    <line x1="613.7" y1="542.1" x2="613.7" y2="543.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D06 | Layer: wall</title></line>
+    <line x1="613.7" y1="543.2" x2="613.7" y2="543.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D07 | Layer: wall</title></line>
+    <line x1="613.7" y1="542.1" x2="613.7" y2="542.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D08 | Layer: wall</title></line>
+    <line x1="613.7" y1="543.2" x2="613.7" y2="554.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D09 | Layer: wall</title></line>
+    <line x1="599.7" y1="554.4" x2="599.7" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D0A | Layer: wall</title></line>
+    <line x1="599.7" y1="554.4" x2="613.7" y2="554.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D0B | Layer: wall</title></line>
+    <line x1="599.7" y1="555.4" x2="614.8" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D0C | Layer: wall</title></line>
+    <line x1="594.1" y1="555.4" x2="599.7" y2="555.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D0D | Layer: WINDOW</title></line>
+    <line x1="594.1" y1="555.1" x2="599.7" y2="555.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D0E | Layer: WINDOW</title></line>
+    <line x1="594.1" y1="554.7" x2="599.7" y2="554.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D0F | Layer: WINDOW</title></line>
+    <line x1="594.1" y1="554.4" x2="599.7" y2="554.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D10 | Layer: WINDOW</title></line>
+    <line x1="582.2" y1="554.4" x2="594.1" y2="554.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D11 | Layer: wall</title></line>
+    <line x1="582.2" y1="555.4" x2="594.1" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D12 | Layer: wall</title></line>
+    <line x1="582.2" y1="554.4" x2="582.2" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D13 | Layer: wall</title></line>
+    <line x1="593.1" y1="557.5" x2="600.8" y2="557.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D14 | Layer: PROJ.</title></line>
+    <line x1="593.1" y1="555.4" x2="593.1" y2="557.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D15 | Layer: PROJ.</title></line>
+    <line x1="600.8" y1="555.4" x2="600.8" y2="557.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D16 | Layer: PROJ.</title></line>
+    <path d="M 613.7 497.9 L 613.7 496.9 L 513.5 496.9 L 513.5 497.9" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81D17 | Layer: PROJ.</title></path>
+    <line x1="450.3" y1="497.9" x2="450.3" y2="598.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D18 | Layer: wall</title></line>
+    <line x1="448.2" y1="497.9" x2="448.2" y2="510.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D19 | Layer: wall</title></line>
+    <line x1="406.2" y1="497.9" x2="406.2" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D1A | Layer: wall</title></line>
+    <line x1="377.1" y1="497.9" x2="377.1" y2="499.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D1B | Layer: wall</title></line>
+    <line x1="349.0" y1="504.6" x2="349.0" y2="542.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D1C | Layer: wall</title></line>
+    <line x1="348.0" y1="497.9" x2="348.0" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D1D | Layer: wall</title></line>
+    <line x1="350.1" y1="503.5" x2="350.1" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D1E | Layer: wall</title></line>
+    <line x1="348.0" y1="497.9" x2="350.1" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D1F | Layer: wall</title></line>
+    <line x1="368.6" y1="554.4" x2="368.6" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D20 | Layer: wall</title></line>
+    <line x1="369.7" y1="554.4" x2="369.7" y2="554.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D21 | Layer: wall</title></line>
+    <line x1="394.9" y1="497.9" x2="394.9" y2="499.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D22 | Layer: wall</title></line>
+    <line x1="393.9" y1="499.0" x2="393.9" y2="499.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D23 | Layer: wall</title></line>
+    <line x1="380.6" y1="555.4" x2="380.6" y2="565.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D24 | Layer: RAILING</title></line>
+    <line x1="379.5" y1="555.4" x2="379.5" y2="565.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D25 | Layer: RAILING</title></line>
+    <line x1="449.3" y1="511.6" x2="449.3" y2="598.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D26 | Layer: wall</title></line>
+    <line x1="448.2" y1="511.6" x2="448.2" y2="510.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D27 | Layer: wall</title></line>
+    <line x1="448.2" y1="510.6" x2="448.2" y2="510.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D28 | Layer: wall</title></line>
+    <line x1="448.2" y1="511.6" x2="449.3" y2="511.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D29 | Layer: wall</title></line>
+    <line x1="407.2" y1="497.9" x2="448.2" y2="497.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D2A | Layer: RAILING</title></line>
+    <line x1="407.2" y1="499.0" x2="448.2" y2="499.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D2B | Layer: RAILING</title></line>
+    <line x1="394.9" y1="497.9" x2="406.2" y2="497.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D2C | Layer: RAILING</title></line>
+    <line x1="394.9" y1="499.0" x2="406.2" y2="499.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D2D | Layer: RAILING</title></line>
+    <line x1="406.2" y1="497.9" x2="407.2" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D2E | Layer: wall</title></line>
+    <line x1="448.2" y1="497.9" x2="450.3" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D2F | Layer: wall</title></line>
+    <line x1="407.2" y1="498.6" x2="448.2" y2="498.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D30 | Layer: RAILING</title></line>
+    <line x1="407.2" y1="498.3" x2="448.2" y2="498.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D31 | Layer: RAILING</title></line>
+    <line x1="394.9" y1="498.6" x2="406.2" y2="498.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D32 | Layer: RAILING</title></line>
+    <line x1="394.9" y1="498.3" x2="406.2" y2="498.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D33 | Layer: RAILING</title></line>
+    <line x1="377.1" y1="497.9" x2="394.9" y2="497.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D34 | Layer: wall</title></line>
+    <line x1="377.1" y1="499.0" x2="393.9" y2="499.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D35 | Layer: wall</title></line>
+    <line x1="350.1" y1="497.9" x2="377.1" y2="497.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D36 | Layer: RAILING</title></line>
+    <line x1="350.1" y1="499.0" x2="377.1" y2="499.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D37 | Layer: RAILING</title></line>
+    <line x1="350.1" y1="504.6" x2="350.1" y2="503.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D38 | Layer: wall</title></line>
+    <line x1="350.1" y1="504.6" x2="349.0" y2="504.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D39 | Layer: wall</title></line>
+    <line x1="350.1" y1="498.6" x2="377.1" y2="498.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D3A | Layer: RAILING</title></line>
+    <line x1="350.1" y1="498.3" x2="377.1" y2="498.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D3B | Layer: RAILING</title></line>
+    <line x1="379.5" y1="565.6" x2="379.5" y2="566.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D3C | Layer: wall</title></line>
+    <line x1="379.9" y1="555.4" x2="379.9" y2="565.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D3D | Layer: RAILING</title></line>
+    <line x1="380.2" y1="555.4" x2="380.2" y2="565.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D3E | Layer: RAILING</title></line>
+    <line x1="349.0" y1="542.1" x2="349.0" y2="543.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D3F | Layer: wall</title></line>
+    <line x1="349.0" y1="543.2" x2="349.0" y2="543.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D40 | Layer: wall</title></line>
+    <line x1="349.0" y1="542.1" x2="349.0" y2="542.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D41 | Layer: wall</title></line>
+    <line x1="349.0" y1="543.2" x2="349.0" y2="554.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D42 | Layer: wall</title></line>
+    <line x1="363.0" y1="554.4" x2="363.0" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D43 | Layer: wall</title></line>
+    <line x1="363.0" y1="554.4" x2="349.0" y2="554.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D44 | Layer: wall</title></line>
+    <line x1="363.0" y1="555.4" x2="348.0" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D45 | Layer: wall</title></line>
+    <line x1="368.6" y1="555.4" x2="363.0" y2="555.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D46 | Layer: WINDOW</title></line>
+    <line x1="368.6" y1="555.1" x2="363.0" y2="555.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D47 | Layer: WINDOW</title></line>
+    <line x1="368.6" y1="554.7" x2="363.0" y2="554.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D48 | Layer: WINDOW</title></line>
+    <line x1="368.6" y1="554.4" x2="363.0" y2="554.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D49 | Layer: WINDOW</title></line>
+    <line x1="380.6" y1="554.4" x2="368.6" y2="554.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D4A | Layer: wall</title></line>
+    <line x1="380.6" y1="555.4" x2="368.6" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D4B | Layer: wall</title></line>
+    <line x1="380.6" y1="554.4" x2="380.6" y2="555.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D4C | Layer: wall</title></line>
+    <line x1="394.9" y1="499.0" x2="393.9" y2="499.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D4D | Layer: wall</title></line>
+    <line x1="369.7" y1="557.5" x2="362.0" y2="557.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D4E | Layer: PROJ.</title></line>
+    <line x1="369.7" y1="555.4" x2="369.7" y2="557.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D4F | Layer: PROJ.</title></line>
+    <line x1="362.0" y1="555.4" x2="362.0" y2="557.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D50 | Layer: PROJ.</title></line>
+    <path d="M 349.0 497.9 L 349.0 496.9 L 449.3 496.9 L 449.3 497.9" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81D51 | Layer: PROJ.</title></path>
+    <line x1="456.0" y1="853.1" x2="456.0" y2="839.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D52 | Layer: wall</title></line>
+    <line x1="353.6" y1="795.6" x2="353.6" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D53 | Layer: wall</title></line>
+    <line x1="355.7" y1="853.1" x2="382.7" y2="853.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D54 | Layer: RAILING</title></line>
+    <line x1="355.7" y1="852.1" x2="382.7" y2="852.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D55 | Layer: RAILING</title></line>
+    <line x1="382.7" y1="785.5" x2="382.7" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D56 | Layer: wall</title></line>
+    <line x1="399.5" y1="852.1" x2="399.5" y2="852.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D57 | Layer: wall</title></line>
+    <line x1="400.6" y1="852.1" x2="400.6" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D58 | Layer: wall</title></line>
+    <line x1="355.7" y1="847.5" x2="355.7" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D59 | Layer: wall</title></line>
+    <line x1="454.9" y1="839.5" x2="456.0" y2="839.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D5A | Layer: wall</title></line>
+    <line x1="382.7" y1="785.5" x2="382.7" y2="795.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D5B | Layer: RAILING</title></line>
+    <line x1="383.0" y1="785.5" x2="383.0" y2="795.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D5C | Layer: Railing 01</title></line>
+    <line x1="383.4" y1="785.5" x2="383.4" y2="795.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D5D | Layer: Railing 01</title></line>
+    <line x1="383.7" y1="785.5" x2="383.7" y2="795.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D5E | Layer: RAILING</title></line>
+    <line x1="384.1" y1="795.6" x2="384.1" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D5F | Layer: wall</title></line>
+    <line x1="384.1" y1="795.6" x2="367.9" y2="795.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D60 | Layer: wall</title></line>
+    <line x1="384.1" y1="796.7" x2="367.9" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D61 | Layer: wall</title></line>
+    <line x1="354.6" y1="796.7" x2="354.6" y2="847.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D62 | Layer: wall</title></line>
+    <line x1="382.7" y1="852.1" x2="399.5" y2="852.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D63 | Layer: wall</title></line>
+    <line x1="382.7" y1="853.1" x2="400.6" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D64 | Layer: wall</title></line>
+    <line x1="355.7" y1="853.1" x2="353.6" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D65 | Layer: wall</title></line>
+    <line x1="355.7" y1="852.4" x2="382.7" y2="852.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D66 | Layer: Railing 01</title></line>
+    <line x1="355.7" y1="852.8" x2="382.7" y2="852.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D67 | Layer: Railing 01</title></line>
+    <line x1="399.5" y1="852.1" x2="400.6" y2="852.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D68 | Layer: wall</title></line>
+    <line x1="400.6" y1="852.1" x2="411.8" y2="852.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D69 | Layer: RAILING</title></line>
+    <line x1="400.6" y1="853.1" x2="411.8" y2="853.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D6A | Layer: RAILING</title></line>
+    <line x1="412.8" y1="852.1" x2="454.9" y2="852.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D6B | Layer: RAILING</title></line>
+    <line x1="412.8" y1="853.1" x2="454.9" y2="853.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D6C | Layer: RAILING</title></line>
+    <line x1="412.8" y1="853.1" x2="411.8" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D6D | Layer: wall</title></line>
+    <line x1="454.9" y1="853.1" x2="454.9" y2="839.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D6E | Layer: wall</title></line>
+    <line x1="454.9" y1="853.1" x2="456.0" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D6F | Layer: wall</title></line>
+    <line x1="412.8" y1="852.8" x2="454.9" y2="852.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D70 | Layer: Railing 01</title></line>
+    <line x1="412.8" y1="852.4" x2="454.9" y2="852.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D71 | Layer: Railing 01</title></line>
+    <line x1="400.6" y1="852.8" x2="411.8" y2="852.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D72 | Layer: Railing 01</title></line>
+    <line x1="400.6" y1="852.4" x2="411.8" y2="852.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D73 | Layer: Railing 01</title></line>
+    <line x1="367.9" y1="795.6" x2="367.9" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D74 | Layer: wall</title></line>
+    <line x1="362.3" y1="795.6" x2="362.3" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D75 | Layer: wall</title></line>
+    <line x1="362.3" y1="795.6" x2="353.6" y2="795.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D76 | Layer: wall</title></line>
+    <line x1="362.3" y1="796.7" x2="354.6" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D77 | Layer: wall</title></line>
+    <line x1="367.9" y1="795.6" x2="362.3" y2="795.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D78 | Layer: WINDOW</title></line>
+    <line x1="367.9" y1="796.0" x2="362.3" y2="796.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D79 | Layer: WINDOW</title></line>
+    <line x1="367.9" y1="796.3" x2="362.3" y2="796.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D7A | Layer: WINDOW</title></line>
+    <line x1="367.9" y1="796.7" x2="362.3" y2="796.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D7B | Layer: WINDOW</title></line>
+    <path d="M 454.9 853.1 L 454.9 854.2 L 354.6 854.2 L 354.6 853.1" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81D7C | Layer: PROJ.</title></path>
+    <path d="M 361.3 795.6 L 361.3 793.5 L 369.0 793.5 L 369.0 795.6" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81D7D | Layer: PROJ.</title></path>
+    <line x1="506.8" y1="853.1" x2="506.8" y2="839.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D7E | Layer: wall</title></line>
+    <line x1="508.9" y1="853.1" x2="508.9" y2="840.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D7F | Layer: wall</title></line>
+    <line x1="609.2" y1="795.6" x2="609.2" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D80 | Layer: wall</title></line>
+    <line x1="607.1" y1="853.1" x2="580.1" y2="853.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D81 | Layer: RAILING</title></line>
+    <line x1="607.1" y1="852.1" x2="580.1" y2="852.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D82 | Layer: RAILING</title></line>
+    <line x1="557.3" y1="784.4" x2="547.1" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D83 | Layer: wall</title></line>
+    <line x1="580.1" y1="785.5" x2="580.1" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D84 | Layer: wall</title></line>
+    <line x1="563.3" y1="852.1" x2="563.3" y2="852.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D85 | Layer: wall</title></line>
+    <line x1="562.2" y1="852.1" x2="562.2" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D86 | Layer: wall</title></line>
+    <line x1="607.1" y1="847.5" x2="607.1" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D87 | Layer: wall</title></line>
+    <line x1="507.9" y1="839.5" x2="506.8" y2="839.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D88 | Layer: wall</title></line>
+    <line x1="580.1" y1="785.5" x2="580.1" y2="795.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D89 | Layer: RAILING</title></line>
+    <line x1="579.7" y1="785.5" x2="579.7" y2="795.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D8A | Layer: Railing 01</title></line>
+    <line x1="579.4" y1="785.5" x2="579.4" y2="795.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D8B | Layer: Railing 01</title></line>
+    <line x1="579.0" y1="785.5" x2="579.0" y2="795.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D8C | Layer: RAILING</title></line>
+    <line x1="578.7" y1="795.6" x2="578.7" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D8D | Layer: wall</title></line>
+    <line x1="578.7" y1="795.6" x2="594.8" y2="795.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D8E | Layer: wall</title></line>
+    <line x1="578.7" y1="796.7" x2="594.8" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D8F | Layer: wall</title></line>
+    <line x1="608.1" y1="796.7" x2="608.1" y2="847.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D90 | Layer: wall</title></line>
+    <line x1="580.1" y1="852.1" x2="563.3" y2="852.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D91 | Layer: wall</title></line>
+    <line x1="580.1" y1="853.1" x2="562.2" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D92 | Layer: wall</title></line>
+    <line x1="607.1" y1="853.1" x2="609.2" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D93 | Layer: wall</title></line>
+    <line x1="607.1" y1="852.4" x2="580.1" y2="852.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D94 | Layer: Railing 01</title></line>
+    <line x1="607.1" y1="852.8" x2="580.1" y2="852.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D95 | Layer: Railing 01</title></line>
+    <line x1="563.3" y1="852.1" x2="562.2" y2="852.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D96 | Layer: wall</title></line>
+    <line x1="562.2" y1="852.1" x2="548.9" y2="852.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D97 | Layer: RAILING</title></line>
+    <line x1="562.2" y1="853.1" x2="548.9" y2="853.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D98 | Layer: RAILING</title></line>
+    <line x1="548.9" y1="852.1" x2="508.9" y2="852.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D99 | Layer: RAILING</title></line>
+    <line x1="548.9" y1="853.1" x2="508.9" y2="853.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D9A | Layer: RAILING</title></line>
+    <line x1="507.9" y1="839.5" x2="507.9" y2="839.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D9B | Layer: wall</title></line>
+    <line x1="508.9" y1="853.1" x2="506.8" y2="853.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81D9C | Layer: wall</title></line>
+    <line x1="548.9" y1="852.8" x2="508.9" y2="852.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D9D | Layer: Railing 01</title></line>
+    <line x1="548.9" y1="852.4" x2="508.9" y2="852.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D9E | Layer: Railing 01</title></line>
+    <line x1="562.2" y1="852.8" x2="548.9" y2="852.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81D9F | Layer: Railing 01</title></line>
+    <line x1="562.2" y1="852.4" x2="548.9" y2="852.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DA0 | Layer: Railing 01</title></line>
+    <line x1="508.9" y1="839.5" x2="508.9" y2="840.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DA1 | Layer: wall</title></line>
+    <line x1="508.9" y1="839.5" x2="507.9" y2="839.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DA2 | Layer: wall</title></line>
+    <line x1="508.9" y1="840.5" x2="508.9" y2="840.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DA3 | Layer: wall</title></line>
+    <line x1="594.8" y1="795.6" x2="594.8" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DA4 | Layer: wall</title></line>
+    <line x1="600.4" y1="795.6" x2="600.4" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DA5 | Layer: wall</title></line>
+    <line x1="600.4" y1="795.6" x2="609.2" y2="795.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DA6 | Layer: wall</title></line>
+    <line x1="600.4" y1="796.7" x2="608.1" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DA7 | Layer: wall</title></line>
+    <line x1="594.8" y1="795.6" x2="600.4" y2="795.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DA8 | Layer: WINDOW</title></line>
+    <line x1="594.8" y1="796.0" x2="600.4" y2="796.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DA9 | Layer: WINDOW</title></line>
+    <line x1="594.8" y1="796.3" x2="600.4" y2="796.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DAA | Layer: WINDOW</title></line>
+    <line x1="594.8" y1="796.7" x2="600.4" y2="796.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DAB | Layer: WINDOW</title></line>
+    <line x1="580.1" y1="785.5" x2="579.0" y2="785.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DAC | Layer: wall</title></line>
+    <line x1="558.3" y1="785.5" x2="546.1" y2="785.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DAD | Layer: wall</title></line>
+    <path d="M 507.9 853.1 L 507.9 854.2 L 608.1 854.2 L 608.1 853.1" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81DAE | Layer: PROJ.</title></path>
+    <path d="M 601.5 795.6 L 601.5 793.5 L 593.8 793.5 L 593.8 795.6" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81DAF | Layer: PROJ.</title></path>
+    <line x1="580.1" y1="784.4" x2="614.8" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DB0 | Layer: wall</title></line>
+    <line x1="614.8" y1="782.3" x2="614.8" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DB1 | Layer: RAILING</title></line>
+    <line x1="613.7" y1="782.3" x2="613.7" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DB2 | Layer: RAILING</title></line>
+    <line x1="608.1" y1="783.4" x2="608.1" y2="782.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DB3 | Layer: wall</title></line>
+    <line x1="547.1" y1="755.3" x2="546.1" y2="755.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DB4 | Layer: wall</title></line>
+    <line x1="613.7" y1="737.4" x2="614.8" y2="737.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DB5 | Layer: wall</title></line>
+    <line x1="609.2" y1="782.3" x2="614.8" y2="782.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DB6 | Layer: wall</title></line>
+    <line x1="609.2" y1="782.3" x2="609.2" y2="782.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DB7 | Layer: wall</title></line>
+    <line x1="547.1" y1="755.3" x2="557.3" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DB8 | Layer: RAILING</title></line>
+    <line x1="547.1" y1="755.0" x2="557.3" y2="755.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DB9 | Layer: Railing 01</title></line>
+    <line x1="547.1" y1="754.6" x2="557.3" y2="754.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DBA | Layer: Railing 01</title></line>
+    <line x1="547.1" y1="754.3" x2="557.3" y2="754.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DBB | Layer: RAILING</title></line>
+    <line x1="557.3" y1="754.3" x2="558.3" y2="754.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DBC | Layer: wall</title></line>
+    <line x1="557.3" y1="754.3" x2="557.3" y2="770.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DBD | Layer: wall</title></line>
+    <line x1="558.3" y1="754.3" x2="558.3" y2="770.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DBE | Layer: wall</title></line>
+    <line x1="579.0" y1="783.4" x2="608.1" y2="783.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DBF | Layer: wall</title></line>
+    <line x1="613.7" y1="754.3" x2="613.7" y2="754.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DC0 | Layer: wall</title></line>
+    <line x1="613.7" y1="755.3" x2="613.7" y2="738.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DC1 | Layer: wall</title></line>
+    <line x1="614.8" y1="755.3" x2="614.8" y2="737.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DC2 | Layer: wall</title></line>
+    <line x1="614.8" y1="782.3" x2="614.8" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DC3 | Layer: wall</title></line>
+    <line x1="614.1" y1="782.3" x2="614.1" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DC4 | Layer: Railing 01</title></line>
+    <line x1="614.5" y1="782.3" x2="614.5" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DC5 | Layer: Railing 01</title></line>
+    <line x1="609.2" y1="782.3" x2="608.1" y2="782.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DC6 | Layer: wall</title></line>
+    <line x1="613.7" y1="755.3" x2="614.8" y2="755.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DC7 | Layer: wall</title></line>
+    <line x1="613.7" y1="738.5" x2="613.7" y2="737.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DC8 | Layer: wall</title></line>
+    <line x1="613.7" y1="737.4" x2="613.7" y2="726.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DC9 | Layer: RAILING</title></line>
+    <line x1="614.8" y1="737.4" x2="614.8" y2="726.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DCA | Layer: RAILING</title></line>
+    <line x1="613.7" y1="725.1" x2="613.7" y2="684.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DCB | Layer: RAILING</title></line>
+    <line x1="614.8" y1="725.1" x2="614.8" y2="684.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DCC | Layer: RAILING</title></line>
+    <line x1="614.8" y1="725.1" x2="614.8" y2="726.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DCD | Layer: wall</title></line>
+    <line x1="614.8" y1="684.1" x2="614.8" y2="682.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DCE | Layer: wall</title></line>
+    <line x1="614.5" y1="725.1" x2="614.5" y2="684.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DCF | Layer: Railing 01</title></line>
+    <line x1="614.1" y1="725.1" x2="614.1" y2="684.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DD0 | Layer: Railing 01</title></line>
+    <line x1="614.5" y1="737.4" x2="614.5" y2="726.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DD1 | Layer: Railing 01</title></line>
+    <line x1="614.1" y1="737.4" x2="614.1" y2="726.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DD2 | Layer: Railing 01</title></line>
+    <line x1="557.3" y1="770.0" x2="558.3" y2="770.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DD3 | Layer: wall</title></line>
+    <line x1="557.3" y1="775.6" x2="558.3" y2="775.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DD4 | Layer: wall</title></line>
+    <line x1="557.3" y1="775.6" x2="557.3" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DD5 | Layer: wall</title></line>
+    <line x1="558.3" y1="775.6" x2="558.3" y2="785.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DD6 | Layer: wall</title></line>
+    <line x1="557.3" y1="770.0" x2="557.3" y2="775.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DD7 | Layer: WINDOW</title></line>
+    <line x1="557.6" y1="770.0" x2="557.6" y2="775.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DD8 | Layer: WINDOW</title></line>
+    <line x1="558.0" y1="770.0" x2="558.0" y2="775.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DD9 | Layer: WINDOW</title></line>
+    <line x1="558.3" y1="770.0" x2="558.3" y2="775.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DDA | Layer: WINDOW</title></line>
+    <path d="M 614.8 683.1 L 615.9 683.1 L 615.9 783.4 L 614.8 783.4" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81DDB | Layer: PROJ.</title></path>
+    <path d="M 557.3 776.7 L 555.2 776.7 L 555.2 769.0 L 557.3 769.0" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81DDC | Layer: PROJ.</title></path>
+    <line x1="348.0" y1="782.3" x2="348.0" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DDD | Layer: RAILING</title></line>
+    <line x1="349.0" y1="782.3" x2="349.0" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DDE | Layer: RAILING</title></line>
+    <line x1="354.6" y1="783.4" x2="354.6" y2="782.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DDF | Layer: wall</title></line>
+    <line x1="415.6" y1="755.3" x2="416.7" y2="755.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DE0 | Layer: wall</title></line>
+    <line x1="353.6" y1="782.3" x2="348.0" y2="782.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DE1 | Layer: wall</title></line>
+    <line x1="353.6" y1="782.3" x2="353.6" y2="782.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DE2 | Layer: wall</title></line>
+    <line x1="415.6" y1="755.3" x2="405.5" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DE3 | Layer: RAILING</title></line>
+    <line x1="415.6" y1="755.0" x2="405.5" y2="755.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DE4 | Layer: Railing 01</title></line>
+    <line x1="415.6" y1="754.6" x2="405.5" y2="754.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DE5 | Layer: Railing 01</title></line>
+    <line x1="415.6" y1="754.3" x2="405.5" y2="754.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DE6 | Layer: RAILING</title></line>
+    <line x1="405.5" y1="754.3" x2="404.4" y2="754.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DE7 | Layer: wall</title></line>
+    <line x1="405.5" y1="754.3" x2="405.5" y2="770.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DE8 | Layer: wall</title></line>
+    <line x1="404.4" y1="754.3" x2="404.4" y2="770.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DE9 | Layer: wall</title></line>
+    <line x1="349.0" y1="755.3" x2="349.0" y2="738.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DEA | Layer: wall</title></line>
+    <line x1="348.0" y1="755.3" x2="348.0" y2="737.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DEB | Layer: wall</title></line>
+    <line x1="348.0" y1="782.3" x2="348.0" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DEC | Layer: wall</title></line>
+    <line x1="348.7" y1="782.3" x2="348.7" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DED | Layer: Railing 01</title></line>
+    <line x1="348.3" y1="782.3" x2="348.3" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DEE | Layer: Railing 01</title></line>
+    <line x1="353.6" y1="782.3" x2="354.6" y2="782.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DEF | Layer: wall</title></line>
+    <line x1="349.0" y1="737.4" x2="349.0" y2="726.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DF0 | Layer: RAILING</title></line>
+    <line x1="348.0" y1="737.4" x2="348.0" y2="726.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DF1 | Layer: RAILING</title></line>
+    <line x1="349.0" y1="725.1" x2="349.0" y2="684.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DF2 | Layer: RAILING</title></line>
+    <line x1="348.0" y1="725.1" x2="348.0" y2="684.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DF3 | Layer: RAILING</title></line>
+    <line x1="348.0" y1="725.1" x2="348.0" y2="726.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DF4 | Layer: wall</title></line>
+    <line x1="348.0" y1="684.1" x2="348.0" y2="682.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DF5 | Layer: wall</title></line>
+    <line x1="348.3" y1="725.1" x2="348.3" y2="684.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DF6 | Layer: Railing 01</title></line>
+    <line x1="348.7" y1="725.1" x2="348.7" y2="684.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DF7 | Layer: Railing 01</title></line>
+    <line x1="348.3" y1="737.4" x2="348.3" y2="726.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DF8 | Layer: Railing 01</title></line>
+    <line x1="348.7" y1="737.4" x2="348.7" y2="726.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DF9 | Layer: Railing 01</title></line>
+    <line x1="405.5" y1="770.0" x2="404.4" y2="770.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DFA | Layer: wall</title></line>
+    <line x1="405.5" y1="775.6" x2="404.4" y2="775.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DFB | Layer: wall</title></line>
+    <line x1="405.5" y1="775.6" x2="405.5" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DFC | Layer: wall</title></line>
+    <line x1="404.4" y1="775.6" x2="404.4" y2="785.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81DFD | Layer: wall</title></line>
+    <line x1="405.5" y1="770.0" x2="405.5" y2="775.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DFE | Layer: WINDOW</title></line>
+    <line x1="405.1" y1="770.0" x2="405.1" y2="775.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81DFF | Layer: WINDOW</title></line>
+    <line x1="404.8" y1="770.0" x2="404.8" y2="775.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E00 | Layer: WINDOW</title></line>
+    <line x1="404.4" y1="770.0" x2="404.4" y2="775.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E01 | Layer: WINDOW</title></line>
+    <path d="M 348.0 683.1 L 346.9 683.1 L 346.9 783.4 L 348.0 783.4" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81E02 | Layer: PROJ.</title></path>
+    <path d="M 405.5 776.7 L 407.6 776.7 L 407.6 769.0 L 405.5 769.0" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81E03 | Layer: PROJ.</title></path>
+    <line x1="558.3" y1="581.7" x2="569.6" y2="581.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E04 | Layer: wall</title></line>
+    <line x1="557.3" y1="580.7" x2="614.8" y2="580.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E05 | Layer: wall</title></line>
+    <line x1="614.8" y1="582.8" x2="614.8" y2="609.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E06 | Layer: RAILING</title></line>
+    <line x1="613.7" y1="582.8" x2="613.7" y2="609.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E07 | Layer: RAILING</title></line>
+    <line x1="608.1" y1="581.7" x2="608.1" y2="582.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E08 | Layer: wall</title></line>
+    <line x1="547.1" y1="609.8" x2="546.1" y2="609.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E09 | Layer: wall</title></line>
+    <line x1="613.7" y1="626.6" x2="613.7" y2="626.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E0A | Layer: wall</title></line>
+    <line x1="613.7" y1="627.7" x2="614.8" y2="627.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E0B | Layer: wall</title></line>
+    <line x1="609.2" y1="582.8" x2="614.8" y2="582.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E0C | Layer: wall</title></line>
+    <line x1="609.2" y1="582.8" x2="609.2" y2="582.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E0D | Layer: wall</title></line>
+    <line x1="547.1" y1="609.8" x2="557.3" y2="609.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E0E | Layer: RAILING</title></line>
+    <line x1="547.1" y1="610.1" x2="557.3" y2="610.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E0F | Layer: Railing 01</title></line>
+    <line x1="547.1" y1="610.5" x2="557.3" y2="610.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E10 | Layer: Railing 01</title></line>
+    <line x1="547.1" y1="610.8" x2="557.3" y2="610.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E11 | Layer: RAILING</title></line>
+    <line x1="557.3" y1="610.8" x2="558.3" y2="610.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E12 | Layer: wall</title></line>
+    <line x1="557.3" y1="610.8" x2="557.3" y2="595.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E13 | Layer: wall</title></line>
+    <line x1="558.3" y1="610.8" x2="558.3" y2="595.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E14 | Layer: wall</title></line>
+    <line x1="569.6" y1="581.7" x2="608.1" y2="581.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E15 | Layer: wall</title></line>
+    <line x1="613.7" y1="609.8" x2="613.7" y2="626.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E16 | Layer: wall</title></line>
+    <line x1="614.8" y1="609.8" x2="614.8" y2="627.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E17 | Layer: wall</title></line>
+    <line x1="614.8" y1="582.8" x2="614.8" y2="580.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E18 | Layer: wall</title></line>
+    <line x1="614.1" y1="582.8" x2="614.1" y2="609.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E19 | Layer: Railing 01</title></line>
+    <line x1="614.5" y1="582.8" x2="614.5" y2="609.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E1A | Layer: Railing 01</title></line>
+    <line x1="609.2" y1="582.8" x2="608.1" y2="582.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E1B | Layer: wall</title></line>
+    <line x1="613.7" y1="609.8" x2="614.8" y2="609.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E1C | Layer: wall</title></line>
+    <line x1="613.7" y1="626.6" x2="613.7" y2="627.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E1D | Layer: wall</title></line>
+    <line x1="613.7" y1="627.7" x2="613.7" y2="638.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E1E | Layer: RAILING</title></line>
+    <line x1="614.8" y1="627.7" x2="614.8" y2="638.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E1F | Layer: RAILING</title></line>
+    <line x1="613.7" y1="639.9" x2="613.7" y2="681.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E20 | Layer: RAILING</title></line>
+    <line x1="614.8" y1="639.9" x2="614.8" y2="681.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E21 | Layer: RAILING</title></line>
+    <line x1="614.8" y1="639.9" x2="614.8" y2="638.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E22 | Layer: wall</title></line>
+    <line x1="614.8" y1="681.0" x2="614.8" y2="683.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E23 | Layer: wall</title></line>
+    <line x1="614.5" y1="639.9" x2="614.5" y2="681.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E24 | Layer: Railing 01</title></line>
+    <line x1="614.1" y1="639.9" x2="614.1" y2="681.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E25 | Layer: Railing 01</title></line>
+    <line x1="614.5" y1="627.7" x2="614.5" y2="638.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E26 | Layer: Railing 01</title></line>
+    <line x1="614.1" y1="627.7" x2="614.1" y2="638.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E27 | Layer: Railing 01</title></line>
+    <line x1="557.3" y1="595.1" x2="558.3" y2="595.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E28 | Layer: wall</title></line>
+    <line x1="557.3" y1="589.4" x2="558.3" y2="589.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E29 | Layer: wall</title></line>
+    <line x1="557.3" y1="589.4" x2="557.3" y2="580.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E2A | Layer: wall</title></line>
+    <line x1="558.3" y1="589.4" x2="558.3" y2="581.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E2B | Layer: wall</title></line>
+    <line x1="557.3" y1="595.1" x2="557.3" y2="589.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E2C | Layer: WINDOW</title></line>
+    <line x1="557.6" y1="595.1" x2="557.6" y2="589.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E2D | Layer: WINDOW</title></line>
+    <line x1="558.0" y1="595.1" x2="558.0" y2="589.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E2E | Layer: WINDOW</title></line>
+    <line x1="558.3" y1="595.1" x2="558.3" y2="589.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E2F | Layer: WINDOW</title></line>
+    <path d="M 614.8 682.0 L 615.9 682.0 L 615.9 581.7 L 614.8 581.7" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81E30 | Layer: PROJ.</title></path>
+    <path d="M 557.3 588.4 L 555.2 588.4 L 555.2 596.1 L 557.3 596.1" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81E31 | Layer: PROJ.</title></path>
+    <line x1="405.5" y1="580.7" x2="348.0" y2="580.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E32 | Layer: wall</title></line>
+    <line x1="348.0" y1="582.8" x2="348.0" y2="609.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E33 | Layer: RAILING</title></line>
+    <line x1="349.0" y1="582.8" x2="349.0" y2="609.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E34 | Layer: RAILING</title></line>
+    <line x1="354.6" y1="581.7" x2="354.6" y2="582.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E35 | Layer: wall</title></line>
+    <line x1="392.1" y1="581.7" x2="392.1" y2="581.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E36 | Layer: wall</title></line>
+    <line x1="393.2" y1="581.7" x2="393.2" y2="581.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E37 | Layer: wall</title></line>
+    <line x1="349.0" y1="626.6" x2="349.0" y2="626.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E38 | Layer: wall</title></line>
+    <line x1="349.0" y1="627.7" x2="348.0" y2="627.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E39 | Layer: wall</title></line>
+    <line x1="353.6" y1="582.8" x2="348.0" y2="582.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E3A | Layer: wall</title></line>
+    <line x1="353.6" y1="582.8" x2="353.6" y2="582.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E3B | Layer: wall</title></line>
+    <line x1="415.6" y1="609.8" x2="405.5" y2="609.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E3C | Layer: RAILING</title></line>
+    <line x1="415.6" y1="610.1" x2="405.5" y2="610.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E3D | Layer: Railing 01</title></line>
+    <line x1="415.6" y1="610.5" x2="405.5" y2="610.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E3E | Layer: Railing 01</title></line>
+    <line x1="416.7" y1="610.8" x2="405.5" y2="610.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E3F | Layer: RAILING</title></line>
+    <line x1="405.5" y1="610.8" x2="404.4" y2="610.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E40 | Layer: wall</title></line>
+    <line x1="405.5" y1="610.8" x2="405.5" y2="595.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E41 | Layer: wall</title></line>
+    <line x1="404.4" y1="610.8" x2="404.4" y2="595.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E42 | Layer: wall</title></line>
+    <line x1="393.2" y1="581.7" x2="392.1" y2="581.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E43 | Layer: wall</title></line>
+    <line x1="392.1" y1="581.7" x2="354.6" y2="581.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E44 | Layer: wall</title></line>
+    <line x1="349.0" y1="609.8" x2="349.0" y2="626.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E45 | Layer: wall</title></line>
+    <line x1="348.0" y1="609.8" x2="348.0" y2="627.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E46 | Layer: wall</title></line>
+    <line x1="348.0" y1="582.8" x2="348.0" y2="580.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E47 | Layer: wall</title></line>
+    <line x1="348.7" y1="582.8" x2="348.7" y2="609.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E48 | Layer: Railing 01</title></line>
+    <line x1="348.3" y1="582.8" x2="348.3" y2="609.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E49 | Layer: Railing 01</title></line>
+    <line x1="353.6" y1="582.8" x2="354.6" y2="582.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E4A | Layer: wall</title></line>
+    <line x1="349.0" y1="609.8" x2="348.0" y2="609.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E4B | Layer: wall</title></line>
+    <line x1="349.0" y1="626.6" x2="349.0" y2="627.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E4C | Layer: wall</title></line>
+    <line x1="349.0" y1="627.7" x2="349.0" y2="638.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E4D | Layer: RAILING</title></line>
+    <line x1="348.0" y1="627.7" x2="348.0" y2="638.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E4E | Layer: RAILING</title></line>
+    <line x1="349.0" y1="639.9" x2="349.0" y2="681.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E4F | Layer: RAILING</title></line>
+    <line x1="348.0" y1="639.9" x2="348.0" y2="681.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E50 | Layer: RAILING</title></line>
+    <line x1="348.0" y1="639.9" x2="348.0" y2="638.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E51 | Layer: wall</title></line>
+    <line x1="348.0" y1="681.0" x2="348.0" y2="683.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E52 | Layer: wall</title></line>
+    <line x1="348.3" y1="639.9" x2="348.3" y2="681.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E53 | Layer: Railing 01</title></line>
+    <line x1="348.7" y1="639.9" x2="348.7" y2="681.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E54 | Layer: Railing 01</title></line>
+    <line x1="348.3" y1="627.7" x2="348.3" y2="638.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E55 | Layer: Railing 01</title></line>
+    <line x1="348.7" y1="627.7" x2="348.7" y2="638.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E56 | Layer: Railing 01</title></line>
+    <line x1="405.5" y1="595.1" x2="404.4" y2="595.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E57 | Layer: wall</title></line>
+    <line x1="405.5" y1="589.4" x2="404.4" y2="589.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E58 | Layer: wall</title></line>
+    <line x1="405.5" y1="589.4" x2="405.5" y2="580.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E59 | Layer: wall</title></line>
+    <line x1="405.5" y1="595.1" x2="405.5" y2="589.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E5A | Layer: WINDOW</title></line>
+    <line x1="404.9" y1="595.1" x2="404.9" y2="589.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E5B | Layer: WINDOW</title></line>
+    <path d="M 348.0 682.0 L 346.9 682.0 L 346.9 581.7 L 348.0 581.7" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81E5C | Layer: PROJ.</title></path>
+    <path d="M 405.5 588.4 L 407.6 588.4 L 407.6 596.1 L 405.5 596.1" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 81E5D | Layer: PROJ.</title></path>
+    <line x1="512.4" y1="503.0" x2="450.3" y2="503.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E5E | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="512.4" y1="501.9" x2="450.3" y2="501.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E5F | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="512.4" y1="502.3" x2="450.3" y2="502.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E60 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="512.4" y1="502.6" x2="450.3" y2="502.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E61 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="481.9" y1="516.5" x2="464.4" y2="516.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E62 | Layer: wall</title></line>
+    <line x1="464.4" y1="516.5" x2="464.4" y2="540.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E63 | Layer: wall</title></line>
+    <line x1="464.4" y1="540.4" x2="465.8" y2="540.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E64 | Layer: wall</title></line>
+    <line x1="465.8" y1="540.4" x2="465.8" y2="517.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E65 | Layer: wall</title></line>
+    <line x1="465.8" y1="517.9" x2="480.5" y2="517.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E66 | Layer: wall</title></line>
+    <line x1="480.5" y1="517.9" x2="480.5" y2="540.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E67 | Layer: wall</title></line>
+    <line x1="480.5" y1="540.4" x2="481.9" y2="540.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E68 | Layer: wall</title></line>
+    <line x1="481.9" y1="540.4" x2="481.9" y2="517.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E69 | Layer: wall</title></line>
+    <line x1="497.0" y1="540.4" x2="481.9" y2="540.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E6A | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="497.0" y1="539.0" x2="481.9" y2="539.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E6B | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="465.8" y1="540.4" x2="480.5" y2="540.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E6C | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="465.8" y1="539.0" x2="480.5" y2="539.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E6D | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="480.5" y1="516.5" x2="498.4" y2="516.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E6E | Layer: wall</title></line>
+    <line x1="498.4" y1="516.5" x2="498.4" y2="540.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E6F | Layer: wall</title></line>
+    <line x1="498.4" y1="540.4" x2="497.0" y2="540.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E70 | Layer: wall</title></line>
+    <line x1="497.0" y1="540.4" x2="497.0" y2="517.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E71 | Layer: wall</title></line>
+    <line x1="497.0" y1="517.9" x2="481.9" y2="517.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E72 | Layer: wall</title></line>
+    <line x1="481.9" y1="517.9" x2="481.9" y2="540.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E73 | Layer: wall</title></line>
+    <line x1="481.9" y1="540.4" x2="480.5" y2="540.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E74 | Layer: wall</title></line>
+    <line x1="480.5" y1="540.4" x2="480.5" y2="517.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81E75 | Layer: wall</title></line>
+    <line x1="498.4" y1="517.0" x2="512.4" y2="517.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E76 | Layer: Nstair</title></line>
+    <line x1="498.4" y1="540.4" x2="512.4" y2="540.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E77 | Layer: Nstair</title></line>
+    <line x1="498.4" y1="538.0" x2="512.4" y2="538.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E78 | Layer: Nstair</title></line>
+    <line x1="498.4" y1="535.7" x2="512.4" y2="535.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E79 | Layer: Nstair</title></line>
+    <line x1="498.4" y1="533.3" x2="512.4" y2="533.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E7A | Layer: Nstair</title></line>
+    <line x1="498.4" y1="531.0" x2="512.4" y2="531.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E7B | Layer: Nstair</title></line>
+    <line x1="498.4" y1="528.7" x2="512.4" y2="528.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E7C | Layer: Nstair</title></line>
+    <line x1="498.4" y1="526.3" x2="512.4" y2="526.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E7D | Layer: Nstair</title></line>
+    <line x1="498.4" y1="524.0" x2="512.4" y2="524.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E7E | Layer: Nstair</title></line>
+    <line x1="498.4" y1="521.7" x2="512.4" y2="521.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E7F | Layer: Nstair</title></line>
+    <line x1="498.4" y1="519.3" x2="512.4" y2="519.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E80 | Layer: Nstair</title></line>
+    <line x1="464.4" y1="517.0" x2="450.3" y2="517.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E81 | Layer: Nstair</title></line>
+    <line x1="464.4" y1="540.4" x2="450.3" y2="540.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E82 | Layer: Nstair</title></line>
+    <line x1="464.4" y1="538.0" x2="450.3" y2="538.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E83 | Layer: Nstair</title></line>
+    <line x1="464.4" y1="535.7" x2="450.3" y2="535.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E84 | Layer: Nstair</title></line>
+    <line x1="464.4" y1="533.3" x2="450.3" y2="533.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E85 | Layer: Nstair</title></line>
+    <line x1="464.4" y1="531.0" x2="450.3" y2="531.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E86 | Layer: Nstair</title></line>
+    <line x1="464.4" y1="528.7" x2="450.3" y2="528.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E87 | Layer: Nstair</title></line>
+    <line x1="464.4" y1="526.3" x2="450.3" y2="526.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E88 | Layer: Nstair</title></line>
+    <line x1="464.4" y1="524.0" x2="450.3" y2="524.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E89 | Layer: Nstair</title></line>
+    <line x1="464.4" y1="521.7" x2="450.3" y2="521.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E8A | Layer: Nstair</title></line>
+    <line x1="464.4" y1="519.3" x2="450.3" y2="519.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E8B | Layer: Nstair</title></line>
+    <line x1="416.7" y1="610.8" x2="416.7" y2="566.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E8C | Layer: RAILING</title></line>
+    <line x1="416.3" y1="609.8" x2="416.3" y2="566.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E8D | Layer: RAILING</title></line>
+    <line x1="416.0" y1="609.8" x2="416.0" y2="566.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E8E | Layer: RAILING</title></line>
+    <line x1="415.6" y1="609.8" x2="415.6" y2="566.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E8F | Layer: RAILING</title></line>
+    <line x1="456.0" y1="840.5" x2="506.8" y2="840.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E90 | Layer: RAILING</title></line>
+    <line x1="416.7" y1="755.3" x2="416.7" y2="785.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E91 | Layer: RAILING</title></line>
+    <line x1="416.3" y1="755.3" x2="416.3" y2="783.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E92 | Layer: RAILING</title></line>
+    <line x1="416.0" y1="755.3" x2="416.0" y2="783.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E93 | Layer: RAILING</title></line>
+    <line x1="415.6" y1="755.3" x2="415.6" y2="784.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E94 | Layer: RAILING</title></line>
+    <line x1="546.1" y1="755.3" x2="546.1" y2="785.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E95 | Layer: RAILING</title></line>
+    <line x1="546.4" y1="755.3" x2="546.4" y2="783.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E96 | Layer: RAILING</title></line>
+    <line x1="546.8" y1="755.3" x2="546.8" y2="783.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E97 | Layer: RAILING</title></line>
+    <line x1="547.1" y1="755.3" x2="547.1" y2="784.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E98 | Layer: RAILING</title></line>
+    <line x1="457.2" y1="517.0" x2="457.3" y2="540.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E99 | Layer: Nstair</title></line>
+    <line x1="457.3" y1="540.4" x2="459.1" y2="539.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E9A | Layer: Nstair</title></line>
+    <line x1="459.1" y1="539.4" x2="458.6" y2="538.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E9B | Layer: Nstair</title></line>
+    <line x1="458.6" y1="538.5" x2="457.3" y2="540.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E9C | Layer: Nstair</title></line>
+    <line x1="505.1" y1="517.0" x2="504.9" y2="540.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E9D | Layer: Nstair</title></line>
+    <line x1="504.9" y1="540.4" x2="503.2" y2="539.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E9E | Layer: Nstair</title></line>
+    <line x1="503.2" y1="539.4" x2="503.7" y2="538.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81E9F | Layer: Nstair</title></line>
+    <line x1="503.7" y1="538.5" x2="504.9" y2="540.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EA0 | Layer: Nstair</title></line>
+    <line x1="504.9" y1="540.4" x2="506.7" y2="539.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EA1 | Layer: Nstair</title></line>
+    <line x1="506.7" y1="539.4" x2="506.2" y2="538.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EA2 | Layer: Nstair</title></line>
+    <line x1="506.2" y1="538.5" x2="504.9" y2="540.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EA3 | Layer: Nstair</title></line>
+    <line x1="457.3" y1="540.4" x2="455.5" y2="539.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EA4 | Layer: Nstair</title></line>
+    <line x1="455.5" y1="539.4" x2="456.0" y2="538.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EA5 | Layer: Nstair</title></line>
+    <line x1="456.0" y1="538.5" x2="457.3" y2="540.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EA6 | Layer: Nstair</title></line>
+    <line x1="415.6" y1="783.4" x2="405.5" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EA7 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="405.5" y1="784.4" x2="415.6" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EA8 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="557.3" y1="784.4" x2="547.1" y2="755.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EA9 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="557.3" y1="755.3" x2="547.1" y2="783.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EAA | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="456.0" y1="840.5" x2="506.8" y2="840.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EAB | Layer: RAILING</title></line>
+    <line x1="456.0" y1="840.2" x2="506.8" y2="840.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EAC | Layer: RAILING</title></line>
+    <line x1="456.0" y1="839.8" x2="506.8" y2="839.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EAD | Layer: RAILING</title></line>
+    <line x1="456.0" y1="839.5" x2="506.8" y2="839.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EAE | Layer: RAILING</title></line>
+    <path d="M 393.2 581.7 L 404.4 581.7 L 404.4 589.4" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EB1 | Layer: WALLS</title></path>
+    <line x1="404.4" y1="595.0" x2="404.4" y2="589.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 81EB2 | Layer: WINDOW</title></line>
+    <path d="M 379.5 566.7 L 416.7 566.7" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EB3 | Layer: wall</title></path>
+    <path d="M 380.6 565.6 L 379.5 565.6" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EB4 | Layer: wall</title></path>
+    <path d="M 583.2 566.7 L 546.1 566.7 L 546.1 565.6 L 583.2 565.6" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EB5 | Layer: wall</title></path>
+    <path d="M 580.1 852.1 L 580.1 853.1" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EB6 | Layer: WALLS</title></path>
+    <path d="M 546.1 609.8 L 547.1 609.8 L 547.1 610.8 L 546.1 610.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EB7 | Layer: WALLS</title></path>
+    <path d="M 415.6 783.4 L 416.7 783.4" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EB8 | Layer: WALLS</title></path>
+    <path d="M 415.6 754.3 L 416.7 754.3 L 416.7 755.3 L 415.6 755.3 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EB9 | Layer: WALLS</title></path>
+    <path d="M 547.1 783.4 L 546.1 783.4" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EBA | Layer: WALLS</title></path>
+    <path d="M 547.1 754.3 L 546.1 754.3 L 546.1 755.3 L 547.1 755.3 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EBB | Layer: WALLS</title></path>
+    <path d="M 613.7 681.0 L 614.8 681.0 L 614.8 684.1 L 613.7 684.1 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EBC | Layer: WALLS</title></path>
+    <path d="M 613.7 638.9 L 614.8 638.9 L 614.8 639.9 L 613.7 639.9 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EBD | Layer: WALLS</title></path>
+    <path d="M 348.0 737.4 L 349.0 737.4 L 349.0 755.3 L 348.0 755.3 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EBE | Layer: WALLS</title></path>
+    <path d="M 349.0 726.2 L 348.0 726.2 L 348.0 725.1 L 349.0 725.1 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EBF | Layer: WALLS</title></path>
+    <path d="M 349.0 684.1 L 348.0 684.1 L 348.0 681.0 L 349.0 681.0 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EC0 | Layer: WALLS</title></path>
+    <path d="M 349.0 639.9 L 348.0 639.9 L 348.0 638.9 L 349.0 638.9 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EC1 | Layer: WALLS</title></path>
+    <path d="M 416.7 609.8 L 415.6 609.8 L 415.6 610.8 L 416.7 610.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EC2 | Layer: WALLS</title></path>
+    <path d="M 416.7 566.7 L 379.5 566.7 L 379.5 565.6 L 416.7 565.6 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EC3 | Layer: WALLS</title></path>
+    <path d="M 607.1 847.5 L 608.1 847.5" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EC4 | Layer: WALLS</title></path>
+    <path d="M 355.7 847.5 L 354.6 847.5" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EC5 | Layer: WALLS</title></path>
+    <path d="M 407.2 499.0 L 406.2 499.0 L 406.2 497.9 L 407.2 497.9 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EC6 | Layer: WALLS</title></path>
+    <path d="M 555.5 499.0 L 556.6 499.0" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EC7 | Layer: WALLS</title></path>
+    <path d="M 546.1 754.3 L 558.3 754.3 L 558.3 762.7 L 613.7 762.7 L 613.7 610.8 L 546.1 610.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81ECA | Layer: WALLS</title></path>
+    <line x1="554.5" y1="754.3" x2="605.3" y2="754.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81ECB | Layer: WALLS</title></line>
+    <line x1="579.0" y1="785.5" x2="579.0" y2="783.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81ECC | Layer: wall</title></line>
+    <path d="M 558.3 610.8 L 613.7 610.8 L 613.7 596.8 L 558.3 596.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81ECE | Layer: WALLS</title></path>
+    <path d="M 416.7 754.3 L 404.4 754.3 L 404.4 762.7 L 349.0 762.7 L 349.0 610.8 L 416.7 610.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81ED0 | Layer: WALLS</title></path>
+    <path d="M 404.4 610.8 L 349.0 610.8 L 349.0 582.8 L 404.4 582.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81ED2 | Layer: WALLS</title></path>
+    <line x1="382.7" y1="785.5" x2="382.7" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81ED4 | Layer: wall</title></line>
+    <line x1="382.7" y1="784.4" x2="348.0" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81ED5 | Layer: wall</title></line>
+    <line x1="383.7" y1="783.4" x2="354.6" y2="783.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81ED6 | Layer: wall</title></line>
+    <line x1="383.7" y1="785.5" x2="383.7" y2="783.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81ED7 | Layer: wall</title></line>
+    <line x1="405.5" y1="784.4" x2="415.6" y2="784.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81ED8 | Layer: wall</title></line>
+    <line x1="404.4" y1="785.5" x2="416.7" y2="785.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81ED9 | Layer: wall</title></line>
+    <line x1="449.3" y1="598.5" x2="450.3" y2="598.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EDA | Layer: WALLS</title></line>
+    <line x1="513.5" y1="567.7" x2="512.4" y2="567.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EDB | Layer: WALLS</title></line>
+    <path d="M 491.8 567.7 L 513.5 567.7 L 513.5 598.5 L 491.8 598.5 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EDD | Layer: WALLS</title></path>
+    <line x1="416.7" y1="565.6" x2="449.3" y2="565.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EDE | Layer: WALLS</title></line>
+    <line x1="408.3" y1="754.3" x2="357.4" y2="754.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EDF | Layer: WALLS</title></line>
+    <line x1="450.3" y1="598.5" x2="491.8" y2="598.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EE1 | Layer: WALLS</title></line>
+    <line x1="522.9" y1="507.4" x2="522.9" y2="557.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EE3 | Layer: WALLS</title></line>
+    <line x1="439.8" y1="507.4" x2="439.8" y2="557.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EE4 | Layer: WALLS</title></line>
+    <path d="M 518.3 839.5 L 444.5 839.5 L 444.5 720.8 L 518.3 720.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EE7 | Layer: WALLS</title></path>
+    <line x1="452.9" y1="729.2" x2="509.9" y2="729.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EE8 | Layer: WALLS</title></line>
+    <path d="M 608.1 796.7 L 578.7 796.7 L 578.7 819.5 L 518.3 819.5 L 518.3 852.1 L 607.1 852.1 L 607.1 796.7 L 578.7 796.7" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EEB | Layer: WALLS</title></path>
+    <line x1="354.6" y1="796.7" x2="384.1" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EEE | Layer: WALLS</title></line>
+    <line x1="384.1" y1="852.1" x2="355.7" y2="852.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EEF | Layer: WALLS</title></line>
+    <line x1="355.7" y1="796.7" x2="384.1" y2="796.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 81EF0 | Layer: WALLS</title></line>
+    <path d="M 400.6 824.4 L 355.7 824.4 L 355.7 852.1 L 400.6 852.1 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EF3 | Layer: WALLS</title></path>
+    <path d="M 384.1 824.4 L 355.7 824.4 L 355.7 796.7 L 384.1 796.7 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81EF4 | Layer: WALLS</title></path>
+    <path d="M 558.3 596.8 L 613.7 596.8 L 613.7 582.8 L 558.3 582.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81F00 | Layer: WALLS</title></path>
+    <path d="M 380.6 565.6 L 448.2 565.6 L 448.2 499.0 L 350.1 499.0 L 350.1 554.4 L 380.6 554.4 L 380.6 565.6" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81F10 | Layer: WALLS</title></path>
+    <path d="M 582.1 565.6 L 514.5 565.6 L 514.5 499.0 L 612.7 499.0 L 612.7 554.4 L 582.1 554.4 L 582.1 565.6" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 81F11 | Layer: WALLS</title></path>
+    <path d="M 1525.2 -1538.9 L -426.4 -1538.9 L -426.4 2921.9 L 1525.2 2921.9 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8285A | Layer: WALLS</title></path>
+    <line x1="1230.9" y1="503.2" x2="1230.9" y2="552.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8363B | Layer: wall</title></line>
+    <line x1="1230.9" y1="565.2" x2="1230.9" y2="573.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8363C | Layer: wall</title></line>
+    <line x1="1233.0" y1="503.2" x2="1233.0" y2="515.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8363D | Layer: wall</title></line>
+    <line x1="1274.0" y1="503.2" x2="1274.0" y2="504.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8363E | Layer: wall</title></line>
+    <line x1="1275.1" y1="503.2" x2="1275.1" y2="504.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8363F | Layer: wall</title></line>
+    <line x1="1304.2" y1="503.2" x2="1304.2" y2="504.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83640 | Layer: wall</title></line>
+    <line x1="1332.3" y1="509.9" x2="1332.3" y2="547.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83641 | Layer: wall</title></line>
+    <line x1="1333.3" y1="503.2" x2="1333.3" y2="560.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83642 | Layer: wall</title></line>
+    <line x1="1331.2" y1="508.8" x2="1331.2" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83643 | Layer: wall</title></line>
+    <line x1="1333.3" y1="503.2" x2="1331.2" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83644 | Layer: wall</title></line>
+    <line x1="1286.3" y1="503.2" x2="1286.3" y2="504.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83645 | Layer: wall</title></line>
+    <line x1="1232.0" y1="516.9" x2="1232.0" y2="552.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83646 | Layer: wall</title></line>
+    <line x1="1232.0" y1="565.2" x2="1232.0" y2="573.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83647 | Layer: wall</title></line>
+    <line x1="1233.0" y1="516.9" x2="1233.0" y2="515.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83648 | Layer: wall</title></line>
+    <line x1="1233.0" y1="515.8" x2="1233.0" y2="515.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83649 | Layer: wall</title></line>
+    <line x1="1233.0" y1="516.9" x2="1232.0" y2="516.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8364A | Layer: wall</title></line>
+    <line x1="1274.0" y1="503.2" x2="1233.0" y2="503.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8364B | Layer: RAILING</title></line>
+    <line x1="1274.0" y1="504.2" x2="1233.0" y2="504.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8364C | Layer: RAILING</title></line>
+    <line x1="1286.3" y1="503.2" x2="1275.1" y2="503.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8364D | Layer: RAILING</title></line>
+    <line x1="1286.3" y1="504.2" x2="1275.1" y2="504.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8364E | Layer: RAILING</title></line>
+    <line x1="1275.1" y1="503.2" x2="1274.0" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8364F | Layer: wall</title></line>
+    <line x1="1233.0" y1="503.2" x2="1230.9" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83650 | Layer: wall</title></line>
+    <line x1="1274.0" y1="503.9" x2="1233.0" y2="503.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83651 | Layer: RAILING</title></line>
+    <line x1="1274.0" y1="503.5" x2="1233.0" y2="503.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83652 | Layer: RAILING</title></line>
+    <line x1="1286.3" y1="503.9" x2="1275.1" y2="503.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83653 | Layer: RAILING</title></line>
+    <line x1="1286.3" y1="503.5" x2="1275.1" y2="503.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83654 | Layer: RAILING</title></line>
+    <line x1="1304.2" y1="503.2" x2="1286.3" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83655 | Layer: wall</title></line>
+    <line x1="1304.2" y1="504.2" x2="1286.3" y2="504.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83656 | Layer: wall</title></line>
+    <line x1="1331.2" y1="503.2" x2="1304.2" y2="503.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83657 | Layer: RAILING</title></line>
+    <line x1="1331.2" y1="504.2" x2="1304.2" y2="504.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83658 | Layer: RAILING</title></line>
+    <line x1="1331.2" y1="509.9" x2="1331.2" y2="508.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83659 | Layer: wall</title></line>
+    <line x1="1331.2" y1="508.8" x2="1331.2" y2="508.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8365A | Layer: wall</title></line>
+    <line x1="1331.2" y1="509.9" x2="1332.3" y2="509.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8365B | Layer: wall</title></line>
+    <line x1="1331.2" y1="503.9" x2="1304.2" y2="503.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8365C | Layer: RAILING</title></line>
+    <line x1="1331.2" y1="503.5" x2="1304.2" y2="503.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8365D | Layer: RAILING</title></line>
+    <line x1="1332.3" y1="547.4" x2="1332.3" y2="548.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8365E | Layer: wall</title></line>
+    <line x1="1332.3" y1="548.4" x2="1332.3" y2="548.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8365F | Layer: wall</title></line>
+    <line x1="1332.3" y1="547.4" x2="1332.3" y2="547.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83660 | Layer: wall</title></line>
+    <line x1="1332.3" y1="548.4" x2="1332.3" y2="560.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83661 | Layer: wall</title></line>
+    <path d="M 1332.3 503.2 L 1332.3 502.1 L 1232.0 502.1 L 1232.0 503.2" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 83662 | Layer: PROJ.</title></path>
+    <line x1="1166.7" y1="503.2" x2="1166.7" y2="515.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83663 | Layer: wall</title></line>
+    <line x1="1124.7" y1="503.2" x2="1124.7" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83664 | Layer: wall</title></line>
+    <line x1="1095.6" y1="503.2" x2="1095.6" y2="504.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83665 | Layer: wall</title></line>
+    <line x1="1067.5" y1="509.9" x2="1067.5" y2="547.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83666 | Layer: wall</title></line>
+    <line x1="1066.5" y1="503.2" x2="1066.5" y2="560.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83667 | Layer: wall</title></line>
+    <line x1="1068.6" y1="508.8" x2="1068.6" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83668 | Layer: wall</title></line>
+    <line x1="1066.5" y1="503.2" x2="1068.6" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83669 | Layer: wall</title></line>
+    <line x1="1113.5" y1="503.2" x2="1113.5" y2="504.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8366A | Layer: wall</title></line>
+    <line x1="1112.4" y1="504.2" x2="1112.4" y2="504.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8366B | Layer: wall</title></line>
+    <line x1="1166.7" y1="516.9" x2="1166.7" y2="515.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8366C | Layer: wall</title></line>
+    <line x1="1166.7" y1="515.8" x2="1166.7" y2="515.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8366D | Layer: wall</title></line>
+    <line x1="1166.7" y1="516.9" x2="1167.8" y2="516.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8366E | Layer: wall</title></line>
+    <line x1="1125.7" y1="503.2" x2="1166.7" y2="503.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8366F | Layer: RAILING</title></line>
+    <line x1="1125.7" y1="504.2" x2="1166.7" y2="504.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83670 | Layer: RAILING</title></line>
+    <line x1="1113.5" y1="503.2" x2="1124.7" y2="503.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83671 | Layer: RAILING</title></line>
+    <line x1="1113.5" y1="504.2" x2="1124.7" y2="504.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83672 | Layer: RAILING</title></line>
+    <line x1="1124.7" y1="503.2" x2="1125.7" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83673 | Layer: wall</title></line>
+    <line x1="1166.7" y1="503.2" x2="1168.9" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83674 | Layer: wall</title></line>
+    <line x1="1125.7" y1="503.9" x2="1166.7" y2="503.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83675 | Layer: RAILING</title></line>
+    <line x1="1125.7" y1="503.5" x2="1166.7" y2="503.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83676 | Layer: RAILING</title></line>
+    <line x1="1113.5" y1="503.9" x2="1124.7" y2="503.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83677 | Layer: RAILING</title></line>
+    <line x1="1113.5" y1="503.5" x2="1124.7" y2="503.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83678 | Layer: RAILING</title></line>
+    <line x1="1095.6" y1="503.2" x2="1113.5" y2="503.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83679 | Layer: wall</title></line>
+    <line x1="1095.6" y1="504.2" x2="1112.4" y2="504.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8367A | Layer: wall</title></line>
+    <line x1="1068.6" y1="503.2" x2="1095.6" y2="503.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8367B | Layer: RAILING</title></line>
+    <line x1="1068.6" y1="504.2" x2="1095.6" y2="504.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8367C | Layer: RAILING</title></line>
+    <line x1="1068.6" y1="509.9" x2="1068.6" y2="508.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8367D | Layer: wall</title></line>
+    <line x1="1068.6" y1="509.9" x2="1067.5" y2="509.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8367E | Layer: wall</title></line>
+    <line x1="1068.6" y1="503.9" x2="1095.6" y2="503.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8367F | Layer: RAILING</title></line>
+    <line x1="1068.6" y1="503.5" x2="1095.6" y2="503.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83680 | Layer: RAILING</title></line>
+    <line x1="1067.5" y1="547.4" x2="1067.5" y2="548.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83681 | Layer: wall</title></line>
+    <line x1="1067.5" y1="548.4" x2="1067.5" y2="548.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83682 | Layer: wall</title></line>
+    <line x1="1067.5" y1="547.4" x2="1067.5" y2="547.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83683 | Layer: wall</title></line>
+    <line x1="1067.5" y1="548.4" x2="1067.5" y2="560.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83684 | Layer: wall</title></line>
+    <line x1="1113.5" y1="504.2" x2="1112.4" y2="504.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83685 | Layer: wall</title></line>
+    <path d="M 1067.5 503.2 L 1067.5 502.1 L 1167.8 502.1 L 1167.8 503.2" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 83686 | Layer: PROJ.</title></path>
+    <line x1="1072.1" y1="800.9" x2="1072.1" y2="858.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83687 | Layer: wall</title></line>
+    <line x1="1074.2" y1="858.4" x2="1101.2" y2="858.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83688 | Layer: RAILING</title></line>
+    <line x1="1118.0" y1="857.3" x2="1118.0" y2="857.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83689 | Layer: wall</title></line>
+    <line x1="1074.2" y1="852.8" x2="1074.2" y2="858.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8368A | Layer: wall</title></line>
+    <line x1="1173.4" y1="858.4" x2="1174.5" y2="858.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8368B | Layer: wall</title></line>
+    <line x1="1073.1" y1="800.9" x2="1073.1" y2="852.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8368C | Layer: wall</title></line>
+    <line x1="1101.2" y1="858.4" x2="1131.3" y2="858.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8368D | Layer: wall</title></line>
+    <line x1="1074.2" y1="858.4" x2="1072.1" y2="858.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8368E | Layer: wall</title></line>
+    <line x1="1131.3" y1="858.4" x2="1226.4" y2="858.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8368F | Layer: RAILING</title></line>
+    <path d="M 1226.9 859.5 L 1226.4 859.5 L 1073.1 859.5 L 1073.1 858.4" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 83690 | Layer: PROJ.</title></path>
+    <line x1="1327.7" y1="800.9" x2="1327.7" y2="858.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83691 | Layer: wall</title></line>
+    <line x1="1325.6" y1="858.4" x2="1298.6" y2="858.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83692 | Layer: RAILING</title></line>
+    <line x1="1325.6" y1="857.3" x2="1298.6" y2="857.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83693 | Layer: RAILING</title></line>
+    <line x1="1075.2" y1="857.3" x2="1075.2" y2="857.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83694 | Layer: wall</title></line>
+    <line x1="1074.2" y1="857.3" x2="1074.2" y2="858.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83695 | Layer: wall</title></line>
+    <line x1="1325.6" y1="852.8" x2="1325.6" y2="858.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83696 | Layer: wall</title></line>
+    <line x1="1326.6" y1="801.9" x2="1326.6" y2="852.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83697 | Layer: wall</title></line>
+    <line x1="1298.6" y1="857.3" x2="1075.2" y2="857.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83698 | Layer: wall</title></line>
+    <line x1="1298.6" y1="858.4" x2="1074.2" y2="858.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83699 | Layer: wall</title></line>
+    <line x1="1325.6" y1="858.4" x2="1327.7" y2="858.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8369A | Layer: wall</title></line>
+    <line x1="1325.6" y1="857.7" x2="1298.6" y2="857.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8369B | Layer: Railing 01</title></line>
+    <line x1="1325.6" y1="858.0" x2="1298.6" y2="858.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8369C | Layer: Railing 01</title></line>
+    <line x1="1075.2" y1="857.3" x2="1074.2" y2="857.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8369D | Layer: wall</title></line>
+    <line x1="1280.7" y1="858.4" x2="1267.4" y2="858.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8369E | Layer: RAILING</title></line>
+    <line x1="1267.4" y1="858.4" x2="1226.4" y2="858.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8369F | Layer: RAILING</title></line>
+    <path d="M 1226.9 859.5 L 1226.4 859.5 L 1326.6 859.5 L 1326.6 858.4" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 836A0 | Layer: PROJ.</title></path>
+    <line x1="1333.3" y1="787.6" x2="1333.3" y2="760.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836A1 | Layer: RAILING</title></line>
+    <line x1="1332.3" y1="787.6" x2="1332.3" y2="760.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836A2 | Layer: RAILING</title></line>
+    <line x1="1332.3" y1="742.7" x2="1333.3" y2="742.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836A3 | Layer: wall</title></line>
+    <line x1="1327.7" y1="787.6" x2="1327.7" y2="787.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836A4 | Layer: wall</title></line>
+    <line x1="1332.3" y1="759.5" x2="1332.3" y2="759.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836A5 | Layer: wall</title></line>
+    <line x1="1332.3" y1="760.6" x2="1332.3" y2="743.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836A6 | Layer: wall</title></line>
+    <line x1="1333.3" y1="760.6" x2="1333.3" y2="742.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836A7 | Layer: wall</title></line>
+    <line x1="1332.6" y1="787.6" x2="1332.6" y2="760.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836A8 | Layer: Railing 01</title></line>
+    <line x1="1333.0" y1="787.6" x2="1333.0" y2="760.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836A9 | Layer: Railing 01</title></line>
+    <line x1="1332.3" y1="760.6" x2="1333.3" y2="760.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836AA | Layer: wall</title></line>
+    <line x1="1332.3" y1="743.7" x2="1332.3" y2="742.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836AB | Layer: wall</title></line>
+    <line x1="1332.3" y1="742.7" x2="1332.3" y2="731.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836AC | Layer: RAILING</title></line>
+    <line x1="1333.3" y1="742.7" x2="1333.3" y2="731.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836AD | Layer: RAILING</title></line>
+    <line x1="1332.3" y1="730.4" x2="1332.3" y2="689.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836AE | Layer: RAILING</title></line>
+    <line x1="1333.3" y1="730.4" x2="1333.3" y2="689.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836AF | Layer: RAILING</title></line>
+    <line x1="1333.3" y1="730.4" x2="1333.3" y2="731.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836B0 | Layer: wall</title></line>
+    <line x1="1333.3" y1="689.4" x2="1333.3" y2="687.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836B1 | Layer: wall</title></line>
+    <line x1="1333.0" y1="730.4" x2="1333.0" y2="689.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836B2 | Layer: Railing 01</title></line>
+    <line x1="1332.6" y1="730.4" x2="1332.6" y2="689.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836B3 | Layer: Railing 01</title></line>
+    <line x1="1333.0" y1="742.7" x2="1333.0" y2="731.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836B4 | Layer: Railing 01</title></line>
+    <line x1="1332.6" y1="742.7" x2="1332.6" y2="731.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836B5 | Layer: Railing 01</title></line>
+    <path d="M 1333.3 688.3 L 1334.4 688.3 L 1334.4 788.6 L 1333.3 788.6" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 836B6 | Layer: PROJ.</title></path>
+    <line x1="1066.5" y1="787.6" x2="1066.5" y2="760.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836B7 | Layer: RAILING</title></line>
+    <line x1="1067.5" y1="787.6" x2="1067.5" y2="760.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836B8 | Layer: RAILING</title></line>
+    <line x1="1073.1" y1="789.7" x2="1073.1" y2="787.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836B9 | Layer: wall</title></line>
+    <line x1="1072.1" y1="787.6" x2="1066.5" y2="787.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836BA | Layer: wall</title></line>
+    <line x1="1072.1" y1="787.6" x2="1072.1" y2="787.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836BB | Layer: wall</title></line>
+    <line x1="1067.5" y1="760.6" x2="1067.5" y2="743.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836BC | Layer: wall</title></line>
+    <line x1="1066.5" y1="760.6" x2="1066.5" y2="742.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836BD | Layer: wall</title></line>
+    <line x1="1066.5" y1="787.6" x2="1066.5" y2="789.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836BE | Layer: wall</title></line>
+    <line x1="1067.2" y1="787.6" x2="1067.2" y2="760.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836BF | Layer: Railing 01</title></line>
+    <line x1="1066.8" y1="787.6" x2="1066.8" y2="760.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836C0 | Layer: Railing 01</title></line>
+    <line x1="1072.1" y1="787.6" x2="1073.1" y2="787.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836C1 | Layer: wall</title></line>
+    <line x1="1067.5" y1="742.7" x2="1067.5" y2="731.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836C2 | Layer: RAILING</title></line>
+    <line x1="1066.5" y1="742.7" x2="1066.5" y2="731.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836C3 | Layer: RAILING</title></line>
+    <line x1="1067.5" y1="730.4" x2="1067.5" y2="689.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836C4 | Layer: RAILING</title></line>
+    <line x1="1066.5" y1="730.4" x2="1066.5" y2="689.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836C5 | Layer: RAILING</title></line>
+    <line x1="1066.5" y1="730.4" x2="1066.5" y2="731.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836C6 | Layer: wall</title></line>
+    <line x1="1066.5" y1="689.4" x2="1066.5" y2="687.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836C7 | Layer: wall</title></line>
+    <line x1="1066.8" y1="730.4" x2="1066.8" y2="689.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836C8 | Layer: Railing 01</title></line>
+    <line x1="1067.2" y1="730.4" x2="1067.2" y2="689.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836C9 | Layer: Railing 01</title></line>
+    <line x1="1066.8" y1="742.7" x2="1066.8" y2="731.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836CA | Layer: Railing 01</title></line>
+    <line x1="1067.2" y1="742.7" x2="1067.2" y2="731.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836CB | Layer: Railing 01</title></line>
+    <path d="M 1066.5 688.3 L 1065.4 688.3 L 1065.4 788.6 L 1066.5 788.6" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 836CC | Layer: PROJ.</title></path>
+    <line x1="1333.3" y1="585.9" x2="1333.3" y2="615.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836CD | Layer: RAILING</title></line>
+    <line x1="1332.3" y1="585.9" x2="1332.3" y2="615.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836CE | Layer: RAILING</title></line>
+    <line x1="1332.3" y1="631.9" x2="1332.3" y2="631.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836CF | Layer: wall</title></line>
+    <line x1="1332.3" y1="632.9" x2="1333.3" y2="632.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836D0 | Layer: wall</title></line>
+    <line x1="1332.3" y1="615.0" x2="1332.3" y2="631.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836D1 | Layer: wall</title></line>
+    <line x1="1333.3" y1="615.0" x2="1333.3" y2="632.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836D2 | Layer: wall</title></line>
+    <line x1="1332.6" y1="585.9" x2="1332.6" y2="615.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836D3 | Layer: Railing 01</title></line>
+    <line x1="1333.0" y1="585.9" x2="1333.0" y2="615.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836D4 | Layer: Railing 01</title></line>
+    <line x1="1332.3" y1="615.0" x2="1333.3" y2="615.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836D5 | Layer: wall</title></line>
+    <line x1="1332.3" y1="631.9" x2="1332.3" y2="632.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836D6 | Layer: wall</title></line>
+    <line x1="1332.3" y1="632.9" x2="1332.3" y2="644.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836D7 | Layer: RAILING</title></line>
+    <line x1="1333.3" y1="632.9" x2="1333.3" y2="644.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836D8 | Layer: RAILING</title></line>
+    <line x1="1332.3" y1="645.2" x2="1332.3" y2="686.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836D9 | Layer: RAILING</title></line>
+    <line x1="1333.3" y1="645.2" x2="1333.3" y2="686.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836DA | Layer: RAILING</title></line>
+    <line x1="1333.3" y1="645.2" x2="1333.3" y2="644.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836DB | Layer: wall</title></line>
+    <line x1="1333.3" y1="686.2" x2="1333.3" y2="688.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836DC | Layer: wall</title></line>
+    <line x1="1333.0" y1="645.2" x2="1333.0" y2="686.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836DD | Layer: Railing 01</title></line>
+    <line x1="1332.6" y1="645.2" x2="1332.6" y2="686.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836DE | Layer: Railing 01</title></line>
+    <line x1="1333.0" y1="632.9" x2="1333.0" y2="644.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836DF | Layer: Railing 01</title></line>
+    <line x1="1332.6" y1="632.9" x2="1332.6" y2="644.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836E0 | Layer: Railing 01</title></line>
+    <path d="M 1333.3 687.3 L 1334.4 687.3 L 1334.4 585.9 L 1333.3 585.9" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 836E1 | Layer: PROJ.</title></path>
+    <line x1="1066.5" y1="588.0" x2="1066.5" y2="615.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836E2 | Layer: RAILING</title></line>
+    <line x1="1067.5" y1="588.0" x2="1067.5" y2="615.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836E3 | Layer: RAILING</title></line>
+    <line x1="1067.5" y1="631.9" x2="1067.5" y2="631.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836E4 | Layer: wall</title></line>
+    <line x1="1067.5" y1="632.9" x2="1066.5" y2="632.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836E5 | Layer: wall</title></line>
+    <line x1="1067.5" y1="615.0" x2="1067.5" y2="631.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836E6 | Layer: wall</title></line>
+    <line x1="1066.5" y1="615.0" x2="1066.5" y2="632.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836E7 | Layer: wall</title></line>
+    <line x1="1066.5" y1="588.0" x2="1066.5" y2="585.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836E8 | Layer: wall</title></line>
+    <line x1="1067.2" y1="588.0" x2="1067.2" y2="615.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836E9 | Layer: Railing 01</title></line>
+    <line x1="1066.8" y1="588.0" x2="1066.8" y2="615.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836EA | Layer: Railing 01</title></line>
+    <line x1="1067.5" y1="615.0" x2="1066.5" y2="615.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836EB | Layer: wall</title></line>
+    <line x1="1067.5" y1="631.9" x2="1067.5" y2="632.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836EC | Layer: wall</title></line>
+    <line x1="1067.5" y1="632.9" x2="1067.5" y2="644.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836ED | Layer: RAILING</title></line>
+    <line x1="1066.5" y1="632.9" x2="1066.5" y2="644.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836EE | Layer: RAILING</title></line>
+    <line x1="1067.5" y1="645.2" x2="1067.5" y2="686.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836EF | Layer: RAILING</title></line>
+    <line x1="1066.5" y1="645.2" x2="1066.5" y2="686.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836F0 | Layer: RAILING</title></line>
+    <line x1="1066.5" y1="645.2" x2="1066.5" y2="644.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836F1 | Layer: wall</title></line>
+    <line x1="1066.5" y1="686.2" x2="1066.5" y2="688.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836F2 | Layer: wall</title></line>
+    <line x1="1066.8" y1="645.2" x2="1066.8" y2="686.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836F3 | Layer: Railing 01</title></line>
+    <line x1="1067.2" y1="645.2" x2="1067.2" y2="686.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836F4 | Layer: Railing 01</title></line>
+    <line x1="1066.8" y1="632.9" x2="1066.8" y2="644.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836F5 | Layer: Railing 01</title></line>
+    <line x1="1067.2" y1="632.9" x2="1067.2" y2="644.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836F6 | Layer: Railing 01</title></line>
+    <path d="M 1066.5 687.3 L 1065.4 687.3 L 1065.4 587.0 L 1066.5 587.0" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 836F7 | Layer: PROJ.</title></path>
+    <line x1="1230.9" y1="508.2" x2="1168.8" y2="508.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836F8 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="1230.9" y1="507.2" x2="1168.8" y2="507.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836F9 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="1230.9" y1="507.5" x2="1168.8" y2="507.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836FA | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="1230.9" y1="507.9" x2="1168.8" y2="507.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 836FB | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="1200.4" y1="521.8" x2="1182.9" y2="521.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836FC | Layer: wall</title></line>
+    <line x1="1182.9" y1="521.8" x2="1182.9" y2="545.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836FD | Layer: wall</title></line>
+    <line x1="1182.9" y1="545.6" x2="1184.3" y2="545.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836FE | Layer: wall</title></line>
+    <line x1="1184.3" y1="545.6" x2="1184.3" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 836FF | Layer: wall</title></line>
+    <line x1="1184.3" y1="523.2" x2="1199.0" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83700 | Layer: wall</title></line>
+    <line x1="1199.0" y1="523.2" x2="1199.0" y2="545.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83701 | Layer: wall</title></line>
+    <line x1="1199.0" y1="545.6" x2="1200.4" y2="545.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83702 | Layer: wall</title></line>
+    <line x1="1200.4" y1="545.6" x2="1200.4" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83703 | Layer: wall</title></line>
+    <line x1="1215.5" y1="545.6" x2="1200.4" y2="545.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83704 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="1215.5" y1="544.2" x2="1200.4" y2="544.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83705 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="1184.3" y1="545.6" x2="1199.0" y2="545.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83706 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="1184.3" y1="544.2" x2="1199.0" y2="544.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83707 | Layer: 02WINDOW &amp; DOTTED</title></line>
+    <line x1="1199.0" y1="521.8" x2="1216.9" y2="521.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83708 | Layer: wall</title></line>
+    <line x1="1216.9" y1="521.8" x2="1216.9" y2="545.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83709 | Layer: wall</title></line>
+    <line x1="1216.9" y1="545.6" x2="1215.5" y2="545.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8370A | Layer: wall</title></line>
+    <line x1="1215.5" y1="545.6" x2="1215.5" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8370B | Layer: wall</title></line>
+    <line x1="1215.5" y1="523.2" x2="1200.4" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8370C | Layer: wall</title></line>
+    <line x1="1200.4" y1="523.2" x2="1200.4" y2="545.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8370D | Layer: wall</title></line>
+    <line x1="1200.4" y1="545.6" x2="1199.0" y2="545.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8370E | Layer: wall</title></line>
+    <line x1="1199.0" y1="545.6" x2="1199.0" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8370F | Layer: wall</title></line>
+    <line x1="1216.9" y1="522.2" x2="1230.9" y2="522.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83710 | Layer: Nstair</title></line>
+    <line x1="1216.9" y1="545.6" x2="1230.9" y2="545.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83711 | Layer: Nstair</title></line>
+    <line x1="1216.9" y1="543.3" x2="1230.9" y2="543.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83712 | Layer: Nstair</title></line>
+    <line x1="1216.9" y1="540.9" x2="1230.9" y2="540.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83713 | Layer: Nstair</title></line>
+    <line x1="1216.9" y1="538.6" x2="1230.9" y2="538.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83714 | Layer: Nstair</title></line>
+    <line x1="1216.9" y1="536.3" x2="1230.9" y2="536.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83715 | Layer: Nstair</title></line>
+    <line x1="1216.9" y1="533.9" x2="1230.9" y2="533.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83716 | Layer: Nstair</title></line>
+    <line x1="1216.9" y1="531.6" x2="1230.9" y2="531.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83717 | Layer: Nstair</title></line>
+    <line x1="1216.9" y1="529.3" x2="1230.9" y2="529.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83718 | Layer: Nstair</title></line>
+    <line x1="1216.9" y1="526.9" x2="1230.9" y2="526.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83719 | Layer: Nstair</title></line>
+    <line x1="1216.9" y1="524.6" x2="1230.9" y2="524.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8371A | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="522.2" x2="1168.9" y2="522.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8371B | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="545.6" x2="1168.9" y2="545.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8371C | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="543.3" x2="1168.9" y2="543.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8371D | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="540.9" x2="1168.9" y2="540.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8371E | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="538.6" x2="1168.9" y2="538.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8371F | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="536.3" x2="1168.9" y2="536.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83720 | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="533.9" x2="1168.9" y2="533.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83721 | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="531.6" x2="1168.9" y2="531.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83722 | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="529.3" x2="1168.9" y2="529.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83723 | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="526.9" x2="1168.9" y2="526.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83724 | Layer: Nstair</title></line>
+    <line x1="1182.9" y1="524.6" x2="1168.9" y2="524.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83725 | Layer: Nstair</title></line>
+    <line x1="1175.7" y1="522.2" x2="1175.8" y2="545.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83726 | Layer: Nstair</title></line>
+    <line x1="1175.8" y1="545.6" x2="1177.6" y2="544.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83727 | Layer: Nstair</title></line>
+    <line x1="1177.6" y1="544.6" x2="1177.1" y2="543.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83728 | Layer: Nstair</title></line>
+    <line x1="1177.1" y1="543.7" x2="1175.8" y2="545.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83729 | Layer: Nstair</title></line>
+    <line x1="1223.6" y1="522.2" x2="1223.5" y2="545.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8372A | Layer: Nstair</title></line>
+    <line x1="1223.5" y1="545.6" x2="1221.7" y2="544.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8372B | Layer: Nstair</title></line>
+    <line x1="1221.7" y1="544.6" x2="1222.2" y2="543.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8372C | Layer: Nstair</title></line>
+    <line x1="1222.2" y1="543.7" x2="1223.5" y2="545.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8372D | Layer: Nstair</title></line>
+    <line x1="1223.5" y1="545.6" x2="1225.2" y2="544.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8372E | Layer: Nstair</title></line>
+    <line x1="1225.2" y1="544.6" x2="1224.7" y2="543.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 8372F | Layer: Nstair</title></line>
+    <line x1="1224.7" y1="543.7" x2="1223.5" y2="545.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83730 | Layer: Nstair</title></line>
+    <line x1="1175.8" y1="545.6" x2="1174.0" y2="544.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83731 | Layer: Nstair</title></line>
+    <line x1="1174.0" y1="544.6" x2="1174.6" y2="543.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83732 | Layer: Nstair</title></line>
+    <line x1="1174.6" y1="543.7" x2="1175.8" y2="545.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83733 | Layer: Nstair</title></line>
+    <line x1="1174.5" y1="858.4" x2="1225.3" y2="858.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 83734 | Layer: RAILING</title></line>
+    <path d="M 1298.6 857.3 L 1298.6 858.4" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83737 | Layer: WALLS</title></path>
+    <path d="M 1332.3 686.2 L 1333.3 686.2 L 1333.3 689.4 L 1332.3 689.4 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83738 | Layer: WALLS</title></path>
+    <path d="M 1332.3 644.2 L 1333.3 644.2 L 1333.3 645.2 L 1332.3 645.2 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83739 | Layer: WALLS</title></path>
+    <path d="M 1066.5 742.7 L 1067.5 742.7 L 1067.5 760.6 L 1066.5 760.6 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8373A | Layer: WALLS</title></path>
+    <path d="M 1067.5 731.5 L 1066.5 731.5 L 1066.5 730.4 L 1067.5 730.4 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8373B | Layer: WALLS</title></path>
+    <path d="M 1067.5 689.4 L 1066.5 689.4 L 1066.5 686.2 L 1067.5 686.2 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8373C | Layer: WALLS</title></path>
+    <path d="M 1067.5 645.2 L 1066.5 645.2 L 1066.5 644.2 L 1067.5 644.2 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8373D | Layer: WALLS</title></path>
+    <path d="M 1325.6 852.8 L 1326.6 852.8" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8373E | Layer: WALLS</title></path>
+    <path d="M 1074.2 852.8 L 1073.1 852.8" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8373F | Layer: WALLS</title></path>
+    <path d="M 1125.7 504.2 L 1124.7 504.2 L 1124.7 503.2 L 1125.7 503.2 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83740 | Layer: WALLS</title></path>
+    <path d="M 1274.0 504.2 L 1275.1 504.2" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83741 | Layer: WALLS</title></path>
+    <line x1="1073.1" y1="789.6" x2="1066.5" y2="789.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83742 | Layer: wall</title></line>
+    <line x1="1167.8" y1="603.8" x2="1168.9" y2="603.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83743 | Layer: WALLS</title></line>
+    <line x1="1232.0" y1="573.0" x2="1230.9" y2="573.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83744 | Layer: WALLS</title></line>
+    <path d="M 1210.3 573.0 L 1232.0 573.0 L 1232.0 603.8 L 1210.3 603.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83745 | Layer: WALLS</title></path>
+    <line x1="1168.9" y1="603.8" x2="1210.3" y2="603.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83747 | Layer: WALLS</title></line>
+    <path d="M 1072.1 800.9 L 1072.1 789.7" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83749 | Layer: WALLS</title></path>
+    <path d="M 1327.7 800.9 L 1327.7 789.7" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8374A | Layer: WALLS</title></path>
+    <path d="M 1326.6 789.7 L 1333.3 789.7 L 1333.3 787.6 L 1326.6 787.6 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8374B | Layer: WALLS</title></path>
+    <path d="M 1066.5 560.7 L 1067.5 560.7 L 1067.5 588.0 L 1066.5 588.0 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8374C | Layer: WALLS</title></path>
+    <path d="M 1333.3 560.7 L 1333.3 585.9 L 1332.3 585.9 L 1332.3 560.7" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8374D | Layer: WALLS</title></path>
+    <path d="M 1326.6 801.9 L 1326.6 789.7" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8374E | Layer: WALLS</title></path>
+    <path d="M 1073.1 800.9 L 1073.1 789.7" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8374F | Layer: WALLS</title></path>
+    <path d="M 1232.0 645.5 L 1332.3 645.5 L 1332.3 647.6 L 1232.0 647.6 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83750 | Layer: WALLS</title></path>
+    <path d="M 1232.0 649.7 L 1332.3 649.7 L 1332.3 647.6 L 1232.0 647.6 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83751 | Layer: WALLS</title></path>
+    <path d="M 1232.0 658.2 L 1332.3 658.2" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83752 | Layer: WALLS</title></path>
+    <path d="M 1232.0 637.1 L 1332.3 637.1" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83753 | Layer: WALLS</title></path>
+    <path d="M 1232.0 645.5 L 1332.3 645.5" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83759 | Layer: WALLS</title></path>
+    <path d="M 1229.9 603.8 L 1232.0 603.8 L 1232.0 807.9 L 1229.9 807.9 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8375A | Layer: WALLS</title></path>
+    <path d="M 1232.0 791.0 L 1326.6 791.0 L 1326.6 792.4 L 1232.0 792.4 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83760 | Layer: WALLS</title></path>
+    <path d="M 1232.0 806.5 L 1326.6 806.5 L 1326.6 807.9 L 1232.0 807.9 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83761 | Layer: WALLS</title></path>
+    <path d="M 1229.9 807.9 L 1326.6 807.9 L 1326.6 857.3 L 1229.9 857.3 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83762 | Layer: WALLS</title></path>
+    <path d="M 1167.8 603.8 L 1067.5 603.8" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 83763 | Layer: P_DOMESTIC</title></path>
+    <path d="M 1167.8 603.8 L 1167.8 588.7 L 1168.9 588.7 L 1168.9 603.8" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83764 | Layer: WALLS</title></path>
+    <path d="M 1167.8 516.9 L 1167.8 560.7 L 1168.9 560.7 L 1168.9 503.2" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83765 | Layer: WALLS</title></path>
+    <path d="M 1167.8 588.7 L 1168.9 588.7 L 1168.9 560.7 L 1167.8 560.7 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 83766 | Layer: P_DOMESTIC</title></path>
+    <path d="M 1167.8 603.1 L 1067.5 603.1" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 83769 | Layer: P_DOMESTIC</title></path>
+    <line x1="1243.2" y1="564.9" x2="1243.2" y2="552.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8376B | Layer: WALLS</title></line>
+    <line x1="1246.0" y1="564.9" x2="1246.0" y2="552.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8376C | Layer: WALLS</title></line>
+    <line x1="1248.8" y1="564.9" x2="1248.8" y2="552.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8376D | Layer: WALLS</title></line>
+    <line x1="1251.6" y1="564.9" x2="1251.6" y2="552.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8376E | Layer: WALLS</title></line>
+    <line x1="1254.4" y1="564.9" x2="1254.4" y2="552.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 8376F | Layer: WALLS</title></line>
+    <line x1="1257.2" y1="564.9" x2="1257.2" y2="552.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 83770 | Layer: WALLS</title></line>
+    <path d="M 1230.9 552.3 L 1260.0 552.3 L 1260.0 564.9 L 1230.9 564.9 L 1230.9 564.9" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83771 | Layer: WALLS</title></path>
+    <path d="M 1230.9 552.3 L 1230.9 552.1 L 1260.0 552.1 L 1260.0 565.2 L 1230.9 565.2 L 1230.9 564.9" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83772 | Layer: WALLS</title></path>
+    <path d="M 1067.5 765.0 L 1205.3 765.0 L 1205.3 767.1 L 1067.5 767.1 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83776 | Layer: WALLS</title></path>
+    <path d="M 1205.3 765.0 L 1207.4 765.0 L 1207.4 857.3 L 1205.3 857.3 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83777 | Layer: WALLS</title></path>
+    <path d="M 1196.9 767.1 L 1196.9 857.3" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83778 | Layer: WALLS</title></path>
+    <path d="M 1067.5 656.3 L 1095.6 656.3 L 1095.6 712.4 L 1067.5 712.4 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 83779 | Layer: WALLS</title></path>
+    <path d="M 1067.5 712.4 L 1095.6 712.4 L 1095.6 740.5 L 1067.5 740.5 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8377A | Layer: WALLS</title></path>
+    <path d="M 1067.5 740.5 L 1095.6 740.5 L 1095.6 765.0 L 1067.5 765.0 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 8377B | Layer: WALLS</title></path>
+    <path d="M 157.1 902.1 L 1442.9 902.1 L 1442.9 387.9 L 157.1 387.9 Z" stroke="#64748b" stroke-width="1.5" fill="none" stroke-dasharray="6,4"><title>Plan Region BBox: Cinema Zoning Studio — Option 2 (Upper Layout / Screens 1–5)</title></path>
+    <path d="M 558.3 754.3 L 546.1 754.3 L 546.1 610.8 L 613.7 610.8 L 613.7 762.7 L 558.3 762.7 Z" stroke="#7c3aed" stroke-width="2.0" fill="rgba(124, 58, 237, 0.06)" stroke-dasharray="6,3"><title>loop-9 | Conf: MEDIUM | Class: internal_enclosed_region (auditorium screen shell) | Area: 1292.64 sqft | Dim: 24.1 x 54.1 ft</title></path>
+    <g transform="translate(512.7, 697.3)">  <rect width="120" height="22" rx="3" fill="#ffffff" stroke="#7c3aed" stroke-width="1.2" />  <text x="60" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">loop-9: 1293 sqft</text></g>
+    <path d="M 416.7 754.3 L 404.4 754.3 L 404.4 762.7 L 349.0 762.7 L 349.0 610.8 L 416.7 610.8 Z" stroke="#0284c7" stroke-width="2.0" fill="rgba(2, 132, 199, 0.06)" stroke-dasharray="6,3"><title>loop-11 | Conf: MEDIUM | Class: internal_enclosed_region (auditorium screen shell) | Area: 1292.5 sqft | Dim: 24.1 x 54.1 ft</title></path>
+    <g transform="translate(330.0, 697.3)">  <rect width="120" height="22" rx="3" fill="#ffffff" stroke="#0284c7" stroke-width="1.2" />  <text x="60" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#0284c7" text-anchor="middle">loop-11: 1292 sqft</text></g>
+    <path d="M 518.3 839.5 L 444.5 839.5 L 444.5 720.8 L 518.3 720.8 Z" stroke="#d97706" stroke-width="2.0" fill="rgba(217, 119, 6, 0.06)" stroke-dasharray="6,3"><title>loop-14 | Conf: MEDIUM | Class: internal_enclosed_region (auditorium screen shell) | Area: 1113.77 sqft | Dim: 26.3 x 42.3 ft</title></path>
+    <g transform="translate(421.4, 768.1)">  <rect width="120" height="22" rx="3" fill="#ffffff" stroke="#d97706" stroke-width="1.2" />  <text x="60" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#d97706" text-anchor="middle">loop-14: 1114 sqft</text></g>
+    <path d="M 578.7 819.5 L 578.7 796.7 L 607.1 796.7 L 607.1 852.1 L 518.3 852.1 L 518.3 819.5 Z" stroke="#e11d48" stroke-width="2.0" fill="rgba(225, 29, 72, 0.06)" stroke-dasharray="6,3"><title>loop-15 | Conf: LOW | Class: internal_enclosed_region (foyer/service) | Area: 449.75 sqft | Dim: 31.6 x 19.8 ft</title></path>
+    <g transform="translate(508.0, 810.8)">  <rect width="120" height="22" rx="3" fill="#ffffff" stroke="#e11d48" stroke-width="1.2" />  <text x="60" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#e11d48" text-anchor="middle">loop-15: 450 sqft</text></g>
+    <path d="M 1067.5 656.3 L 1095.6 656.3 L 1095.6 712.4 L 1095.6 740.5 L 1095.6 765.0 L 1067.5 765.0 L 1067.5 740.5 L 1067.5 712.4 Z" stroke="#4f46e5" stroke-width="2.0" fill="rgba(79, 70, 229, 0.06)" stroke-dasharray="6,3"><title>loop-30 | Conf: LOW | Class: internal_enclosed_region (foyer/service) | Area: 387.38 sqft | Dim: 10.0 x 38.7 ft</title></path>
+    <g transform="translate(1021.5, 706.6)">  <rect width="120" height="22" rx="3" fill="#ffffff" stroke="#4f46e5" stroke-width="1.2" />  <text x="60" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#4f46e5" text-anchor="middle">loop-30: 387 sqft</text></g>
+    <path d="M 404.4 610.8 L 349.0 610.8 L 349.0 582.8 L 404.4 582.8 Z" stroke="#059669" stroke-width="2.0" fill="rgba(5, 150, 105, 0.06)" stroke-dasharray="6,3"><title>loop-12 | Conf: LOW | Class: internal_enclosed_region (foyer/service) | Area: 197.5 sqft | Dim: 19.8 x 10.0 ft</title></path>
+    <g transform="translate(316.7, 584.8)">  <rect width="120" height="22" rx="3" fill="#ffffff" stroke="#059669" stroke-width="1.2" />  <text x="60" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#059669" text-anchor="middle">loop-12: 198 sqft</text></g>
+    <path d="M 355.7 824.4 L 400.6 824.4 L 400.6 852.1 L 355.7 852.1 Z" stroke="#7c3aed" stroke-width="2.0" fill="rgba(124, 58, 237, 0.06)" stroke-dasharray="6,3"><title>loop-16 | Conf: LOW | Class: internal_enclosed_region (foyer/service) | Area: 158.0 sqft | Dim: 16.0 x 9.9 ft</title></path>
+    <g transform="translate(318.1, 826.2)">  <rect width="120" height="22" rx="3" fill="#ffffff" stroke="#7c3aed" stroke-width="1.2" />  <text x="60" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">loop-16: 158 sqft</text></g>
+    <path d="M 384.1 824.4 L 355.7 824.4 L 355.7 796.7 L 384.1 796.7 Z" stroke="#0284c7" stroke-width="2.0" fill="rgba(2, 132, 199, 0.06)" stroke-dasharray="6,3"><title>loop-17 | Conf: LOW | Class: internal_enclosed_region (foyer/service) | Area: 99.98 sqft | Dim: 10.1 x 9.9 ft</title></path>
+    <path d="M 613.7 610.8 L 558.3 610.8 L 558.3 596.8 L 613.7 596.8 Z" stroke="#d97706" stroke-width="2.0" fill="rgba(217, 119, 6, 0.06)" stroke-dasharray="6,3"><title>loop-10 | Conf: LOW | Class: internal_enclosed_region (foyer/service) | Area: 98.75 sqft | Dim: 19.8 x 5.0 ft</title></path>
+    <path d="M 613.7 596.8 L 558.3 596.8 L 558.3 582.8 L 613.7 582.8 Z" stroke="#e11d48" stroke-width="2.0" fill="rgba(225, 29, 72, 0.06)" stroke-dasharray="6,3"><title>loop-18 | Conf: LOW | Class: internal_enclosed_region (foyer/service) | Area: 98.75 sqft | Dim: 19.8 x 5.0 ft</title></path>
+    <g transform="translate(520.0, 431.6)">  <rect width="560" height="36" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" />  <text x="280.0" y="22" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">BOUNDARY_RECONSTRUCTION_INSUFFICIENT_EVIDENCE — UNCLOSED PERIMETER</text></g>
+    <path d="M 546.1 609.8 L 547.1 609.8 L 547.1 610.8 L 546.1 610.8 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [81EB7] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 415.6 754.3 L 416.7 754.3 L 416.7 755.3 L 415.6 755.3 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [81EB9] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 547.1 754.3 L 546.1 754.3 L 546.1 755.3 L 547.1 755.3 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [81EBB] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 613.7 638.9 L 614.8 638.9 L 614.8 639.9 L 613.7 639.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [81EBD] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 349.0 726.2 L 348.0 726.2 L 348.0 725.1 L 349.0 725.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [81EBF] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 349.0 639.9 L 348.0 639.9 L 348.0 638.9 L 349.0 638.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [81EC1] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 416.7 609.8 L 415.6 609.8 L 415.6 610.8 L 416.7 610.8 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [81EC2] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 407.2 499.0 L 406.2 499.0 L 406.2 497.9 L 407.2 497.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [81EC6] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 1332.3 644.2 L 1333.3 644.2 L 1333.3 645.2 L 1332.3 645.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [83739] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 1067.5 731.5 L 1066.5 731.5 L 1066.5 730.4 L 1067.5 730.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [8373B] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 1067.5 645.2 L 1066.5 645.2 L 1066.5 644.2 L 1067.5 644.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [8373D] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 1125.7 504.2 L 1124.7 504.2 L 1124.7 503.2 L 1125.7 503.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [83740] | Dim: 4.5 x 4.5 ft</title></path>
+    <path d="M 1326.6 789.7 L 1333.3 789.7 L 1333.3 787.6 L 1326.6 787.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [8374B] | Dim: 28.5 x 9.0 ft</title></path>
+  </g>
+</svg>

@@ -1,0 +1,90 @@
+{
+  "title": "Connplex Zoning Studio \u2014 M2 Zoning Input Contract Validation Report",
+  "all_passed": true,
+  "checks": [
+    {
+      "check_id": 1,
+      "description": "Every region has a unique region_id",
+      "status": "PASS",
+      "details": "Total regions: 8, unique: 8"
+    },
+    {
+      "check_id": 2,
+      "description": "Every region retains its original PlanRegion identity",
+      "status": "PASS",
+      "details": "All regions have documented plan_region and document fields"
+    },
+    {
+      "check_id": 3,
+      "description": "Verified boundaries are never fabricated",
+      "status": "PASS",
+      "details": "Unverified regions have null boundary geometry"
+    },
+    {
+      "check_id": 4,
+      "description": "Regions with null boundaries have usable_planning_area_sqft = null",
+      "status": "PASS",
+      "details": "Basement, Ground, and Vadodara Options correctly have null usable area"
+    },
+    {
+      "check_id": 5,
+      "description": "Regions with null boundaries have no generated zoning geometry",
+      "status": "PASS",
+      "details": "Zero candidate zoning geometry generated at input contract stage"
+    },
+    {
+      "check_id": 6,
+      "description": "No hard obstruction exists outside its parent region",
+      "status": "PASS",
+      "details": "All verified columns strictly intersect/belong to their verified floor boundary"
+    },
+    {
+      "check_id": 7,
+      "description": "No low-confidence geometry is promoted to hard obstruction",
+      "status": "PASS",
+      "details": "Only verified high-confidence columns are present in hard_obstructions"
+    },
+    {
+      "check_id": 8,
+      "description": "FOOTPRINT_UNCERTAIN stairs remain uncertain",
+      "status": "PASS",
+      "details": "All stairs strictly retain FOOTPRINT_UNCERTAIN status"
+    },
+    {
+      "check_id": 9,
+      "description": "Every obstruction has provenance",
+      "status": "PASS",
+      "details": "All hard and uncertain obstructions preserve source files, layers, and handles"
+    },
+    {
+      "check_id": 10,
+      "description": "Every verified boundary has provenance",
+      "status": "PASS",
+      "details": "All verified exterior wall boundaries preserve source entity handles and layers"
+    },
+    {
+      "check_id": 11,
+      "description": "Step 5 usable areas remain numerically unchanged",
+      "status": "PASS",
+      "details": "Dhule 1st: 5215.06, 2nd: 5216.19, 3rd: 5216.20, 4th: 5222.04 sq ft"
+    },
+    {
+      "check_id": 12,
+      "description": "Fourth-floor lift 22D8 remains represented as a verified hard obstruction",
+      "status": "PASS",
+      "details": "Lift 22D8 explicitly preserved in additional_verified_obstructions (area 3.61 sqft)"
+    },
+    {
+      "check_id": 13,
+      "description": "No bounding-box-only geometry is introduced",
+      "status": "PASS",
+      "details": "All hard obstructions use explicit multi-vertex closed polygons"
+    },
+    {
+      "check_id": 14,
+      "description": "Existing M0-M1 regression tests remain functional",
+      "status": "PASS",
+      "details": "Verified via automated regression test execution"
+    }
+  ]
+}

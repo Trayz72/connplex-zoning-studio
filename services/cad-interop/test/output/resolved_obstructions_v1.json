@@ -1,0 +1,3829 @@
+{
+  "title": "Connplex Zoning Studio \u2014 Resolved Fixed Obstructions v1",
+  "documents": [
+    {
+      "source_file": "1022_MARUTI NANDAN BUSINESS HUB,DHULE,MAHARASHTRA_ZONING LAYOUT_5.08.2026.dxf",
+      "regions": [
+        {
+          "region_id": "dhule-basement",
+          "label": "BASEMENT FLOOR PLAN",
+          "boundary_status": "NO_VERIFIED_BOUNDARY",
+          "boundary_area_sqft": null,
+          "step5_verified_columns_count": 0,
+          "step5_columns_area_sqft": 0.0,
+          "step5_usable_planning_area_sqft": null,
+          "additional_verified_obstructions_count": 0,
+          "additional_verified_obstruction_area_sqft": 0,
+          "newly_verified_obstructions": [],
+          "step6_updated_theoretical_usable_area_sqft": null,
+          "unresolved_obstructions_count": 11,
+          "unresolved_obstructions": [
+            {
+              "obstruction_id": "dhule-basement-lift-1",
+              "category": "LIFT",
+              "source_handles": [
+                "2360"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-basement-lift-2",
+              "category": "LIFT",
+              "source_handles": [
+                "2492"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-basement-lift-3",
+              "category": "LIFT",
+              "source_handles": [
+                "24A2"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-basement-lift-4",
+              "category": "LIFT",
+              "source_handles": [
+                "26DD"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-basement-lift-5",
+              "category": "LIFT",
+              "source_handles": [
+                "26F4"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-basement-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_handles": [
+                "24C4",
+                "24C5",
+                "24C7",
+                "24C8",
+                "2521",
+                "2522"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "obstruction_id": "dhule-basement-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2372"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;STORAGE-1 }15.90X13.12' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-basement-fixed-room-2",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2374"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;STORAGE-2 }17.25X9.15' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-basement-void-1",
+              "category": "VOID",
+              "source_handles": [
+                "241D"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQD;RAMP' without a closed CAD boundary polyline."
+            },
+            {
+              "obstruction_id": "dhule-basement-stair-1",
+              "category": "STAIR",
+              "source_handles": [
+                "22FA",
+                "22FB",
+                "22FC",
+                "22FD",
+                "22FE",
+                "22FF",
+                "2300",
+                "2301",
+                "2302",
+                "2303"
+              ],
+              "status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "obstruction_id": "dhule-basement-unknown-1",
+              "category": "UNKNOWN",
+              "source_handles": [
+                "2798",
+                "279C",
+                "279E",
+                "279F",
+                "27A0",
+                "27A1",
+                "27A2",
+                "27A3"
+              ],
+              "status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ],
+          "candidate_obstructions": [
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-lift-1",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "2360"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-lift-2",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "2492"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-lift-3",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "24A2"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-lift-4",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "26DD"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-lift-5",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "26F4"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_layers": [
+                "DUCT (DCPL)"
+              ],
+              "source_handles": [
+                "24C4",
+                "24C5",
+                "24C7",
+                "24C8",
+                "2521",
+                "2522"
+              ],
+              "geometry_type": "crossed_diagonal_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2372"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;STORAGE-1 }15.90X13.12' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-fixed-room-2",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2374"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;STORAGE-2 }17.25X9.15' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-void-1",
+              "category": "VOID",
+              "source_layers": [
+                "tex"
+              ],
+              "source_handles": [
+                "241D"
+              ],
+              "geometry_type": "annotation_only",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "UNRESOLVED",
+              "new_status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQD;RAMP' without a closed CAD boundary polyline."
+            },
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-stair-1",
+              "category": "STAIR",
+              "source_layers": [
+                "Staircase_TMOS",
+                "stair"
+              ],
+              "source_handles": [
+                "22FA",
+                "22FB",
+                "22FC",
+                "22FD",
+                "22FE",
+                "22FF",
+                "2300",
+                "2301",
+                "2302",
+                "2303"
+              ],
+              "geometry_type": "flight_treads",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "HIGH",
+              "previous_status": "FOOTPRINT_UNCERTAIN",
+              "new_status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "region": "BASEMENT FLOOR PLAN",
+              "obstruction_id": "dhule-basement-unknown-1",
+              "category": "UNKNOWN",
+              "source_layers": [
+                "F4"
+              ],
+              "source_handles": [
+                "2798",
+                "279C",
+                "279E",
+                "279F",
+                "27A0",
+                "27A1",
+                "27A2",
+                "27A3"
+              ],
+              "geometry_type": "unclassified_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LOW_CONFIDENCE",
+              "new_status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ]
+        },
+        {
+          "region_id": "dhule-ground",
+          "label": "GROUND FLOOR PLAN",
+          "boundary_status": "NO_VERIFIED_BOUNDARY",
+          "boundary_area_sqft": null,
+          "step5_verified_columns_count": 0,
+          "step5_columns_area_sqft": 0.0,
+          "step5_usable_planning_area_sqft": null,
+          "additional_verified_obstructions_count": 0,
+          "additional_verified_obstruction_area_sqft": 0,
+          "newly_verified_obstructions": [],
+          "step6_updated_theoretical_usable_area_sqft": null,
+          "unresolved_obstructions_count": 12,
+          "unresolved_obstructions": [
+            {
+              "obstruction_id": "dhule-ground-lift-1",
+              "category": "LIFT",
+              "source_handles": [
+                "1132"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-ground-lift-2",
+              "category": "LIFT",
+              "source_handles": [
+                "1139"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-ground-lift-3",
+              "category": "LIFT",
+              "source_handles": [
+                "1148"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-ground-lift-4",
+              "category": "LIFT",
+              "source_handles": [
+                "26AC"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-ground-lift-5",
+              "category": "LIFT",
+              "source_handles": [
+                "26C3"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-ground-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_handles": [
+                "116B",
+                "116C",
+                "116D",
+                "116E"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "obstruction_id": "dhule-ground-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "C0D"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-ground-fixed-room-2",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "112A"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;G. TOILET }3.98X5.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-ground-fixed-room-3",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "112C"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;L. TOILET }3.98X5.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-ground-void-1",
+              "category": "VOID",
+              "source_handles": [
+                "F41"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQD;RAMP' without a closed CAD boundary polyline."
+            },
+            {
+              "obstruction_id": "dhule-ground-stair-1",
+              "category": "STAIR",
+              "source_handles": [
+                "A32",
+                "A33",
+                "A34",
+                "A35",
+                "A36",
+                "A37",
+                "A38",
+                "A39",
+                "A3A",
+                "A3B"
+              ],
+              "status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "obstruction_id": "dhule-ground-unknown-1",
+              "category": "UNKNOWN",
+              "source_handles": [
+                "27F8",
+                "27F9",
+                "27FB",
+                "27FC",
+                "27FD",
+                "27FE",
+                "27FF",
+                "2800"
+              ],
+              "status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ],
+          "candidate_obstructions": [
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-lift-1",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "1132"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-lift-2",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "1139"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-lift-3",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "1148"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-lift-4",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "26AC"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-lift-5",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "26C3"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_layers": [
+                "DUCT (DCPL)"
+              ],
+              "source_handles": [
+                "116B",
+                "116C",
+                "116D",
+                "116E"
+              ],
+              "geometry_type": "crossed_diagonal_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "C0D"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-fixed-room-2",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "112A"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;G. TOILET }3.98X5.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-fixed-room-3",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "112C"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;L. TOILET }3.98X5.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-void-1",
+              "category": "VOID",
+              "source_layers": [
+                "tex"
+              ],
+              "source_handles": [
+                "F41"
+              ],
+              "geometry_type": "annotation_only",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "UNRESOLVED",
+              "new_status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQD;RAMP' without a closed CAD boundary polyline."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-stair-1",
+              "category": "STAIR",
+              "source_layers": [
+                "Staircase_TMOS",
+                "stair"
+              ],
+              "source_handles": [
+                "A32",
+                "A33",
+                "A34",
+                "A35",
+                "A36",
+                "A37",
+                "A38",
+                "A39",
+                "A3A",
+                "A3B"
+              ],
+              "geometry_type": "flight_treads",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "HIGH",
+              "previous_status": "FOOTPRINT_UNCERTAIN",
+              "new_status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "region": "GROUND FLOOR PLAN",
+              "obstruction_id": "dhule-ground-unknown-1",
+              "category": "UNKNOWN",
+              "source_layers": [
+                "F4"
+              ],
+              "source_handles": [
+                "27F8",
+                "27F9",
+                "27FB",
+                "27FC",
+                "27FD",
+                "27FE",
+                "27FF",
+                "2800"
+              ],
+              "geometry_type": "unclassified_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LOW_CONFIDENCE",
+              "new_status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ]
+        },
+        {
+          "region_id": "dhule-first-floor",
+          "label": "FIRST FLOOR PLAN",
+          "boundary_status": "VERIFIED",
+          "boundary_area_sqft": 5242.03,
+          "step5_verified_columns_count": 53,
+          "step5_columns_area_sqft": 26.97,
+          "step5_usable_planning_area_sqft": 5215.06,
+          "additional_verified_obstructions_count": 0,
+          "additional_verified_obstruction_area_sqft": 0,
+          "newly_verified_obstructions": [],
+          "step6_updated_theoretical_usable_area_sqft": 5215.06,
+          "unresolved_obstructions_count": 11,
+          "unresolved_obstructions": [
+            {
+              "obstruction_id": "dhule-first-floor-lift-1",
+              "category": "LIFT",
+              "source_handles": [
+                "314"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-first-floor-lift-2",
+              "category": "LIFT",
+              "source_handles": [
+                "85B"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-first-floor-lift-3",
+              "category": "LIFT",
+              "source_handles": [
+                "873"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-first-floor-lift-4",
+              "category": "LIFT",
+              "source_handles": [
+                "270E"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-first-floor-lift-5",
+              "category": "LIFT",
+              "source_handles": [
+                "2725"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-first-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_handles": [
+                "890",
+                "892"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "obstruction_id": "dhule-first-floor-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2F7"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;G. TOILET }3.98X5.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-first-floor-fixed-room-2",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "319"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-first-floor-fixed-room-3",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "7C1"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;L. TOILET }3.98X5.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-first-floor-stair-1",
+              "category": "STAIR",
+              "source_handles": [
+                "192",
+                "195",
+                "196",
+                "197",
+                "198",
+                "199",
+                "19A",
+                "19B",
+                "19C",
+                "19D"
+              ],
+              "status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "obstruction_id": "dhule-first-floor-unknown-1",
+              "category": "UNKNOWN",
+              "source_handles": [
+                "2851",
+                "2852",
+                "2854",
+                "2855",
+                "2856",
+                "2857",
+                "2858",
+                "2859"
+              ],
+              "status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ],
+          "candidate_obstructions": [
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-lift-1",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "314"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-lift-2",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "85B"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-lift-3",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "873"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-lift-4",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "270E"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-lift-5",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "2725"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_layers": [
+                "DUCT (DCPL)"
+              ],
+              "source_handles": [
+                "890",
+                "892"
+              ],
+              "geometry_type": "crossed_diagonal_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2F7"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;G. TOILET }3.98X5.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-fixed-room-2",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "319"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-fixed-room-3",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "7C1"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;L. TOILET }3.98X5.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-stair-1",
+              "category": "STAIR",
+              "source_layers": [
+                "Staircase_TMOS",
+                "stair"
+              ],
+              "source_handles": [
+                "192",
+                "195",
+                "196",
+                "197",
+                "198",
+                "199",
+                "19A",
+                "19B",
+                "19C",
+                "19D"
+              ],
+              "geometry_type": "flight_treads",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "HIGH",
+              "previous_status": "FOOTPRINT_UNCERTAIN",
+              "new_status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "region": "FIRST FLOOR PLAN",
+              "obstruction_id": "dhule-first-floor-unknown-1",
+              "category": "UNKNOWN",
+              "source_layers": [
+                "F4"
+              ],
+              "source_handles": [
+                "2851",
+                "2852",
+                "2854",
+                "2855",
+                "2856",
+                "2857",
+                "2858",
+                "2859"
+              ],
+              "geometry_type": "unclassified_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LOW_CONFIDENCE",
+              "new_status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ]
+        },
+        {
+          "region_id": "dhule-second-floor",
+          "label": "SECOND FLOOR PLAN",
+          "boundary_status": "VERIFIED",
+          "boundary_area_sqft": 5242.03,
+          "step5_verified_columns_count": 49,
+          "step5_columns_area_sqft": 25.84,
+          "step5_usable_planning_area_sqft": 5216.19,
+          "additional_verified_obstructions_count": 0,
+          "additional_verified_obstruction_area_sqft": 0,
+          "newly_verified_obstructions": [],
+          "step6_updated_theoretical_usable_area_sqft": 5216.19,
+          "unresolved_obstructions_count": 11,
+          "unresolved_obstructions": [
+            {
+              "obstruction_id": "dhule-second-floor-lift-1",
+              "category": "LIFT",
+              "source_handles": [
+                "12C6"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-second-floor-lift-2",
+              "category": "LIFT",
+              "source_handles": [
+                "13E7"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-second-floor-lift-3",
+              "category": "LIFT",
+              "source_handles": [
+                "13F4"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-second-floor-lift-4",
+              "category": "LIFT",
+              "source_handles": [
+                "273F"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-second-floor-lift-5",
+              "category": "LIFT",
+              "source_handles": [
+                "2756"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-second-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_handles": [
+                "140B",
+                "140C"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "obstruction_id": "dhule-second-floor-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "12CB"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-second-floor-void-1",
+              "category": "VOID",
+              "source_handles": [
+                "22E7"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.50 X 1.34' without a closed CAD boundary polyline."
+            },
+            {
+              "obstruction_id": "dhule-second-floor-void-2",
+              "category": "VOID",
+              "source_handles": [
+                "22E9"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.98 X 1.25' without a closed CAD boundary polyline."
+            },
+            {
+              "obstruction_id": "dhule-second-floor-stair-1",
+              "category": "STAIR",
+              "source_handles": [
+                "123B",
+                "123C",
+                "123D",
+                "123E",
+                "123F",
+                "1240",
+                "1241",
+                "1242",
+                "1243",
+                "1244"
+              ],
+              "status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "obstruction_id": "dhule-second-floor-unknown-1",
+              "category": "UNKNOWN",
+              "source_handles": [
+                "28AA",
+                "28AB",
+                "28AD",
+                "28AE",
+                "28AF",
+                "28B0",
+                "28B1",
+                "28B2"
+              ],
+              "status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ],
+          "candidate_obstructions": [
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-lift-1",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "12C6"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-lift-2",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "13E7"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-lift-3",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "13F4"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-lift-4",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "273F"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-lift-5",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "2756"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_layers": [
+                "DUCT (DCPL)"
+              ],
+              "source_handles": [
+                "140B",
+                "140C"
+              ],
+              "geometry_type": "crossed_diagonal_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "12CB"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-void-1",
+              "category": "VOID",
+              "source_layers": [
+                "tex"
+              ],
+              "source_handles": [
+                "22E7"
+              ],
+              "geometry_type": "annotation_only",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "UNRESOLVED",
+              "new_status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.50 X 1.34' without a closed CAD boundary polyline."
+            },
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-void-2",
+              "category": "VOID",
+              "source_layers": [
+                "tex"
+              ],
+              "source_handles": [
+                "22E9"
+              ],
+              "geometry_type": "annotation_only",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "UNRESOLVED",
+              "new_status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.98 X 1.25' without a closed CAD boundary polyline."
+            },
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-stair-1",
+              "category": "STAIR",
+              "source_layers": [
+                "Staircase_TMOS",
+                "stair"
+              ],
+              "source_handles": [
+                "123B",
+                "123C",
+                "123D",
+                "123E",
+                "123F",
+                "1240",
+                "1241",
+                "1242",
+                "1243",
+                "1244"
+              ],
+              "geometry_type": "flight_treads",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "HIGH",
+              "previous_status": "FOOTPRINT_UNCERTAIN",
+              "new_status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "region": "SECOND FLOOR PLAN",
+              "obstruction_id": "dhule-second-floor-unknown-1",
+              "category": "UNKNOWN",
+              "source_layers": [
+                "F4"
+              ],
+              "source_handles": [
+                "28AA",
+                "28AB",
+                "28AD",
+                "28AE",
+                "28AF",
+                "28B0",
+                "28B1",
+                "28B2"
+              ],
+              "geometry_type": "unclassified_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LOW_CONFIDENCE",
+              "new_status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ]
+        },
+        {
+          "region_id": "dhule-third-floor",
+          "label": "THIRD FLOOR PLAN",
+          "boundary_status": "VERIFIED",
+          "boundary_area_sqft": 5242.03,
+          "step5_verified_columns_count": 49,
+          "step5_columns_area_sqft": 25.84,
+          "step5_usable_planning_area_sqft": 5216.2,
+          "additional_verified_obstructions_count": 0,
+          "additional_verified_obstruction_area_sqft": 0,
+          "newly_verified_obstructions": [],
+          "step6_updated_theoretical_usable_area_sqft": 5216.2,
+          "unresolved_obstructions_count": 11,
+          "unresolved_obstructions": [
+            {
+              "obstruction_id": "dhule-third-floor-lift-1",
+              "category": "LIFT",
+              "source_handles": [
+                "16CE"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-third-floor-lift-2",
+              "category": "LIFT",
+              "source_handles": [
+                "17CF"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-third-floor-lift-3",
+              "category": "LIFT",
+              "source_handles": [
+                "17DC"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-third-floor-lift-4",
+              "category": "LIFT",
+              "source_handles": [
+                "276D"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-third-floor-lift-5",
+              "category": "LIFT",
+              "source_handles": [
+                "2784"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-third-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_handles": [
+                "17F0",
+                "17F1",
+                "181E",
+                "181F"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "obstruction_id": "dhule-third-floor-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "16D3"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-third-floor-void-1",
+              "category": "VOID",
+              "source_handles": [
+                "22DE"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.98 X 1.25' without a closed CAD boundary polyline."
+            },
+            {
+              "obstruction_id": "dhule-third-floor-void-2",
+              "category": "VOID",
+              "source_handles": [
+                "22E3"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.50 X 1.34' without a closed CAD boundary polyline."
+            },
+            {
+              "obstruction_id": "dhule-third-floor-stair-1",
+              "category": "STAIR",
+              "source_handles": [
+                "164C",
+                "164D",
+                "164E",
+                "164F",
+                "1650",
+                "1651",
+                "1652",
+                "1653",
+                "1654",
+                "1655"
+              ],
+              "status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "obstruction_id": "dhule-third-floor-unknown-1",
+              "category": "UNKNOWN",
+              "source_handles": [
+                "2903",
+                "2904",
+                "2906",
+                "2907",
+                "2908",
+                "2909",
+                "290A",
+                "290B"
+              ],
+              "status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ],
+          "candidate_obstructions": [
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-lift-1",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "16CE"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-lift-2",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "17CF"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-lift-3",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "17DC"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-lift-4",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "276D"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-lift-5",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "2784"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_layers": [
+                "DUCT (DCPL)"
+              ],
+              "source_handles": [
+                "17F0",
+                "17F1",
+                "181E",
+                "181F"
+              ],
+              "geometry_type": "crossed_diagonal_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "16D3"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-void-1",
+              "category": "VOID",
+              "source_layers": [
+                "tex"
+              ],
+              "source_handles": [
+                "22DE"
+              ],
+              "geometry_type": "annotation_only",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "UNRESOLVED",
+              "new_status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.98 X 1.25' without a closed CAD boundary polyline."
+            },
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-void-2",
+              "category": "VOID",
+              "source_layers": [
+                "tex"
+              ],
+              "source_handles": [
+                "22E3"
+              ],
+              "geometry_type": "annotation_only",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "UNRESOLVED",
+              "new_status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.50 X 1.34' without a closed CAD boundary polyline."
+            },
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-stair-1",
+              "category": "STAIR",
+              "source_layers": [
+                "Staircase_TMOS",
+                "stair"
+              ],
+              "source_handles": [
+                "164C",
+                "164D",
+                "164E",
+                "164F",
+                "1650",
+                "1651",
+                "1652",
+                "1653",
+                "1654",
+                "1655"
+              ],
+              "geometry_type": "flight_treads",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "HIGH",
+              "previous_status": "FOOTPRINT_UNCERTAIN",
+              "new_status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "region": "THIRD FLOOR PLAN",
+              "obstruction_id": "dhule-third-floor-unknown-1",
+              "category": "UNKNOWN",
+              "source_layers": [
+                "F4"
+              ],
+              "source_handles": [
+                "2903",
+                "2904",
+                "2906",
+                "2907",
+                "2908",
+                "2909",
+                "290A",
+                "290B"
+              ],
+              "geometry_type": "unclassified_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LOW_CONFIDENCE",
+              "new_status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ]
+        },
+        {
+          "region_id": "dhule-fourth-floor",
+          "label": "FOURTH FLOOR PLAN",
+          "boundary_status": "VERIFIED",
+          "boundary_area_sqft": 5242.04,
+          "step5_verified_columns_count": 40,
+          "step5_columns_area_sqft": 20.0,
+          "step5_usable_planning_area_sqft": 5222.04,
+          "additional_verified_obstructions_count": 1,
+          "additional_verified_obstruction_area_sqft": 3.61,
+          "newly_verified_obstructions": [
+            {
+              "obstruction_id": "dhule-fourth-floor-lift-1",
+              "category": "LIFT",
+              "subtype": "passenger_elevator",
+              "source_handles": [
+                "22D8"
+              ],
+              "source_layers": [
+                "wall"
+              ],
+              "geometry_type": "closed_polyline",
+              "area_sqft": 3.61,
+              "polygon_points": [
+                [
+                  2010.718,
+                  1372.1814
+                ],
+                [
+                  2012.618,
+                  1372.1814
+                ],
+                [
+                  2012.618,
+                  1370.2814
+                ],
+                [
+                  2010.718,
+                  1370.2814
+                ]
+              ],
+              "status": "VERIFIED_HARD_OBSTRUCTION",
+              "confidence": "HIGH",
+              "reason": "Explicit closed polyline [22D8] on layer 'wall' cleanly outlines the 1.90 x 1.90 ft lift shaft inside the boundary."
+            }
+          ],
+          "step6_updated_theoretical_usable_area_sqft": 5218.43,
+          "unresolved_obstructions_count": 43,
+          "unresolved_obstructions": [
+            {
+              "obstruction_id": "dhule-fourth-floor-lift-2",
+              "category": "LIFT",
+              "source_handles": [
+                "1C0C"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-lift-3",
+              "category": "LIFT",
+              "source_handles": [
+                "1C6B"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_handles": [
+                "1BA6",
+                "1BA7",
+                "1D88",
+                "1D89",
+                "1DEC",
+                "1DED",
+                "1E24",
+                "1E25"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "1BAA"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;TOILET 2.00X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-2",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "20E3"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-3",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "20E5"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-4",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "20E7"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-5",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "20E9"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-6",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "20EB"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-7",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "20FF"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-8",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2101"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-9",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2103"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-10",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2105"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-11",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2107"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-12",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2109"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-13",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "210B"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.35X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-14",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "210D"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.35X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-15",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "210F"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-16",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2111"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-17",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2113"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-18",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2115"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-19",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2117"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X3.12' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-20",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2119"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-21",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "211B"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-22",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "211D"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-23",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "211F"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X3.12' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-24",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2121"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X3.12' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-25",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2123"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-26",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2125"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-27",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2127"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;G TOILET }3.80X2.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-28",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2129"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;L TOILET }3.80X2.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-29",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2154"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-30",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2156"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-31",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2158"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-32",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "215D"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET  Q*;}2.09X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-33",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "215F"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET  Q*;}2.23X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-34",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2162"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET  Q*;}1.20X3.65' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-35",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2164"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-fixed-room-36",
+              "category": "FIXED_ROOM",
+              "source_handles": [
+                "2166"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-void-1",
+              "category": "VOID",
+              "source_handles": [
+                "212D"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.98 X 1.25' without a closed CAD boundary polyline."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-void-2",
+              "category": "VOID",
+              "source_handles": [
+                "212F"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.50 X 2.20' without a closed CAD boundary polyline."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-stair-1",
+              "category": "STAIR",
+              "source_handles": [
+                "1B6C",
+                "1B6D",
+                "1B6E",
+                "1B6F",
+                "1B70",
+                "1B71",
+                "1B72",
+                "1B73",
+                "1B74",
+                "1B75"
+              ],
+              "status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "obstruction_id": "dhule-fourth-floor-unknown-1",
+              "category": "UNKNOWN",
+              "source_handles": [
+                "295C",
+                "295D",
+                "295F",
+                "2960",
+                "2961",
+                "2962",
+                "2963",
+                "2964"
+              ],
+              "status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ],
+          "candidate_obstructions": [
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-lift-1",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "22D8"
+              ],
+              "geometry_type": "closed_polyline",
+              "area_sqft": 3.61,
+              "closed_geometry_verified": true,
+              "confidence": "HIGH",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "VERIFIED_HARD_OBSTRUCTION",
+              "reason": "Explicit closed polyline [22D8] on layer 'wall' verified."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-lift-2",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "1C0C"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-lift-3",
+              "category": "LIFT",
+              "source_layers": [
+                "wall",
+                "Wall_TMOS",
+                "tex",
+                "Text Common_TMOS"
+              ],
+              "source_handles": [
+                "1C6B"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "source_layers": [
+                "DUCT (DCPL)"
+              ],
+              "source_handles": [
+                "1BA6",
+                "1BA7",
+                "1D88",
+                "1D89",
+                "1DEC",
+                "1DED",
+                "1E24",
+                "1E25"
+              ],
+              "geometry_type": "crossed_diagonal_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Duct opening is represented on layer 'DUCT (DCPL)' by crossed diagonal lines without a closed CAD boundary polyline. Bounding box subtraction rejected."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-1",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "1BAA"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;TOILET 2.00X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-2",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "20E3"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-3",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "20E5"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-4",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "20E7"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.35' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-5",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "20E9"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-6",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "20EB"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-7",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "20FF"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-8",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2101"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-9",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2103"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-10",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2105"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-11",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2107"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-12",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2109"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-13",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "210B"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.35X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-14",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "210D"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.35X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-15",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "210F"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-16",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2111"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-17",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2113"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-18",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2115"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-19",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2117"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X3.12' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-20",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2119"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-21",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "211B"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-22",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "211D"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-23",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "211F"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X3.12' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-24",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2121"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X3.12' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-25",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2123"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-26",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2125"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-27",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2127"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;G TOILET }3.80X2.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-28",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2129"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;L TOILET }3.80X2.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-29",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2154"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-30",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2156"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-31",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2158"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-32",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "215D"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET  Q*;}2.09X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-33",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "215F"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET  Q*;}2.23X1.20' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-34",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2162"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET  Q*;}1.20X3.65' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-35",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2164"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-fixed-room-36",
+              "category": "FIXED_ROOM",
+              "source_layers": [
+                "wall",
+                "tex"
+              ],
+              "source_handles": [
+                "2166"
+              ],
+              "geometry_type": "unclosed_partitions",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' is drawn with open partition lines on layer 'wall' and door cuts. No continuous closed polyline entity exists."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-void-1",
+              "category": "VOID",
+              "source_layers": [
+                "tex"
+              ],
+              "source_handles": [
+                "212D"
+              ],
+              "geometry_type": "annotation_only",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "UNRESOLVED",
+              "new_status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.98 X 1.25' without a closed CAD boundary polyline."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-void-2",
+              "category": "VOID",
+              "source_layers": [
+                "tex"
+              ],
+              "source_handles": [
+                "212F"
+              ],
+              "geometry_type": "annotation_only",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "UNRESOLVED",
+              "new_status": "UNRESOLVED",
+              "reason": "Void/ramp indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.50 X 2.20' without a closed CAD boundary polyline."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-stair-1",
+              "category": "STAIR",
+              "source_layers": [
+                "stair"
+              ],
+              "source_handles": [
+                "1B6C",
+                "1B6D",
+                "1B6E",
+                "1B6F",
+                "1B70",
+                "1B71",
+                "1B72",
+                "1B73",
+                "1B74",
+                "1B75"
+              ],
+              "geometry_type": "flight_treads",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "HIGH",
+              "previous_status": "FOOTPRINT_UNCERTAIN",
+              "new_status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "region": "FOURTH FLOOR PLAN",
+              "obstruction_id": "dhule-fourth-floor-unknown-1",
+              "category": "UNKNOWN",
+              "source_layers": [
+                "F4"
+              ],
+              "source_handles": [
+                "295C",
+                "295D",
+                "295F",
+                "2960",
+                "2961",
+                "2962",
+                "2963",
+                "2964"
+              ],
+              "geometry_type": "unclassified_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LOW_CONFIDENCE",
+              "new_status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source_file": "1045- KESHAV LANDMARK_VADODARA ,GUJRAT_ZONING LAYOUT_20.05.2026.dxf",
+      "regions": [
+        {
+          "region_id": "vadodara-option-1",
+          "label": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+          "boundary_status": "NO_VERIFIED_BOUNDARY",
+          "boundary_area_sqft": null,
+          "step5_verified_columns_count": 0,
+          "step5_columns_area_sqft": 0.0,
+          "step5_usable_planning_area_sqft": null,
+          "additional_verified_obstructions_count": 0,
+          "additional_verified_obstruction_area_sqft": 0,
+          "newly_verified_obstructions": [],
+          "step6_updated_theoretical_usable_area_sqft": null,
+          "unresolved_obstructions_count": 11,
+          "unresolved_obstructions": [
+            {
+              "obstruction_id": "vadodara-option-1-lift-1",
+              "category": "LIFT",
+              "source_handles": [
+                "81C78"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "vadodara-option-1-lift-2",
+              "category": "LIFT",
+              "source_handles": [
+                "81C79"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "vadodara-option-1-lift-3",
+              "category": "LIFT",
+              "source_handles": [
+                "829BE"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "vadodara-option-1-lift-4",
+              "category": "LIFT",
+              "source_handles": [
+                "829BF"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "vadodara-option-1-lift-5",
+              "category": "LIFT",
+              "source_handles": [
+                "83061"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "vadodara-option-1-lift-6",
+              "category": "LIFT",
+              "source_handles": [
+                "83062"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "vadodara-option-1-proj-booth-1",
+              "category": "SERVICE_ROOM",
+              "source_handles": [
+                "81C9A"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Projector room is indicated by text on layer 'PROJ.' and surrounding partition lines with open doorways. No closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "vadodara-option-1-proj-booth-2",
+              "category": "SERVICE_ROOM",
+              "source_handles": [
+                "82DAF"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Projector room is indicated by text on layer 'PROJ.' and surrounding partition lines with open doorways. No closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "vadodara-option-1-proj-booth-3",
+              "category": "SERVICE_ROOM",
+              "source_handles": [
+                "8361F"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Projector room is indicated by text on layer 'PROJ.' and surrounding partition lines with open doorways. No closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "vadodara-option-1-stair-1",
+              "category": "STAIR",
+              "source_handles": [
+                "81C3F",
+                "81C40",
+                "81C41",
+                "81C42",
+                "81C43",
+                "81C44",
+                "81C45",
+                "81C46",
+                "81C47",
+                "81C48"
+              ],
+              "status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "obstruction_id": "vadodara-option-1-unknown-1",
+              "category": "UNKNOWN",
+              "source_handles": [
+                "834B2",
+                "834BB",
+                "834CB"
+              ],
+              "status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'P_DOMESTIC' represents domestic water routing that may restrict ceiling plenum or riser space."
+            }
+          ],
+          "candidate_obstructions": [
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-lift-1",
+              "category": "LIFT",
+              "source_layers": [
+                "SHOP TEXT",
+                "WALLS"
+              ],
+              "source_handles": [
+                "81C78"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-lift-2",
+              "category": "LIFT",
+              "source_layers": [
+                "SHOP TEXT",
+                "WALLS"
+              ],
+              "source_handles": [
+                "81C79"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-lift-3",
+              "category": "LIFT",
+              "source_layers": [
+                "SHOP TEXT",
+                "WALLS"
+              ],
+              "source_handles": [
+                "829BE"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-lift-4",
+              "category": "LIFT",
+              "source_layers": [
+                "SHOP TEXT",
+                "WALLS"
+              ],
+              "source_handles": [
+                "829BF"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-lift-5",
+              "category": "LIFT",
+              "source_layers": [
+                "SHOP TEXT",
+                "WALLS"
+              ],
+              "source_handles": [
+                "83061"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-lift-6",
+              "category": "LIFT",
+              "source_layers": [
+                "SHOP TEXT",
+                "WALLS"
+              ],
+              "source_handles": [
+                "83062"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-proj-booth-1",
+              "category": "SERVICE_ROOM",
+              "source_layers": [
+                "text",
+                "PROJ.",
+                "WALLS"
+              ],
+              "source_handles": [
+                "81C9A"
+              ],
+              "geometry_type": "open_linework",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Projector room is indicated by text on layer 'PROJ.' and surrounding partition lines with open doorways. No closed polyline entity exists."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-proj-booth-2",
+              "category": "SERVICE_ROOM",
+              "source_layers": [
+                "text",
+                "PROJ.",
+                "WALLS"
+              ],
+              "source_handles": [
+                "82DAF"
+              ],
+              "geometry_type": "open_linework",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Projector room is indicated by text on layer 'PROJ.' and surrounding partition lines with open doorways. No closed polyline entity exists."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-proj-booth-3",
+              "category": "SERVICE_ROOM",
+              "source_layers": [
+                "text",
+                "PROJ.",
+                "WALLS"
+              ],
+              "source_handles": [
+                "8361F"
+              ],
+              "geometry_type": "open_linework",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Projector room is indicated by text on layer 'PROJ.' and surrounding partition lines with open doorways. No closed polyline entity exists."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-stair-1",
+              "category": "STAIR",
+              "source_layers": [
+                "Nstair"
+              ],
+              "source_handles": [
+                "81C3F",
+                "81C40",
+                "81C41",
+                "81C42",
+                "81C43",
+                "81C44",
+                "81C45",
+                "81C46",
+                "81C47",
+                "81C48"
+              ],
+              "geometry_type": "flight_treads",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "HIGH",
+              "previous_status": "FOOTPRINT_UNCERTAIN",
+              "new_status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-1-unknown-1",
+              "category": "UNKNOWN",
+              "source_layers": [
+                "P_DOMESTIC"
+              ],
+              "source_handles": [
+                "834B2",
+                "834BB",
+                "834CB"
+              ],
+              "geometry_type": "unclassified_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LOW_CONFIDENCE",
+              "new_status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'P_DOMESTIC' represents domestic water routing that may restrict ceiling plenum or riser space."
+            }
+          ]
+        },
+        {
+          "region_id": "vadodara-option-2",
+          "label": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+          "boundary_status": "NO_VERIFIED_BOUNDARY",
+          "boundary_area_sqft": null,
+          "step5_verified_columns_count": 0,
+          "step5_columns_area_sqft": 0.0,
+          "step5_usable_planning_area_sqft": null,
+          "additional_verified_obstructions_count": 0,
+          "additional_verified_obstruction_area_sqft": 0,
+          "newly_verified_obstructions": [],
+          "step6_updated_theoretical_usable_area_sqft": null,
+          "unresolved_obstructions_count": 8,
+          "unresolved_obstructions": [
+            {
+              "obstruction_id": "vadodara-option-2-lift-1",
+              "category": "LIFT",
+              "source_handles": [
+                "81EAF"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "vadodara-option-2-lift-2",
+              "category": "LIFT",
+              "source_handles": [
+                "81EB0"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "vadodara-option-2-lift-3",
+              "category": "LIFT",
+              "source_handles": [
+                "83735"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "vadodara-option-2-lift-4",
+              "category": "LIFT",
+              "source_handles": [
+                "83736"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "obstruction_id": "vadodara-option-2-proj-booth-1",
+              "category": "SERVICE_ROOM",
+              "source_handles": [
+                "81ECF"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Projector room is indicated by text on layer 'PROJ.' and surrounding partition lines with open doorways. No closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "vadodara-option-2-proj-booth-2",
+              "category": "SERVICE_ROOM",
+              "source_handles": [
+                "8377F"
+              ],
+              "status": "UNRESOLVED",
+              "reason": "Projector room is indicated by text on layer 'PROJ.' and surrounding partition lines with open doorways. No closed polyline entity exists."
+            },
+            {
+              "obstruction_id": "vadodara-option-2-stair-1",
+              "category": "STAIR",
+              "source_handles": [
+                "81E76",
+                "81E77",
+                "81E78",
+                "81E79",
+                "81E7A",
+                "81E7B",
+                "81E7C",
+                "81E7D",
+                "81E7E",
+                "81E7F"
+              ],
+              "status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "obstruction_id": "vadodara-option-2-unknown-1",
+              "category": "UNKNOWN",
+              "source_handles": [
+                "83763",
+                "83766",
+                "83769"
+              ],
+              "status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'P_DOMESTIC' represents domestic water routing that may restrict ceiling plenum or riser space."
+            }
+          ],
+          "candidate_obstructions": [
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-2-lift-1",
+              "category": "LIFT",
+              "source_layers": [
+                "SHOP TEXT",
+                "WALLS"
+              ],
+              "source_handles": [
+                "81EAF"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-2-lift-2",
+              "category": "LIFT",
+              "source_layers": [
+                "SHOP TEXT",
+                "WALLS"
+              ],
+              "source_handles": [
+                "81EB0"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-2-lift-3",
+              "category": "LIFT",
+              "source_layers": [
+                "SHOP TEXT",
+                "WALLS"
+              ],
+              "source_handles": [
+                "83735"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-2-lift-4",
+              "category": "LIFT",
+              "source_layers": [
+                "SHOP TEXT",
+                "WALLS"
+              ],
+              "source_handles": [
+                "83736"
+              ],
+              "geometry_type": "line_and_text",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "PENDING_POLYGON",
+              "new_status": "UNRESOLVED",
+              "reason": "Lift core in CAD source is composed of open wall lines, door openings, and text labels. No single closed polyline exists. Fabricating a solid bounding box is strictly prohibited."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-2-proj-booth-1",
+              "category": "SERVICE_ROOM",
+              "source_layers": [
+                "text",
+                "PROJ.",
+                "WALLS"
+              ],
+              "source_handles": [
+                "81ECF"
+              ],
+              "geometry_type": "open_linework",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Projector room is indicated by text on layer 'PROJ.' and surrounding partition lines with open doorways. No closed polyline entity exists."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-2-proj-booth-2",
+              "category": "SERVICE_ROOM",
+              "source_layers": [
+                "text",
+                "PROJ.",
+                "WALLS"
+              ],
+              "source_handles": [
+                "8377F"
+              ],
+              "geometry_type": "open_linework",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LINE_BASED",
+              "new_status": "UNRESOLVED",
+              "reason": "Projector room is indicated by text on layer 'PROJ.' and surrounding partition lines with open doorways. No closed polyline entity exists."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-2-stair-1",
+              "category": "STAIR",
+              "source_layers": [
+                "Nstair"
+              ],
+              "source_handles": [
+                "81E76",
+                "81E77",
+                "81E78",
+                "81E79",
+                "81E7A",
+                "81E7B",
+                "81E7C",
+                "81E7D",
+                "81E7E",
+                "81E7F"
+              ],
+              "geometry_type": "flight_treads",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "HIGH",
+              "previous_status": "FOOTPRINT_UNCERTAIN",
+              "new_status": "FOOTPRINT_UNCERTAIN",
+              "reason": "Stairs consist exclusively of step tread lines and landing paths without a closed boundary polyline. Per Step 6 rules, stairs MUST remain FOOTPRINT_UNCERTAIN."
+            },
+            {
+              "region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+              "obstruction_id": "vadodara-option-2-unknown-1",
+              "category": "UNKNOWN",
+              "source_layers": [
+                "P_DOMESTIC"
+              ],
+              "source_handles": [
+                "83763",
+                "83766",
+                "83769"
+              ],
+              "geometry_type": "unclassified_lines",
+              "area_sqft": 0.0,
+              "closed_geometry_verified": false,
+              "confidence": "LOW",
+              "previous_status": "LOW_CONFIDENCE",
+              "new_status": "LOW_CONFIDENCE",
+              "reason": "Geometry on layer 'P_DOMESTIC' represents domestic water routing that may restrict ceiling plenum or riser space."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

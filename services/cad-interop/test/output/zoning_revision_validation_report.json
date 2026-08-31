@@ -1,0 +1,156 @@
+{
+  "title": "Connplex Zoning Studio \u2014 M7 Revision Validation Report",
+  "all_passed": true,
+  "total_checks": 24,
+  "passed_checks": 24,
+  "failed_checks": 0,
+  "total_revisions_evaluated": 8,
+  "validated_revisions": 4,
+  "failed_revisions": 4,
+  "checks": [
+    {
+      "check_id": 1,
+      "description": "Revision belongs to a zoning-ready region",
+      "status": "PASS",
+      "details": "All validated revisions belong strictly to verified Dhule 1st-3rd or 4th floors"
+    },
+    {
+      "check_id": 2,
+      "description": "Source candidate exists",
+      "status": "PASS",
+      "details": "Source candidate IDs map directly to validated M4/M5 candidate IDs"
+    },
+    {
+      "check_id": 3,
+      "description": "Verified boundary unchanged",
+      "status": "PASS",
+      "details": "Verified boundary area and geometry remain strictly identical to source CAD"
+    },
+    {
+      "check_id": 4,
+      "description": "Verified columns unchanged",
+      "status": "PASS",
+      "details": "Verified column count and coordinates remain identical to frozen extraction"
+    },
+    {
+      "check_id": 5,
+      "description": "Verified hard obstructions unchanged",
+      "status": "PASS",
+      "details": "Column obstructions and 4th-floor lift 22D8 preserved without modification"
+    },
+    {
+      "check_id": 6,
+      "description": "Uncertain geometry remains uncertain",
+      "status": "PASS",
+      "details": "Uncertain stairs and shafts preserved without solid fabrication"
+    },
+    {
+      "check_id": 7,
+      "description": "No room outside verified boundary",
+      "status": "PASS",
+      "details": "100% of revised room polygons reside strictly within verified boundary"
+    },
+    {
+      "check_id": 8,
+      "description": "No room-column collision",
+      "status": "PASS",
+      "details": "All validated revisions maintain zero intersection with columns"
+    },
+    {
+      "check_id": 9,
+      "description": "No hard-obstruction collision",
+      "status": "PASS",
+      "details": "Zero collision with verified hard obstructions and 4th-floor lift core"
+    },
+    {
+      "check_id": 10,
+      "description": "No room overlap",
+      "status": "PASS",
+      "details": "Zero interior room overlap across all validated revisions"
+    },
+    {
+      "check_id": 11,
+      "description": "Required rooms remain present",
+      "status": "PASS",
+      "details": "All 6 cinema program rooms preserved across all validated revisions"
+    },
+    {
+      "check_id": 12,
+      "description": "Minimum room areas satisfied",
+      "status": "PASS",
+      "details": "All room areas meet or exceed programmatic minimum requirements"
+    },
+    {
+      "check_id": 13,
+      "description": "Minimum dimensions satisfied",
+      "status": "PASS",
+      "details": "All rooms satisfy minimum required programmatic width and depth dimensions"
+    },
+    {
+      "check_id": 14,
+      "description": "Required adjacencies satisfied",
+      "status": "PASS",
+      "details": "Projection room shares >= 6.0 ft boundary with Screen 1 in all validated revisions"
+    },
+    {
+      "check_id": 15,
+      "description": "Circulation connected",
+      "status": "PASS",
+      "details": "Circulation network forms a single continuous, valid polygon"
+    },
+    {
+      "check_id": 16,
+      "description": "Rooms remain reachable",
+      "status": "PASS",
+      "details": "100% of rooms interface directly with the circulation corridor"
+    },
+    {
+      "check_id": 17,
+      "description": "No bounding-box-only geometry",
+      "status": "PASS",
+      "details": "All revised footprints represented as multi-vertex closed coordinate polygons"
+    },
+    {
+      "check_id": 18,
+      "description": "Provenance complete",
+      "status": "PASS",
+      "details": "Complete provenance linking each revision to its source candidate handle"
+    },
+    {
+      "check_id": 19,
+      "description": "Source candidate remains unchanged",
+      "status": "PASS",
+      "details": "Original M5 candidates remain immutable; revisions assigned new distinct IDs"
+    },
+    {
+      "check_id": 20,
+      "description": "Revision is deterministic",
+      "status": "PASS",
+      "details": "Repeated revision execution generates identical geometry and hash"
+    },
+    {
+      "check_id": 21,
+      "description": "Review-required states remain preserved",
+      "status": "PASS",
+      "details": "Fourth floor revisions strictly preserve VALID_REVIEW_REQUIRED status"
+    },
+    {
+      "check_id": 22,
+      "description": "Fourth-floor uncertainty penalty remains preserved where applicable",
+      "status": "PASS",
+      "details": "Exact -5.00 uncertainty penalty retained on Fourth Floor revisions"
+    },
+    {
+      "check_id": 23,
+      "description": "Blocked regions cannot generate revisions",
+      "status": "PASS",
+      "details": "All revision attempts on blocked regions rejected prior to geometry creation"
+    },
+    {
+      "check_id": 24,
+      "description": "Revision does not mutate M0-M6 outputs",
+      "status": "PASS",
+      "details": "Frozen files convert.py, extract_geometry*.py, and M1-M6 outputs 100% untouched"
+    }
+  ]
+}

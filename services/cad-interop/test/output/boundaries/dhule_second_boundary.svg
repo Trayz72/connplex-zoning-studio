@@ -1,0 +1,798 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" width="1600" height="1200">
+  <rect x="0" y="0" width="1600" height="1200" fill="#f8fafc" />
+<rect x="0" y="0" width="1600" height="130" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
+<text x="80" y="40" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Boundary Verification — SECOND FLOOR PLAN</text>
+<text x="80" y="66" font-family="Inter, sans-serif" font-size="13" fill="#475569">Plan: SECOND FLOOR PLAN | Canonical Units: Feet | Area: 5,242.0 sqft | Status: PENDING_EXCLUSIONS</text>
+<g transform="translate(1280, 24)">
+  <rect x="0" y="0" width="240" height="34" rx="17" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5" />
+  <circle cx="20" cy="17" r="5" fill="#0369a1" />
+  <text x="35" y="22" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#0369a1">STATUS: PENDING_EXCLUSIONS</text>
+</g>
+<g transform="translate(80, 95)">
+<line x1="0" y1="12" x2="28" y2="12" stroke="#94a3b8" stroke-width="1.0" />
+<text x="34" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">SOURCE CAD</text>
+<line x1="130" y1="12" x2="158" y2="12" stroke="#64748b" stroke-width="1.5" stroke-dasharray="6,4" />
+<text x="164" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">PLAN BBOX</text>
+<line x1="260" y1="12" x2="288" y2="12" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="10,5" />
+<text x="294" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">FRAMING</text>
+<rect x="390" y="4" width="22" height="15" rx="2" fill="rgba(16, 185, 129, 0.15)" stroke="#059669" stroke-width="2.5" />
+<text x="424" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">VERIFIED BOUNDARY</text>
+<line x1="560" y1="12" x2="588" y2="12" stroke="#7c3aed" stroke-width="2.0" stroke-dasharray="6,3" />
+<text x="594" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">CANDIDATE LOOPS</text>
+<rect x="720" y="4" width="22" height="15" rx="2" fill="#dc2626" stroke="#991b1b" stroke-width="1.2" />
+<text x="754" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">COLUMNS</text>
+</g>
+  <g id="boundaries_layer">
+    <line x1="1009.4" y1="519.4" x2="1009.4" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 11F6 | Layer: Wall_TMOS</title></line>
+    <line x1="1011.0" y1="519.4" x2="1011.0" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 11F8 | Layer: Wall_TMOS</title></line>
+    <line x1="1004.1" y1="615.4" x2="1005.6" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 11F9 | Layer: Wall_TMOS</title></line>
+    <line x1="1004.1" y1="519.4" x2="1005.6" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 11FA | Layer: Wall_TMOS</title></line>
+    <path d="M 1009.4 519.3 L 1009.4 502.8 L 1011.0 502.8 L 1011.0 519.3 L 1009.4 519.3" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 11FB | Layer: Wall_TMOS</title></path>
+    <path d="M 1011.0 455.7 L 1011.0 472.3 L 1009.4 472.3 L 1009.4 455.7 L 1011.0 455.7" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 11FC | Layer: Wall_TMOS</title></path>
+    <line x1="1009.4" y1="472.3" x2="1009.4" y2="502.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 11FD | Layer: Door_TMOS</title></line>
+    <line x1="438.2" y1="635.7" x2="438.2" y2="619.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 11FE | Layer: wall</title></line>
+    <line x1="438.2" y1="594.7" x2="438.2" y2="579.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 11FF | Layer: wall</title></line>
+    <line x1="438.2" y1="555.2" x2="438.2" y2="540.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1200 | Layer: wall</title></line>
+    <line x1="438.2" y1="515.7" x2="438.2" y2="484.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1201 | Layer: wall</title></line>
+    <line x1="438.2" y1="459.7" x2="438.2" y2="444.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1202 | Layer: wall</title></line>
+    <line x1="438.2" y1="420.2" x2="438.2" y2="405.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1203 | Layer: wall</title></line>
+    <line x1="438.2" y1="380.8" x2="438.2" y2="364.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1204 | Layer: wall</title></line>
+    <line x1="458.5" y1="615.4" x2="458.5" y2="500.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1205 | Layer: DIAMENTION</title></line>
+    <line x1="458.5" y1="499.1" x2="458.5" y2="384.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1206 | Layer: DIAMENTION</title></line>
+    <line x1="439.7" y1="634.2" x2="439.7" y2="619.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1207 | Layer: wall</title></line>
+    <line x1="439.7" y1="594.7" x2="439.7" y2="579.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1208 | Layer: wall</title></line>
+    <line x1="439.7" y1="555.2" x2="439.7" y2="540.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1209 | Layer: wall</title></line>
+    <line x1="439.7" y1="515.7" x2="439.7" y2="500.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 120A | Layer: wall</title></line>
+    <line x1="439.7" y1="499.1" x2="439.7" y2="484.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 120B | Layer: wall</title></line>
+    <line x1="439.7" y1="459.7" x2="439.7" y2="444.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 120C | Layer: wall</title></line>
+    <line x1="439.7" y1="420.2" x2="439.7" y2="405.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 120D | Layer: wall</title></line>
+    <line x1="439.7" y1="380.8" x2="439.7" y2="365.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 120E | Layer: wall</title></line>
+    <line x1="635.3" y1="615.4" x2="635.3" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 120F | Layer: wall</title></line>
+    <line x1="635.3" y1="455.7" x2="635.3" y2="448.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1210 | Layer: wall</title></line>
+    <line x1="635.3" y1="423.7" x2="635.3" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1211 | Layer: wall</title></line>
+    <line x1="635.3" y1="364.3" x2="635.3" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1212 | Layer: wall</title></line>
+    <line x1="438.2" y1="364.3" x2="635.3" y2="364.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1213 | Layer: wall</title></line>
+    <line x1="458.5" y1="384.6" x2="635.3" y2="384.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1214 | Layer: DIAMENTION</title></line>
+    <line x1="439.7" y1="365.8" x2="635.3" y2="365.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1215 | Layer: wall</title></line>
+    <line x1="636.8" y1="635.7" x2="636.8" y2="634.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1216 | Layer: wall</title></line>
+    <line x1="636.8" y1="613.9" x2="636.8" y2="520.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1217 | Layer: wall</title></line>
+    <line x1="636.8" y1="499.1" x2="636.8" y2="476.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1218 | Layer: WIN</title></line>
+    <line x1="636.8" y1="454.1" x2="636.8" y2="448.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1219 | Layer: wall</title></line>
+    <line x1="636.8" y1="423.7" x2="636.8" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 121A | Layer: wall</title></line>
+    <line x1="635.3" y1="359.7" x2="812.0" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 121B | Layer: wall</title></line>
+    <line x1="837.4" y1="359.7" x2="856.2" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 121C | Layer: wall</title></line>
+    <line x1="636.8" y1="361.2" x2="810.5" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 121D | Layer: wall</title></line>
+    <line x1="837.4" y1="361.2" x2="856.2" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 121E | Layer: wall</title></line>
+    <line x1="874.5" y1="361.2" x2="876.1" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 121F | Layer: wall</title></line>
+    <line x1="877.6" y1="361.2" x2="880.6" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1220 | Layer: wall</title></line>
+    <line x1="876.0" y1="406.9" x2="876.1" y2="406.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1221 | Layer: wall</title></line>
+    <line x1="876.0" y1="408.4" x2="876.1" y2="408.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1222 | Layer: wall</title></line>
+    <line x1="877.6" y1="361.2" x2="1011.0" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1223 | Layer: wall</title></line>
+    <line x1="874.5" y1="359.7" x2="1011.0" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1224 | Layer: wall</title></line>
+    <line x1="636.8" y1="454.1" x2="812.0" y2="454.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1225 | Layer: wall</title></line>
+    <line x1="810.5" y1="429.8" x2="812.0" y2="429.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1226 | Layer: wall</title></line>
+    <line x1="860.8" y1="454.1" x2="876.1" y2="454.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1227 | Layer: wall</title></line>
+    <line x1="839.0" y1="432.3" x2="859.3" y2="432.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1228 | Layer: wall</title></line>
+    <line x1="877.6" y1="454.1" x2="952.7" y2="454.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1229 | Layer: wall</title></line>
+    <line x1="1005.6" y1="454.1" x2="1011.0" y2="454.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 122A | Layer: wall</title></line>
+    <line x1="635.3" y1="455.7" x2="812.0" y2="455.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 122B | Layer: wall</title></line>
+    <line x1="636.8" y1="476.0" x2="810.5" y2="476.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 122C | Layer: WIN</title></line>
+    <line x1="839.0" y1="476.0" x2="942.7" y2="476.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 122D | Layer: WIN</title></line>
+    <line x1="635.3" y1="474.5" x2="812.0" y2="474.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 122E | Layer: WIN</title></line>
+    <line x1="837.4" y1="474.5" x2="944.3" y2="474.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 122F | Layer: WIN</title></line>
+    <line x1="837.4" y1="455.7" x2="876.1" y2="455.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1230 | Layer: wall</title></line>
+    <line x1="876.1" y1="455.7" x2="952.7" y2="455.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1231 | Layer: wall</title></line>
+    <line x1="1004.1" y1="455.7" x2="1011.0" y2="455.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1232 | Layer: wall</title></line>
+    <line x1="1011.0" y1="615.4" x2="839.0" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1233 | Layer: wall</title></line>
+    <line x1="812.0" y1="615.4" x2="635.3" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1234 | Layer: wall</title></line>
+    <line x1="636.8" y1="635.7" x2="438.2" y2="635.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1235 | Layer: wall</title></line>
+    <line x1="1011.0" y1="613.9" x2="839.0" y2="613.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1236 | Layer: wall</title></line>
+    <line x1="810.5" y1="613.9" x2="636.8" y2="613.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1237 | Layer: wall</title></line>
+    <line x1="636.8" y1="634.2" x2="439.7" y2="634.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1238 | Layer: wall</title></line>
+    <line x1="876.1" y1="568.2" x2="837.4" y2="568.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1239 | Layer: wall</title></line>
+    <line x1="876.1" y1="566.6" x2="839.0" y2="566.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 123A | Layer: wall</title></line>
+    <line x1="876.1" y1="551.4" x2="839.0" y2="551.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 123B | Layer: stair</title></line>
+    <line x1="860.3" y1="550.9" x2="854.7" y2="550.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 123C | Layer: stair</title></line>
+    <line x1="876.1" y1="548.3" x2="860.8" y2="548.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 123D | Layer: stair</title></line>
+    <line x1="854.2" y1="548.3" x2="839.0" y2="548.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 123E | Layer: stair</title></line>
+    <line x1="876.1" y1="545.3" x2="860.8" y2="545.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 123F | Layer: stair</title></line>
+    <line x1="854.2" y1="545.3" x2="839.0" y2="545.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1240 | Layer: stair</title></line>
+    <line x1="876.1" y1="542.3" x2="860.8" y2="542.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1241 | Layer: stair</title></line>
+    <line x1="854.2" y1="542.3" x2="839.0" y2="542.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1242 | Layer: stair</title></line>
+    <line x1="876.1" y1="539.2" x2="860.8" y2="539.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1243 | Layer: stair</title></line>
+    <line x1="854.2" y1="539.2" x2="839.0" y2="539.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1244 | Layer: stair</title></line>
+    <line x1="876.1" y1="536.2" x2="860.8" y2="536.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1245 | Layer: stair</title></line>
+    <line x1="854.2" y1="536.2" x2="839.0" y2="536.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1246 | Layer: stair</title></line>
+    <line x1="876.1" y1="533.1" x2="860.8" y2="533.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1247 | Layer: stair</title></line>
+    <line x1="854.2" y1="533.1" x2="839.0" y2="533.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1248 | Layer: stair</title></line>
+    <line x1="876.1" y1="530.1" x2="860.8" y2="530.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1249 | Layer: stair</title></line>
+    <line x1="854.2" y1="530.1" x2="839.0" y2="530.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 124A | Layer: stair</title></line>
+    <line x1="876.1" y1="527.0" x2="860.8" y2="527.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 124B | Layer: stair</title></line>
+    <line x1="854.2" y1="527.0" x2="839.0" y2="527.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 124C | Layer: stair</title></line>
+    <line x1="876.1" y1="524.0" x2="860.8" y2="524.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 124D | Layer: stair</title></line>
+    <line x1="854.2" y1="524.0" x2="839.0" y2="524.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 124E | Layer: stair</title></line>
+    <line x1="860.3" y1="521.4" x2="854.7" y2="521.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 124F | Layer: stair</title></line>
+    <line x1="1011.0" y1="520.9" x2="928.9" y2="520.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1250 | Layer: wall</title></line>
+    <line x1="1011.0" y1="519.4" x2="928.9" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1251 | Layer: wall</title></line>
+    <line x1="1011.0" y1="519.4" x2="1004.1" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1252 | Layer: wall</title></line>
+    <line x1="810.5" y1="520.9" x2="636.8" y2="520.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1253 | Layer: wall</title></line>
+    <line x1="639.8" y1="520.9" x2="636.8" y2="520.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1254 | Layer: wall</title></line>
+    <line x1="839.0" y1="519.4" x2="837.4" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1255 | Layer: wall</title></line>
+    <line x1="812.0" y1="519.4" x2="635.3" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1256 | Layer: wall</title></line>
+    <line x1="942.7" y1="499.1" x2="839.0" y2="499.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1257 | Layer: WIN</title></line>
+    <line x1="810.5" y1="499.1" x2="636.8" y2="499.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1258 | Layer: WIN</title></line>
+    <line x1="944.3" y1="500.6" x2="837.4" y2="500.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1259 | Layer: WIN</title></line>
+    <line x1="812.0" y1="500.6" x2="636.8" y2="500.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 125A | Layer: WIN</title></line>
+    <line x1="639.8" y1="519.4" x2="635.3" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 125B | Layer: wall</title></line>
+    <line x1="810.5" y1="613.9" x2="810.5" y2="548.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 125C | Layer: wall</title></line>
+    <line x1="810.5" y1="523.7" x2="810.5" y2="520.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 125D | Layer: wall</title></line>
+    <line x1="812.0" y1="615.4" x2="812.0" y2="548.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 125E | Layer: wall</title></line>
+    <line x1="812.0" y1="523.7" x2="812.0" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 125F | Layer: wall</title></line>
+    <line x1="876.1" y1="566.6" x2="876.1" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1260 | Layer: wall</title></line>
+    <line x1="860.8" y1="566.6" x2="860.8" y2="520.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1261 | Layer: stair</title></line>
+    <line x1="860.3" y1="550.9" x2="860.3" y2="521.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1262 | Layer: stair</title></line>
+    <line x1="876.1" y1="454.1" x2="876.1" y2="418.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1263 | Layer: wall</title></line>
+    <line x1="876.1" y1="417.1" x2="876.1" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1264 | Layer: wall</title></line>
+    <line x1="877.6" y1="566.6" x2="877.6" y2="520.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1265 | Layer: wall</title></line>
+    <line x1="877.6" y1="454.1" x2="877.6" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1266 | Layer: wall</title></line>
+    <line x1="837.4" y1="417.1" x2="862.3" y2="417.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1267 | Layer: wall</title></line>
+    <line x1="874.5" y1="417.1" x2="876.1" y2="417.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1268 | Layer: wall</title></line>
+    <line x1="837.4" y1="418.6" x2="859.3" y2="418.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1269 | Layer: wall</title></line>
+    <line x1="860.8" y1="418.6" x2="862.3" y2="418.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 126A | Layer: wall</title></line>
+    <line x1="874.5" y1="418.6" x2="876.1" y2="418.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 126B | Layer: wall</title></line>
+    <line x1="837.4" y1="426.2" x2="839.0" y2="426.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 126C | Layer: wall</title></line>
+    <line x1="837.4" y1="417.1" x2="837.4" y2="418.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 126D | Layer: wall</title></line>
+    <line x1="837.4" y1="417.1" x2="837.4" y2="418.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 126E | Layer: wall</title></line>
+    <line x1="837.4" y1="426.2" x2="837.4" y2="438.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 126F | Layer: wall</title></line>
+    <line x1="837.4" y1="449.1" x2="837.4" y2="455.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1270 | Layer: wall</title></line>
+    <line x1="837.4" y1="519.4" x2="837.4" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1271 | Layer: wall</title></line>
+    <line x1="839.0" y1="426.2" x2="839.0" y2="432.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1272 | Layer: wall</title></line>
+    <line x1="859.3" y1="418.6" x2="859.3" y2="422.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1273 | Layer: wall</title></line>
+    <line x1="859.3" y1="428.5" x2="859.3" y2="432.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1274 | Layer: wall</title></line>
+    <line x1="860.8" y1="418.6" x2="860.8" y2="422.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1275 | Layer: wall</title></line>
+    <line x1="860.8" y1="428.5" x2="860.8" y2="454.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1276 | Layer: wall</title></line>
+    <line x1="839.0" y1="519.4" x2="839.0" y2="566.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1277 | Layer: wall</title></line>
+    <line x1="854.2" y1="520.9" x2="854.2" y2="566.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1278 | Layer: stair</title></line>
+    <line x1="854.7" y1="521.4" x2="854.7" y2="550.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1279 | Layer: stair</title></line>
+    <line x1="839.0" y1="568.2" x2="839.0" y2="613.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 127A | Layer: wall</title></line>
+    <line x1="837.4" y1="396.7" x2="855.7" y2="396.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 127B | Layer: stair</title></line>
+    <line x1="838.5" y1="395.7" x2="854.7" y2="395.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 127C | Layer: stair</title></line>
+    <line x1="837.4" y1="381.5" x2="855.7" y2="381.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 127D | Layer: stair</title></line>
+    <line x1="838.5" y1="382.5" x2="854.7" y2="382.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 127E | Layer: stair</title></line>
+    <line x1="855.7" y1="361.2" x2="855.7" y2="381.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 127F | Layer: stair</title></line>
+    <line x1="855.7" y1="381.5" x2="855.7" y2="396.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1280 | Layer: stair</title></line>
+    <line x1="855.7" y1="396.7" x2="855.7" y2="417.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1281 | Layer: stair</title></line>
+    <line x1="854.7" y1="382.5" x2="854.7" y2="395.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1282 | Layer: stair</title></line>
+    <line x1="852.7" y1="361.2" x2="852.7" y2="381.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1283 | Layer: stair</title></line>
+    <line x1="852.7" y1="396.7" x2="852.7" y2="417.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1284 | Layer: stair</title></line>
+    <line x1="849.6" y1="361.2" x2="849.6" y2="381.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1285 | Layer: stair</title></line>
+    <line x1="849.6" y1="396.7" x2="849.6" y2="417.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1286 | Layer: stair</title></line>
+    <line x1="846.6" y1="361.2" x2="846.6" y2="381.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1287 | Layer: stair</title></line>
+    <line x1="846.6" y1="396.7" x2="846.6" y2="417.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1288 | Layer: stair</title></line>
+    <line x1="843.5" y1="361.2" x2="843.5" y2="381.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1289 | Layer: stair</title></line>
+    <line x1="843.5" y1="396.7" x2="843.5" y2="417.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 128A | Layer: stair</title></line>
+    <line x1="840.5" y1="361.2" x2="840.5" y2="381.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 128B | Layer: stair</title></line>
+    <line x1="840.5" y1="396.7" x2="840.5" y2="417.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 128C | Layer: stair</title></line>
+    <line x1="837.4" y1="361.2" x2="837.4" y2="382.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 128D | Layer: stair</title></line>
+    <line x1="837.4" y1="396.7" x2="837.4" y2="417.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 128E | Layer: stair</title></line>
+    <line x1="837.4" y1="396.7" x2="837.4" y2="382.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 128F | Layer: stair</title></line>
+    <line x1="838.5" y1="395.7" x2="838.5" y2="382.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1290 | Layer: stair</title></line>
+    <line x1="838.5" y1="382.5" x2="854.7" y2="395.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1291 | Layer: DIAMENTION</title></line>
+    <line x1="838.5" y1="395.7" x2="854.7" y2="382.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1292 | Layer: DIAMENTION</title></line>
+    <path d="M 843.5 406.9 L 867.0 406.9 L 867.0 371.1 L 837.4 371.1" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 1293 | Layer: stair</title></path>
+    <line x1="837.4" y1="361.2" x2="837.4" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1296 | Layer: wall</title></line>
+    <line x1="904.5" y1="520.9" x2="904.5" y2="552.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1297 | Layer: wall</title></line>
+    <line x1="903.0" y1="519.4" x2="903.0" y2="552.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1298 | Layer: wall</title></line>
+    <line x1="810.5" y1="523.7" x2="812.0" y2="523.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1299 | Layer: wall</title></line>
+    <line x1="810.5" y1="548.1" x2="812.0" y2="548.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 129A | Layer: wall</title></line>
+    <line x1="635.3" y1="339.3" x2="1079.8" y2="339.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 129B | Layer: WIN</title></line>
+    <line x1="636.8" y1="340.4" x2="1078.2" y2="340.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 129C | Layer: WIN</title></line>
+    <line x1="636.8" y1="635.7" x2="1008.2" y2="635.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 129D | Layer: WIN</title></line>
+    <line x1="636.8" y1="634.7" x2="1008.2" y2="634.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 129E | Layer: WIN</title></line>
+    <line x1="812.0" y1="523.7" x2="812.0" y2="548.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 129F | Layer: WIN</title></line>
+    <path d="M 843.5 406.9 L 845.4 404.7 L 845.6 405.9 L 843.5 406.9" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 12A0 | Layer: stair</title></path>
+    <path d="M 843.5 406.9 L 845.4 409.1 L 845.6 407.9 L 843.5 406.9" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 12A1 | Layer: stair</title></path>
+    <path d="M 846.6 536.2 L 846.6 560.5 L 868.5 560.5 L 868.5 524.0" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 12A2 | Layer: stair</title></path>
+    <path d="M 846.6 536.2 L 848.8 538.0 L 847.6 538.2 L 846.6 536.2" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 12A3 | Layer: stair</title></path>
+    <path d="M 846.6 536.2 L 844.4 538.0 L 845.6 538.2 L 846.6 536.2" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 12A4 | Layer: stair</title></path>
+    <line x1="635.3" y1="359.7" x2="635.3" y2="339.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12A7 | Layer: WIN</title></line>
+    <line x1="636.8" y1="359.7" x2="636.8" y2="340.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12A8 | Layer: WIN</title></line>
+    <line x1="636.8" y1="519.4" x2="636.8" y2="500.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12A9 | Layer: WIN</title></line>
+    <line x1="636.8" y1="455.7" x2="636.8" y2="474.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12AA | Layer: WIN</title></line>
+    <line x1="636.8" y1="500.6" x2="439.7" y2="500.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12AB | Layer: wall</title></line>
+    <line x1="636.8" y1="499.1" x2="439.7" y2="499.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12AC | Layer: wall</title></line>
+    <line x1="636.8" y1="500.6" x2="636.8" y2="499.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12AD | Layer: wall</title></line>
+    <line x1="636.8" y1="634.2" x2="636.8" y2="615.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12AE | Layer: WIN</title></line>
+    <line x1="636.8" y1="499.1" x2="810.5" y2="476.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12AF | Layer: WI</title></line>
+    <line x1="636.8" y1="476.0" x2="810.5" y2="499.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12B0 | Layer: WI</title></line>
+    <line x1="837.4" y1="438.9" x2="837.4" y2="449.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12C5 | Layer: WIN</title></line>
+    <line x1="876.1" y1="454.1" x2="860.8" y2="418.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12C8 | Layer: WI</title></line>
+    <line x1="860.8" y1="454.1" x2="876.1" y2="418.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12C9 | Layer: WI</title></line>
+    <line x1="837.4" y1="426.2" x2="837.4" y2="418.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12CA | Layer: WIN</title></line>
+    <line x1="854.7" y1="550.9" x2="860.3" y2="521.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12D3 | Layer: DIAMENTION</title></line>
+    <line x1="854.7" y1="521.4" x2="860.3" y2="550.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12D4 | Layer: DIAMENTION</title></line>
+    <line x1="859.3" y1="428.5" x2="860.8" y2="428.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12D5 | Layer: wall</title></line>
+    <line x1="859.3" y1="422.4" x2="860.8" y2="422.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12D6 | Layer: wall</title></line>
+    <line x1="860.8" y1="428.5" x2="860.8" y2="422.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12D7 | Layer: WIN</title></line>
+    <line x1="860.2" y1="428.5" x2="860.2" y2="422.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12D8 | Layer: WIN</title></line>
+    <line x1="859.3" y1="428.5" x2="859.3" y2="422.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12D9 | Layer: WIN</title></line>
+    <line x1="859.9" y1="428.5" x2="859.9" y2="422.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12DA | Layer: WIN</title></line>
+    <line x1="856.2" y1="359.7" x2="856.2" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12DB | Layer: wall</title></line>
+    <line x1="874.5" y1="359.7" x2="874.5" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12DC | Layer: wall</title></line>
+    <line x1="856.2" y1="361.2" x2="874.5" y2="361.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12DD | Layer: WIN</title></line>
+    <line x1="856.2" y1="360.6" x2="874.5" y2="360.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12DE | Layer: WIN</title></line>
+    <line x1="856.2" y1="359.7" x2="874.5" y2="359.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12DF | Layer: WIN</title></line>
+    <line x1="856.2" y1="360.3" x2="874.5" y2="360.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12E0 | Layer: WIN</title></line>
+    <line x1="862.3" y1="417.1" x2="862.3" y2="418.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12E1 | Layer: wall</title></line>
+    <line x1="874.5" y1="417.1" x2="874.5" y2="418.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12E2 | Layer: wall</title></line>
+    <line x1="862.3" y1="418.6" x2="874.5" y2="418.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12E3 | Layer: WIN</title></line>
+    <line x1="862.3" y1="418.0" x2="874.5" y2="418.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12E4 | Layer: WIN</title></line>
+    <line x1="862.3" y1="417.1" x2="874.5" y2="417.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12E5 | Layer: WIN</title></line>
+    <line x1="862.3" y1="417.7" x2="874.5" y2="417.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12E6 | Layer: WIN</title></line>
+    <line x1="635.3" y1="615.4" x2="458.5" y2="615.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12EF | Layer: DIAMENTION</title></line>
+    <line x1="438.2" y1="420.2" x2="438.2" y2="444.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12F8 | Layer: WIN</title></line>
+    <line x1="438.8" y1="420.2" x2="438.8" y2="444.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12F9 | Layer: WIN</title></line>
+    <line x1="439.7" y1="420.2" x2="439.7" y2="444.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12FA | Layer: WIN</title></line>
+    <line x1="439.1" y1="420.2" x2="439.1" y2="444.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12FB | Layer: WIN</title></line>
+    <line x1="438.2" y1="420.2" x2="439.7" y2="420.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12FC | Layer: wall</title></line>
+    <line x1="439.7" y1="444.6" x2="438.2" y2="444.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 12FD | Layer: wall</title></line>
+    <line x1="438.2" y1="380.8" x2="438.2" y2="405.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12FE | Layer: WIN</title></line>
+    <line x1="438.8" y1="380.8" x2="438.8" y2="405.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 12FF | Layer: WIN</title></line>
+    <line x1="439.7" y1="380.8" x2="439.7" y2="405.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1300 | Layer: WIN</title></line>
+    <line x1="439.1" y1="380.8" x2="439.1" y2="405.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1301 | Layer: WIN</title></line>
+    <line x1="438.2" y1="380.8" x2="439.7" y2="380.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1302 | Layer: wall</title></line>
+    <line x1="439.7" y1="405.2" x2="438.2" y2="405.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1303 | Layer: wall</title></line>
+    <line x1="438.2" y1="459.7" x2="438.2" y2="484.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1304 | Layer: WIN</title></line>
+    <line x1="438.8" y1="459.7" x2="438.8" y2="484.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1305 | Layer: WIN</title></line>
+    <line x1="439.7" y1="459.7" x2="439.7" y2="484.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1306 | Layer: WIN</title></line>
+    <line x1="439.1" y1="459.7" x2="439.1" y2="484.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1307 | Layer: WIN</title></line>
+    <line x1="438.2" y1="459.7" x2="439.7" y2="459.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1308 | Layer: wall</title></line>
+    <line x1="439.7" y1="484.0" x2="438.2" y2="484.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1309 | Layer: wall</title></line>
+    <line x1="438.2" y1="555.2" x2="438.2" y2="579.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 130A | Layer: WIN</title></line>
+    <line x1="438.8" y1="555.2" x2="438.8" y2="579.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 130B | Layer: WIN</title></line>
+    <line x1="439.7" y1="555.2" x2="439.7" y2="579.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 130C | Layer: WIN</title></line>
+    <line x1="439.1" y1="555.2" x2="439.1" y2="579.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 130D | Layer: WIN</title></line>
+    <line x1="438.2" y1="555.2" x2="439.7" y2="555.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 130E | Layer: wall</title></line>
+    <line x1="439.7" y1="579.6" x2="438.2" y2="579.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 130F | Layer: wall</title></line>
+    <line x1="438.2" y1="515.7" x2="438.2" y2="540.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1310 | Layer: WIN</title></line>
+    <line x1="438.8" y1="515.7" x2="438.8" y2="540.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1311 | Layer: WIN</title></line>
+    <line x1="439.7" y1="515.7" x2="439.7" y2="540.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1312 | Layer: WIN</title></line>
+    <line x1="439.1" y1="515.7" x2="439.1" y2="540.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1313 | Layer: WIN</title></line>
+    <line x1="438.2" y1="515.7" x2="439.7" y2="515.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1314 | Layer: wall</title></line>
+    <line x1="439.7" y1="540.1" x2="438.2" y2="540.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1315 | Layer: wall</title></line>
+    <line x1="438.2" y1="594.7" x2="438.2" y2="619.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1316 | Layer: WIN</title></line>
+    <line x1="438.8" y1="594.7" x2="438.8" y2="619.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1317 | Layer: WIN</title></line>
+    <line x1="439.7" y1="594.7" x2="439.7" y2="619.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1318 | Layer: WIN</title></line>
+    <line x1="439.1" y1="594.7" x2="439.1" y2="619.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1319 | Layer: WIN</title></line>
+    <line x1="438.2" y1="594.7" x2="439.7" y2="594.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 131A | Layer: wall</title></line>
+    <line x1="439.7" y1="619.1" x2="438.2" y2="619.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 131B | Layer: wall</title></line>
+    <path d="M 393.9 293.0 L 1215.8 293.0 L 1215.8 951.4 L 393.9 951.4 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 1393 | Layer: wall</title></path>
+    <path d="M 390.8 290.0 L 1218.8 290.0 L 1218.8 954.4 L 390.8 954.4 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 13DE | Layer: H</title></path>
+    <line x1="999.0" y1="455.7" x2="1005.6" y2="455.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13DF | Layer: wall</title></line>
+    <line x1="979.2" y1="453.6" x2="983.7" y2="453.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13E0 | Layer: wall</title></line>
+    <line x1="999.0" y1="453.6" x2="1003.5" y2="453.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13E1 | Layer: wall</title></line>
+    <line x1="979.2" y1="423.2" x2="1003.5" y2="423.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13E2 | Layer: wall</title></line>
+    <line x1="977.1" y1="421.1" x2="1004.1" y2="421.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13E3 | Layer: wall</title></line>
+    <line x1="999.0" y1="453.6" x2="999.0" y2="455.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13E4 | Layer: wall</title></line>
+    <line x1="983.7" y1="453.6" x2="983.7" y2="455.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13E5 | Layer: wall</title></line>
+    <line x1="880.6" y1="520.9" x2="877.6" y2="520.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13E9 | Layer: wall</title></line>
+    <line x1="880.6" y1="520.9" x2="880.6" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13EA | Layer: wall</title></line>
+    <line x1="903.0" y1="552.9" x2="877.6" y2="552.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13EB | Layer: wall</title></line>
+    <line x1="903.0" y1="551.4" x2="877.6" y2="551.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13EC | Layer: wall</title></line>
+    <line x1="881.6" y1="520.9" x2="877.6" y2="520.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13ED | Layer: wall</title></line>
+    <line x1="881.6" y1="519.4" x2="877.6" y2="519.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13EE | Layer: wall</title></line>
+    <line x1="881.6" y1="519.4" x2="881.6" y2="520.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 13EF | Layer: wall</title></line>
+    <line x1="881.6" y1="519.4" x2="898.9" y2="519.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 13F3 | Layer: stair</title></line>
+    <path d="M 635.3 474.5 L 636.8 474.5 L 636.8 499.1 L 635.3 499.1 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 13F6 | Layer: wall</title></path>
+    <line x1="983.7" y1="455.7" x2="999.0" y2="455.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 13FD | Layer: WIN</title></line>
+    <line x1="635.3" y1="448.1" x2="636.8" y2="448.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1400 | Layer: wall</title></line>
+    <line x1="635.3" y1="423.7" x2="636.8" y2="423.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1401 | Layer: wall</title></line>
+    <line x1="812.0" y1="359.7" x2="812.0" y2="429.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1402 | Layer: wall</title></line>
+    <line x1="812.0" y1="454.1" x2="812.0" y2="455.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1403 | Layer: wall</title></line>
+    <line x1="810.5" y1="361.2" x2="810.5" y2="429.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1404 | Layer: wall</title></line>
+    <path d="M 978.7 421.1 L 978.7 408.4 L 1008.9 408.4 L 1008.9 421.1" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 1405 | Layer: wall</title></path>
+    <path d="M 977.1 421.1 L 977.1 406.9 L 1011.0 406.9 L 1011.0 421.1" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 1406 | Layer: wall</title></path>
+    <line x1="978.7" y1="408.4" x2="1008.9" y2="421.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1407 | Layer: WI</title></line>
+    <line x1="1008.9" y1="408.4" x2="978.7" y2="421.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1408 | Layer: WI</title></line>
+    <path d="M 877.6 568.1 L 904.5 568.1 L 904.5 552.9" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 1409 | Layer: wall</title></path>
+    <path d="M 877.6 566.6 L 903.0 566.6 L 903.0 552.9" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 140A | Layer: wall</title></path>
+    <line x1="877.6" y1="553.0" x2="903.0" y2="566.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 140B | Layer: DUCT (DCPL)</title></line>
+    <line x1="903.0" y1="553.0" x2="877.6" y2="566.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 140C | Layer: DUCT (DCPL)</title></line>
+    <line x1="944.3" y1="474.5" x2="944.3" y2="500.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 140D | Layer: WIN</title></line>
+    <line x1="942.7" y1="499.1" x2="942.7" y2="476.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 140E | Layer: WIN</title></line>
+    <line x1="1142.2" y1="517.3" x2="1142.2" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 140F | Layer: Wall_TMOS</title></line>
+    <line x1="1140.7" y1="517.3" x2="1140.7" y2="472.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1410 | Layer: Wall_TMOS</title></line>
+    <line x1="1140.7" y1="470.9" x2="1140.7" y2="435.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1411 | Layer: Wall_TMOS</title></line>
+    <line x1="1140.7" y1="433.8" x2="1140.7" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1412 | Layer: Wall_TMOS</title></line>
+    <line x1="1177.7" y1="584.4" x2="1177.7" y2="613.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1413 | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="584.4" x2="1179.2" y2="619.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1414 | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="660.9" x2="1179.2" y2="666.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1415 | Layer: Wall_TMOS</title></line>
+    <line x1="1007.9" y1="340.9" x2="1007.9" y2="340.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1416 | Layer: Railing_TMOS</title></line>
+    <line x1="1008.9" y1="340.9" x2="1008.9" y2="339.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1418 | Layer: Railing_TMOS</title></line>
+    <line x1="1008.4" y1="340.9" x2="1008.4" y2="339.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1419 | Layer: Railing_TMOS</title></line>
+    <line x1="1157.4" y1="564.1" x2="1157.4" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 141A | Layer: stair</title></line>
+    <line x1="1157.4" y1="584.4" x2="1157.4" y2="593.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 141B | Layer: Staircase_TMOS</title></line>
+    <line x1="1157.4" y1="593.6" x2="1157.4" y2="613.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 141C | Layer: stair</title></line>
+    <line x1="1156.9" y1="584.9" x2="1156.9" y2="593.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 141D | Layer: Staircase_TMOS</title></line>
+    <line x1="1154.3" y1="564.1" x2="1154.3" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 141E | Layer: stair</title></line>
+    <line x1="1154.3" y1="593.6" x2="1154.3" y2="613.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 141F | Layer: stair</title></line>
+    <line x1="1151.3" y1="564.1" x2="1151.3" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1420 | Layer: stair</title></line>
+    <line x1="1151.3" y1="593.6" x2="1151.3" y2="613.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1421 | Layer: stair</title></line>
+    <line x1="1148.3" y1="564.1" x2="1148.3" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1422 | Layer: stair</title></line>
+    <line x1="1148.3" y1="593.6" x2="1148.3" y2="613.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1423 | Layer: stair</title></line>
+    <line x1="1145.2" y1="564.1" x2="1145.2" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1424 | Layer: stair</title></line>
+    <line x1="1145.2" y1="593.6" x2="1145.2" y2="613.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1425 | Layer: stair</title></line>
+    <line x1="1142.2" y1="564.1" x2="1142.2" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1426 | Layer: stair</title></line>
+    <line x1="1142.2" y1="593.6" x2="1142.2" y2="613.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1427 | Layer: stair</title></line>
+    <line x1="1139.1" y1="564.1" x2="1139.1" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1428 | Layer: stair</title></line>
+    <line x1="1139.1" y1="593.6" x2="1139.1" y2="613.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1429 | Layer: stair</title></line>
+    <line x1="1136.1" y1="564.1" x2="1136.1" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 142A | Layer: stair</title></line>
+    <line x1="1102.7" y1="545.2" x2="1102.7" y2="593.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 142B | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="543.1" x2="1100.7" y2="593.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 142C | Layer: Wall_TMOS</title></line>
+    <line x1="1136.1" y1="593.6" x2="1136.1" y2="613.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 142D | Layer: stair</title></line>
+    <line x1="1136.1" y1="584.4" x2="1157.4" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 142E | Layer: Staircase_TMOS</title></line>
+    <line x1="1157.4" y1="584.4" x2="1177.7" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 142F | Layer: stair</title></line>
+    <line x1="1136.6" y1="584.9" x2="1156.9" y2="584.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1430 | Layer: Staircase_TMOS</title></line>
+    <line x1="1157.4" y1="587.5" x2="1177.7" y2="587.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1431 | Layer: stair</title></line>
+    <line x1="1157.4" y1="590.5" x2="1177.7" y2="590.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1432 | Layer: stair</title></line>
+    <line x1="1157.4" y1="593.6" x2="1177.7" y2="593.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1433 | Layer: stair</title></line>
+    <line x1="1136.1" y1="593.6" x2="1157.4" y2="593.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1434 | Layer: Staircase_TMOS</title></line>
+    <line x1="1136.6" y1="593.0" x2="1156.9" y2="593.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1435 | Layer: Staircase_TMOS</title></line>
+    <line x1="1136.1" y1="593.6" x2="1136.1" y2="584.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1436 | Layer: Staircase_TMOS</title></line>
+    <line x1="1136.6" y1="593.0" x2="1136.6" y2="584.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1437 | Layer: Staircase_TMOS</title></line>
+    <line x1="1136.6" y1="593.0" x2="1156.9" y2="584.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1438 | Layer: Staircase_TMOS</title></line>
+    <line x1="1136.6" y1="584.9" x2="1156.9" y2="593.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1439 | Layer: Staircase_TMOS</title></line>
+    <line x1="1136.1" y1="564.1" x2="1198.0" y2="564.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 143A | Layer: Wall_TMOS</title></line>
+    <line x1="1136.1" y1="562.6" x2="1168.5" y2="562.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 143B | Layer: Wall_TMOS</title></line>
+    <line x1="1171.6" y1="562.0" x2="1199.6" y2="562.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 143C | Layer: Wall_TMOS</title></line>
+    <line x1="1199.6" y1="950.8" x2="1008.2" y2="950.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 143D | Layer: Wall_TMOS</title></line>
+    <line x1="1198.0" y1="948.7" x2="1009.7" y2="948.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 143E | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="950.8" x2="1179.2" y2="947.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 143F | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="930.4" x2="1179.2" y2="749.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1440 | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="729.7" x2="1179.2" y2="724.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1441 | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="705.4" x2="1179.2" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1442 | Layer: Wall_TMOS</title></line>
+    <line x1="1199.6" y1="950.8" x2="1199.6" y2="562.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1443 | Layer: Wall_TMOS</title></line>
+    <line x1="1198.0" y1="948.7" x2="1198.0" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1444 | Layer: Wall_TMOS</title></line>
+    <line x1="1008.2" y1="950.8" x2="1008.2" y2="635.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1445 | Layer: Wall_TMOS</title></line>
+    <line x1="1009.7" y1="948.7" x2="1009.7" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1446 | Layer: Wall_TMOS</title></line>
+    <line x1="1142.2" y1="545.2" x2="1142.2" y2="339.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1447 | Layer: Wall_TMOS</title></line>
+    <line x1="1140.7" y1="543.1" x2="1140.7" y2="340.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1448 | Layer: Wall_TMOS</title></line>
+    <line x1="1079.8" y1="359.7" x2="1119.4" y2="359.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1449 | Layer: RAMP_TMOS</title></line>
+    <line x1="1119.4" y1="359.7" x2="1032.3" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 144B | Layer: Wall_TMOS</title></line>
+    <line x1="1142.2" y1="339.3" x2="1008.9" y2="339.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 144C | Layer: Wall_TMOS</title></line>
+    <line x1="1140.7" y1="340.9" x2="1008.9" y2="340.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 144D | Layer: Wall_TMOS</title></line>
+    <line x1="1119.4" y1="361.2" x2="1032.3" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 144E | Layer: Wall_TMOS</title></line>
+    <line x1="1140.7" y1="383.5" x2="1138.7" y2="383.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 144F | Layer: Wall_TMOS</title></line>
+    <line x1="1058.6" y1="383.5" x2="1011.0" y2="383.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1450 | Layer: Wall_TMOS</title></line>
+    <line x1="1140.7" y1="384.5" x2="1138.7" y2="384.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1451 | Layer: Wall_TMOS</title></line>
+    <line x1="1058.6" y1="384.5" x2="1011.0" y2="384.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1452 | Layer: Wall_TMOS</title></line>
+    <line x1="1011.0" y1="448.8" x2="1011.0" y2="377.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1453 | Layer: Wall_TMOS</title></line>
+    <line x1="1011.0" y1="376.4" x2="1011.0" y2="361.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1454 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="615.4" x2="1179.2" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1455 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="616.4" x2="1102.7" y2="616.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1456 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="613.9" x2="1179.2" y2="613.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1457 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="839.0" x2="1102.7" y2="838.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1458 | Layer: 0</title></line>
+    <line x1="1102.7" y1="839.0" x2="1102.7" y2="838.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1459 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="819.7" x2="1102.7" y2="817.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 145A | Layer: Wall_TMOS</title></line>
+    <line x1="1123.0" y1="817.7" x2="1123.0" y2="728.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 145B | Layer: 0</title></line>
+    <line x1="1134.2" y1="818.7" x2="1134.2" y2="728.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 145C | Layer: 0</title></line>
+    <line x1="1199.6" y1="950.8" x2="1008.2" y2="950.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 145D | Layer: Wall_TMOS</title></line>
+    <line x1="1198.0" y1="948.7" x2="1009.7" y2="948.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 145E | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="842.0" x2="1102.7" y2="842.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 145F | Layer: Wall_TMOS</title></line>
+    <line x1="1142.4" y1="862.4" x2="1102.7" y2="862.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1460 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="861.3" x2="1009.7" y2="861.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1461 | Layer: Wall_TMOS</title></line>
+    <line x1="1142.4" y1="863.4" x2="1102.7" y2="863.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1462 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="863.4" x2="1009.7" y2="863.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1463 | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="839.0" x2="1102.7" y2="839.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1464 | Layer: Wall_TMOS</title></line>
+    <line x1="1142.3" y1="818.7" x2="1102.7" y2="818.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1465 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="819.7" x2="1100.7" y2="819.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1466 | Layer: Wall_TMOS</title></line>
+    <line x1="1142.3" y1="817.7" x2="1100.7" y2="817.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1467 | Layer: Wall_TMOS</title></line>
+    <line x1="1177.2" y1="728.7" x2="1100.7" y2="728.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1468 | Layer: Wall_TMOS</title></line>
+    <line x1="1177.2" y1="725.7" x2="1100.7" y2="725.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1469 | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="950.8" x2="1179.2" y2="947.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 146A | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="930.4" x2="1179.2" y2="842.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 146B | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="839.0" x2="1179.2" y2="749.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 146C | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="729.7" x2="1179.2" y2="728.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 146D | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="725.7" x2="1179.2" y2="724.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 146E | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="705.4" x2="1179.2" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 146F | Layer: Wall_TMOS</title></line>
+    <line x1="1177.2" y1="950.8" x2="1177.2" y2="947.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1470 | Layer: Wall_TMOS</title></line>
+    <line x1="1177.2" y1="930.4" x2="1177.2" y2="842.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1471 | Layer: Wall_TMOS</title></line>
+    <line x1="1177.2" y1="839.0" x2="1177.2" y2="749.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1472 | Layer: Wall_TMOS</title></line>
+    <line x1="1177.2" y1="729.7" x2="1177.2" y2="728.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1473 | Layer: Wall_TMOS</title></line>
+    <line x1="1177.2" y1="725.7" x2="1177.2" y2="724.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1474 | Layer: Wall_TMOS</title></line>
+    <line x1="1177.2" y1="705.4" x2="1177.2" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1475 | Layer: Wall_TMOS</title></line>
+    <line x1="1198.0" y1="948.7" x2="1198.0" y2="564.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1476 | Layer: Wall_TMOS</title></line>
+    <line x1="1008.2" y1="950.8" x2="1008.2" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1477 | Layer: Wall_TMOS</title></line>
+    <line x1="1009.7" y1="948.7" x2="1009.7" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1478 | Layer: Wall_TMOS</title></line>
+    <line x1="1123.5" y1="948.7" x2="1123.5" y2="862.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1479 | Layer: 0</title></line>
+    <line x1="1102.7" y1="948.7" x2="1102.7" y2="862.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 147A | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="948.7" x2="1100.7" y2="861.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 147B | Layer: Wall_TMOS</title></line>
+    <line x1="1136.2" y1="948.7" x2="1136.2" y2="862.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 147C | Layer: 0</title></line>
+    <line x1="1140.7" y1="424.8" x2="1032.3" y2="424.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 147D | Layer: 0</title></line>
+    <line x1="1140.7" y1="413.7" x2="1032.3" y2="413.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 147E | Layer: 0</title></line>
+    <line x1="1140.7" y1="402.5" x2="1032.3" y2="402.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 147F | Layer: 0</title></line>
+    <line x1="1011.0" y1="418.8" x2="1011.0" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1480 | Layer: Wall_TMOS</title></line>
+    <line x1="1008.9" y1="448.8" x2="1008.9" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1481 | Layer: Wall_TMOS</title></line>
+    <line x1="1008.9" y1="340.9" x2="1008.9" y2="339.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1482 | Layer: Wall_TMOS</title></line>
+    <line x1="1134.2" y1="728.7" x2="1134.2" y2="725.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1483 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="842.0" x2="1102.7" y2="843.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1484 | Layer: Wall_TMOS</title></line>
+    <path d="M 1102.7 843.1 L 1177.2 843.1" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 1485 | Layer: LINE-1-KEY (DCPL)</title></path>
+    <path d="M 1179.2 947.7 L 1119.5 947.7" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 1489 | Layer: LINE-1-KEY (DCPL)</title></path>
+    <path d="M 1179.2 839.0 L 1102.7 839.0" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 14AF | Layer: Wall_TMOS</title></path>
+    <path d="M 1102.7 838.0 L 1100.7 838.0" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 14B0 | Layer: Wall_TMOS</title></path>
+    <path d="M 1100.7 729.7 L 1177.2 729.7" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 14B1 | Layer: LINE-1-KEY (DCPL)</title></path>
+    <path d="M 1177.2 838.0 L 1102.7 838.0" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 14B2 | Layer: LINE-1-KEY (DCPL)</title></path>
+    <line x1="1100.7" y1="615.4" x2="1100.7" y2="616.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1502 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="634.7" x2="1100.7" y2="636.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1503 | Layer: Wall_TMOS</title></line>
+    <line x1="1141.9" y1="635.7" x2="1102.7" y2="635.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1504 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="634.7" x2="1100.7" y2="634.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1505 | Layer: Wall_TMOS</title></line>
+    <line x1="1141.9" y1="636.7" x2="1100.7" y2="636.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1506 | Layer: Wall_TMOS</title></line>
+    <line x1="1134.2" y1="636.7" x2="1134.2" y2="635.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1507 | Layer: Wall_TMOS</title></line>
+    <line x1="1123.0" y1="636.7" x2="1123.0" y2="725.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1508 | Layer: 0</title></line>
+    <line x1="1134.2" y1="635.7" x2="1134.2" y2="725.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1509 | Layer: 0</title></line>
+    <path d="M 1179.2 705.4 L 1172.3 705.4 L 1172.3 682.9" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 1522 | Layer: Wall_TMOS</title></path>
+    <path d="M 1179.2 704.3 L 1173.3 704.3 L 1173.3 682.9" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 1523 | Layer: Wall_TMOS</title></path>
+    <path d="M 1100.7 616.4 L 1102.7 616.4" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 1524 | Layer: LINE-1-KEY (DCPL)</title></path>
+    <path d="M 1102.7 616.4 L 1179.2 616.4" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 1525 | Layer: LINE-1-KEY (DCPL)</title></path>
+    <path d="M 1177.2 724.7 L 1100.7 724.7" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 1526 | Layer: LINE-1-KEY (DCPL)</title></path>
+    <line x1="1151.0" y1="725.7" x2="1151.0" y2="682.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 154C | Layer: Wall_TMOS</title></line>
+    <line x1="1032.3" y1="395.9" x2="1031.3" y2="395.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 154F | Layer: Wall_TMOS</title></line>
+    <line x1="1173.3" y1="700.2" x2="1173.3" y2="682.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1550 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.0" y1="725.7" x2="1152.0" y2="682.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1551 | Layer: Wall_TMOS</title></line>
+    <line x1="1173.3" y1="682.9" x2="1172.3" y2="682.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1552 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.0" y1="682.9" x2="1151.0" y2="682.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1553 | Layer: Wall_TMOS</title></line>
+    <line x1="1172.3" y1="705.4" x2="1152.0" y2="705.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1554 | Layer: 0</title></line>
+    <line x1="1172.3" y1="702.6" x2="1152.0" y2="702.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1555 | Layer: 0</title></line>
+    <line x1="1172.3" y1="699.8" x2="1152.0" y2="699.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1556 | Layer: 0</title></line>
+    <line x1="1172.3" y1="697.0" x2="1152.0" y2="697.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1557 | Layer: 0</title></line>
+    <line x1="1172.3" y1="694.2" x2="1152.0" y2="694.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1558 | Layer: 0</title></line>
+    <line x1="1172.3" y1="691.4" x2="1152.0" y2="691.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1559 | Layer: 0</title></line>
+    <line x1="1172.3" y1="688.6" x2="1152.0" y2="688.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 155A | Layer: 0</title></line>
+    <line x1="1172.3" y1="685.8" x2="1152.0" y2="685.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 155B | Layer: 0</title></line>
+    <line x1="1172.3" y1="683.0" x2="1152.0" y2="683.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 155C | Layer: 0</title></line>
+    <line x1="1172.3" y1="688.6" x2="1152.0" y2="688.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 155D | Layer: 0</title></line>
+    <path d="M 1179.2 749.0 L 1172.3 749.0 L 1172.3 771.5" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 155E | Layer: Wall_TMOS</title></path>
+    <path d="M 1179.2 750.1 L 1173.3 750.1 L 1173.3 771.5" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 155F | Layer: Wall_TMOS</title></path>
+    <line x1="1151.0" y1="728.7" x2="1151.0" y2="771.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1560 | Layer: Wall_TMOS</title></line>
+    <line x1="1173.3" y1="754.2" x2="1173.3" y2="771.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1561 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.0" y1="728.7" x2="1152.0" y2="771.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1562 | Layer: Wall_TMOS</title></line>
+    <line x1="1173.3" y1="771.5" x2="1172.3" y2="771.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1563 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.0" y1="771.5" x2="1151.0" y2="771.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1564 | Layer: Wall_TMOS</title></line>
+    <line x1="1172.3" y1="749.0" x2="1152.0" y2="749.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1565 | Layer: 0</title></line>
+    <line x1="1172.3" y1="751.8" x2="1152.0" y2="751.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1566 | Layer: 0</title></line>
+    <line x1="1172.3" y1="754.6" x2="1152.0" y2="754.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1567 | Layer: 0</title></line>
+    <line x1="1172.3" y1="757.4" x2="1152.0" y2="757.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1568 | Layer: 0</title></line>
+    <line x1="1172.3" y1="760.2" x2="1152.0" y2="760.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1569 | Layer: 0</title></line>
+    <line x1="1172.3" y1="763.0" x2="1152.0" y2="763.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 156A | Layer: 0</title></line>
+    <line x1="1172.3" y1="765.8" x2="1152.0" y2="765.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 156B | Layer: 0</title></line>
+    <line x1="1172.3" y1="768.6" x2="1152.0" y2="768.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 156C | Layer: 0</title></line>
+    <line x1="1172.3" y1="771.4" x2="1152.0" y2="771.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 156D | Layer: 0</title></line>
+    <line x1="1172.3" y1="765.8" x2="1152.0" y2="765.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 156E | Layer: 0</title></line>
+    <path d="M 1179.2 930.4 L 1172.3 930.4 L 1172.3 907.9" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 156F | Layer: Wall_TMOS</title></path>
+    <path d="M 1179.2 929.4 L 1173.3 929.4 L 1173.3 907.9" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 1570 | Layer: Wall_TMOS</title></path>
+    <line x1="1151.0" y1="950.7" x2="1151.0" y2="907.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1571 | Layer: Wall_TMOS</title></line>
+    <line x1="1173.3" y1="925.3" x2="1173.3" y2="907.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1572 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.0" y1="950.7" x2="1152.0" y2="907.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1573 | Layer: Wall_TMOS</title></line>
+    <line x1="1173.3" y1="907.9" x2="1172.3" y2="907.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1574 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.0" y1="907.9" x2="1151.0" y2="907.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1575 | Layer: Wall_TMOS</title></line>
+    <line x1="1172.3" y1="930.4" x2="1152.0" y2="930.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1576 | Layer: 0</title></line>
+    <line x1="1172.3" y1="927.6" x2="1152.0" y2="927.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1577 | Layer: 0</title></line>
+    <line x1="1172.3" y1="924.8" x2="1152.0" y2="924.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1578 | Layer: 0</title></line>
+    <line x1="1172.3" y1="922.0" x2="1152.0" y2="922.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1579 | Layer: 0</title></line>
+    <line x1="1172.3" y1="919.2" x2="1152.0" y2="919.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 157A | Layer: 0</title></line>
+    <line x1="1172.3" y1="916.4" x2="1152.0" y2="916.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 157B | Layer: 0</title></line>
+    <line x1="1172.3" y1="913.6" x2="1152.0" y2="913.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 157C | Layer: 0</title></line>
+    <line x1="1172.3" y1="910.8" x2="1152.0" y2="910.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 157D | Layer: 0</title></line>
+    <line x1="1172.3" y1="908.0" x2="1152.0" y2="908.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 157E | Layer: 0</title></line>
+    <line x1="1172.3" y1="913.6" x2="1152.0" y2="913.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 157F | Layer: 0</title></line>
+    <line x1="1142.4" y1="863.4" x2="1142.4" y2="862.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1580 | Layer: Wall_TMOS</title></line>
+    <line x1="1141.9" y1="636.7" x2="1141.9" y2="635.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1581 | Layer: Wall_TMOS</title></line>
+    <line x1="1135.8" y1="635.7" x2="1135.8" y2="616.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1582 | Layer: 0</title></line>
+    <line x1="1133.0" y1="635.7" x2="1133.0" y2="616.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1583 | Layer: 0</title></line>
+    <line x1="1130.2" y1="635.7" x2="1130.2" y2="616.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1584 | Layer: 0</title></line>
+    <line x1="1127.4" y1="635.7" x2="1127.4" y2="616.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1585 | Layer: 0</title></line>
+    <line x1="1124.6" y1="635.7" x2="1124.6" y2="616.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1586 | Layer: 0</title></line>
+    <line x1="1121.8" y1="635.7" x2="1121.8" y2="616.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1587 | Layer: 0</title></line>
+    <line x1="1119.0" y1="635.7" x2="1119.0" y2="616.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1588 | Layer: 0</title></line>
+    <line x1="1116.2" y1="635.7" x2="1116.2" y2="616.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1589 | Layer: 0</title></line>
+    <line x1="1135.8" y1="838.0" x2="1135.8" y2="818.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 158A | Layer: 0</title></line>
+    <line x1="1133.0" y1="838.0" x2="1133.0" y2="818.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 158B | Layer: 0</title></line>
+    <line x1="1130.2" y1="838.0" x2="1130.2" y2="818.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 158C | Layer: 0</title></line>
+    <line x1="1127.4" y1="838.0" x2="1127.4" y2="818.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 158D | Layer: 0</title></line>
+    <line x1="1124.6" y1="838.0" x2="1124.6" y2="818.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 158E | Layer: 0</title></line>
+    <line x1="1121.8" y1="838.0" x2="1121.8" y2="818.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 158F | Layer: 0</title></line>
+    <line x1="1119.0" y1="838.0" x2="1119.0" y2="818.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1590 | Layer: 0</title></line>
+    <line x1="1116.2" y1="838.0" x2="1116.2" y2="818.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1591 | Layer: 0</title></line>
+    <line x1="1135.8" y1="862.4" x2="1135.8" y2="843.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1592 | Layer: 0</title></line>
+    <line x1="1133.0" y1="862.4" x2="1133.0" y2="843.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1593 | Layer: 0</title></line>
+    <line x1="1130.2" y1="862.4" x2="1130.2" y2="843.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1594 | Layer: 0</title></line>
+    <line x1="1127.4" y1="862.4" x2="1127.4" y2="843.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1595 | Layer: 0</title></line>
+    <line x1="1124.6" y1="862.4" x2="1124.6" y2="843.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1596 | Layer: 0</title></line>
+    <line x1="1121.8" y1="862.4" x2="1121.8" y2="843.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1597 | Layer: 0</title></line>
+    <line x1="1119.0" y1="862.4" x2="1119.0" y2="843.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1598 | Layer: 0</title></line>
+    <line x1="1116.2" y1="862.4" x2="1116.2" y2="843.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1599 | Layer: 0</title></line>
+    <line x1="1142.3" y1="817.7" x2="1142.3" y2="818.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 159A | Layer: Wall_TMOS</title></line>
+    <line x1="1032.3" y1="361.2" x2="1032.3" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 159B | Layer: Wall_TMOS</title></line>
+    <line x1="1032.3" y1="361.2" x2="1032.3" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 159C | Layer: 0</title></line>
+    <line x1="1035.1" y1="361.2" x2="1035.1" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 159D | Layer: 0</title></line>
+    <line x1="1037.9" y1="361.2" x2="1037.9" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 159E | Layer: 0</title></line>
+    <line x1="1040.7" y1="361.2" x2="1040.7" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 159F | Layer: 0</title></line>
+    <line x1="1043.5" y1="361.2" x2="1043.5" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15A0 | Layer: 0</title></line>
+    <line x1="1046.3" y1="361.2" x2="1046.3" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15A1 | Layer: 0</title></line>
+    <line x1="1049.1" y1="361.2" x2="1049.1" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15A2 | Layer: 0</title></line>
+    <line x1="1051.9" y1="361.2" x2="1051.9" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15A3 | Layer: 0</title></line>
+    <line x1="1058.6" y1="383.5" x2="1058.6" y2="384.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15A4 | Layer: Wall_TMOS</title></line>
+    <line x1="1031.3" y1="399.3" x2="1011.0" y2="399.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15A5 | Layer: 0</title></line>
+    <line x1="1031.3" y1="402.0" x2="1011.0" y2="402.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15A6 | Layer: 0</title></line>
+    <line x1="1031.3" y1="404.8" x2="1011.0" y2="404.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15A7 | Layer: 0</title></line>
+    <line x1="1031.3" y1="407.6" x2="1011.0" y2="407.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15A8 | Layer: 0</title></line>
+    <line x1="1031.3" y1="410.4" x2="1011.0" y2="410.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15A9 | Layer: 0</title></line>
+    <line x1="1031.3" y1="413.2" x2="1011.0" y2="413.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15AA | Layer: 0</title></line>
+    <line x1="1031.3" y1="416.0" x2="1011.0" y2="416.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15AB | Layer: 0</title></line>
+    <line x1="1031.3" y1="418.8" x2="1011.0" y2="418.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15AC | Layer: 0</title></line>
+    <line x1="1093.1" y1="383.5" x2="1140.7" y2="383.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15AD | Layer: Wall_TMOS</title></line>
+    <line x1="1093.1" y1="384.5" x2="1140.7" y2="384.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15AE | Layer: Wall_TMOS</title></line>
+    <line x1="1119.4" y1="361.2" x2="1119.4" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15AF | Layer: 0</title></line>
+    <line x1="1116.6" y1="361.2" x2="1116.6" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15B0 | Layer: 0</title></line>
+    <line x1="1113.8" y1="361.2" x2="1113.8" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15B1 | Layer: 0</title></line>
+    <line x1="1111.0" y1="361.2" x2="1111.0" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15B2 | Layer: 0</title></line>
+    <line x1="1108.2" y1="361.2" x2="1108.2" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15B3 | Layer: 0</title></line>
+    <line x1="1105.4" y1="361.2" x2="1105.4" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15B4 | Layer: 0</title></line>
+    <line x1="1102.6" y1="361.2" x2="1102.6" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15B5 | Layer: 0</title></line>
+    <line x1="1099.8" y1="361.2" x2="1099.8" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15B6 | Layer: 0</title></line>
+    <line x1="1093.1" y1="383.5" x2="1093.1" y2="384.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15B7 | Layer: Wall_TMOS</title></line>
+    <line x1="1119.4" y1="361.2" x2="1119.4" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15B8 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="725.7" x2="1100.7" y2="728.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15C4 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="817.7" x2="1102.7" y2="819.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15C5 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="838.0" x2="1102.7" y2="839.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15C6 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="842.0" x2="1102.7" y2="843.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15C7 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="817.7" x2="1100.7" y2="819.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15C8 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="838.0" x2="1100.7" y2="843.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15C9 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="843.1" x2="1100.7" y2="843.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15CA | Layer: Wall_TMOS</title></line>
+    <line x1="1177.7" y1="584.4" x2="1179.2" y2="584.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15CB | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="729.7" x2="1177.2" y2="729.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15CC | Layer: Wall_TMOS</title></line>
+    <line x1="1177.2" y1="724.7" x2="1179.2" y2="724.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15CD | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="636.7" x2="1100.7" y2="634.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15D5 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="616.4" x2="1100.7" y2="613.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15D6 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="635.7" x2="1102.7" y2="634.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15D7 | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="616.4" x2="1102.7" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15D8 | Layer: Wall_TMOS</title></line>
+    <line x1="1136.1" y1="564.1" x2="1136.1" y2="562.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15DF | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="613.9" x2="1198.0" y2="613.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15E0 | Layer: Staircase_TMOS</title></line>
+    <line x1="1179.2" y1="594.3" x2="1198.0" y2="594.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15E1 | Layer: Staircase_TMOS</title></line>
+    <line x1="1179.2" y1="597.1" x2="1198.0" y2="597.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15E2 | Layer: Staircase_TMOS</title></line>
+    <line x1="1179.2" y1="602.7" x2="1198.0" y2="602.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15E3 | Layer: Staircase_TMOS</title></line>
+    <line x1="1179.2" y1="599.9" x2="1198.0" y2="599.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15E4 | Layer: Staircase_TMOS</title></line>
+    <line x1="1179.2" y1="605.5" x2="1198.0" y2="605.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15E5 | Layer: Staircase_TMOS</title></line>
+    <line x1="1179.2" y1="608.3" x2="1198.0" y2="608.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15E6 | Layer: Staircase_TMOS</title></line>
+    <line x1="1179.2" y1="611.1" x2="1198.0" y2="611.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 15E7 | Layer: Staircase_TMOS</title></line>
+    <line x1="1140.7" y1="543.1" x2="1100.7" y2="543.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15E8 | Layer: Wall_TMOS</title></line>
+    <line x1="1142.2" y1="545.2" x2="1102.7" y2="545.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15E9 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="636.7" x2="1100.7" y2="725.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15EA | Layer: Wall_TMOS</title></line>
+    <line x1="1101.7" y1="636.7" x2="1101.7" y2="725.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15EB | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="728.7" x2="1100.7" y2="817.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15EC | Layer: Wall_TMOS</title></line>
+    <line x1="1101.7" y1="728.7" x2="1101.7" y2="817.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15ED | Layer: Wall_TMOS</title></line>
+    <line x1="1008.9" y1="359.7" x2="1011.0" y2="359.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15EE | Layer: Wall_TMOS</title></line>
+    <line x1="1102.7" y1="861.3" x2="1102.7" y2="862.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15EF | Layer: Wall_TMOS</title></line>
+    <line x1="1008.2" y1="615.4" x2="1009.7" y2="615.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15F0 | Layer: Wall_TMOS</title></line>
+    <line x1="1170.0" y1="562.0" x2="1171.6" y2="562.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 15FF | Layer: Wall_TMOS</title></line>
+    <line x1="1031.3" y1="421.6" x2="1011.0" y2="421.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1600 | Layer: 0</title></line>
+    <line x1="1031.3" y1="424.4" x2="1011.0" y2="424.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1601 | Layer: 0</title></line>
+    <line x1="1054.7" y1="361.2" x2="1054.7" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1602 | Layer: 0</title></line>
+    <line x1="1057.4" y1="361.2" x2="1057.4" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1603 | Layer: 0</title></line>
+    <line x1="1097.0" y1="361.2" x2="1097.0" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1604 | Layer: 0</title></line>
+    <line x1="1094.2" y1="361.2" x2="1094.2" y2="383.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1605 | Layer: 0</title></line>
+    <line x1="1102.7" y1="593.6" x2="1100.7" y2="593.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 1606 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.7" y1="593.6" x2="1100.7" y2="613.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1607 | Layer: door</title></line>
+    <line x1="1100.7" y1="616.4" x2="1100.7" y2="634.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1608 | Layer: door</title></line>
+    <line x1="1100.7" y1="819.7" x2="1100.7" y2="838.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 1609 | Layer: door</title></line>
+    <line x1="1100.7" y1="843.1" x2="1100.7" y2="861.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 160A | Layer: door</title></line>
+    <line x1="1031.3" y1="395.9" x2="1031.3" y2="434.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 220B | Layer: Wall_TMOS</title></line>
+    <line x1="1032.3" y1="395.9" x2="1032.3" y2="434.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 220C | Layer: Wall_TMOS</title></line>
+    <line x1="1139.2" y1="434.5" x2="1032.3" y2="434.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 220D | Layer: Wall_TMOS</title></line>
+    <path d="M 1139.2 436.0 L 1030.3 436.0 L 1030.3 434.5 L 1031.3 434.5" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 220E | Layer: Wall_TMOS</title></path>
+    <line x1="1030.3" y1="436.0" x2="1011.0" y2="436.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 220F | Layer: door</title></line>
+    <line x1="1008.9" y1="340.9" x2="1008.9" y2="359.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2210 | Layer: door</title></line>
+    <line x1="1032.3" y1="359.7" x2="1011.0" y2="359.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2211 | Layer: door</title></line>
+    <line x1="1119.4" y1="359.7" x2="1139.2" y2="359.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2212 | Layer: door</title></line>
+    <line x1="1177.2" y1="947.7" x2="1179.2" y2="947.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2213 | Layer: Wall_TMOS</title></line>
+    <line x1="1179.2" y1="947.7" x2="1179.2" y2="930.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2214 | Layer: door</title></line>
+    <line x1="1179.2" y1="729.7" x2="1179.2" y2="749.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2215 | Layer: door</title></line>
+    <line x1="1179.2" y1="724.7" x2="1179.2" y2="705.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2216 | Layer: door</title></line>
+    <line x1="812.0" y1="429.8" x2="812.0" y2="454.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2217 | Layer: WIN</title></line>
+    <line x1="904.5" y1="519.4" x2="928.9" y2="519.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 221C | Layer: WIN</title></line>
+    <line x1="928.9" y1="519.4" x2="928.9" y2="520.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 221D | Layer: wall</title></line>
+    <line x1="952.7" y1="455.7" x2="952.7" y2="454.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2220 | Layer: wall</title></line>
+    <line x1="952.7" y1="455.7" x2="977.1" y2="455.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2221 | Layer: WIN</title></line>
+    <line x1="812.0" y1="474.5" x2="812.0" y2="500.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 222B | Layer: WIN</title></line>
+    <line x1="810.5" y1="476.0" x2="810.5" y2="499.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 222C | Layer: WIN</title></line>
+    <line x1="837.4" y1="474.5" x2="837.4" y2="500.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 222D | Layer: WIN</title></line>
+    <line x1="839.0" y1="476.0" x2="839.0" y2="499.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 222E | Layer: WIN</title></line>
+    <line x1="839.0" y1="476.0" x2="942.7" y2="499.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 224D | Layer: WI</title></line>
+    <line x1="942.7" y1="476.0" x2="839.0" y2="499.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 224E | Layer: WI</title></line>
+    <line x1="876.1" y1="520.9" x2="839.0" y2="520.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22A7 | Layer: stair</title></line>
+    <line x1="860.8" y1="520.9" x2="854.2" y2="520.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22A8 | Layer: stair</title></line>
+    <line x1="857.5" y1="551.4" x2="857.5" y2="566.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22A9 | Layer: stair</title></line>
+    <line x1="1110.8" y1="948.7" x2="1110.8" y2="862.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22AA | Layer: 0</title></line>
+    <line x1="855.7" y1="389.1" x2="876.1" y2="389.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22B7 | Layer: stair</title></line>
+    <line x1="1005.6" y1="421.1" x2="1008.9" y2="421.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22E5 | Layer: wall</title></line>
+    <line x1="1005.6" y1="422.6" x2="1008.9" y2="422.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22E6 | Layer: wall</title></line>
+    <line x1="1111.8" y1="817.7" x2="1111.8" y2="728.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2681 | Layer: 0</title></line>
+    <line x1="1111.8" y1="636.7" x2="1111.8" y2="725.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 268E | Layer: 0</title></line>
+    <line x1="1143.7" y1="564.1" x2="1175.2" y2="564.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 272C | Layer: wall</title></line>
+    <line x1="1150.8" y1="542.9" x2="1150.8" y2="545.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 272D | Layer: wall</title></line>
+    <line x1="1143.7" y1="564.1" x2="1143.7" y2="562.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 272E | Layer: Wall_TMOS</title></line>
+    <line x1="1143.7" y1="564.1" x2="1175.2" y2="564.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 272F | Layer: Wall_TMOS</title></line>
+    <line x1="1175.2" y1="548.9" x2="1175.2" y2="549.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2730 | Layer: Wall_TMOS</title></line>
+    <line x1="1175.2" y1="539.7" x2="1152.8" y2="539.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2731 | Layer: Wall_TMOS</title></line>
+    <line x1="1175.2" y1="564.1" x2="1175.2" y2="539.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2732 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="539.7" x2="1150.8" y2="539.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2733 | Layer: Wall_TMOS</title></line>
+    <line x1="1150.8" y1="539.7" x2="1150.8" y2="541.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2734 | Layer: Wall_TMOS</title></line>
+    <line x1="1150.8" y1="556.5" x2="1150.8" y2="562.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2735 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="541.7" x2="1152.8" y2="547.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2736 | Layer: Wall_TMOS</title></line>
+    <line x1="1150.8" y1="541.7" x2="1173.2" y2="541.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2737 | Layer: Wall_TMOS</title></line>
+    <line x1="1173.2" y1="541.7" x2="1173.2" y2="562.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2738 | Layer: Wall_TMOS</title></line>
+    <line x1="1173.2" y1="562.0" x2="1143.7" y2="562.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2739 | Layer: Wall_TMOS</title></line>
+    <line x1="1143.7" y1="562.0" x2="1143.7" y2="564.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 273A | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="547.3" x2="1150.8" y2="547.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 273B | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="556.5" x2="1150.8" y2="556.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 273C | Layer: Wall_TMOS</title></line>
+    <line x1="1150.8" y1="541.7" x2="1150.8" y2="547.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 273D | Layer: Wall_TMOS</title></line>
+    <path d="M 1151.6 555.6 L 1152.0 555.6 L 1152.0 548.1 L 1151.6 548.1 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 273E | Layer: Door_TMOS</title></path>
+    <line x1="1152.8" y1="556.5" x2="1152.8" y2="562.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2741 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="556.5" x2="1150.8" y2="556.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2742 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="547.3" x2="1150.8" y2="547.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2743 | Layer: Wall_TMOS</title></line>
+    <path d="M 1150.8 556.5 L 1152.8 556.5 L 1152.8 547.3 L 1150.8 547.3 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2744 | Layer: Door_TMOS</title></path>
+    <line x1="1150.8" y1="541.7" x2="1150.8" y2="540.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2745 | Layer: Wall_TMOS</title></line>
+    <line x1="1175.2" y1="526.5" x2="1175.2" y2="527.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2746 | Layer: Wall_TMOS</title></line>
+    <line x1="1175.2" y1="517.3" x2="1152.8" y2="517.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2747 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="517.3" x2="1150.8" y2="517.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2748 | Layer: Wall_TMOS</title></line>
+    <line x1="1150.8" y1="517.3" x2="1150.8" y2="519.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2749 | Layer: Wall_TMOS</title></line>
+    <line x1="1142.2" y1="519.3" x2="1173.2" y2="519.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 274A | Layer: Wall_TMOS</title></line>
+    <line x1="1173.2" y1="519.3" x2="1173.2" y2="539.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 274B | Layer: Wall_TMOS</title></line>
+    <line x1="1173.2" y1="539.6" x2="1150.8" y2="539.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 274C | Layer: Wall_TMOS</title></line>
+    <line x1="1150.8" y1="539.6" x2="1150.8" y2="541.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 274D | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="524.9" x2="1150.8" y2="524.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 274E | Layer: Wall_TMOS</title></line>
+    <line x1="1150.8" y1="541.7" x2="1175.2" y2="541.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 274F | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="534.0" x2="1150.8" y2="534.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2750 | Layer: Wall_TMOS</title></line>
+    <line x1="1175.2" y1="541.7" x2="1175.2" y2="517.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2751 | Layer: Wall_TMOS</title></line>
+    <line x1="1150.8" y1="519.3" x2="1150.8" y2="524.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2752 | Layer: Wall_TMOS</title></line>
+    <line x1="1150.8" y1="534.0" x2="1150.8" y2="539.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2753 | Layer: Wall_TMOS</title></line>
+    <path d="M 1151.6 533.2 L 1152.0 533.2 L 1152.0 525.7 L 1151.6 525.7 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2754 | Layer: Door_TMOS</title></path>
+    <line x1="1152.8" y1="519.3" x2="1152.8" y2="524.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2755 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="534.0" x2="1152.8" y2="539.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2758 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="534.0" x2="1150.8" y2="534.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2759 | Layer: Wall_TMOS</title></line>
+    <line x1="1152.8" y1="524.9" x2="1150.8" y2="524.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 275A | Layer: Wall_TMOS</title></line>
+    <path d="M 1150.8 534.0 L 1152.8 534.0 L 1152.8 524.9 L 1150.8 524.9 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 275B | Layer: Door_TMOS</title></path>
+    <line x1="1150.8" y1="517.3" x2="1142.2" y2="517.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 275C | Layer: Wall_TMOS</title></line>
+    <path d="M 370.0 269.7 L 1231.3 269.7 L 1231.3 1073.8 L 370.0 1073.8 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 28A2 | Layer: 0</title></path>
+    <path d="M 365.0 264.6 L 1236.4 264.6 L 1236.4 1078.8 L 365.0 1078.8 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 28A3 | Layer: 0</title></path>
+    <line x1="370.0" y1="982.6" x2="1204.3" y2="982.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 28A4 | Layer: wall</title></line>
+    <line x1="436.3" y1="982.6" x2="436.3" y2="1073.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 28A5 | Layer: wall</title></line>
+    <path d="M 370.0 982.6 L 1231.3 982.6 L 1231.3 1073.8 L 370.0 1073.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 28A6 | Layer: wall</title></path>
+    <line x1="955.4" y1="982.6" x2="955.4" y2="1073.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 28A7 | Layer: wall</title></line>
+    <line x1="955.4" y1="982.6" x2="955.4" y2="1073.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28A8 | Layer: BOUNDRY</title></line>
+    <line x1="955.4" y1="982.6" x2="955.4" y2="1073.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28A9 | Layer: BOUNDRY</title></line>
+    <line x1="1017.6" y1="995.5" x2="1026.9" y2="995.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28AA | Layer: F4</title></line>
+    <line x1="1024.5" y1="1004.0" x2="1035.5" y2="1004.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28AB | Layer: F4</title></line>
+    <line x1="1024.8" y1="1005.0" x2="1016.3" y2="1013.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28AD | Layer: F4</title></line>
+    <line x1="1024.5" y1="1004.0" x2="1015.0" y2="1013.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28AE | Layer: F4</title></line>
+    <line x1="1008.1" y1="1005.0" x2="997.1" y2="1005.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28AF | Layer: F4</title></line>
+    <line x1="1016.3" y1="1013.5" x2="1026.9" y2="1013.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28B0 | Layer: F4</title></line>
+    <line x1="1017.6" y1="995.5" x2="1008.1" y2="1005.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28B1 | Layer: F4</title></line>
+    <line x1="1016.3" y1="995.5" x2="1007.8" y2="1004.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28B2 | Layer: F4</title></line>
+    <path d="M 1011.3 992.5 L 1021.3 992.5 L 1016.3 987.5 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 28B3 | Layer: F4</title></path>
+    <path d="M 1006.8 994.4 L 1025.8 994.4 L 1016.3 984.9 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 28B4 | Layer: F4</title></path>
+    <line x1="1005.7" y1="995.5" x2="997.1" y2="1004.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28B5 | Layer: F4</title></line>
+    <line x1="1005.7" y1="995.5" x2="1016.3" y2="995.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28B6 | Layer: F4</title></line>
+    <line x1="1016.3" y1="1024.1" x2="1025.8" y2="1014.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28B7 | Layer: F4</title></line>
+    <line x1="1026.9" y1="1013.5" x2="1035.5" y2="1005.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28B8 | Layer: F4</title></line>
+    <line x1="1006.8" y1="1014.6" x2="1016.3" y2="1024.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28B9 | Layer: F4</title></line>
+    <line x1="997.1" y1="1005.0" x2="1005.7" y2="1013.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28BA | Layer: F4</title></line>
+    <line x1="1035.5" y1="1005.0" x2="1024.8" y2="1005.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28BB | Layer: F4</title></line>
+    <line x1="997.1" y1="1004.0" x2="1007.8" y2="1004.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28BC | Layer: F4</title></line>
+    <line x1="1035.5" y1="1004.0" x2="1026.9" y2="995.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28BD | Layer: F4</title></line>
+    <line x1="1005.7" y1="1013.5" x2="1015.0" y2="1013.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28BE | Layer: F4</title></line>
+    <line x1="1006.8" y1="1014.6" x2="1025.8" y2="1014.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28BF | Layer: F4</title></line>
+    <line x1="1039.8" y1="1005.5" x2="1059.1" y2="1005.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28C1 | Layer: H</title></line>
+    <line x1="1037.5" y1="1007.7" x2="1059.1" y2="1007.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28C2 | Layer: H</title></line>
+    <line x1="1035.2" y1="1010.0" x2="1059.1" y2="1010.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28C3 | Layer: H</title></line>
+    <line x1="1033.0" y1="1012.3" x2="1059.1" y2="1012.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28C4 | Layer: H</title></line>
+    <line x1="1030.7" y1="1014.5" x2="1059.1" y2="1014.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28C5 | Layer: H</title></line>
+    <line x1="1037.2" y1="1000.9" x2="1059.1" y2="1000.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28C6 | Layer: H</title></line>
+    <line x1="1034.9" y1="998.7" x2="1059.1" y2="998.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28C7 | Layer: H</title></line>
+    <line x1="1032.7" y1="996.4" x2="1059.1" y2="996.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28C8 | Layer: H</title></line>
+    <line x1="1039.4" y1="1003.2" x2="1059.1" y2="1003.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28C9 | Layer: H</title></line>
+    <line x1="992.8" y1="1005.5" x2="973.5" y2="1005.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28CA | Layer: H</title></line>
+    <line x1="995.1" y1="1007.7" x2="973.5" y2="1007.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28CB | Layer: H</title></line>
+    <line x1="997.4" y1="1010.0" x2="973.5" y2="1010.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28CC | Layer: H</title></line>
+    <line x1="999.6" y1="1012.3" x2="973.5" y2="1012.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28CD | Layer: H</title></line>
+    <line x1="1001.9" y1="1014.5" x2="973.5" y2="1014.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28CE | Layer: H</title></line>
+    <line x1="995.4" y1="1000.9" x2="973.5" y2="1000.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28CF | Layer: H</title></line>
+    <line x1="997.7" y1="998.7" x2="973.5" y2="998.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28D0 | Layer: H</title></line>
+    <line x1="999.9" y1="996.4" x2="973.5" y2="996.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28D1 | Layer: H</title></line>
+    <line x1="993.2" y1="1003.2" x2="973.5" y2="1003.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28D2 | Layer: H</title></line>
+    <line x1="1226.9" y1="1005.5" x2="1201.6" y2="1005.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28D3 | Layer: H</title></line>
+    <line x1="1226.9" y1="1007.7" x2="1201.6" y2="1007.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28D4 | Layer: H</title></line>
+    <line x1="1226.9" y1="1010.0" x2="1201.6" y2="1010.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28D5 | Layer: H</title></line>
+    <line x1="1226.9" y1="1012.3" x2="1201.6" y2="1012.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28D6 | Layer: H</title></line>
+    <line x1="1226.9" y1="1014.5" x2="1201.6" y2="1014.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28D7 | Layer: H</title></line>
+    <line x1="1226.9" y1="1000.9" x2="1201.6" y2="1000.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28D8 | Layer: H</title></line>
+    <line x1="1226.9" y1="998.7" x2="1201.6" y2="998.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28D9 | Layer: H</title></line>
+    <line x1="1226.9" y1="996.4" x2="1201.6" y2="996.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28DA | Layer: H</title></line>
+    <line x1="1226.9" y1="1003.2" x2="1201.6" y2="1003.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28DB | Layer: H</title></line>
+    <line x1="955.4" y1="1026.9" x2="1231.3" y2="1026.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28DC | Layer: WIN</title></line>
+    <line x1="955.4" y1="1042.4" x2="1231.3" y2="1042.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28DD | Layer: WIN</title></line>
+    <line x1="1045.6" y1="1073.8" x2="1045.6" y2="1042.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28DE | Layer: WIN</title></line>
+    <line x1="1045.6" y1="1057.3" x2="955.4" y2="1057.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28DF | Layer: WIN</title></line>
+    <line x1="955.4" y1="981.6" x2="955.4" y2="1073.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28E0 | Layer: BOUNDRY</title></line>
+    <line x1="1000.5" y1="1042.4" x2="1000.5" y2="1073.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 28E1 | Layer: WIN</title></line>
+    <path d="M 955.4 982.6 L 1231.3 982.6 L 1231.3 1073.8 L 955.4 1073.8 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 28E8 | Layer: DIMENTION</title></path>
+    <line x1="955.4" y1="982.6" x2="955.4" y2="1073.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 28EB | Layer: wall</title></line>
+    <line x1="436.3" y1="1002.4" x2="950.9" y2="1002.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 28EC | Layer: wall</title></line>
+    <line x1="426.9" y1="1030.4" x2="384.4" y2="1030.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 28F0 | Layer: wall</title></line>
+    <line x1="405.6" y1="1009.1" x2="405.6" y2="1051.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 28F1 | Layer: wall</title></line>
+    <line x1="426.9" y1="1030.4" x2="405.6" y2="1009.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 28F3 | Layer: wall</title></line>
+    <line x1="405.6" y1="1009.1" x2="384.4" y2="1030.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 28F4 | Layer: wall</title></line>
+    <line x1="950.9" y1="982.6" x2="950.9" y2="1073.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 28F8 | Layer: wall</title></line>
+    <line x1="836.8" y1="661.3" x2="834.6" y2="657.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29E9 | Layer: wall</title></line>
+    <line x1="836.1" y1="659.0" x2="835.0" y2="657.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29EA | Layer: wall</title></line>
+    <line x1="835.3" y1="659.4" x2="834.2" y2="657.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29EB | Layer: wall</title></line>
+    <line x1="843.4" y1="661.0" x2="840.6" y2="662.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29EC | Layer: wall</title></line>
+    <line x1="832.9" y1="666.6" x2="835.7" y2="665.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29ED | Layer: wall</title></line>
+    <line x1="841.3" y1="669.6" x2="839.5" y2="666.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29EE | Layer: wall</title></line>
+    <path d="M -3773.3 -153.6 L 3973.3 -153.6 L 3973.3 1516.8 L -3773.3 1516.8 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2A1A | Layer: 0</title></path>
+    <path d="M 358.0 1087.0 L 1242.0 1087.0 L 1242.0 203.0 L 358.0 203.0 Z" stroke="#64748b" stroke-width="1.5" fill="none" stroke-dasharray="6,4"><title>Plan Region BBox: SECOND FLOOR PLAN</title></path>
+    <path d="M 365.0 264.6 L 1236.4 264.6 L 1236.4 1078.8 L 365.0 1078.8 Z" stroke="#2563eb" stroke-width="2.5" fill="none" stroke-dasharray="10,5"><title>Framing Rectangle: [28A3] | 85.77 x 80.14 ft | Area: 6873.64 sqft</title></path>
+    <path d="M 393.9 293.0 L 1215.8 293.0 L 1215.8 951.4 L 393.9 951.4 Z" stroke="#059669" stroke-width="3.5" fill="rgba(16, 185, 129, 0.08)"><title>Verified Exterior Wall Boundary [1393] | Area: 5242.04 sqft</title></path>
+    <rect x="664.8768472906406" y="267.0541871921174" width="280" height="22" rx="4" fill="#ecfdf5" stroke="#059669" stroke-width="1"/><text x="804.8768472906406" y="282.0541871921174" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#065f46" text-anchor="middle">VERIFIED WALL BOUNDARY: 80.9 x 64.8 ft (5,242.0 sqft)</text>
+    <path d="M 458.5 391.5 L 458.5 384.6 L 465.4 384.6 L 465.4 391.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [1395] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 635.3 615.4 L 635.3 608.5 L 642.2 608.5 L 642.2 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [1397] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 696.6 366.6 L 696.6 359.7 L 703.5 359.7 L 703.5 366.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [1399] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 696.6 455.7 L 696.6 448.8 L 703.5 448.8 L 703.5 455.7 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [139B] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 696.6 526.3 L 696.6 519.4 L 703.5 519.4 L 703.5 526.3 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [139D] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 696.6 615.4 L 696.6 608.5 L 703.5 608.5 L 703.5 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [139F] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 763.3 366.6 L 763.3 359.7 L 770.2 359.7 L 770.2 366.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13A1] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 763.3 455.7 L 763.3 448.8 L 770.2 448.8 L 770.2 455.7 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13A3] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 763.3 526.3 L 763.3 519.4 L 770.2 519.4 L 770.2 526.3 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13A5] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 763.3 615.4 L 763.3 608.5 L 770.2 608.5 L 770.2 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13A7] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 837.4 362.7 L 837.4 359.7 L 846.6 359.7 L 846.6 362.7 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13A9] | Dim: 0.9 x 0.3 ft</title></path>
+    <path d="M 458.5 527.0 L 458.5 519.4 L 466.1 519.4 L 466.1 527.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13AB] | Dim: 0.75 x 0.75 ft</title></path>
+    <path d="M 837.4 418.6 L 837.4 415.5 L 845.1 415.5 L 845.1 418.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13AD] | Dim: 0.75 x 0.3 ft</title></path>
+    <path d="M 877.6 418.6 L 874.5 418.6 L 874.5 411.0 L 877.6 411.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13AF] | Dim: 0.3 x 0.75 ft</title></path>
+    <path d="M 877.6 368.8 L 874.5 368.8 L 874.5 359.7 L 877.6 359.7 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13B1] | Dim: 0.3 x 0.9 ft</title></path>
+    <path d="M 877.6 455.7 L 874.5 455.7 L 874.5 449.6 L 877.6 449.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13B3] | Dim: 0.3 x 0.6 ft</title></path>
+    <path d="M 937.3 366.6 L 937.3 359.7 L 944.3 359.7 L 944.3 366.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13B5] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 937.4 455.7 L 937.4 448.8 L 944.3 448.8 L 944.3 455.7 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13B7] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 1004.1 366.6 L 1004.1 359.7 L 1011.0 359.7 L 1011.0 366.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13B9] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 1004.1 455.7 L 1004.1 448.8 L 1011.0 448.8 L 1011.0 455.7 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13BB] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 458.5 615.4 L 458.5 608.5 L 465.4 608.5 L 465.4 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13BD] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 832.9 525.5 L 832.9 519.4 L 839.0 519.4 L 839.0 525.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13BF] | Dim: 0.6 x 0.6 ft</title></path>
+    <path d="M 839.0 568.2 L 835.9 568.2 L 835.9 560.5 L 839.0 560.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13C1] | Dim: 0.3 x 0.75 ft</title></path>
+    <path d="M 832.1 615.4 L 832.1 608.5 L 839.0 608.5 L 839.0 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13C3] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 937.3 526.3 L 937.3 519.4 L 944.3 519.4 L 944.3 526.3 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13C5] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 937.3 615.4 L 937.3 608.5 L 944.3 608.5 L 944.3 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13C7] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 539.2 392.2 L 539.2 384.6 L 546.9 384.6 L 546.9 392.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13C9] | Dim: 0.75 x 0.75 ft</title></path>
+    <path d="M 1004.1 615.4 L 1004.1 608.5 L 1011.0 608.5 L 1011.0 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13CB] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 1004.1 526.3 L 1004.1 519.4 L 1011.0 519.4 L 1011.0 526.3 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13CD] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 539.2 528.5 L 539.2 519.4 L 548.4 519.4 L 548.4 528.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13CF] | Dim: 0.9 x 0.9 ft</title></path>
+    <path d="M 539.2 615.4 L 539.2 608.5 L 546.2 608.5 L 546.2 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13D1] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 877.6 525.5 L 874.5 525.5 L 874.5 519.4 L 877.6 519.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13D3] | Dim: 0.3 x 0.6 ft</title></path>
+    <path d="M 635.3 366.6 L 635.3 359.7 L 642.2 359.7 L 642.2 366.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13D5] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 877.6 568.2 L 874.5 568.2 L 874.5 560.5 L 877.6 560.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13D7] | Dim: 0.3 x 0.75 ft</title></path>
+    <path d="M 635.3 455.7 L 635.3 448.1 L 642.9 448.1 L 642.9 455.7 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13D9] | Dim: 0.75 x 0.75 ft</title></path>
+    <path d="M 635.3 527.0 L 635.3 519.4 L 642.9 519.4 L 642.9 527.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13DB] | Dim: 0.75 x 0.75 ft</title></path>
+    <path d="M 837.4 438.9 L 837.4 432.3 L 860.8 432.3 L 860.8 455.7 L 837.4 455.7 L 837.4 449.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13DC] | Dim: 2.3 x 2.3 ft</title></path>
+    <path d="M 837.4 438.9 L 839.5 438.9 L 839.5 434.3 L 858.8 434.3 L 858.8 453.6 L 839.5 453.6 L 839.5 449.1 L 837.4 449.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13DD] | Dim: 2.1 x 1.9 ft</title></path>
+    <path d="M 983.7 453.6 L 979.2 453.6 L 979.2 423.2 L 1003.5 423.2 L 1003.5 453.6 L 999.0 453.6 L 999.0 455.7 L 1005.6 455.7 L 1005.6 421.1 L 977.1 421.1 L 977.1 455.7 L 983.7 455.7 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13E6] | Dim: 2.8 x 3.4 ft</title></path>
+    <path d="M 904.5 519.4 L 898.9 519.4 L 898.9 520.9 L 903.0 520.9 L 903.0 551.4 L 877.6 551.4 L 877.6 525.5 L 876.1 525.5 L 876.1 552.9 L 904.5 552.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13F0] | Dim: 2.8 x 3.3 ft</title></path>
+    <path d="M 881.6 519.4 L 877.6 519.4 L 877.6 520.9 L 881.6 520.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [13F1] | Dim: 0.4 x 0.15 ft</title></path>
+    <path d="M 1142.2 367.2 L 1139.2 367.2 L 1139.2 359.6 L 1142.2 359.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [15F2] | Dim: 0.3 x 0.75 ft</title></path>
+    <path d="M 1142.2 439.1 L 1139.2 439.1 L 1139.2 431.5 L 1142.2 431.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [15F4] | Dim: 0.3 x 0.75 ft</title></path>
+    <path d="M 1136.1 522.8 L 1136.1 518.2 L 1142.2 518.2 L 1142.2 522.8 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [15F6] | Dim: 0.6 x 0.45 ft</title></path>
+    <path d="M 1172.3 615.4 L 1172.3 612.3 L 1179.2 612.3 L 1179.2 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [15F8] | Dim: 0.68 x 0.3 ft</title></path>
+    <path d="M 1135.7 615.4 L 1135.7 612.3 L 1142.6 612.3 L 1142.6 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [15FA] | Dim: 0.68 x 0.3 ft</title></path>
+    <path d="M 1143.7 562.0 L 1143.7 565.0 L 1136.1 565.0 L 1136.1 562.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [15FC] | Dim: 0.75 x 0.3 ft</title></path>
+    <path d="M 1179.2 562.0 L 1179.2 565.0 L 1171.6 565.0 L 1171.6 562.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [15FE] | Dim: 0.75 x 0.3 ft</title></path>
+    <path d="M 1046.7 615.4 L 1046.7 610.8 L 1052.8 610.8 L 1052.8 615.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2207] | Dim: 0.6 x 0.45 ft</title></path>
+  </g>
+</svg>

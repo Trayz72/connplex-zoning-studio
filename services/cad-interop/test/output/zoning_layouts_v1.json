@@ -1,0 +1,2822 @@
+{
+  "schema_version": "1.0",
+  "generator": "ConnplexZoningCandidateGenerator_M3",
+  "description": "Deterministic spatial zoning layout candidates generated for verified zoning-ready floors.",
+  "regions": [
+    {
+      "region_id": "dhule-basement",
+      "document": "dhule",
+      "plan_region": "BASEMENT FLOOR PLAN",
+      "zoning_status": "UNUSABLE_NO_VERIFIED_BOUNDARY",
+      "boundary_status": "NOT_VERIFIED",
+      "usable_planning_area_sqft": null,
+      "rooms": [],
+      "circulation": [],
+      "uncertain_obstructions": [
+        {
+          "id": "dhule-basement-stair-1",
+          "category": "STAIR",
+          "status": "FOOTPRINT_UNCERTAIN",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Individual flight treads and landing runs without closed CAD polyline. Bounding box subtraction strictly rejected."
+        },
+        {
+          "id": "dhule-basement-lift-1",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-basement-lift-2",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-basement-lift-3",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-basement-lift-4",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-basement-lift-5",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-basement-shaft-1",
+          "category": "MEP_SHAFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Duct opening indicated by crossed diagonal lines on DUCT (DCPL). No closed boundary polyline."
+        },
+        {
+          "id": "dhule-basement-fixed-room-1",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;STORAGE-1 }15.90X13.12' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-basement-fixed-room-2",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;STORAGE-2 }17.25X9.15' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-basement-void-1",
+          "category": "VOID",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Slab cutout indicated by text 'XQD;RAMP' without closed boundary polyline."
+        },
+        {
+          "id": "dhule-basement-unknown-1",
+          "category": "UNKNOWN_CANDIDATE",
+          "status": "LOW_CONFIDENCE",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+        }
+      ],
+      "adjacency_results": [],
+      "validation": {
+        "can_zone": false,
+        "reason": "Region lacks verified closed outer floor boundary; candidate room generation blocked."
+      }
+    },
+    {
+      "region_id": "dhule-ground",
+      "document": "dhule",
+      "plan_region": "GROUND FLOOR PLAN",
+      "zoning_status": "UNUSABLE_NO_VERIFIED_BOUNDARY",
+      "boundary_status": "NOT_VERIFIED",
+      "usable_planning_area_sqft": null,
+      "rooms": [],
+      "circulation": [],
+      "uncertain_obstructions": [
+        {
+          "id": "dhule-ground-stair-1",
+          "category": "STAIR",
+          "status": "FOOTPRINT_UNCERTAIN",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Individual flight treads and landing runs without closed CAD polyline. Bounding box subtraction strictly rejected."
+        },
+        {
+          "id": "dhule-ground-lift-1",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-ground-lift-2",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-ground-lift-3",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-ground-lift-4",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-ground-lift-5",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-ground-shaft-1",
+          "category": "MEP_SHAFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Duct opening indicated by crossed diagonal lines on DUCT (DCPL). No closed boundary polyline."
+        },
+        {
+          "id": "dhule-ground-fixed-room-1",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-ground-fixed-room-2",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;G. TOILET }3.98X5.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-ground-fixed-room-3",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;L. TOILET }3.98X5.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-ground-void-1",
+          "category": "VOID",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Slab cutout indicated by text 'XQD;RAMP' without closed boundary polyline."
+        },
+        {
+          "id": "dhule-ground-unknown-1",
+          "category": "UNKNOWN_CANDIDATE",
+          "status": "LOW_CONFIDENCE",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+        }
+      ],
+      "adjacency_results": [],
+      "validation": {
+        "can_zone": false,
+        "reason": "Region lacks verified closed outer floor boundary; candidate room generation blocked."
+      }
+    },
+    {
+      "region_id": "dhule-first-floor",
+      "document": "dhule",
+      "plan_region": "FIRST FLOOR PLAN",
+      "zoning_status": "ZONING_GENERATED",
+      "boundary_status": "VERIFIED",
+      "usable_planning_area_sqft": 5215.06,
+      "total_room_area_sqft": 2154.15,
+      "circulation_area_sqft": 835.41,
+      "rooms": [
+        {
+          "room_id": "dhule-first-floor-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "floor_region_id": "dhule-first-floor",
+          "area_sqft": 744.0,
+          "centroid": [
+            1679.82,
+            1339.84
+          ],
+          "dimensions": {
+            "width_ft": 31.0,
+            "depth_ft": 24.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1695.317,
+                1327.8446
+              ],
+              [
+                1695.317,
+                1351.8446
+              ],
+              [
+                1664.317,
+                1351.8446
+              ],
+              [
+                1664.317,
+                1327.8446
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FIRST FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "6A8",
+            "hard_obstructions_avoided_count": 53
+          }
+        },
+        {
+          "room_id": "dhule-first-floor-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "floor_region_id": "dhule-first-floor",
+          "area_sqft": 104.0,
+          "centroid": [
+            1679.52,
+            1325.84
+          ],
+          "dimensions": {
+            "width_ft": 26.0,
+            "depth_ft": 4.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1692.517,
+                1323.8446
+              ],
+              [
+                1692.517,
+                1327.8446
+              ],
+              [
+                1666.517,
+                1327.8446
+              ],
+              [
+                1666.517,
+                1323.8446
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FIRST FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "6A8",
+            "hard_obstructions_avoided_count": 53
+          }
+        },
+        {
+          "room_id": "dhule-first-floor-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "floor_region_id": "dhule-first-floor",
+          "area_sqft": 352.8,
+          "centroid": [
+            1702.02,
+            1337.84
+          ],
+          "dimensions": {
+            "width_ft": 12.6,
+            "depth_ft": 28.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1708.317,
+                1323.8446
+              ],
+              [
+                1708.317,
+                1351.8446
+              ],
+              [
+                1695.717,
+                1351.8446
+              ],
+              [
+                1695.717,
+                1323.8446
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FIRST FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "6A8",
+            "hard_obstructions_avoided_count": 53
+          }
+        },
+        {
+          "room_id": "dhule-first-floor-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "floor_region_id": "dhule-first-floor",
+          "area_sqft": 784.0,
+          "centroid": [
+            1723.02,
+            1337.84
+          ],
+          "dimensions": {
+            "width_ft": 28.0,
+            "depth_ft": 28.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1737.017,
+                1323.8446
+              ],
+              [
+                1737.017,
+                1351.8446
+              ],
+              [
+                1709.017,
+                1351.8446
+              ],
+              [
+                1709.017,
+                1323.8446
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FIRST FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "6A8",
+            "hard_obstructions_avoided_count": 53
+          }
+        },
+        {
+          "room_id": "dhule-first-floor-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "floor_region_id": "dhule-first-floor",
+          "area_sqft": 109.35,
+          "centroid": [
+            1678.07,
+            1371.09
+          ],
+          "dimensions": {
+            "width_ft": 8.1,
+            "depth_ft": 13.5
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1682.117,
+                1364.3446
+              ],
+              [
+                1682.117,
+                1377.8446
+              ],
+              [
+                1674.017,
+                1377.8446
+              ],
+              [
+                1674.017,
+                1364.3446
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FIRST FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "6A8",
+            "hard_obstructions_avoided_count": 53
+          }
+        },
+        {
+          "room_id": "dhule-first-floor-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "floor_region_id": "dhule-first-floor",
+          "area_sqft": 60.0,
+          "centroid": [
+            1669.02,
+            1369.34
+          ],
+          "dimensions": {
+            "width_ft": 6.0,
+            "depth_ft": 10.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1672.017,
+                1364.3446
+              ],
+              [
+                1672.017,
+                1374.3446
+              ],
+              [
+                1666.017,
+                1374.3446
+              ],
+              [
+                1666.017,
+                1364.3446
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FIRST FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "6A8",
+            "hard_obstructions_avoided_count": 53
+          }
+        }
+      ],
+      "circulation": [
+        {
+          "circulation_id": "dhule-first-floor-circulation-spine",
+          "type": "CORRIDOR_AND_EGRESS_NETWORK",
+          "area_sqft": 835.41,
+          "is_connected": true,
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1737.017,
+                1321.8446
+              ],
+              [
+                1664.317,
+                1321.8446
+              ],
+              [
+                1659.017,
+                1321.8446
+              ],
+              [
+                1659.017,
+                1323.8446
+              ],
+              [
+                1659.017,
+                1351.8446
+              ],
+              [
+                1659.017,
+                1354.1446
+              ],
+              [
+                1659.017,
+                1379.8446
+              ],
+              [
+                1659.017,
+                1385.3446
+              ],
+              [
+                1664.317,
+                1385.3446
+              ],
+              [
+                1700.517,
+                1385.3446
+              ],
+              [
+                1700.517,
+                1379.8446
+              ],
+              [
+                1664.317,
+                1379.8446
+              ],
+              [
+                1664.317,
+                1375.8446
+              ],
+              [
+                1665.517,
+                1375.8446
+              ],
+              [
+                1666.017,
+                1375.8446
+              ],
+              [
+                1672.017,
+                1375.8446
+              ],
+              [
+                1674.017,
+                1375.8446
+              ],
+              [
+                1674.017,
+                1374.3446
+              ],
+              [
+                1674.017,
+                1364.3446
+              ],
+              [
+                1672.017,
+                1364.3446
+              ],
+              [
+                1672.017,
+                1374.3446
+              ],
+              [
+                1666.017,
+                1374.3446
+              ],
+              [
+                1666.017,
+                1364.3446
+              ],
+              [
+                1664.317,
+                1364.3446
+              ],
+              [
+                1664.317,
+                1354.1446
+              ],
+              [
+                1709.017,
+                1354.1446
+              ],
+              [
+                1709.017,
+                1351.8446
+              ],
+              [
+                1664.317,
+                1351.8446
+              ],
+              [
+                1664.317,
+                1323.8446
+              ],
+              [
+                1737.017,
+                1323.8446
+              ]
+            ],
+            "holes": []
+          },
+          "minimum_corridor_width_ft": 2.0,
+          "primary_corridor_width_ft": 5.5,
+          "touches_all_rooms": true,
+          "provenance": {
+            "floor_boundary_source": "6A8"
+          }
+        }
+      ],
+      "uncertain_obstructions": [
+        {
+          "id": "dhule-first-floor-stair-1",
+          "category": "STAIR",
+          "status": "FOOTPRINT_UNCERTAIN",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Individual flight treads and landing runs without closed CAD polyline. Bounding box subtraction strictly rejected."
+        },
+        {
+          "id": "dhule-first-floor-lift-1",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-first-floor-lift-2",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-first-floor-lift-3",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-first-floor-lift-4",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-first-floor-lift-5",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-first-floor-shaft-1",
+          "category": "MEP_SHAFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Duct opening indicated by crossed diagonal lines on DUCT (DCPL). No closed boundary polyline."
+        },
+        {
+          "id": "dhule-first-floor-fixed-room-1",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;G. TOILET }3.98X5.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-first-floor-fixed-room-2",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-first-floor-fixed-room-3",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;L. TOILET }3.98X5.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-first-floor-unknown-1",
+          "category": "UNKNOWN_CANDIDATE",
+          "status": "LOW_CONFIDENCE",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+        }
+      ],
+      "adjacency_results": [
+        {
+          "from_room_type": "PROJECTION_ROOM",
+          "to_room_type": "AUDITORIUM_1",
+          "relationship": "DIRECT_ADJACENT",
+          "satisfied": true,
+          "evidence": "Shared boundary length: 26.0 ft (required >= 6.0 ft)"
+        },
+        {
+          "from_room_type": "AUDITORIUM_1",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Shared boundary: 0.0 ft; Both connect to circulation: True"
+        },
+        {
+          "from_room_type": "AUDITORIUM_2",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Shared boundary: 0.0 ft; Both connect to circulation: True"
+        },
+        {
+          "from_room_type": "RESTROOMS",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Both access common circulation spine; separation distance: 18.47 ft."
+        },
+        {
+          "from_room_type": "MANAGER_OFFICE",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Both access common circulation spine; separation distance: 26.79 ft."
+        }
+      ],
+      "validation": {
+        "can_zone": true,
+        "all_rooms_valid": true,
+        "all_rooms_inside_boundary": true,
+        "hard_obstruction_collisions": 0,
+        "circulation_connected": true
+      }
+    },
+    {
+      "region_id": "dhule-second-floor",
+      "document": "dhule",
+      "plan_region": "SECOND FLOOR PLAN",
+      "zoning_status": "ZONING_GENERATED",
+      "boundary_status": "VERIFIED",
+      "usable_planning_area_sqft": 5216.19,
+      "total_room_area_sqft": 2154.15,
+      "circulation_area_sqft": 835.41,
+      "rooms": [
+        {
+          "room_id": "dhule-second-floor-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "floor_region_id": "dhule-second-floor",
+          "area_sqft": 744.0,
+          "centroid": [
+            1785.83,
+            1339.84
+          ],
+          "dimensions": {
+            "width_ft": 31.0,
+            "depth_ft": 24.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1801.3261,
+                1327.844
+              ],
+              [
+                1801.3261,
+                1351.844
+              ],
+              [
+                1770.3261,
+                1351.844
+              ],
+              [
+                1770.3261,
+                1327.844
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "SECOND FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "1393",
+            "hard_obstructions_avoided_count": 49
+          }
+        },
+        {
+          "room_id": "dhule-second-floor-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "floor_region_id": "dhule-second-floor",
+          "area_sqft": 104.0,
+          "centroid": [
+            1785.53,
+            1325.84
+          ],
+          "dimensions": {
+            "width_ft": 26.0,
+            "depth_ft": 4.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1798.5261,
+                1323.844
+              ],
+              [
+                1798.5261,
+                1327.844
+              ],
+              [
+                1772.5261,
+                1327.844
+              ],
+              [
+                1772.5261,
+                1323.844
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "SECOND FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "1393",
+            "hard_obstructions_avoided_count": 49
+          }
+        },
+        {
+          "room_id": "dhule-second-floor-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "floor_region_id": "dhule-second-floor",
+          "area_sqft": 352.8,
+          "centroid": [
+            1808.03,
+            1337.84
+          ],
+          "dimensions": {
+            "width_ft": 12.6,
+            "depth_ft": 28.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1814.3261,
+                1323.844
+              ],
+              [
+                1814.3261,
+                1351.844
+              ],
+              [
+                1801.7261,
+                1351.844
+              ],
+              [
+                1801.7261,
+                1323.844
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "SECOND FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "1393",
+            "hard_obstructions_avoided_count": 49
+          }
+        },
+        {
+          "room_id": "dhule-second-floor-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "floor_region_id": "dhule-second-floor",
+          "area_sqft": 784.0,
+          "centroid": [
+            1829.03,
+            1337.84
+          ],
+          "dimensions": {
+            "width_ft": 28.0,
+            "depth_ft": 28.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1843.0261,
+                1323.844
+              ],
+              [
+                1843.0261,
+                1351.844
+              ],
+              [
+                1815.0261,
+                1351.844
+              ],
+              [
+                1815.0261,
+                1323.844
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "SECOND FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "1393",
+            "hard_obstructions_avoided_count": 49
+          }
+        },
+        {
+          "room_id": "dhule-second-floor-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "floor_region_id": "dhule-second-floor",
+          "area_sqft": 109.35,
+          "centroid": [
+            1784.08,
+            1371.09
+          ],
+          "dimensions": {
+            "width_ft": 8.1,
+            "depth_ft": 13.5
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1788.1261,
+                1364.344
+              ],
+              [
+                1788.1261,
+                1377.844
+              ],
+              [
+                1780.0261,
+                1377.844
+              ],
+              [
+                1780.0261,
+                1364.344
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "SECOND FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "1393",
+            "hard_obstructions_avoided_count": 49
+          }
+        },
+        {
+          "room_id": "dhule-second-floor-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "floor_region_id": "dhule-second-floor",
+          "area_sqft": 60.0,
+          "centroid": [
+            1775.03,
+            1369.34
+          ],
+          "dimensions": {
+            "width_ft": 6.0,
+            "depth_ft": 10.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1778.0261,
+                1364.344
+              ],
+              [
+                1778.0261,
+                1374.344
+              ],
+              [
+                1772.0261,
+                1374.344
+              ],
+              [
+                1772.0261,
+                1364.344
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "SECOND FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "1393",
+            "hard_obstructions_avoided_count": 49
+          }
+        }
+      ],
+      "circulation": [
+        {
+          "circulation_id": "dhule-second-floor-circulation-spine",
+          "type": "CORRIDOR_AND_EGRESS_NETWORK",
+          "area_sqft": 835.41,
+          "is_connected": true,
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1843.0261,
+                1321.844
+              ],
+              [
+                1770.3261,
+                1321.844
+              ],
+              [
+                1765.0261,
+                1321.844
+              ],
+              [
+                1765.0261,
+                1323.844
+              ],
+              [
+                1765.0261,
+                1351.844
+              ],
+              [
+                1765.0261,
+                1354.144
+              ],
+              [
+                1765.0261,
+                1379.844
+              ],
+              [
+                1765.0261,
+                1385.344
+              ],
+              [
+                1770.3261,
+                1385.344
+              ],
+              [
+                1806.5261,
+                1385.344
+              ],
+              [
+                1806.5261,
+                1379.844
+              ],
+              [
+                1770.3261,
+                1379.844
+              ],
+              [
+                1770.3261,
+                1375.844
+              ],
+              [
+                1771.5261,
+                1375.844
+              ],
+              [
+                1772.0261,
+                1375.844
+              ],
+              [
+                1778.0261,
+                1375.844
+              ],
+              [
+                1780.0261,
+                1375.844
+              ],
+              [
+                1780.0261,
+                1374.344
+              ],
+              [
+                1780.0261,
+                1364.344
+              ],
+              [
+                1778.0261,
+                1364.344
+              ],
+              [
+                1778.0261,
+                1374.344
+              ],
+              [
+                1772.0261,
+                1374.344
+              ],
+              [
+                1772.0261,
+                1364.344
+              ],
+              [
+                1770.3261,
+                1364.344
+              ],
+              [
+                1770.3261,
+                1354.144
+              ],
+              [
+                1815.0261,
+                1354.144
+              ],
+              [
+                1815.0261,
+                1351.844
+              ],
+              [
+                1770.3261,
+                1351.844
+              ],
+              [
+                1770.3261,
+                1323.844
+              ],
+              [
+                1843.0261,
+                1323.844
+              ]
+            ],
+            "holes": []
+          },
+          "minimum_corridor_width_ft": 2.0,
+          "primary_corridor_width_ft": 5.5,
+          "touches_all_rooms": true,
+          "provenance": {
+            "floor_boundary_source": "1393"
+          }
+        }
+      ],
+      "uncertain_obstructions": [
+        {
+          "id": "dhule-second-floor-stair-1",
+          "category": "STAIR",
+          "status": "FOOTPRINT_UNCERTAIN",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Individual flight treads and landing runs without closed CAD polyline. Bounding box subtraction strictly rejected."
+        },
+        {
+          "id": "dhule-second-floor-lift-1",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-second-floor-lift-2",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-second-floor-lift-3",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-second-floor-lift-4",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-second-floor-lift-5",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-second-floor-shaft-1",
+          "category": "MEP_SHAFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Duct opening indicated by crossed diagonal lines on DUCT (DCPL). No closed boundary polyline."
+        },
+        {
+          "id": "dhule-second-floor-fixed-room-1",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-second-floor-void-1",
+          "category": "VOID",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Slab cutout indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.50 X 1.34' without closed boundary polyline."
+        },
+        {
+          "id": "dhule-second-floor-void-2",
+          "category": "VOID",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Slab cutout indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.98 X 1.25' without closed boundary polyline."
+        },
+        {
+          "id": "dhule-second-floor-unknown-1",
+          "category": "UNKNOWN_CANDIDATE",
+          "status": "LOW_CONFIDENCE",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+        }
+      ],
+      "adjacency_results": [
+        {
+          "from_room_type": "PROJECTION_ROOM",
+          "to_room_type": "AUDITORIUM_1",
+          "relationship": "DIRECT_ADJACENT",
+          "satisfied": true,
+          "evidence": "Shared boundary length: 26.0 ft (required >= 6.0 ft)"
+        },
+        {
+          "from_room_type": "AUDITORIUM_1",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Shared boundary: 0.0 ft; Both connect to circulation: True"
+        },
+        {
+          "from_room_type": "AUDITORIUM_2",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Shared boundary: 0.0 ft; Both connect to circulation: True"
+        },
+        {
+          "from_room_type": "RESTROOMS",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Both access common circulation spine; separation distance: 18.47 ft."
+        },
+        {
+          "from_room_type": "MANAGER_OFFICE",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Both access common circulation spine; separation distance: 26.79 ft."
+        }
+      ],
+      "validation": {
+        "can_zone": true,
+        "all_rooms_valid": true,
+        "all_rooms_inside_boundary": true,
+        "hard_obstruction_collisions": 0,
+        "circulation_connected": true
+      }
+    },
+    {
+      "region_id": "dhule-third-floor",
+      "document": "dhule",
+      "plan_region": "THIRD FLOOR PLAN",
+      "zoning_status": "ZONING_GENERATED",
+      "boundary_status": "VERIFIED",
+      "usable_planning_area_sqft": 5216.2,
+      "total_room_area_sqft": 2154.15,
+      "circulation_area_sqft": 835.41,
+      "rooms": [
+        {
+          "room_id": "dhule-third-floor-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "floor_region_id": "dhule-third-floor",
+          "area_sqft": 744.0,
+          "centroid": [
+            1887.33,
+            1339.84
+          ],
+          "dimensions": {
+            "width_ft": 31.0,
+            "depth_ft": 24.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1902.8271,
+                1327.844
+              ],
+              [
+                1902.8271,
+                1351.844
+              ],
+              [
+                1871.8271,
+                1351.844
+              ],
+              [
+                1871.8271,
+                1327.844
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "THIRD FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "177B",
+            "hard_obstructions_avoided_count": 49
+          }
+        },
+        {
+          "room_id": "dhule-third-floor-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "floor_region_id": "dhule-third-floor",
+          "area_sqft": 104.0,
+          "centroid": [
+            1887.03,
+            1325.84
+          ],
+          "dimensions": {
+            "width_ft": 26.0,
+            "depth_ft": 4.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1900.0271,
+                1323.844
+              ],
+              [
+                1900.0271,
+                1327.844
+              ],
+              [
+                1874.0271,
+                1327.844
+              ],
+              [
+                1874.0271,
+                1323.844
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "THIRD FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "177B",
+            "hard_obstructions_avoided_count": 49
+          }
+        },
+        {
+          "room_id": "dhule-third-floor-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "floor_region_id": "dhule-third-floor",
+          "area_sqft": 352.8,
+          "centroid": [
+            1909.53,
+            1337.84
+          ],
+          "dimensions": {
+            "width_ft": 12.6,
+            "depth_ft": 28.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1915.8271,
+                1323.844
+              ],
+              [
+                1915.8271,
+                1351.844
+              ],
+              [
+                1903.2271,
+                1351.844
+              ],
+              [
+                1903.2271,
+                1323.844
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "THIRD FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "177B",
+            "hard_obstructions_avoided_count": 49
+          }
+        },
+        {
+          "room_id": "dhule-third-floor-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "floor_region_id": "dhule-third-floor",
+          "area_sqft": 784.0,
+          "centroid": [
+            1930.53,
+            1337.84
+          ],
+          "dimensions": {
+            "width_ft": 28.0,
+            "depth_ft": 28.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1944.5271,
+                1323.844
+              ],
+              [
+                1944.5271,
+                1351.844
+              ],
+              [
+                1916.5271,
+                1351.844
+              ],
+              [
+                1916.5271,
+                1323.844
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "THIRD FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "177B",
+            "hard_obstructions_avoided_count": 49
+          }
+        },
+        {
+          "room_id": "dhule-third-floor-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "floor_region_id": "dhule-third-floor",
+          "area_sqft": 109.35,
+          "centroid": [
+            1885.58,
+            1371.09
+          ],
+          "dimensions": {
+            "width_ft": 8.1,
+            "depth_ft": 13.5
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1889.6271,
+                1364.344
+              ],
+              [
+                1889.6271,
+                1377.844
+              ],
+              [
+                1881.5271,
+                1377.844
+              ],
+              [
+                1881.5271,
+                1364.344
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "THIRD FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "177B",
+            "hard_obstructions_avoided_count": 49
+          }
+        },
+        {
+          "room_id": "dhule-third-floor-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "floor_region_id": "dhule-third-floor",
+          "area_sqft": 60.0,
+          "centroid": [
+            1876.53,
+            1369.34
+          ],
+          "dimensions": {
+            "width_ft": 6.0,
+            "depth_ft": 10.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1879.5271,
+                1364.344
+              ],
+              [
+                1879.5271,
+                1374.344
+              ],
+              [
+                1873.5271,
+                1374.344
+              ],
+              [
+                1873.5271,
+                1364.344
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "THIRD FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "177B",
+            "hard_obstructions_avoided_count": 49
+          }
+        }
+      ],
+      "circulation": [
+        {
+          "circulation_id": "dhule-third-floor-circulation-spine",
+          "type": "CORRIDOR_AND_EGRESS_NETWORK",
+          "area_sqft": 835.41,
+          "is_connected": true,
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1944.5271,
+                1321.844
+              ],
+              [
+                1871.8271,
+                1321.844
+              ],
+              [
+                1866.5271,
+                1321.844
+              ],
+              [
+                1866.5271,
+                1323.844
+              ],
+              [
+                1866.5271,
+                1351.844
+              ],
+              [
+                1866.5271,
+                1354.144
+              ],
+              [
+                1866.5271,
+                1379.844
+              ],
+              [
+                1866.5271,
+                1385.344
+              ],
+              [
+                1871.8271,
+                1385.344
+              ],
+              [
+                1908.0271,
+                1385.344
+              ],
+              [
+                1908.0271,
+                1379.844
+              ],
+              [
+                1871.8271,
+                1379.844
+              ],
+              [
+                1871.8271,
+                1375.844
+              ],
+              [
+                1873.0271,
+                1375.844
+              ],
+              [
+                1873.5271,
+                1375.844
+              ],
+              [
+                1879.5271,
+                1375.844
+              ],
+              [
+                1881.5271,
+                1375.844
+              ],
+              [
+                1881.5271,
+                1374.344
+              ],
+              [
+                1881.5271,
+                1364.344
+              ],
+              [
+                1879.5271,
+                1364.344
+              ],
+              [
+                1879.5271,
+                1374.344
+              ],
+              [
+                1873.5271,
+                1374.344
+              ],
+              [
+                1873.5271,
+                1364.344
+              ],
+              [
+                1871.8271,
+                1364.344
+              ],
+              [
+                1871.8271,
+                1354.144
+              ],
+              [
+                1916.5271,
+                1354.144
+              ],
+              [
+                1916.5271,
+                1351.844
+              ],
+              [
+                1871.8271,
+                1351.844
+              ],
+              [
+                1871.8271,
+                1323.844
+              ],
+              [
+                1944.5271,
+                1323.844
+              ]
+            ],
+            "holes": []
+          },
+          "minimum_corridor_width_ft": 2.0,
+          "primary_corridor_width_ft": 5.5,
+          "touches_all_rooms": true,
+          "provenance": {
+            "floor_boundary_source": "177B"
+          }
+        }
+      ],
+      "uncertain_obstructions": [
+        {
+          "id": "dhule-third-floor-stair-1",
+          "category": "STAIR",
+          "status": "FOOTPRINT_UNCERTAIN",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Individual flight treads and landing runs without closed CAD polyline. Bounding box subtraction strictly rejected."
+        },
+        {
+          "id": "dhule-third-floor-lift-1",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-third-floor-lift-2",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-third-floor-lift-3",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-third-floor-lift-4",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-third-floor-lift-5",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-third-floor-shaft-1",
+          "category": "MEP_SHAFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Duct opening indicated by crossed diagonal lines on DUCT (DCPL). No closed boundary polyline."
+        },
+        {
+          "id": "dhule-third-floor-fixed-room-1",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.00X1.35' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-third-floor-void-1",
+          "category": "VOID",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Slab cutout indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.98 X 1.25' without closed boundary polyline."
+        },
+        {
+          "id": "dhule-third-floor-void-2",
+          "category": "VOID",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Slab cutout indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.50 X 1.34' without closed boundary polyline."
+        },
+        {
+          "id": "dhule-third-floor-unknown-1",
+          "category": "UNKNOWN_CANDIDATE",
+          "status": "LOW_CONFIDENCE",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+        }
+      ],
+      "adjacency_results": [
+        {
+          "from_room_type": "PROJECTION_ROOM",
+          "to_room_type": "AUDITORIUM_1",
+          "relationship": "DIRECT_ADJACENT",
+          "satisfied": true,
+          "evidence": "Shared boundary length: 26.0 ft (required >= 6.0 ft)"
+        },
+        {
+          "from_room_type": "AUDITORIUM_1",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Shared boundary: 0.0 ft; Both connect to circulation: True"
+        },
+        {
+          "from_room_type": "AUDITORIUM_2",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Shared boundary: 0.0 ft; Both connect to circulation: True"
+        },
+        {
+          "from_room_type": "RESTROOMS",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Both access common circulation spine; separation distance: 18.47 ft."
+        },
+        {
+          "from_room_type": "MANAGER_OFFICE",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Both access common circulation spine; separation distance: 26.79 ft."
+        }
+      ],
+      "validation": {
+        "can_zone": true,
+        "all_rooms_valid": true,
+        "all_rooms_inside_boundary": true,
+        "hard_obstruction_collisions": 0,
+        "circulation_connected": true
+      }
+    },
+    {
+      "region_id": "dhule-fourth-floor",
+      "document": "dhule",
+      "plan_region": "FOURTH FLOOR PLAN",
+      "zoning_status": "ZONING_GENERATED",
+      "boundary_status": "VERIFIED",
+      "usable_planning_area_sqft": 5222.04,
+      "total_room_area_sqft": 2154.15,
+      "circulation_area_sqft": 835.41,
+      "rooms": [
+        {
+          "room_id": "dhule-fourth-floor-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "floor_region_id": "dhule-fourth-floor",
+          "area_sqft": 744.0,
+          "centroid": [
+            1988.16,
+            1339.79
+          ],
+          "dimensions": {
+            "width_ft": 31.0,
+            "depth_ft": 24.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                2003.6584,
+                1327.7906
+              ],
+              [
+                2003.6584,
+                1351.7906
+              ],
+              [
+                1972.6584,
+                1351.7906
+              ],
+              [
+                1972.6584,
+                1327.7906
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FOURTH FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "21D8",
+            "hard_obstructions_avoided_count": 40
+          }
+        },
+        {
+          "room_id": "dhule-fourth-floor-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "floor_region_id": "dhule-fourth-floor",
+          "area_sqft": 104.0,
+          "centroid": [
+            1987.86,
+            1325.79
+          ],
+          "dimensions": {
+            "width_ft": 26.0,
+            "depth_ft": 4.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                2000.8584,
+                1323.7906
+              ],
+              [
+                2000.8584,
+                1327.7906
+              ],
+              [
+                1974.8584,
+                1327.7906
+              ],
+              [
+                1974.8584,
+                1323.7906
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FOURTH FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "21D8",
+            "hard_obstructions_avoided_count": 40
+          }
+        },
+        {
+          "room_id": "dhule-fourth-floor-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "floor_region_id": "dhule-fourth-floor",
+          "area_sqft": 352.8,
+          "centroid": [
+            2010.36,
+            1337.79
+          ],
+          "dimensions": {
+            "width_ft": 12.6,
+            "depth_ft": 28.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                2016.6584,
+                1323.7906
+              ],
+              [
+                2016.6584,
+                1351.7906
+              ],
+              [
+                2004.0584,
+                1351.7906
+              ],
+              [
+                2004.0584,
+                1323.7906
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FOURTH FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "21D8",
+            "hard_obstructions_avoided_count": 40
+          }
+        },
+        {
+          "room_id": "dhule-fourth-floor-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "floor_region_id": "dhule-fourth-floor",
+          "area_sqft": 784.0,
+          "centroid": [
+            2031.36,
+            1337.79
+          ],
+          "dimensions": {
+            "width_ft": 28.0,
+            "depth_ft": 28.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                2045.3584,
+                1323.7906
+              ],
+              [
+                2045.3584,
+                1351.7906
+              ],
+              [
+                2017.3584,
+                1351.7906
+              ],
+              [
+                2017.3584,
+                1323.7906
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FOURTH FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "VALID",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [],
+          "provenance": {
+            "floor_boundary_source": "21D8",
+            "hard_obstructions_avoided_count": 40
+          }
+        },
+        {
+          "room_id": "dhule-fourth-floor-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "floor_region_id": "dhule-fourth-floor",
+          "area_sqft": 109.35,
+          "centroid": [
+            1986.41,
+            1371.04
+          ],
+          "dimensions": {
+            "width_ft": 8.1,
+            "depth_ft": 13.5
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1990.4584,
+                1364.2906
+              ],
+              [
+                1990.4584,
+                1377.7906
+              ],
+              [
+                1982.3584,
+                1377.7906
+              ],
+              [
+                1982.3584,
+                1364.2906
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FOURTH FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "REVIEW_REQUIRED",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [
+            {
+              "obstruction_id": "dhule-fourth-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "status": "UNRESOLVED"
+            }
+          ],
+          "provenance": {
+            "floor_boundary_source": "21D8",
+            "hard_obstructions_avoided_count": 40
+          }
+        },
+        {
+          "room_id": "dhule-fourth-floor-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "floor_region_id": "dhule-fourth-floor",
+          "area_sqft": 60.0,
+          "centroid": [
+            1977.36,
+            1369.29
+          ],
+          "dimensions": {
+            "width_ft": 6.0,
+            "depth_ft": 10.0
+          },
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                1980.3584,
+                1364.2906
+              ],
+              [
+                1980.3584,
+                1374.2906
+              ],
+              [
+                1974.3584,
+                1374.2906
+              ],
+              [
+                1974.3584,
+                1364.2906
+              ]
+            ],
+            "holes": []
+          },
+          "source_region": "FOURTH FLOOR PLAN",
+          "generated_by": "DeterministicZoningCandidateGenerator_v1",
+          "confidence": "HIGH",
+          "validation_status": "REVIEW_REQUIRED",
+          "hard_obstruction_collision": false,
+          "hard_obstruction_collision_area": 0.0,
+          "uncertain_obstruction_warnings": [
+            {
+              "obstruction_id": "dhule-fourth-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "status": "UNRESOLVED"
+            }
+          ],
+          "provenance": {
+            "floor_boundary_source": "21D8",
+            "hard_obstructions_avoided_count": 40
+          }
+        }
+      ],
+      "circulation": [
+        {
+          "circulation_id": "dhule-fourth-floor-circulation-spine",
+          "type": "CORRIDOR_AND_EGRESS_NETWORK",
+          "area_sqft": 835.41,
+          "is_connected": true,
+          "geometry": {
+            "type": "Polygon",
+            "exterior": [
+              [
+                2045.3584,
+                1321.7906
+              ],
+              [
+                1972.6584,
+                1321.7906
+              ],
+              [
+                1967.3584,
+                1321.7906
+              ],
+              [
+                1967.3584,
+                1323.7906
+              ],
+              [
+                1967.3584,
+                1351.7906
+              ],
+              [
+                1967.3584,
+                1354.0906
+              ],
+              [
+                1967.3584,
+                1379.7906
+              ],
+              [
+                1967.3584,
+                1385.2906
+              ],
+              [
+                1972.6584,
+                1385.2906
+              ],
+              [
+                2008.8584,
+                1385.2906
+              ],
+              [
+                2008.8584,
+                1379.7906
+              ],
+              [
+                1972.6584,
+                1379.7906
+              ],
+              [
+                1972.6584,
+                1375.7906
+              ],
+              [
+                1973.8584,
+                1375.7906
+              ],
+              [
+                1974.3584,
+                1375.7906
+              ],
+              [
+                1980.3584,
+                1375.7906
+              ],
+              [
+                1982.3584,
+                1375.7906
+              ],
+              [
+                1982.3584,
+                1374.2906
+              ],
+              [
+                1982.3584,
+                1364.2906
+              ],
+              [
+                1980.3584,
+                1364.2906
+              ],
+              [
+                1980.3584,
+                1374.2906
+              ],
+              [
+                1974.3584,
+                1374.2906
+              ],
+              [
+                1974.3584,
+                1364.2906
+              ],
+              [
+                1972.6584,
+                1364.2906
+              ],
+              [
+                1972.6584,
+                1354.0906
+              ],
+              [
+                2017.3584,
+                1354.0906
+              ],
+              [
+                2017.3584,
+                1351.7906
+              ],
+              [
+                1972.6584,
+                1351.7906
+              ],
+              [
+                1972.6584,
+                1323.7906
+              ],
+              [
+                2045.3584,
+                1323.7906
+              ]
+            ],
+            "holes": []
+          },
+          "minimum_corridor_width_ft": 2.0,
+          "primary_corridor_width_ft": 5.5,
+          "touches_all_rooms": true,
+          "provenance": {
+            "floor_boundary_source": "21D8"
+          }
+        }
+      ],
+      "uncertain_obstructions": [
+        {
+          "id": "dhule-fourth-floor-stair-1",
+          "category": "STAIR",
+          "status": "FOOTPRINT_UNCERTAIN",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Individual flight treads and landing runs without closed CAD polyline. Bounding box subtraction strictly rejected."
+        },
+        {
+          "id": "dhule-fourth-floor-lift-2",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-fourth-floor-lift-3",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "dhule-fourth-floor-shaft-1",
+          "category": "MEP_SHAFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Duct opening indicated by crossed diagonal lines on DUCT (DCPL). No closed boundary polyline."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-1",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;TOILET 2.00X1.35' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-2",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-3",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-4",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.35' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-5",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-6",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.43X1.80' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-7",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-8",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-9",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-10",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-11",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-12",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }2.40X1.20' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-13",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.35X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-14",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.35X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-15",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-16",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-17",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-18",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-19",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X3.12' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-20",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-21",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-22",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-23",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X3.12' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-24",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X3.12' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-25",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-26",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-27",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;G TOILET }3.80X2.20' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-28",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;L TOILET }3.80X2.20' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-29",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.20X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-30",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-31",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-32",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET  Q*;}2.09X1.20' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-33",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET  Q*;}2.23X1.20' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-34",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET  Q*;}1.20X3.65' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-35",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-fixed-room-36",
+          "category": "FIXED_ROOM",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Room 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;TOILET }1.50X2.40' composed of unclosed partition lines with door thresholds."
+        },
+        {
+          "id": "dhule-fourth-floor-void-1",
+          "category": "VOID",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Slab cutout indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.98 X 1.25' without closed boundary polyline."
+        },
+        {
+          "id": "dhule-fourth-floor-void-2",
+          "category": "VOID",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Slab cutout indicated by text 'XQC;{\\FCENTURY GOTHIC|B1|I0|C0|P34;VOID }2.50 X 2.20' without closed boundary polyline."
+        },
+        {
+          "id": "dhule-fourth-floor-unknown-1",
+          "category": "UNKNOWN_CANDIDATE",
+          "status": "LOW_CONFIDENCE",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Geometry on layer 'F4' represents unidentified architectural or structural features."
+        }
+      ],
+      "adjacency_results": [
+        {
+          "from_room_type": "PROJECTION_ROOM",
+          "to_room_type": "AUDITORIUM_1",
+          "relationship": "DIRECT_ADJACENT",
+          "satisfied": true,
+          "evidence": "Shared boundary length: 26.0 ft (required >= 6.0 ft)"
+        },
+        {
+          "from_room_type": "AUDITORIUM_1",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Shared boundary: 0.0 ft; Both connect to circulation: True"
+        },
+        {
+          "from_room_type": "AUDITORIUM_2",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Shared boundary: 0.0 ft; Both connect to circulation: True"
+        },
+        {
+          "from_room_type": "RESTROOMS",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Both access common circulation spine; separation distance: 18.47 ft."
+        },
+        {
+          "from_room_type": "MANAGER_OFFICE",
+          "to_room_type": "FOYER_CONCESSION",
+          "relationship": "DIRECT_OR_CIRCULATION",
+          "satisfied": true,
+          "evidence": "Both access common circulation spine; separation distance: 26.79 ft."
+        }
+      ],
+      "validation": {
+        "can_zone": true,
+        "all_rooms_valid": true,
+        "all_rooms_inside_boundary": true,
+        "hard_obstruction_collisions": 0,
+        "circulation_connected": true
+      }
+    },
+    {
+      "region_id": "vadodara-option-1",
+      "document": "vadodara",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+      "zoning_status": "UNUSABLE_NO_VERIFIED_BOUNDARY",
+      "boundary_status": "NOT_VERIFIED",
+      "usable_planning_area_sqft": null,
+      "rooms": [],
+      "circulation": [],
+      "uncertain_obstructions": [
+        {
+          "id": "vadodara-option-1-stair-1",
+          "category": "STAIR",
+          "status": "FOOTPRINT_UNCERTAIN",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Individual flight treads and landing runs without closed CAD polyline. Bounding box subtraction strictly rejected."
+        },
+        {
+          "id": "vadodara-option-1-lift-1",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "vadodara-option-1-lift-2",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "vadodara-option-1-lift-3",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "vadodara-option-1-lift-4",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "vadodara-option-1-lift-5",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "vadodara-option-1-lift-6",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "vadodara-option-1-unknown-1",
+          "category": "UNKNOWN_CANDIDATE",
+          "status": "LOW_CONFIDENCE",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Geometry on layer 'P_DOMESTIC' represents domestic water routing that may restrict ceiling plenum or riser space."
+        }
+      ],
+      "adjacency_results": [],
+      "validation": {
+        "can_zone": false,
+        "reason": "Region lacks verified closed outer floor boundary; candidate room generation blocked."
+      }
+    },
+    {
+      "region_id": "vadodara-option-2",
+      "document": "vadodara",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+      "zoning_status": "UNUSABLE_NO_VERIFIED_BOUNDARY",
+      "boundary_status": "NOT_VERIFIED",
+      "usable_planning_area_sqft": null,
+      "rooms": [],
+      "circulation": [],
+      "uncertain_obstructions": [
+        {
+          "id": "vadodara-option-2-stair-1",
+          "category": "STAIR",
+          "status": "FOOTPRINT_UNCERTAIN",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Individual flight treads and landing runs without closed CAD polyline. Bounding box subtraction strictly rejected."
+        },
+        {
+          "id": "vadodara-option-2-lift-1",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "vadodara-option-2-lift-2",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "vadodara-option-2-lift-3",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "vadodara-option-2-lift-4",
+          "category": "LIFT",
+          "status": "UNRESOLVED",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Lift core consists of open wall lines, door openings, and text annotation. No closed polyline entity."
+        },
+        {
+          "id": "vadodara-option-2-unknown-1",
+          "category": "UNKNOWN_CANDIDATE",
+          "status": "LOW_CONFIDENCE",
+          "treatment": "WARNING_NOT_SUBTRACTED",
+          "reason": "Geometry on layer 'P_DOMESTIC' represents domestic water routing that may restrict ceiling plenum or riser space."
+        }
+      ],
+      "adjacency_results": [],
+      "validation": {
+        "can_zone": false,
+        "reason": "Region lacks verified closed outer floor boundary; candidate room generation blocked."
+      }
+    }
+  ]
+}

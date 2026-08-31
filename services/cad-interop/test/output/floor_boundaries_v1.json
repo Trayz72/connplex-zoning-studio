@@ -1,0 +1,3038 @@
+{
+  "title": "Connplex Zoning Studio \u2014 Reconstructed and Validated Floor Boundaries v1",
+  "documents": [
+    {
+      "source_file": "1022_MARUTI NANDAN BUSINESS HUB,DHULE,MAHARASHTRA_ZONING LAYOUT_5.08.2026.dxf",
+      "regions": [
+        {
+          "region_id": "dhule-basement",
+          "label": "BASEMENT FLOOR PLAN",
+          "source_units": "Feet",
+          "canonical_units": "feet",
+          "framing_geometry": {
+            "handle": "278F",
+            "layer": "0",
+            "type": "polygon",
+            "area": 14294.79,
+            "width": 122.08,
+            "height": 117.09,
+            "bounding_box": {
+              "min_x": 1375.3,
+              "min_y": 1293.47,
+              "max_x": 1497.38,
+              "max_y": 1410.56
+            },
+            "points": [
+              [
+                1375.2976,
+                1410.5621
+              ],
+              [
+                1497.377,
+                1410.5621
+              ],
+              [
+                1497.377,
+                1293.4678
+              ],
+              [
+                1375.2976,
+                1293.4678
+              ]
+            ]
+          },
+          "source_boundary": null,
+          "reconstructed_boundary_candidate": null,
+          "usable_planning_boundary": null,
+          "candidate_loops": [
+            {
+              "candidate_id": "loop-1",
+              "classification": "title_block_frame",
+              "area": 1073.38,
+              "perimeter": 270.14,
+              "dimensions": "121.1 x 8.9 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "REJECTED",
+              "bounding_box": {
+                "min_x": 1375.8,
+                "min_y": 1294.0,
+                "max_x": 1496.9,
+                "max_y": 1302.9
+              },
+              "points": [
+                [
+                  1375.8,
+                  1302.9
+                ],
+                [
+                  1496.9,
+                  1302.9
+                ],
+                [
+                  1496.9,
+                  1294.0
+                ],
+                [
+                  1375.8,
+                  1294.0
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-2",
+              "classification": "internal_enclosed_region",
+              "area": 4.41,
+              "perimeter": 10.14,
+              "dimensions": "4.2 x 2.1 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1377.2,
+                "min_y": 1298.2,
+                "max_x": 1381.4,
+                "max_y": 1300.3
+              },
+              "points": [
+                [
+                  1381.4,
+                  1298.2
+                ],
+                [
+                  1377.2,
+                  1298.2
+                ],
+                [
+                  1379.3,
+                  1300.3
+                ]
+              ]
+            }
+          ],
+          "area": {
+            "gross": null,
+            "unit": "sqft"
+          },
+          "perimeter": {
+            "value": null,
+            "unit": "ft"
+          },
+          "confidence": "LOW",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "evidence": [
+            "Framing rectangle [278F] (122.08 x 117.09 ft, 14294.79 sq ft) is a sheet title frame and rejected as a usable floor boundary.",
+            "BOUNDARY_RECONSTRUCTION_INSUFFICIENT_EVIDENCE: No continuous closed exterior wall enclosure exists in the CAD source geometry. Openings for vehicular access / shopping colonnades leave perimeter unclosed."
+          ]
+        },
+        {
+          "region_id": "dhule-ground",
+          "label": "GROUND FLOOR PLAN",
+          "source_units": "Feet",
+          "canonical_units": "feet",
+          "framing_geometry": {
+            "handle": "27F1",
+            "layer": "0",
+            "type": "polygon",
+            "area": 14294.79,
+            "width": 122.08,
+            "height": 117.09,
+            "bounding_box": {
+              "min_x": 1503.58,
+              "min_y": 1293.47,
+              "max_x": 1625.66,
+              "max_y": 1410.56
+            },
+            "points": [
+              [
+                1503.5811,
+                1410.5621
+              ],
+              [
+                1625.6604,
+                1410.5621
+              ],
+              [
+                1625.6604,
+                1293.4678
+              ],
+              [
+                1503.5811,
+                1293.4678
+              ]
+            ]
+          },
+          "source_boundary": null,
+          "reconstructed_boundary_candidate": null,
+          "usable_planning_boundary": null,
+          "candidate_loops": [
+            {
+              "candidate_id": "loop-14",
+              "classification": "title_block_frame",
+              "area": 1073.38,
+              "perimeter": 270.14,
+              "dimensions": "121.1 x 8.9 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "REJECTED",
+              "bounding_box": {
+                "min_x": 1504.1,
+                "min_y": 1294.0,
+                "max_x": 1625.2,
+                "max_y": 1302.9
+              },
+              "points": [
+                [
+                  1504.1,
+                  1302.9
+                ],
+                [
+                  1625.2,
+                  1302.9
+                ],
+                [
+                  1625.2,
+                  1294.0
+                ],
+                [
+                  1504.1,
+                  1294.0
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-1",
+              "classification": "internal_enclosed_region",
+              "area": 19.69,
+              "perimeter": 270.8,
+              "dimensions": "34.8 x 9.5 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1537.7,
+                "min_y": 1370.1,
+                "max_x": 1572.5,
+                "max_y": 1379.6
+              },
+              "points": [
+                [
+                  1537.7,
+                  1370.1
+                ],
+                [
+                  1537.7,
+                  1371.3
+                ],
+                [
+                  1537.9,
+                  1371.3
+                ],
+                [
+                  1537.9,
+                  1370.3
+                ],
+                [
+                  1545.7,
+                  1370.3
+                ],
+                [
+                  1545.7,
+                  1377.0
+                ],
+                [
+                  1537.9,
+                  1377.0
+                ],
+                [
+                  1537.9,
+                  1375.3
+                ],
+                [
+                  1537.7,
+                  1375.3
+                ],
+                [
+                  1537.7,
+                  1377.1
+                ],
+                [
+                  1555.1,
+                  1377.1
+                ],
+                [
+                  1555.1,
+                  1379.6
+                ],
+                [
+                  1555.6,
+                  1379.6
+                ],
+                [
+                  1555.6,
+                  1379.4
+                ],
+                [
+                  1555.3,
+                  1379.4
+                ],
+                [
+                  1555.3,
+                  1374.9
+                ],
+                [
+                  1558.3,
+                  1374.9
+                ],
+                [
+                  1558.3,
+                  1379.4
+                ],
+                [
+                  1558.0,
+                  1379.4
+                ],
+                [
+                  1558.0,
+                  1379.6
+                ],
+                [
+                  1558.7,
+                  1379.6
+                ],
+                [
+                  1558.7,
+                  1379.4
+                ],
+                [
+                  1558.4,
+                  1379.4
+                ],
+                [
+                  1558.4,
+                  1374.9
+                ],
+                [
+                  1561.4,
+                  1374.9
+                ],
+                [
+                  1561.4,
+                  1379.4
+                ],
+                [
+                  1561.1,
+                  1379.4
+                ],
+                [
+                  1561.1,
+                  1379.6
+                ],
+                [
+                  1561.9,
+                  1379.6
+                ],
+                [
+                  1561.9,
+                  1379.4
+                ],
+                [
+                  1561.6,
+                  1379.4
+                ],
+                [
+                  1561.6,
+                  1374.9
+                ],
+                [
+                  1564.6,
+                  1374.9
+                ],
+                [
+                  1564.6,
+                  1379.4
+                ],
+                [
+                  1564.3,
+                  1379.4
+                ],
+                [
+                  1564.3,
+                  1379.6
+                ],
+                [
+                  1565.0,
+                  1379.6
+                ],
+                [
+                  1565.0,
+                  1379.4
+                ],
+                [
+                  1564.7,
+                  1379.4
+                ],
+                [
+                  1564.7,
+                  1374.9
+                ],
+                [
+                  1567.7,
+                  1374.9
+                ],
+                [
+                  1567.7,
+                  1379.4
+                ],
+                [
+                  1567.4,
+                  1379.4
+                ],
+                [
+                  1567.4,
+                  1379.6
+                ],
+                [
+                  1572.5,
+                  1379.6
+                ],
+                [
+                  1572.5,
+                  1379.2
+                ],
+                [
+                  1572.4,
+                  1379.2
+                ],
+                [
+                  1572.4,
+                  1379.4
+                ],
+                [
+                  1567.9,
+                  1379.4
+                ],
+                [
+                  1567.9,
+                  1376.5
+                ],
+                [
+                  1572.4,
+                  1376.5
+                ],
+                [
+                  1572.4,
+                  1376.8
+                ],
+                [
+                  1572.5,
+                  1376.8
+                ],
+                [
+                  1572.5,
+                  1376.1
+                ],
+                [
+                  1572.4,
+                  1376.1
+                ],
+                [
+                  1572.4,
+                  1376.4
+                ],
+                [
+                  1567.9,
+                  1376.4
+                ],
+                [
+                  1567.9,
+                  1373.4
+                ],
+                [
+                  1572.4,
+                  1373.4
+                ],
+                [
+                  1572.4,
+                  1373.7
+                ],
+                [
+                  1572.5,
+                  1373.7
+                ],
+                [
+                  1572.5,
+                  1372.9
+                ],
+                [
+                  1572.4,
+                  1372.9
+                ],
+                [
+                  1572.4,
+                  1373.3
+                ],
+                [
+                  1567.9,
+                  1373.3
+                ],
+                [
+                  1567.9,
+                  1370.3
+                ],
+                [
+                  1572.4,
+                  1370.3
+                ],
+                [
+                  1572.4,
+                  1370.5
+                ],
+                [
+                  1572.5,
+                  1370.5
+                ],
+                [
+                  1572.5,
+                  1370.1
+                ],
+                [
+                  1567.4,
+                  1370.1
+                ],
+                [
+                  1567.4,
+                  1370.3
+                ],
+                [
+                  1567.7,
+                  1370.3
+                ],
+                [
+                  1567.7,
+                  1374.8
+                ],
+                [
+                  1564.7,
+                  1374.8
+                ],
+                [
+                  1564.7,
+                  1370.3
+                ],
+                [
+                  1565.0,
+                  1370.3
+                ],
+                [
+                  1565.0,
+                  1370.1
+                ],
+                [
+                  1564.3,
+                  1370.1
+                ],
+                [
+                  1564.3,
+                  1370.3
+                ],
+                [
+                  1564.6,
+                  1370.3
+                ],
+                [
+                  1564.6,
+                  1374.8
+                ],
+                [
+                  1561.6,
+                  1374.8
+                ],
+                [
+                  1561.6,
+                  1370.3
+                ],
+                [
+                  1561.9,
+                  1370.3
+                ],
+                [
+                  1561.9,
+                  1370.1
+                ],
+                [
+                  1561.1,
+                  1370.1
+                ],
+                [
+                  1561.1,
+                  1370.3
+                ],
+                [
+                  1561.4,
+                  1370.3
+                ],
+                [
+                  1561.4,
+                  1374.8
+                ],
+                [
+                  1558.4,
+                  1374.8
+                ],
+                [
+                  1558.4,
+                  1370.3
+                ],
+                [
+                  1558.7,
+                  1370.3
+                ],
+                [
+                  1558.7,
+                  1370.1
+                ],
+                [
+                  1558.0,
+                  1370.1
+                ],
+                [
+                  1558.0,
+                  1370.3
+                ],
+                [
+                  1558.3,
+                  1370.3
+                ],
+                [
+                  1558.3,
+                  1374.8
+                ],
+                [
+                  1555.3,
+                  1374.8
+                ],
+                [
+                  1555.3,
+                  1370.3
+                ],
+                [
+                  1555.6,
+                  1370.3
+                ],
+                [
+                  1555.6,
+                  1370.1
+                ],
+                [
+                  1554.8,
+                  1370.1
+                ],
+                [
+                  1554.8,
+                  1370.3
+                ],
+                [
+                  1555.1,
+                  1370.3
+                ],
+                [
+                  1555.1,
+                  1377.0
+                ],
+                [
+                  1552.1,
+                  1377.0
+                ],
+                [
+                  1552.1,
+                  1370.3
+                ],
+                [
+                  1552.4,
+                  1370.3
+                ],
+                [
+                  1552.4,
+                  1370.1
+                ],
+                [
+                  1551.7,
+                  1370.1
+                ],
+                [
+                  1551.7,
+                  1370.3
+                ],
+                [
+                  1552.0,
+                  1370.3
+                ],
+                [
+                  1552.0,
+                  1377.0
+                ],
+                [
+                  1549.0,
+                  1377.0
+                ],
+                [
+                  1549.0,
+                  1370.3
+                ],
+                [
+                  1549.3,
+                  1370.3
+                ],
+                [
+                  1549.3,
+                  1370.1
+                ],
+                [
+                  1548.5,
+                  1370.1
+                ],
+                [
+                  1548.5,
+                  1370.3
+                ],
+                [
+                  1548.8,
+                  1370.3
+                ],
+                [
+                  1548.8,
+                  1377.0
+                ],
+                [
+                  1545.8,
+                  1377.0
+                ],
+                [
+                  1545.8,
+                  1370.3
+                ],
+                [
+                  1546.1,
+                  1370.3
+                ],
+                [
+                  1546.1,
+                  1370.1
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-15",
+              "classification": "internal_enclosed_region",
+              "area": 4.41,
+              "perimeter": 10.14,
+              "dimensions": "4.2 x 2.1 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1505.5,
+                "min_y": 1298.2,
+                "max_x": 1509.7,
+                "max_y": 1300.3
+              },
+              "points": [
+                [
+                  1509.7,
+                  1298.2
+                ],
+                [
+                  1505.5,
+                  1298.2
+                ],
+                [
+                  1507.6,
+                  1300.3
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-2",
+              "classification": "internal_enclosed_region",
+              "area": 0.46,
+              "perimeter": 5.0,
+              "dimensions": "2.3 x 0.2 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1575.0,
+                "min_y": 1379.4,
+                "max_x": 1577.3,
+                "max_y": 1379.6
+              },
+              "points": [
+                [
+                  1575.0,
+                  1379.6
+                ],
+                [
+                  1577.3,
+                  1379.6
+                ],
+                [
+                  1577.3,
+                  1379.4
+                ],
+                [
+                  1575.0,
+                  1379.4
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-4",
+              "classification": "internal_enclosed_region",
+              "area": 0.23,
+              "perimeter": 4.8,
+              "dimensions": "1.4 x 0.6 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1607.2,
+                "min_y": 1345.9,
+                "max_x": 1608.6,
+                "max_y": 1346.5
+              },
+              "points": [
+                [
+                  1608.6,
+                  1346.4
+                ],
+                [
+                  1608.6,
+                  1345.9
+                ],
+                [
+                  1608.5,
+                  1345.9
+                ],
+                [
+                  1608.5,
+                  1346.1
+                ],
+                [
+                  1607.3,
+                  1346.1
+                ],
+                [
+                  1607.3,
+                  1345.9
+                ],
+                [
+                  1607.2,
+                  1345.9
+                ],
+                [
+                  1607.2,
+                  1346.2
+                ],
+                [
+                  1607.2,
+                  1346.5
+                ],
+                [
+                  1607.3,
+                  1346.5
+                ],
+                [
+                  1607.3,
+                  1346.2
+                ],
+                [
+                  1608.5,
+                  1346.2
+                ],
+                [
+                  1608.5,
+                  1346.4
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-6",
+              "classification": "internal_enclosed_region",
+              "area": 0.23,
+              "perimeter": 4.8,
+              "dimensions": "1.4 x 0.6 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1607.2,
+                "min_y": 1343.7,
+                "max_x": 1608.6,
+                "max_y": 1344.3
+              },
+              "points": [
+                [
+                  1608.6,
+                  1344.2
+                ],
+                [
+                  1608.6,
+                  1343.7
+                ],
+                [
+                  1608.5,
+                  1343.7
+                ],
+                [
+                  1608.5,
+                  1343.9
+                ],
+                [
+                  1607.3,
+                  1343.9
+                ],
+                [
+                  1607.3,
+                  1343.7
+                ],
+                [
+                  1607.2,
+                  1343.7
+                ],
+                [
+                  1607.2,
+                  1344.0
+                ],
+                [
+                  1607.2,
+                  1344.3
+                ],
+                [
+                  1607.3,
+                  1344.3
+                ],
+                [
+                  1607.3,
+                  1344.0
+                ],
+                [
+                  1608.5,
+                  1344.0
+                ],
+                [
+                  1608.5,
+                  1344.2
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-5",
+              "classification": "internal_enclosed_region",
+              "area": 0.18,
+              "perimeter": 3.8,
+              "dimensions": "1.4 x 0.5 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1607.2,
+                "min_y": 1344.8,
+                "max_x": 1608.6,
+                "max_y": 1345.3
+              },
+              "points": [
+                [
+                  1608.6,
+                  1345.3
+                ],
+                [
+                  1608.6,
+                  1344.8
+                ],
+                [
+                  1608.5,
+                  1344.8
+                ],
+                [
+                  1608.5,
+                  1345.0
+                ],
+                [
+                  1607.2,
+                  1345.0
+                ],
+                [
+                  1607.2,
+                  1345.1
+                ],
+                [
+                  1608.5,
+                  1345.1
+                ],
+                [
+                  1608.5,
+                  1345.3
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-7",
+              "classification": "internal_enclosed_region",
+              "area": 0.18,
+              "perimeter": 3.8,
+              "dimensions": "1.4 x 0.5 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1607.2,
+                "min_y": 1342.6,
+                "max_x": 1608.6,
+                "max_y": 1343.1
+              },
+              "points": [
+                [
+                  1608.6,
+                  1343.1
+                ],
+                [
+                  1608.6,
+                  1342.6
+                ],
+                [
+                  1608.5,
+                  1342.6
+                ],
+                [
+                  1608.5,
+                  1342.8
+                ],
+                [
+                  1607.2,
+                  1342.8
+                ],
+                [
+                  1607.2,
+                  1342.9
+                ],
+                [
+                  1608.5,
+                  1342.9
+                ],
+                [
+                  1608.5,
+                  1343.1
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-9",
+              "classification": "internal_enclosed_region",
+              "area": 0.18,
+              "perimeter": 3.8,
+              "dimensions": "1.4 x 0.5 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1607.2,
+                "min_y": 1353.1,
+                "max_x": 1608.6,
+                "max_y": 1353.6
+              },
+              "points": [
+                [
+                  1608.5,
+                  1353.4
+                ],
+                [
+                  1608.5,
+                  1353.6
+                ],
+                [
+                  1608.6,
+                  1353.6
+                ],
+                [
+                  1608.6,
+                  1353.1
+                ],
+                [
+                  1608.5,
+                  1353.1
+                ],
+                [
+                  1608.5,
+                  1353.3
+                ],
+                [
+                  1607.2,
+                  1353.3
+                ],
+                [
+                  1607.2,
+                  1353.4
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-8",
+              "classification": "internal_enclosed_region",
+              "area": 0.16,
+              "perimeter": 2.0,
+              "dimensions": "0.8 x 0.2 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1581.6,
+                "min_y": 1363.7,
+                "max_x": 1582.4,
+                "max_y": 1363.9
+              },
+              "points": [
+                [
+                  1582.4,
+                  1363.7
+                ],
+                [
+                  1581.6,
+                  1363.7
+                ],
+                [
+                  1581.6,
+                  1363.9
+                ],
+                [
+                  1582.4,
+                  1363.9
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-3",
+              "classification": "internal_enclosed_region",
+              "area": 0.14,
+              "perimeter": 1.8,
+              "dimensions": "0.7 x 0.2 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1581.7,
+                "min_y": 1370.1,
+                "max_x": 1582.4,
+                "max_y": 1370.3
+              },
+              "points": [
+                [
+                  1581.7,
+                  1370.3
+                ],
+                [
+                  1582.4,
+                  1370.3
+                ],
+                [
+                  1582.4,
+                  1370.1
+                ],
+                [
+                  1581.7,
+                  1370.1
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-13",
+              "classification": "internal_enclosed_region",
+              "area": 0.06,
+              "perimeter": 1.4,
+              "dimensions": "0.1 x 0.6 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1607.2,
+                "min_y": 1352.0,
+                "max_x": 1607.3,
+                "max_y": 1352.6
+              },
+              "points": [
+                [
+                  1607.2,
+                  1352.6
+                ],
+                [
+                  1607.3,
+                  1352.6
+                ],
+                [
+                  1607.3,
+                  1352.2
+                ],
+                [
+                  1607.3,
+                  1352.0
+                ],
+                [
+                  1607.2,
+                  1352.0
+                ],
+                [
+                  1607.2,
+                  1352.2
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-10",
+              "classification": "internal_enclosed_region",
+              "area": 0.05,
+              "perimeter": 1.2,
+              "dimensions": "0.1 x 0.5 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1608.5,
+                "min_y": 1352.0,
+                "max_x": 1608.6,
+                "max_y": 1352.5
+              },
+              "points": [
+                [
+                  1608.5,
+                  1352.0
+                ],
+                [
+                  1608.5,
+                  1352.5
+                ],
+                [
+                  1608.6,
+                  1352.5
+                ],
+                [
+                  1608.6,
+                  1352.0
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-11",
+              "classification": "internal_enclosed_region",
+              "area": 0.05,
+              "perimeter": 1.2,
+              "dimensions": "0.1 x 0.5 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1608.5,
+                "min_y": 1350.9,
+                "max_x": 1608.6,
+                "max_y": 1351.4
+              },
+              "points": [
+                [
+                  1608.5,
+                  1350.9
+                ],
+                [
+                  1608.5,
+                  1351.4
+                ],
+                [
+                  1608.6,
+                  1351.4
+                ],
+                [
+                  1608.6,
+                  1350.9
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-12",
+              "classification": "internal_enclosed_region",
+              "area": 0.05,
+              "perimeter": 1.2,
+              "dimensions": "0.1 x 0.5 ft",
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "LOW",
+              "bounding_box": {
+                "min_x": 1608.5,
+                "min_y": 1349.8,
+                "max_x": 1608.6,
+                "max_y": 1350.3
+              },
+              "points": [
+                [
+                  1608.5,
+                  1349.8
+                ],
+                [
+                  1608.5,
+                  1350.3
+                ],
+                [
+                  1608.6,
+                  1350.3
+                ],
+                [
+                  1608.6,
+                  1349.8
+                ]
+              ]
+            }
+          ],
+          "area": {
+            "gross": null,
+            "unit": "sqft"
+          },
+          "perimeter": {
+            "value": null,
+            "unit": "ft"
+          },
+          "confidence": "LOW",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "evidence": [
+            "Framing rectangle [27F1] (122.08 x 117.09 ft, 14294.79 sq ft) is a sheet title frame and rejected as a usable floor boundary.",
+            "BOUNDARY_RECONSTRUCTION_INSUFFICIENT_EVIDENCE: No continuous closed exterior wall enclosure exists in the CAD source geometry. Openings for vehicular access / shopping colonnades leave perimeter unclosed."
+          ]
+        },
+        {
+          "region_id": "dhule-first-floor",
+          "label": "FIRST FLOOR PLAN",
+          "source_units": "Feet",
+          "canonical_units": "feet",
+          "framing_geometry": {
+            "handle": "284A",
+            "layer": "0",
+            "type": "polygon",
+            "area": 6873.64,
+            "width": 85.77,
+            "height": 80.14,
+            "bounding_box": {
+              "min_x": 1655.67,
+              "min_y": 1308.8,
+              "max_x": 1741.44,
+              "max_y": 1388.94
+            },
+            "points": [
+              [
+                1655.6718,
+                1388.9392
+              ],
+              [
+                1741.443,
+                1388.9392
+              ],
+              [
+                1741.443,
+                1308.8
+              ],
+              [
+                1655.6718,
+                1308.8
+              ]
+            ]
+          },
+          "source_boundary": {
+            "type": "polygon",
+            "points": [
+              [
+                1658.517,
+                1386.145
+              ],
+              [
+                1739.4121,
+                1386.145
+              ],
+              [
+                1739.4121,
+                1321.3446
+              ],
+              [
+                1658.517,
+                1321.3446
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "6A8"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1658.52,
+              "min_y": 1321.34,
+              "max_x": 1739.41,
+              "max_y": 1386.15
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "reconstructed_boundary_candidate": {
+            "type": "polygon",
+            "points": [
+              [
+                1658.517,
+                1386.145
+              ],
+              [
+                1739.4121,
+                1386.145
+              ],
+              [
+                1739.4121,
+                1321.3446
+              ],
+              [
+                1658.517,
+                1321.3446
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "6A8"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1658.52,
+              "min_y": 1321.34,
+              "max_x": 1739.41,
+              "max_y": 1386.15
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "usable_planning_boundary": {
+            "type": "polygon",
+            "points": [
+              [
+                1658.517,
+                1386.145
+              ],
+              [
+                1739.4121,
+                1386.145
+              ],
+              [
+                1739.4121,
+                1321.3446
+              ],
+              [
+                1658.517,
+                1321.3446
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "6A8"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1658.52,
+              "min_y": 1321.34,
+              "max_x": 1739.41,
+              "max_y": 1386.15
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "candidate_loops": [
+            {
+              "candidate_id": "loop-6A8",
+              "classification": "exterior_boundary_candidate",
+              "area": 5242.04,
+              "perimeter": 291.39,
+              "dimensions": "80.90 x 64.80 ft",
+              "source_entity_handles": [
+                "6A8"
+              ],
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "HIGH",
+              "geometry": {
+                "type": "polygon",
+                "points": [
+                  [
+                    1658.517,
+                    1386.145
+                  ],
+                  [
+                    1739.4121,
+                    1386.145
+                  ],
+                  [
+                    1739.4121,
+                    1321.3446
+                  ],
+                  [
+                    1658.517,
+                    1321.3446
+                  ]
+                ],
+                "calculation_method": "explicit_closed_polyline",
+                "source_entity_handles": [
+                  "6A8"
+                ],
+                "source_layers": [
+                  "wall"
+                ],
+                "bounding_box": {
+                  "min_x": 1658.52,
+                  "min_y": 1321.34,
+                  "max_x": 1739.41,
+                  "max_y": 1386.15
+                },
+                "width": 80.9,
+                "height": 64.8,
+                "aspect_ratio": 1.25
+              }
+            }
+          ],
+          "area": {
+            "gross": 5242.04,
+            "unit": "sqft"
+          },
+          "perimeter": {
+            "value": 291.39,
+            "unit": "ft"
+          },
+          "confidence": "HIGH",
+          "status": "PENDING_EXCLUSIONS",
+          "evidence": [
+            "Source handle [6A8] on layer 'wall' forms a verified single closed polyline.",
+            "Gross enclosed area: 5242.04 sq ft, perimeter: 291.39 ft, aspect ratio: 1.25.",
+            "All structural columns and interior rooms lie within this boundary.",
+            "Contains internal cores (fire stairs on 'stair', lift shafts, ducts); marked PENDING_EXCLUSIONS until non-occupiable cores are excluded."
+          ]
+        },
+        {
+          "region_id": "dhule-second-floor",
+          "label": "SECOND FLOOR PLAN",
+          "source_units": "Feet",
+          "canonical_units": "feet",
+          "framing_geometry": {
+            "handle": "28A3",
+            "layer": "0",
+            "type": "polygon",
+            "area": 6873.64,
+            "width": 85.77,
+            "height": 80.14,
+            "bounding_box": {
+              "min_x": 1761.68,
+              "min_y": 1308.8,
+              "max_x": 1847.45,
+              "max_y": 1388.94
+            },
+            "points": [
+              [
+                1761.6809,
+                1388.9386
+              ],
+              [
+                1847.4521,
+                1388.9386
+              ],
+              [
+                1847.4521,
+                1308.7994
+              ],
+              [
+                1761.6809,
+                1308.7994
+              ]
+            ]
+          },
+          "source_boundary": {
+            "type": "polygon",
+            "points": [
+              [
+                1764.5261,
+                1386.1444
+              ],
+              [
+                1845.4211,
+                1386.1444
+              ],
+              [
+                1845.4211,
+                1321.344
+              ],
+              [
+                1764.5261,
+                1321.344
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "1393"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1764.53,
+              "min_y": 1321.34,
+              "max_x": 1845.42,
+              "max_y": 1386.14
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "reconstructed_boundary_candidate": {
+            "type": "polygon",
+            "points": [
+              [
+                1764.5261,
+                1386.1444
+              ],
+              [
+                1845.4211,
+                1386.1444
+              ],
+              [
+                1845.4211,
+                1321.344
+              ],
+              [
+                1764.5261,
+                1321.344
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "1393"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1764.53,
+              "min_y": 1321.34,
+              "max_x": 1845.42,
+              "max_y": 1386.14
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "usable_planning_boundary": {
+            "type": "polygon",
+            "points": [
+              [
+                1764.5261,
+                1386.1444
+              ],
+              [
+                1845.4211,
+                1386.1444
+              ],
+              [
+                1845.4211,
+                1321.344
+              ],
+              [
+                1764.5261,
+                1321.344
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "1393"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1764.53,
+              "min_y": 1321.34,
+              "max_x": 1845.42,
+              "max_y": 1386.14
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "candidate_loops": [
+            {
+              "candidate_id": "loop-1393",
+              "classification": "exterior_boundary_candidate",
+              "area": 5242.04,
+              "perimeter": 291.39,
+              "dimensions": "80.90 x 64.80 ft",
+              "source_entity_handles": [
+                "1393"
+              ],
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "HIGH",
+              "geometry": {
+                "type": "polygon",
+                "points": [
+                  [
+                    1764.5261,
+                    1386.1444
+                  ],
+                  [
+                    1845.4211,
+                    1386.1444
+                  ],
+                  [
+                    1845.4211,
+                    1321.344
+                  ],
+                  [
+                    1764.5261,
+                    1321.344
+                  ]
+                ],
+                "calculation_method": "explicit_closed_polyline",
+                "source_entity_handles": [
+                  "1393"
+                ],
+                "source_layers": [
+                  "wall"
+                ],
+                "bounding_box": {
+                  "min_x": 1764.53,
+                  "min_y": 1321.34,
+                  "max_x": 1845.42,
+                  "max_y": 1386.14
+                },
+                "width": 80.9,
+                "height": 64.8,
+                "aspect_ratio": 1.25
+              }
+            }
+          ],
+          "area": {
+            "gross": 5242.04,
+            "unit": "sqft"
+          },
+          "perimeter": {
+            "value": 291.39,
+            "unit": "ft"
+          },
+          "confidence": "HIGH",
+          "status": "PENDING_EXCLUSIONS",
+          "evidence": [
+            "Source handle [1393] on layer 'wall' forms a verified single closed polyline.",
+            "Gross enclosed area: 5242.04 sq ft, perimeter: 291.39 ft, aspect ratio: 1.25.",
+            "All structural columns and interior rooms lie within this boundary.",
+            "Contains internal cores (fire stairs on 'stair', lift shafts, ducts); marked PENDING_EXCLUSIONS until non-occupiable cores are excluded."
+          ]
+        },
+        {
+          "region_id": "dhule-third-floor",
+          "label": "THIRD FLOOR PLAN",
+          "source_units": "Feet",
+          "canonical_units": "feet",
+          "framing_geometry": {
+            "handle": "28FC",
+            "layer": "0",
+            "type": "polygon",
+            "area": 6873.64,
+            "width": 85.77,
+            "height": 80.14,
+            "bounding_box": {
+              "min_x": 1863.18,
+              "min_y": 1308.8,
+              "max_x": 1948.95,
+              "max_y": 1388.94
+            },
+            "points": [
+              [
+                1863.1819,
+                1388.9386
+              ],
+              [
+                1948.9531,
+                1388.9386
+              ],
+              [
+                1948.9531,
+                1308.7994
+              ],
+              [
+                1863.1819,
+                1308.7994
+              ]
+            ]
+          },
+          "source_boundary": {
+            "type": "polygon",
+            "points": [
+              [
+                1866.0271,
+                1386.1444
+              ],
+              [
+                1946.9222,
+                1386.1444
+              ],
+              [
+                1946.9222,
+                1321.344
+              ],
+              [
+                1866.0271,
+                1321.344
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "177B"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1866.03,
+              "min_y": 1321.34,
+              "max_x": 1946.92,
+              "max_y": 1386.14
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "reconstructed_boundary_candidate": {
+            "type": "polygon",
+            "points": [
+              [
+                1866.0271,
+                1386.1444
+              ],
+              [
+                1946.9222,
+                1386.1444
+              ],
+              [
+                1946.9222,
+                1321.344
+              ],
+              [
+                1866.0271,
+                1321.344
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "177B"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1866.03,
+              "min_y": 1321.34,
+              "max_x": 1946.92,
+              "max_y": 1386.14
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "usable_planning_boundary": {
+            "type": "polygon",
+            "points": [
+              [
+                1866.0271,
+                1386.1444
+              ],
+              [
+                1946.9222,
+                1386.1444
+              ],
+              [
+                1946.9222,
+                1321.344
+              ],
+              [
+                1866.0271,
+                1321.344
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "177B"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1866.03,
+              "min_y": 1321.34,
+              "max_x": 1946.92,
+              "max_y": 1386.14
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "candidate_loops": [
+            {
+              "candidate_id": "loop-177B",
+              "classification": "exterior_boundary_candidate",
+              "area": 5242.04,
+              "perimeter": 291.39,
+              "dimensions": "80.90 x 64.80 ft",
+              "source_entity_handles": [
+                "177B"
+              ],
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "HIGH",
+              "geometry": {
+                "type": "polygon",
+                "points": [
+                  [
+                    1866.0271,
+                    1386.1444
+                  ],
+                  [
+                    1946.9222,
+                    1386.1444
+                  ],
+                  [
+                    1946.9222,
+                    1321.344
+                  ],
+                  [
+                    1866.0271,
+                    1321.344
+                  ]
+                ],
+                "calculation_method": "explicit_closed_polyline",
+                "source_entity_handles": [
+                  "177B"
+                ],
+                "source_layers": [
+                  "wall"
+                ],
+                "bounding_box": {
+                  "min_x": 1866.03,
+                  "min_y": 1321.34,
+                  "max_x": 1946.92,
+                  "max_y": 1386.14
+                },
+                "width": 80.9,
+                "height": 64.8,
+                "aspect_ratio": 1.25
+              }
+            }
+          ],
+          "area": {
+            "gross": 5242.04,
+            "unit": "sqft"
+          },
+          "perimeter": {
+            "value": 291.39,
+            "unit": "ft"
+          },
+          "confidence": "HIGH",
+          "status": "PENDING_EXCLUSIONS",
+          "evidence": [
+            "Source handle [177B] on layer 'wall' forms a verified single closed polyline.",
+            "Gross enclosed area: 5242.04 sq ft, perimeter: 291.39 ft, aspect ratio: 1.25.",
+            "All structural columns and interior rooms lie within this boundary.",
+            "Contains internal cores (fire stairs on 'stair', lift shafts, ducts); marked PENDING_EXCLUSIONS until non-occupiable cores are excluded."
+          ]
+        },
+        {
+          "region_id": "dhule-fourth-floor",
+          "label": "FOURTH FLOOR PLAN",
+          "source_units": "Feet",
+          "canonical_units": "feet",
+          "framing_geometry": {
+            "handle": "2955",
+            "layer": "0",
+            "type": "polygon",
+            "area": 6873.64,
+            "width": 85.77,
+            "height": 80.14,
+            "bounding_box": {
+              "min_x": 1964.01,
+              "min_y": 1308.75,
+              "max_x": 2049.78,
+              "max_y": 1388.89
+            },
+            "points": [
+              [
+                1964.0133,
+                1388.8852
+              ],
+              [
+                2049.7845,
+                1388.8852
+              ],
+              [
+                2049.7845,
+                1308.746
+              ],
+              [
+                1964.0133,
+                1308.746
+              ]
+            ]
+          },
+          "source_boundary": {
+            "type": "polygon",
+            "points": [
+              [
+                1966.8584,
+                1386.0911
+              ],
+              [
+                2047.7535,
+                1386.0911
+              ],
+              [
+                2047.7535,
+                1321.2906
+              ],
+              [
+                1966.8584,
+                1321.2906
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "21D8"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1966.86,
+              "min_y": 1321.29,
+              "max_x": 2047.75,
+              "max_y": 1386.09
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "reconstructed_boundary_candidate": {
+            "type": "polygon",
+            "points": [
+              [
+                1966.8584,
+                1386.0911
+              ],
+              [
+                2047.7535,
+                1386.0911
+              ],
+              [
+                2047.7535,
+                1321.2906
+              ],
+              [
+                1966.8584,
+                1321.2906
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "21D8"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1966.86,
+              "min_y": 1321.29,
+              "max_x": 2047.75,
+              "max_y": 1386.09
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "usable_planning_boundary": {
+            "type": "polygon",
+            "points": [
+              [
+                1966.8584,
+                1386.0911
+              ],
+              [
+                2047.7535,
+                1386.0911
+              ],
+              [
+                2047.7535,
+                1321.2906
+              ],
+              [
+                1966.8584,
+                1321.2906
+              ]
+            ],
+            "calculation_method": "explicit_closed_polyline",
+            "source_entity_handles": [
+              "21D8"
+            ],
+            "source_layers": [
+              "wall"
+            ],
+            "bounding_box": {
+              "min_x": 1966.86,
+              "min_y": 1321.29,
+              "max_x": 2047.75,
+              "max_y": 1386.09
+            },
+            "width": 80.9,
+            "height": 64.8,
+            "aspect_ratio": 1.25
+          },
+          "candidate_loops": [
+            {
+              "candidate_id": "loop-21D8",
+              "classification": "exterior_boundary_candidate",
+              "area": 5242.04,
+              "perimeter": 291.39,
+              "dimensions": "80.90 x 64.80 ft",
+              "source_entity_handles": [
+                "21D8"
+              ],
+              "source_layers": [
+                "wall"
+              ],
+              "confidence": "HIGH",
+              "geometry": {
+                "type": "polygon",
+                "points": [
+                  [
+                    1966.8584,
+                    1386.0911
+                  ],
+                  [
+                    2047.7535,
+                    1386.0911
+                  ],
+                  [
+                    2047.7535,
+                    1321.2906
+                  ],
+                  [
+                    1966.8584,
+                    1321.2906
+                  ]
+                ],
+                "calculation_method": "explicit_closed_polyline",
+                "source_entity_handles": [
+                  "21D8"
+                ],
+                "source_layers": [
+                  "wall"
+                ],
+                "bounding_box": {
+                  "min_x": 1966.86,
+                  "min_y": 1321.29,
+                  "max_x": 2047.75,
+                  "max_y": 1386.09
+                },
+                "width": 80.9,
+                "height": 64.8,
+                "aspect_ratio": 1.25
+              }
+            }
+          ],
+          "area": {
+            "gross": 5242.04,
+            "unit": "sqft"
+          },
+          "perimeter": {
+            "value": 291.39,
+            "unit": "ft"
+          },
+          "confidence": "HIGH",
+          "status": "PENDING_EXCLUSIONS",
+          "evidence": [
+            "Source handle [21D8] on layer 'wall' forms a verified single closed polyline.",
+            "Gross enclosed area: 5242.04 sq ft, perimeter: 291.39 ft, aspect ratio: 1.25.",
+            "All structural columns and interior rooms lie within this boundary.",
+            "Contains internal cores (fire stairs on 'stair', lift shafts, ducts); marked PENDING_EXCLUSIONS until non-occupiable cores are excluded."
+          ]
+        }
+      ]
+    },
+    {
+      "source_file": "1045- KESHAV LANDMARK_VADODARA ,GUJRAT_ZONING LAYOUT_20.05.2026.dxf",
+      "regions": [
+        {
+          "region_id": "vadodara-option-1",
+          "label": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+          "source_units": "Inches",
+          "canonical_units": "feet",
+          "framing_geometry": null,
+          "source_boundary": null,
+          "reconstructed_boundary_candidate": null,
+          "usable_planning_boundary": null,
+          "candidate_loops": [
+            {
+              "candidate_id": "loop-5",
+              "classification": "internal_enclosed_region (auditorium screen shell)",
+              "area_sqft": 1305.77,
+              "perimeter_ft": 156.5,
+              "dimensions": "24.1 x 54.1 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "MEDIUM",
+              "bounding_box_ft": {
+                "min_x": 5305.31,
+                "min_y": 321.49,
+                "max_x": 5329.44,
+                "max_y": 375.61
+              },
+              "points": [
+                [
+                  5329.4384,
+                  321.4894
+                ],
+                [
+                  5305.3134,
+                  321.4894
+                ],
+                [
+                  5305.3134,
+                  375.6144
+                ],
+                [
+                  5329.4384,
+                  375.6144
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-7",
+              "classification": "internal_enclosed_region (auditorium screen shell)",
+              "area_sqft": 1305.77,
+              "perimeter_ft": 156.5,
+              "dimensions": "24.1 x 54.1 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "MEDIUM",
+              "bounding_box_ft": {
+                "min_x": 5235.06,
+                "min_y": 321.49,
+                "max_x": 5259.19,
+                "max_y": 375.61
+              },
+              "points": [
+                [
+                  5259.1884,
+                  321.4894
+                ],
+                [
+                  5235.0634,
+                  321.4894
+                ],
+                [
+                  5235.0634,
+                  375.6144
+                ],
+                [
+                  5259.1884,
+                  375.6144
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-29",
+              "classification": "internal_enclosed_region (auditorium screen shell)",
+              "area_sqft": 1305.77,
+              "perimeter_ft": 156.5,
+              "dimensions": "24.1 x 54.1 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "MEDIUM",
+              "bounding_box_ft": {
+                "min_x": 5375.66,
+                "min_y": 321.49,
+                "max_x": 5399.78,
+                "max_y": 375.61
+              },
+              "points": [
+                [
+                  5399.7806,
+                  321.4894
+                ],
+                [
+                  5375.6556,
+                  321.4894
+                ],
+                [
+                  5375.6556,
+                  375.6144
+                ],
+                [
+                  5399.7806,
+                  375.6144
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-25",
+              "classification": "internal_enclosed_region (auditorium screen shell)",
+              "area_sqft": 1231.74,
+              "perimeter_ft": 150.36,
+              "dimensions": "24.1 x 51.1 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "MEDIUM",
+              "bounding_box_ft": {
+                "min_x": 5445.16,
+                "min_y": 324.56,
+                "max_x": 5469.28,
+                "max_y": 375.61
+              },
+              "points": [
+                [
+                  5469.2806,
+                  324.558
+                ],
+                [
+                  5445.1556,
+                  324.558
+                ],
+                [
+                  5445.1556,
+                  375.6144
+                ],
+                [
+                  5469.2806,
+                  375.6144
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-23",
+              "classification": "internal_enclosed_region (auditorium screen shell)",
+              "area_sqft": 1225.64,
+              "perimeter_ft": 145.77,
+              "dimensions": "26.3 x 46.6 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "MEDIUM",
+              "bounding_box_ft": {
+                "min_x": 5409.31,
+                "min_y": 289.61,
+                "max_x": 5435.63,
+                "max_y": 336.18
+              },
+              "points": [
+                [
+                  5435.6285,
+                  289.6144
+                ],
+                [
+                  5409.3075,
+                  289.6144
+                ],
+                [
+                  5409.3075,
+                  336.1793
+                ],
+                [
+                  5435.6285,
+                  336.1793
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-9",
+              "classification": "internal_enclosed_region (auditorium screen shell)",
+              "area_sqft": 1113.77,
+              "perimeter_ft": 137.27,
+              "dimensions": "26.3 x 42.3 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "MEDIUM",
+              "bounding_box_ft": {
+                "min_x": 5269.09,
+                "min_y": 289.24,
+                "max_x": 5295.41,
+                "max_y": 331.55
+              },
+              "points": [
+                [
+                  5295.4113,
+                  289.2394
+                ],
+                [
+                  5269.0903,
+                  289.2394
+                ],
+                [
+                  5269.0903,
+                  331.5543
+                ],
+                [
+                  5295.4113,
+                  331.5543
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-30",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 778.02,
+              "perimeter_ft": 112.3,
+              "dimensions": "31.3 x 24.9 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5436.38,
+                "min_y": 289.61,
+                "max_x": 5467.66,
+                "max_y": 314.49
+              },
+              "points": [
+                [
+                  5436.3785,
+                  314.4894
+                ],
+                [
+                  5467.6556,
+                  314.4894
+                ],
+                [
+                  5467.6556,
+                  289.6144
+                ],
+                [
+                  5436.3785,
+                  289.6144
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-10",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 449.75,
+              "perimeter_ft": 102.8,
+              "dimensions": "31.6 x 19.8 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5295.41,
+                "min_y": 289.61,
+                "max_x": 5327.06,
+                "max_y": 309.36
+              },
+              "points": [
+                [
+                  5316.9384,
+                  301.2176
+                ],
+                [
+                  5316.9384,
+                  309.3644
+                ],
+                [
+                  5327.0634,
+                  309.3644
+                ],
+                [
+                  5327.0634,
+                  289.6144
+                ],
+                [
+                  5295.4113,
+                  289.6144
+                ],
+                [
+                  5295.4113,
+                  301.2176
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-33",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 414.35,
+              "perimeter_ft": 91.63,
+              "dimensions": "12.4 x 33.4 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5457.22,
+                "min_y": 382.11,
+                "max_x": 5469.66,
+                "max_y": 415.49
+              },
+              "points": [
+                [
+                  5469.6556,
+                  382.1144
+                ],
+                [
+                  5457.2181,
+                  382.1144
+                ],
+                [
+                  5457.2181,
+                  415.4894
+                ],
+                [
+                  5469.2806,
+                  415.4894
+                ],
+                [
+                  5469.2805,
+                  413.4894
+                ],
+                [
+                  5469.6556,
+                  413.4894
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-46",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 387.38,
+              "perimeter_ft": 97.48,
+              "dimensions": "10.0 x 38.7 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5491.2,
+                "min_y": 322.54,
+                "max_x": 5501.2,
+                "max_y": 361.27
+              },
+              "points": [
+                [
+                  5491.1978,
+                  361.2741
+                ],
+                [
+                  5501.1978,
+                  361.2741
+                ],
+                [
+                  5501.1978,
+                  341.2741
+                ],
+                [
+                  5501.1978,
+                  331.2741
+                ],
+                [
+                  5501.1978,
+                  322.5358
+                ],
+                [
+                  5491.1978,
+                  322.5358
+                ],
+                [
+                  5491.1978,
+                  331.2741
+                ],
+                [
+                  5491.1978,
+                  341.2741
+                ]
+              ]
+            }
+          ],
+          "area": {
+            "gross": null,
+            "unit": "sqft"
+          },
+          "perimeter": {
+            "value": null,
+            "unit": "ft"
+          },
+          "confidence": "LOW",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "evidence": [
+            "Treated as an independent zoning option.",
+            "Outer drawing frame [8285A] spans multiple options and is strictly rejected as a floor boundary.",
+            "Schedule and area calculation table region is excluded.",
+            "Reconstructed 46 closed loops from wall geometry.",
+            "Detected 6 auditorium screen shells ranging from 1,113 to 1,306 sq ft.",
+            "No continuous single closed exterior boundary encloses the option; perimeter is open to mall corridors and public entries.",
+            "usable_planning_boundary is set to null to avoid fabricating a false outer envelope."
+          ]
+        },
+        {
+          "region_id": "vadodara-option-2",
+          "label": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+          "source_units": "Inches",
+          "canonical_units": "feet",
+          "framing_geometry": null,
+          "source_boundary": null,
+          "reconstructed_boundary_candidate": null,
+          "usable_planning_boundary": null,
+          "candidate_loops": [
+            {
+              "candidate_id": "loop-9",
+              "classification": "internal_enclosed_region (auditorium screen shell)",
+              "area_sqft": 1292.64,
+              "perimeter_ft": 156.5,
+              "dimensions": "24.1 x 54.1 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "MEDIUM",
+              "bounding_box_ft": {
+                "min_x": 5305.31,
+                "min_y": 866.39,
+                "max_x": 5329.44,
+                "max_y": 920.51
+              },
+              "points": [
+                [
+                  5309.6884,
+                  869.3867
+                ],
+                [
+                  5305.3134,
+                  869.3867
+                ],
+                [
+                  5305.3134,
+                  920.5117
+                ],
+                [
+                  5329.4384,
+                  920.5117
+                ],
+                [
+                  5329.4384,
+                  866.3867
+                ],
+                [
+                  5309.6884,
+                  866.3867
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-11",
+              "classification": "internal_enclosed_region (auditorium screen shell)",
+              "area_sqft": 1292.5,
+              "perimeter_ft": 158.0,
+              "dimensions": "24.1 x 54.1 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "MEDIUM",
+              "bounding_box_ft": {
+                "min_x": 5235.06,
+                "min_y": 866.39,
+                "max_x": 5259.19,
+                "max_y": 920.51
+              },
+              "points": [
+                [
+                  5259.1884,
+                  869.3867
+                ],
+                [
+                  5254.8134,
+                  869.3867
+                ],
+                [
+                  5254.8134,
+                  866.3867
+                ],
+                [
+                  5235.0634,
+                  866.3867
+                ],
+                [
+                  5235.0634,
+                  920.5117
+                ],
+                [
+                  5259.1884,
+                  920.5117
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-14",
+              "classification": "internal_enclosed_region (auditorium screen shell)",
+              "area_sqft": 1113.77,
+              "perimeter_ft": 137.27,
+              "dimensions": "26.3 x 42.3 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "MEDIUM",
+              "bounding_box_ft": {
+                "min_x": 5269.09,
+                "min_y": 839.01,
+                "max_x": 5295.41,
+                "max_y": 881.33
+              },
+              "points": [
+                [
+                  5295.4113,
+                  839.0117
+                ],
+                [
+                  5269.0903,
+                  839.0117
+                ],
+                [
+                  5269.0903,
+                  881.3266
+                ],
+                [
+                  5295.4113,
+                  881.3266
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-15",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 449.75,
+              "perimeter_ft": 102.8,
+              "dimensions": "31.6 x 19.8 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5295.41,
+                "min_y": 834.51,
+                "max_x": 5327.06,
+                "max_y": 854.26
+              },
+              "points": [
+                [
+                  5316.9384,
+                  846.1149
+                ],
+                [
+                  5316.9384,
+                  854.2617
+                ],
+                [
+                  5327.0634,
+                  854.2617
+                ],
+                [
+                  5327.0634,
+                  834.5117
+                ],
+                [
+                  5295.4113,
+                  834.5117
+                ],
+                [
+                  5295.4113,
+                  846.1149
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-30",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 387.38,
+              "perimeter_ft": 97.48,
+              "dimensions": "10.0 x 38.7 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5491.2,
+                "min_y": 865.56,
+                "max_x": 5501.2,
+                "max_y": 904.3
+              },
+              "points": [
+                [
+                  5491.1978,
+                  904.295
+                ],
+                [
+                  5501.1978,
+                  904.295
+                ],
+                [
+                  5501.1978,
+                  884.295
+                ],
+                [
+                  5501.1978,
+                  874.295
+                ],
+                [
+                  5501.1978,
+                  865.5567
+                ],
+                [
+                  5491.1978,
+                  865.5567
+                ],
+                [
+                  5491.1978,
+                  874.295
+                ],
+                [
+                  5491.1978,
+                  884.295
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-12",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 197.5,
+              "perimeter_ft": 59.5,
+              "dimensions": "19.8 x 10.0 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5235.06,
+                "min_y": 920.51,
+                "max_x": 5254.81,
+                "max_y": 930.51
+              },
+              "points": [
+                [
+                  5254.8134,
+                  920.5117
+                ],
+                [
+                  5235.0634,
+                  920.5117
+                ],
+                [
+                  5235.0634,
+                  930.5117
+                ],
+                [
+                  5254.8134,
+                  930.5117
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-16",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 158.0,
+              "perimeter_ft": 51.75,
+              "dimensions": "16.0 x 9.9 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5237.44,
+                "min_y": 834.51,
+                "max_x": 5253.44,
+                "max_y": 844.39
+              },
+              "points": [
+                [
+                  5237.4383,
+                  844.3867
+                ],
+                [
+                  5253.4383,
+                  844.3867
+                ],
+                [
+                  5253.4383,
+                  834.5117
+                ],
+                [
+                  5237.4383,
+                  834.5117
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-17",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 99.98,
+              "perimeter_ft": 40.0,
+              "dimensions": "10.1 x 9.9 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5237.44,
+                "min_y": 844.39,
+                "max_x": 5247.56,
+                "max_y": 854.26
+              },
+              "points": [
+                [
+                  5247.5632,
+                  844.3867
+                ],
+                [
+                  5237.4383,
+                  844.3867
+                ],
+                [
+                  5237.4383,
+                  854.2617
+                ],
+                [
+                  5247.5632,
+                  854.2617
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-10",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 98.75,
+              "perimeter_ft": 49.5,
+              "dimensions": "19.8 x 5.0 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5309.69,
+                "min_y": 920.51,
+                "max_x": 5329.44,
+                "max_y": 925.51
+              },
+              "points": [
+                [
+                  5329.4384,
+                  920.5117
+                ],
+                [
+                  5309.6884,
+                  920.5117
+                ],
+                [
+                  5309.6884,
+                  925.5117
+                ],
+                [
+                  5329.4384,
+                  925.5117
+                ]
+              ]
+            },
+            {
+              "candidate_id": "loop-18",
+              "classification": "internal_enclosed_region (foyer/service)",
+              "area_sqft": 98.75,
+              "perimeter_ft": 49.5,
+              "dimensions": "19.8 x 5.0 ft",
+              "source_layers": [
+                "WALLS"
+              ],
+              "confidence": "LOW",
+              "bounding_box_ft": {
+                "min_x": 5309.69,
+                "min_y": 925.51,
+                "max_x": 5329.44,
+                "max_y": 930.51
+              },
+              "points": [
+                [
+                  5329.4384,
+                  925.5117
+                ],
+                [
+                  5309.6884,
+                  925.5117
+                ],
+                [
+                  5309.6884,
+                  930.5117
+                ],
+                [
+                  5329.4384,
+                  930.5117
+                ]
+              ]
+            }
+          ],
+          "area": {
+            "gross": null,
+            "unit": "sqft"
+          },
+          "perimeter": {
+            "value": null,
+            "unit": "ft"
+          },
+          "confidence": "LOW",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "evidence": [
+            "Treated as an independent zoning option.",
+            "Outer drawing frame [8285A] spans multiple options and is strictly rejected as a floor boundary.",
+            "Schedule and area calculation table region is excluded.",
+            "Reconstructed 30 closed loops from wall geometry.",
+            "Detected 3 auditorium screen shells ranging from 1,113 to 1,306 sq ft.",
+            "No continuous single closed exterior boundary encloses the option; perimeter is open to mall corridors and public entries.",
+            "usable_planning_boundary is set to null to avoid fabricating a false outer envelope."
+          ]
+        }
+      ]
+    }
+  ]
+}

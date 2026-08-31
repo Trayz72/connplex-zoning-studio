@@ -1,0 +1,26 @@
+{
+  "project": "Connplex Zoning Studio \u2014 Cinema Zoning Project",
+  "reviewer_name": null,
+  "reviewer_role": null,
+  "reviewer_license_reference": null,
+  "review_date": null,
+  "overall_decision": "PENDING_REVIEW",
+  "decision_options": [
+    "PENDING_REVIEW",
+    "ACCEPTED_WITHOUT_CHANGE",
+    "ACCEPTED_WITH_NOTES",
+    "REVISION_REQUESTED",
+    "REJECTED",
+    "BLOCKED"
+  ],
+  "item_review_options": [
+    "NOT_REVIEWED",
+    "ACCEPTED",
+    "REJECTED",
+    "NEEDS_REVISION",
+    "REVIEW_REQUIRED",
+    "BLOCKED"
+  ],
+  "comments": [],
+  "disclaimer": "DISCLAIMER: This document and associated review records represent a human-review interface and computational baseline. This system does NOT constitute statutory architectural approval, certified building-code compliance, structural engineering clearance, fire-safety certification, or construction-readiness documentation. Final construction drawings and life-safety compliance must be prepared, sealed, and certified by an appropriately licensed professional architect and registered structural engineer."
+}

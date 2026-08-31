@@ -1,0 +1,162 @@
+{
+  "report_title": "Connplex Zoning Studio \u2014 CAD Extraction Visual Verification Report",
+  "sanity_checks_status": "PASS",
+  "documents": [
+    {
+      "source_file": "1022_MARUTI NANDAN BUSINESS HUB,DHULE,MAHARASHTRA_ZONING LAYOUT_5.08.2026.dxf",
+      "units": "Feet",
+      "regions": [
+        {
+          "id": "dhule-basement",
+          "label": "BASEMENT FLOOR PLAN",
+          "preview_file": "visualizations/dhule_basement.svg",
+          "bounding_box": {
+            "min_x": 1354.0,
+            "min_y": 1265.0,
+            "max_x": 1498.0,
+            "max_y": 1420.0
+          },
+          "framing": "122.08 x 117.09 ft (Area: 14294.79 sq ft)",
+          "boundary_verified": false,
+          "boundary_status": "NO_VERIFIED_CLOSED_BOUNDARY",
+          "column_count": 52,
+          "validation": "PASS"
+        },
+        {
+          "id": "dhule-ground",
+          "label": "GROUND FLOOR PLAN",
+          "preview_file": "visualizations/dhule_ground.svg",
+          "bounding_box": {
+            "min_x": 1503.0,
+            "min_y": 1265.0,
+            "max_x": 1626.0,
+            "max_y": 1420.0
+          },
+          "framing": "122.08 x 117.09 ft (Area: 14294.79 sq ft)",
+          "boundary_verified": false,
+          "boundary_status": "NO_VERIFIED_CLOSED_BOUNDARY",
+          "column_count": 52,
+          "validation": "PASS"
+        },
+        {
+          "id": "dhule-first-floor",
+          "label": "FIRST FLOOR PLAN",
+          "preview_file": "visualizations/dhule_first.svg",
+          "bounding_box": {
+            "min_x": 1655.0,
+            "min_y": 1308.0,
+            "max_x": 1742.0,
+            "max_y": 1395.0
+          },
+          "framing": "85.77 x 80.14 ft (Area: 6873.64 sq ft)",
+          "boundary_verified": true,
+          "boundary_status": "EXPLICIT_WALL_BOUNDARY_FOUND",
+          "column_count": 53,
+          "validation": "PASS"
+        },
+        {
+          "id": "dhule-second-floor",
+          "label": "SECOND FLOOR PLAN",
+          "preview_file": "visualizations/dhule_second.svg",
+          "bounding_box": {
+            "min_x": 1761.0,
+            "min_y": 1308.0,
+            "max_x": 1848.0,
+            "max_y": 1395.0
+          },
+          "framing": "85.77 x 80.14 ft (Area: 6873.64 sq ft)",
+          "boundary_verified": true,
+          "boundary_status": "EXPLICIT_WALL_BOUNDARY_FOUND",
+          "column_count": 49,
+          "validation": "PASS"
+        },
+        {
+          "id": "dhule-third-floor",
+          "label": "THIRD FLOOR PLAN",
+          "preview_file": "visualizations/dhule_third.svg",
+          "bounding_box": {
+            "min_x": 1863.0,
+            "min_y": 1308.0,
+            "max_x": 1950.0,
+            "max_y": 1395.0
+          },
+          "framing": "85.77 x 80.14 ft (Area: 6873.64 sq ft)",
+          "boundary_verified": true,
+          "boundary_status": "EXPLICIT_WALL_BOUNDARY_FOUND",
+          "column_count": 49,
+          "validation": "PASS"
+        },
+        {
+          "id": "dhule-fourth-floor",
+          "label": "FOURTH FLOOR PLAN",
+          "preview_file": "visualizations/dhule_fourth.svg",
+          "bounding_box": {
+            "min_x": 1964.0,
+            "min_y": 1308.0,
+            "max_x": 2050.0,
+            "max_y": 1395.0
+          },
+          "framing": "85.77 x 80.14 ft (Area: 6873.64 sq ft)",
+          "boundary_verified": true,
+          "boundary_status": "EXPLICIT_WALL_BOUNDARY_FOUND",
+          "column_count": 40,
+          "validation": "PASS"
+        }
+      ]
+    },
+    {
+      "source_file": "1045- KESHAV LANDMARK_VADODARA ,GUJRAT_ZONING LAYOUT_20.05.2026.dxf",
+      "units": "Inches",
+      "regions": [
+        {
+          "id": "vadodara-option-1",
+          "label": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+          "preview_file": "visualizations/vadodara_option1.svg",
+          "bounding_box": {
+            "min_x": 62000.0,
+            "min_y": 3200.0,
+            "max_x": 67500.0,
+            "max_y": 5500.0
+          },
+          "framing": "none",
+          "boundary_verified": false,
+          "boundary_status": "NO_VERIFIED_CLOSED_BOUNDARY",
+          "column_count": 15,
+          "validation": "PASS"
+        },
+        {
+          "id": "vadodara-option-2",
+          "label": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+          "preview_file": "visualizations/vadodara_option2.svg",
+          "bounding_box": {
+            "min_x": 62000.0,
+            "min_y": 9800.0,
+            "max_x": 67500.0,
+            "max_y": 12000.0
+          },
+          "framing": "none",
+          "boundary_verified": false,
+          "boundary_status": "NO_VERIFIED_CLOSED_BOUNDARY",
+          "column_count": 13,
+          "validation": "PASS"
+        },
+        {
+          "id": "vadodara-area-schedule",
+          "label": "Cinema Zoning Studio \u2014 Area Calculations & Schedule Table",
+          "preview_file": "visualizations/vadodara_schedule.svg",
+          "bounding_box": {
+            "min_x": 62000.0,
+            "min_y": 16500.0,
+            "max_x": 67500.0,
+            "max_y": 18500.0
+          },
+          "framing": "none",
+          "boundary_verified": false,
+          "boundary_status": "NO_VERIFIED_CLOSED_BOUNDARY",
+          "column_count": 13,
+          "validation": "PASS"
+        }
+      ]
+    }
+  ]
+}

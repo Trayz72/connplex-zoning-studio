@@ -1,0 +1,1162 @@
+{
+  "schema_version": "1.0",
+  "title": "Connplex Zoning Studio \u2014 Seat Layout & Seat-Count Estimate (M8)",
+  "methodology_note": "Deterministic single-seat-type (Slider Sofa) row-packing estimate. Central-aisle and screen-to-back-wall clearances are SOP-sourced; side/rear clearances are engineering assumptions pending architect approval (see rules_registry_v1.json planning_norms). This is a lower-bound estimate \u2014 mixed seat-type layouts require an approved SeatMix ruleset (currently TBD) and are not computed here.",
+  "packing_seat_type": "SLIDER_SOFA",
+  "clearances_used_ft": {
+    "central_aisle": 3.5,
+    "side_clearance_each_side": 1.5,
+    "rear_clearance": 2.0,
+    "front_setback": 3.0
+  },
+  "regions": [
+    {
+      "region_id": "dhule-basement",
+      "plan_region": "BASEMENT FLOOR PLAN",
+      "candidates": []
+    },
+    {
+      "region_id": "dhule-ground",
+      "plan_region": "GROUND FLOOR PLAN",
+      "candidates": []
+    },
+    {
+      "region_id": "dhule-first-floor",
+      "plan_region": "FIRST FLOOR PLAN",
+      "candidates": [
+        {
+          "candidate_id": "dhule-first-floor-candidate-a",
+          "auditoriums": [
+            {
+              "room_id": "dhule-first-floor-candidate-a-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 744.0,
+              "width_ft": 31.0,
+              "depth_ft": 24.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 19.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 606.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-first-floor-candidate-a-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 784.0,
+              "width_ft": 28.0,
+              "depth_ft": 28.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.0,
+                "usable_depth_ft": 23.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 566.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-first-floor-candidate-b",
+          "auditoriums": [
+            {
+              "room_id": "dhule-first-floor-candidate-b-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 707.6,
+              "width_ft": 30.5,
+              "depth_ft": 23.2,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 27.5,
+                "usable_depth_ft": 18.2,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 642.4,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-first-floor-candidate-b-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 742.5,
+              "width_ft": 27.0,
+              "depth_ft": 27.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 24.0,
+                "usable_depth_ft": 22.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 607.5,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-first-floor-candidate-c",
+          "auditoriums": [
+            {
+              "room_id": "dhule-first-floor-candidate-c-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 744.0,
+              "width_ft": 31.0,
+              "depth_ft": 24.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 19.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 606.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-first-floor-candidate-c-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 798.0,
+              "width_ft": 28.5,
+              "depth_ft": 28.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.5,
+                "usable_depth_ft": 23.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 552.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-first-floor-candidate-d",
+          "auditoriums": [
+            {
+              "room_id": "dhule-first-floor-candidate-d-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 790.5,
+              "width_ft": 31.0,
+              "depth_ft": 25.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 20.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 559.5,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-first-floor-candidate-d-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 840.75,
+              "width_ft": 28.5,
+              "depth_ft": 29.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.5,
+                "usable_depth_ft": 24.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 509.2,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        }
+      ]
+    },
+    {
+      "region_id": "dhule-second-floor",
+      "plan_region": "SECOND FLOOR PLAN",
+      "candidates": [
+        {
+          "candidate_id": "dhule-second-floor-candidate-a",
+          "auditoriums": [
+            {
+              "room_id": "dhule-second-floor-candidate-a-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 744.0,
+              "width_ft": 31.0,
+              "depth_ft": 24.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 19.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 606.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-second-floor-candidate-a-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 784.0,
+              "width_ft": 28.0,
+              "depth_ft": 28.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.0,
+                "usable_depth_ft": 23.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 566.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-second-floor-candidate-b",
+          "auditoriums": [
+            {
+              "room_id": "dhule-second-floor-candidate-b-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 707.6,
+              "width_ft": 30.5,
+              "depth_ft": 23.2,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 27.5,
+                "usable_depth_ft": 18.2,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 642.4,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-second-floor-candidate-b-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 742.5,
+              "width_ft": 27.0,
+              "depth_ft": 27.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 24.0,
+                "usable_depth_ft": 22.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 607.5,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-second-floor-candidate-c",
+          "auditoriums": [
+            {
+              "room_id": "dhule-second-floor-candidate-c-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 744.0,
+              "width_ft": 31.0,
+              "depth_ft": 24.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 19.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 606.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-second-floor-candidate-c-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 798.0,
+              "width_ft": 28.5,
+              "depth_ft": 28.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.5,
+                "usable_depth_ft": 23.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 552.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-second-floor-candidate-d",
+          "auditoriums": [
+            {
+              "room_id": "dhule-second-floor-candidate-d-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 790.5,
+              "width_ft": 31.0,
+              "depth_ft": 25.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 20.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 559.5,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-second-floor-candidate-d-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 840.75,
+              "width_ft": 28.5,
+              "depth_ft": 29.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.5,
+                "usable_depth_ft": 24.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 509.2,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        }
+      ]
+    },
+    {
+      "region_id": "dhule-third-floor",
+      "plan_region": "THIRD FLOOR PLAN",
+      "candidates": [
+        {
+          "candidate_id": "dhule-third-floor-candidate-a",
+          "auditoriums": [
+            {
+              "room_id": "dhule-third-floor-candidate-a-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 744.0,
+              "width_ft": 31.0,
+              "depth_ft": 24.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 19.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 606.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-third-floor-candidate-a-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 784.0,
+              "width_ft": 28.0,
+              "depth_ft": 28.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.0,
+                "usable_depth_ft": 23.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 566.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-third-floor-candidate-b",
+          "auditoriums": [
+            {
+              "room_id": "dhule-third-floor-candidate-b-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 707.6,
+              "width_ft": 30.5,
+              "depth_ft": 23.2,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 27.5,
+                "usable_depth_ft": 18.2,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 642.4,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-third-floor-candidate-b-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 742.5,
+              "width_ft": 27.0,
+              "depth_ft": 27.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 24.0,
+                "usable_depth_ft": 22.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 607.5,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-third-floor-candidate-c",
+          "auditoriums": [
+            {
+              "room_id": "dhule-third-floor-candidate-c-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 744.0,
+              "width_ft": 31.0,
+              "depth_ft": 24.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 19.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 606.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-third-floor-candidate-c-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 798.0,
+              "width_ft": 28.5,
+              "depth_ft": 28.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.5,
+                "usable_depth_ft": 23.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 552.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-third-floor-candidate-d",
+          "auditoriums": [
+            {
+              "room_id": "dhule-third-floor-candidate-d-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 790.5,
+              "width_ft": 31.0,
+              "depth_ft": 25.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 20.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 559.5,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-third-floor-candidate-d-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 840.75,
+              "width_ft": 28.5,
+              "depth_ft": 29.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.5,
+                "usable_depth_ft": 24.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 509.2,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        }
+      ]
+    },
+    {
+      "region_id": "dhule-fourth-floor",
+      "plan_region": "FOURTH FLOOR PLAN",
+      "candidates": [
+        {
+          "candidate_id": "dhule-fourth-floor-candidate-a",
+          "auditoriums": [
+            {
+              "room_id": "dhule-fourth-floor-candidate-a-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 744.0,
+              "width_ft": 31.0,
+              "depth_ft": 24.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 19.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 606.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-fourth-floor-candidate-a-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 784.0,
+              "width_ft": 28.0,
+              "depth_ft": 28.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.0,
+                "usable_depth_ft": 23.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 566.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-fourth-floor-candidate-b",
+          "auditoriums": [
+            {
+              "room_id": "dhule-fourth-floor-candidate-b-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 707.6,
+              "width_ft": 30.5,
+              "depth_ft": 23.2,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 27.5,
+                "usable_depth_ft": 18.2,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 642.4,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-fourth-floor-candidate-b-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 742.5,
+              "width_ft": 27.0,
+              "depth_ft": 27.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 24.0,
+                "usable_depth_ft": 22.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 607.5,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-fourth-floor-candidate-c",
+          "auditoriums": [
+            {
+              "room_id": "dhule-fourth-floor-candidate-c-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 744.0,
+              "width_ft": 31.0,
+              "depth_ft": 24.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 19.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 606.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-fourth-floor-candidate-c-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 798.0,
+              "width_ft": 28.5,
+              "depth_ft": 28.0,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.5,
+                "usable_depth_ft": 23.0,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 552.0,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        },
+        {
+          "candidate_id": "dhule-fourth-floor-candidate-d",
+          "auditoriums": [
+            {
+              "room_id": "dhule-fourth-floor-candidate-d-room-01-auditorium_1",
+              "display_name": "Screen 1 (Auditorium)",
+              "area_sqft": 790.5,
+              "width_ft": 31.0,
+              "depth_ft": 25.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 28,
+                "rows": 4,
+                "seats_per_row": 7,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 28.0,
+                "usable_depth_ft": 20.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 559.5,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 28,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            },
+            {
+              "room_id": "dhule-fourth-floor-candidate-d-room-04-auditorium_2",
+              "display_name": "Screen 2 (Auditorium)",
+              "area_sqft": 840.75,
+              "width_ft": 28.5,
+              "depth_ft": 29.5,
+              "seat_packing": {
+                "status": "OK",
+                "seat_count": 30,
+                "rows": 5,
+                "seats_per_row": 6,
+                "central_aisle_reserved": true,
+                "usable_width_ft": 25.5,
+                "usable_depth_ft": 24.5,
+                "seat_type_used": "SLIDER_SOFA",
+                "row_step_ft": 4.25,
+                "seat_width_ft": 3.167
+              },
+              "preset_fit": {
+                "matches_preset": null,
+                "status": "BELOW_ALL_SOP_PRESETS",
+                "shortfall_vs_smallest_preset_sqft": 509.2,
+                "smallest_preset_id": "60_SEAT"
+              },
+              "seat_breakdown": {
+                "LOUNGER": 0,
+                "SOFA_SLIDER": 30,
+                "DUO_LOUNGER": 0,
+                "PREMIUM_RECLINER": 0
+              }
+            }
+          ],
+          "total_seats": 58,
+          "screen_count": 2
+        }
+      ]
+    },
+    {
+      "region_id": "vadodara-option-1",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+      "candidates": []
+    },
+    {
+      "region_id": "vadodara-option-2",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+      "candidates": []
+    }
+  ]
+}

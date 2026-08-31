@@ -1,0 +1,23 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { LoginPage } from './pages/LoginPage';
+import { ProjectsPage } from './pages/ProjectsPage';
+import { ProjectIntakePage } from './pages/ProjectIntakePage';
+import { ZoningCanvasPlaceholder } from './pages/ZoningCanvasPlaceholder';
+import { ZoningStudio } from './pages/ZoningStudio';
+
+export const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects/:id/intake" element={<ProjectIntakePage />} />
+        <Route path="/projects/:id/canvas" element={<ZoningStudio />} />
+        <Route path="/projects/:id/placeholder" element={<ZoningCanvasPlaceholder />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/projects" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};

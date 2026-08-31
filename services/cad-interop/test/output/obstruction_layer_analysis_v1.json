@@ -1,0 +1,1012 @@
+{
+  "title": "Connplex Zoning Studio \u2014 Obstruction Layer Analysis v1",
+  "documents": [
+    {
+      "source_file": "1022_MARUTI NANDAN BUSINESS HUB,DHULE,MAHARASHTRA_ZONING LAYOUT_5.08.2026.dxf",
+      "candidate_layers": [
+        {
+          "layer": "wall",
+          "entity_count": 3061,
+          "entity_types": {
+            "LINE": 3022,
+            "LWPOLYLINE": 27,
+            "MTEXT": 12
+          },
+          "sample_handles": [
+            "77",
+            "7B",
+            "7C",
+            "7D",
+            "7E"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "WALL"
+          ]
+        },
+        {
+          "layer": "tex",
+          "entity_count": 974,
+          "entity_types": {
+            "MTEXT": 920,
+            "TEXT": 54
+          },
+          "sample_handles": [
+            "238",
+            "2EA",
+            "2F7",
+            "2F9",
+            "2FB"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "WIN",
+          "entity_count": 622,
+          "entity_types": {
+            "LINE": 622
+          },
+          "sample_handles": [
+            "8F",
+            "9A",
+            "FC",
+            "FD",
+            "109"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "WINDOW"
+          ]
+        },
+        {
+          "layer": "Wall_TMOS",
+          "entity_count": 523,
+          "entity_types": {
+            "LINE": 501,
+            "LWPOLYLINE": 22
+          },
+          "sample_handles": [
+            "11F6",
+            "11F8",
+            "11F9",
+            "11FA",
+            "11FB"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "WALL"
+          ]
+        },
+        {
+          "layer": "TEXT 1 RDH",
+          "entity_count": 505,
+          "entity_types": {
+            "INSERT": 505
+          },
+          "sample_handles": [
+            "14B3",
+            "14EB",
+            "14EC",
+            "14ED",
+            "14EE"
+          ],
+          "plan_regions": [
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "ANNOTATION"
+          ]
+        },
+        {
+          "layer": "stair",
+          "entity_count": 438,
+          "entity_types": {
+            "LINE": 389,
+            "LWPOLYLINE": 49
+          },
+          "sample_handles": [
+            "192",
+            "195",
+            "196",
+            "197",
+            "198"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "STAIR"
+          ]
+        },
+        {
+          "layer": "bike",
+          "entity_count": 373,
+          "entity_types": {
+            "INSERT": 373
+          },
+          "sample_handles": [
+            "E3D",
+            "E57",
+            "E58",
+            "E59",
+            "E5A"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "GROUND FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "FURNITURE"
+          ]
+        },
+        {
+          "layer": "COLUMN (DCPL)",
+          "entity_count": 295,
+          "entity_types": {
+            "LWPOLYLINE": 295
+          },
+          "sample_handles": [
+            "6AB",
+            "6AE",
+            "6B0",
+            "6B2",
+            "6B4"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "COLUMN"
+          ]
+        },
+        {
+          "layer": "0",
+          "entity_count": 283,
+          "entity_types": {
+            "LINE": 244,
+            "LWPOLYLINE": 15,
+            "TEXT": 24
+          },
+          "sample_handles": [
+            "893",
+            "894",
+            "897",
+            "899",
+            "89A"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "H",
+          "entity_count": 207,
+          "entity_types": {
+            "LINE": 166,
+            "LWPOLYLINE": 41
+          },
+          "sample_handles": [
+            "7DE",
+            "7E2",
+            "7F4",
+            "1079",
+            "107A"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "door",
+          "entity_count": 136,
+          "entity_types": {
+            "LINE": 136
+          },
+          "sample_handles": [
+            "774",
+            "777",
+            "778",
+            "779",
+            "77A"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "DOOR"
+          ]
+        },
+        {
+          "layer": "F4",
+          "entity_count": 126,
+          "entity_types": {
+            "LINE": 114,
+            "LWPOLYLINE": 12
+          },
+          "sample_handles": [
+            "2798",
+            "279C",
+            "279E",
+            "279F",
+            "27A0"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "hatch_wall",
+          "entity_count": 125,
+          "entity_types": {
+            "LINE": 117,
+            "LWPOLYLINE": 8
+          },
+          "sample_handles": [
+            "EA6",
+            "EA9",
+            "EAB",
+            "EAC",
+            "EAD"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "GROUND FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "WALL"
+          ]
+        },
+        {
+          "layer": "Staircase_TMOS",
+          "entity_count": 109,
+          "entity_types": {
+            "LINE": 109
+          },
+          "sample_handles": [
+            "6FA",
+            "6FC",
+            "6FD",
+            "6FE",
+            "6FF"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "STAIR"
+          ]
+        },
+        {
+          "layer": "DUCT (DCPL)",
+          "entity_count": 78,
+          "entity_types": {
+            "LINE": 76,
+            "LWPOLYLINE": 2
+          },
+          "sample_handles": [
+            "890",
+            "892",
+            "116B",
+            "116C",
+            "116D"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "SHAFT"
+          ]
+        },
+        {
+          "layer": "Railing_TMOS",
+          "entity_count": 57,
+          "entity_types": {
+            "LINE": 49,
+            "LWPOLYLINE": 8
+          },
+          "sample_handles": [
+            "1416",
+            "1418",
+            "1419",
+            "1BE5",
+            "1BE6"
+          ],
+          "plan_regions": [
+            "FOURTH FLOOR PLAN",
+            "SECOND FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "RAILING"
+          ]
+        },
+        {
+          "layer": "Text Common_TMOS",
+          "entity_count": 55,
+          "entity_types": {
+            "MTEXT": 55
+          },
+          "sample_handles": [
+            "1B1E",
+            "1B21",
+            "1B23",
+            "1B25",
+            "1BA8"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "ANNOTATION"
+          ]
+        },
+        {
+          "layer": "TEXT",
+          "entity_count": 54,
+          "entity_types": {
+            "MTEXT": 54
+          },
+          "sample_handles": [
+            "27D4",
+            "27D7",
+            "27D9",
+            "27DA",
+            "27DB"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "ANNOTATION"
+          ]
+        },
+        {
+          "layer": "WI",
+          "entity_count": 50,
+          "entity_types": {
+            "LINE": 44,
+            "LWPOLYLINE": 6
+          },
+          "sample_handles": [
+            "2F4",
+            "2F6",
+            "316",
+            "317",
+            "88D"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "DIAMENTION",
+          "entity_count": 47,
+          "entity_types": {
+            "LINE": 44,
+            "LWPOLYLINE": 3
+          },
+          "sample_handles": [
+            "81",
+            "85",
+            "95",
+            "235",
+            "236"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "Door_TMOS",
+          "entity_count": 34,
+          "entity_types": {
+            "LWPOLYLINE": 29,
+            "LINE": 5
+          },
+          "sample_handles": [
+            "85D",
+            "1134",
+            "1135",
+            "113D",
+            "113E"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "DOOR"
+          ]
+        },
+        {
+          "layer": "BOUNDRY",
+          "entity_count": 18,
+          "entity_types": {
+            "LINE": 18
+          },
+          "sample_handles": [
+            "2794",
+            "2797",
+            "27D1",
+            "27F6",
+            "27F7"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "LINE-1-KEY (DCPL)",
+          "entity_count": 12,
+          "entity_types": {
+            "LWPOLYLINE": 11,
+            "LINE": 1
+          },
+          "sample_handles": [
+            "1485",
+            "1489",
+            "14B1",
+            "14B2",
+            "1524"
+          ],
+          "plan_regions": [
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "DIMENTION",
+          "entity_count": 6,
+          "entity_types": {
+            "LWPOLYLINE": 6
+          },
+          "sample_handles": [
+            "27DD",
+            "2836",
+            "288F",
+            "28E8",
+            "2941"
+          ],
+          "plan_regions": [
+            "BASEMENT FLOOR PLAN",
+            "FIRST FLOOR PLAN",
+            "FOURTH FLOOR PLAN",
+            "GROUND FLOOR PLAN",
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "DIMENSION"
+          ]
+        },
+        {
+          "layer": "Elevation-03_TMOS",
+          "entity_count": 4,
+          "entity_types": {
+            "LINE": 4
+          },
+          "sample_handles": [
+            "1DF2",
+            "1DF4",
+            "1DF5",
+            "1DF6"
+          ],
+          "plan_regions": [
+            "FOURTH FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "LIFT"
+          ]
+        },
+        {
+          "layer": "Elevation-02_TMOS",
+          "entity_count": 3,
+          "entity_types": {
+            "LINE": 2,
+            "LWPOLYLINE": 1
+          },
+          "sample_handles": [
+            "1B9D",
+            "1B9F",
+            "1DF1"
+          ],
+          "plan_regions": [
+            "FOURTH FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "LIFT"
+          ]
+        },
+        {
+          "layer": "RAMP_TMOS",
+          "entity_count": 2,
+          "entity_types": {
+            "LINE": 2
+          },
+          "sample_handles": [
+            "1449",
+            "17FD"
+          ],
+          "plan_regions": [
+            "SECOND FLOOR PLAN",
+            "THIRD FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "Column_TMOS",
+          "entity_count": 1,
+          "entity_types": {
+            "LWPOLYLINE": 1
+          },
+          "sample_handles": [
+            "6F7"
+          ],
+          "plan_regions": [
+            "FIRST FLOOR PLAN"
+          ],
+          "possible_roles": [
+            "COLUMN"
+          ]
+        }
+      ]
+    },
+    {
+      "source_file": "1045- KESHAV LANDMARK_VADODARA ,GUJRAT_ZONING LAYOUT_20.05.2026.dxf",
+      "candidate_layers": [
+        {
+          "layer": "wall",
+          "entity_count": 737,
+          "entity_types": {
+            "LINE": 731,
+            "LWPOLYLINE": 6
+          },
+          "sample_handles": [
+            "81AA8",
+            "81AA9",
+            "81AAA",
+            "81AAB",
+            "81AAC"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "WALL"
+          ]
+        },
+        {
+          "layer": "RAILING",
+          "entity_count": 331,
+          "entity_types": {
+            "LINE": 330,
+            "LWPOLYLINE": 1
+          },
+          "sample_handles": [
+            "81AB3",
+            "81AB4",
+            "81AB9",
+            "81ABA",
+            "81ABB"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "RAILING"
+          ]
+        },
+        {
+          "layer": "WALLS",
+          "entity_count": 217,
+          "entity_types": {
+            "LWPOLYLINE": 169,
+            "LINE": 48
+          },
+          "sample_handles": [
+            "81C7F",
+            "81C85",
+            "81C86",
+            "81C87",
+            "81C88"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "WALL"
+          ]
+        },
+        {
+          "layer": "Nstair",
+          "entity_count": 180,
+          "entity_types": {
+            "LINE": 180
+          },
+          "sample_handles": [
+            "81C3F",
+            "81C40",
+            "81C41",
+            "81C42",
+            "81C43"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "STAIR"
+          ]
+        },
+        {
+          "layer": "Railing 01",
+          "entity_count": 154,
+          "entity_types": {
+            "LINE": 154
+          },
+          "sample_handles": [
+            "81B5D",
+            "81B5E",
+            "81B68",
+            "81B69",
+            "81B8D"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "RAILING"
+          ]
+        },
+        {
+          "layer": "text",
+          "entity_count": 100,
+          "entity_types": {
+            "MTEXT": 99,
+            "LWPOLYLINE": 1
+          },
+          "sample_handles": [
+            "81C95",
+            "81C9A",
+            "81CB3",
+            "81CB5",
+            "81CB8"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "ANNOTATION"
+          ]
+        },
+        {
+          "layer": "PROJ.",
+          "entity_count": 54,
+          "entity_types": {
+            "LINE": 9,
+            "LWPOLYLINE": 45
+          },
+          "sample_handles": [
+            "81ADD",
+            "81ADE",
+            "81ADF",
+            "81AE0",
+            "81B1A"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "SERVICE"
+          ]
+        },
+        {
+          "layer": "02WINDOW & DOTTED",
+          "entity_count": 44,
+          "entity_types": {
+            "LINE": 44
+          },
+          "sample_handles": [
+            "81C27",
+            "81C28",
+            "81C29",
+            "81C2A",
+            "81C33"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "WINDOW"
+          ]
+        },
+        {
+          "layer": "WINDOW",
+          "entity_count": 43,
+          "entity_types": {
+            "LINE": 43
+          },
+          "sample_handles": [
+            "81AD6",
+            "81AD7",
+            "81AD8",
+            "81AD9",
+            "81B41"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "WINDOW"
+          ]
+        },
+        {
+          "layer": "GF",
+          "entity_count": 37,
+          "entity_types": {
+            "INSERT": 37
+          },
+          "sample_handles": [
+            "81C91",
+            "81C92",
+            "81C9B",
+            "81C9C",
+            "81C9E"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "elev1",
+          "entity_count": 16,
+          "entity_types": {
+            "INSERT": 16
+          },
+          "sample_handles": [
+            "81C93",
+            "81C94",
+            "81C9D",
+            "81C9F",
+            "81CC0"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "LIFT"
+          ]
+        },
+        {
+          "layer": "SHOP TEXT",
+          "entity_count": 10,
+          "entity_types": {
+            "TEXT": 10
+          },
+          "sample_handles": [
+            "81C78",
+            "81C79",
+            "81EAF",
+            "81EB0",
+            "829BE"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "ANNOTATION"
+          ]
+        },
+        {
+          "layer": "P_DOMESTIC",
+          "entity_count": 6,
+          "entity_types": {
+            "LWPOLYLINE": 6
+          },
+          "sample_handles": [
+            "834B2",
+            "834BB",
+            "834CB",
+            "83763",
+            "83766"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "Chair",
+          "entity_count": 4,
+          "entity_types": {
+            "INSERT": 4
+          },
+          "sample_handles": [
+            "81F02",
+            "81F03",
+            "81F04",
+            "81F0E"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "FURNITURE"
+          ]
+        },
+        {
+          "layer": "step light",
+          "entity_count": 3,
+          "entity_types": {
+            "LWPOLYLINE": 3
+          },
+          "sample_handles": [
+            "81F05",
+            "81F06",
+            "81F07"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "layer": "AP_TEXT",
+          "entity_count": 2,
+          "entity_types": {
+            "TEXT": 2
+          },
+          "sample_handles": [
+            "81CC5",
+            "81EED"
+          ],
+          "plan_regions": [
+            "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+            "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)"
+          ],
+          "possible_roles": [
+            "ANNOTATION"
+          ]
+        }
+      ]
+    }
+  ]
+}

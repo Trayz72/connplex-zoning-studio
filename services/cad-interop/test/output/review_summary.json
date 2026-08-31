@@ -1,0 +1,90 @@
+{
+  "title": "Connplex Zoning Studio \u2014 Architect Review Summary",
+  "architectural_disclaimer": "DISCLAIMER: This document and associated review records represent a human-review interface and computational baseline. This system does NOT constitute statutory architectural approval, certified building-code compliance, structural engineering clearance, fire-safety certification, or construction-readiness documentation. Final construction drawings and life-safety compliance must be prepared, sealed, and certified by an appropriately licensed professional architect and registered structural engineer.",
+  "total_regions": 8,
+  "review_ready_floors_count": 4,
+  "blocked_regions_count": 4,
+  "overall_session_decision": "PENDING_REVIEW",
+  "floors": [
+    {
+      "region_id": "dhule-basement",
+      "plan_region": "BASEMENT FLOOR PLAN",
+      "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "review_status": "BLOCKED",
+      "overall_decision": "BLOCKED",
+      "total_review_items": 1,
+      "unreviewed_items_count": 0,
+      "review_required_items_count": 0
+    },
+    {
+      "region_id": "dhule-ground",
+      "plan_region": "GROUND FLOOR PLAN",
+      "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "review_status": "BLOCKED",
+      "overall_decision": "BLOCKED",
+      "total_review_items": 1,
+      "unreviewed_items_count": 0,
+      "review_required_items_count": 0
+    },
+    {
+      "region_id": "dhule-first-floor",
+      "plan_region": "FIRST FLOOR PLAN",
+      "computational_status": "DECISION_READY",
+      "review_status": "NOT_REVIEWED",
+      "overall_decision": "PENDING_REVIEW",
+      "total_review_items": 11,
+      "unreviewed_items_count": 11,
+      "review_required_items_count": 0
+    },
+    {
+      "region_id": "dhule-second-floor",
+      "plan_region": "SECOND FLOOR PLAN",
+      "computational_status": "DECISION_READY",
+      "review_status": "NOT_REVIEWED",
+      "overall_decision": "PENDING_REVIEW",
+      "total_review_items": 11,
+      "unreviewed_items_count": 11,
+      "review_required_items_count": 0
+    },
+    {
+      "region_id": "dhule-third-floor",
+      "plan_region": "THIRD FLOOR PLAN",
+      "computational_status": "DECISION_READY",
+      "review_status": "NOT_REVIEWED",
+      "overall_decision": "PENDING_REVIEW",
+      "total_review_items": 11,
+      "unreviewed_items_count": 11,
+      "review_required_items_count": 0
+    },
+    {
+      "region_id": "dhule-fourth-floor",
+      "plan_region": "FOURTH FLOOR PLAN",
+      "computational_status": "VALID_REVIEW_REQUIRED",
+      "review_status": "REVIEW_REQUIRED",
+      "overall_decision": "PENDING_REVIEW",
+      "total_review_items": 12,
+      "unreviewed_items_count": 8,
+      "review_required_items_count": 4
+    },
+    {
+      "region_id": "vadodara-option-1",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+      "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "review_status": "BLOCKED",
+      "overall_decision": "BLOCKED",
+      "total_review_items": 1,
+      "unreviewed_items_count": 0,
+      "review_required_items_count": 0
+    },
+    {
+      "region_id": "vadodara-option-2",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+      "computational_status": "BLOCKED_NO_VERIFIED_BOUNDARY",
+      "review_status": "BLOCKED",
+      "overall_decision": "BLOCKED",
+      "total_review_items": 1,
+      "unreviewed_items_count": 0,
+      "review_required_items_count": 0
+    }
+  ]
+}

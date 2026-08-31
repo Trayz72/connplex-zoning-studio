@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" width="1600" height="1200">
+  <rect x="0" y="0" width="1600" height="1200" fill="#f8fafc" />
+<rect x="0" y="0" width="1600" height="130" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
+<text x="80" y="40" font-family="Inter, sans-serif" font-size="22" font-weight="700" fill="#0f172a">Boundary Verification — BASEMENT FLOOR PLAN</text>
+<text x="80" y="66" font-family="Inter, sans-serif" font-size="13" fill="#475569">Plan: BASEMENT FLOOR PLAN | Canonical Units: Feet | Area: None (Unclosed) | Status: INSUFFICIENT_EVIDENCE</text>
+<g transform="translate(1280, 24)">
+  <rect x="0" y="0" width="240" height="34" rx="17" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" />
+  <circle cx="20" cy="17" r="5" fill="#b45309" />
+  <text x="35" y="22" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#b45309">STATUS: INSUFFICIENT_EVIDENCE</text>
+</g>
+<g transform="translate(80, 95)">
+<line x1="0" y1="12" x2="28" y2="12" stroke="#94a3b8" stroke-width="1.0" />
+<text x="34" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">SOURCE CAD</text>
+<line x1="130" y1="12" x2="158" y2="12" stroke="#64748b" stroke-width="1.5" stroke-dasharray="6,4" />
+<text x="164" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">PLAN BBOX</text>
+<line x1="260" y1="12" x2="288" y2="12" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="10,5" />
+<text x="294" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">FRAMING</text>
+<rect x="390" y="4" width="22" height="15" rx="2" fill="rgba(16, 185, 129, 0.15)" stroke="#059669" stroke-width="2.5" />
+<text x="424" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">VERIFIED BOUNDARY</text>
+<line x1="560" y1="12" x2="588" y2="12" stroke="#7c3aed" stroke-width="2.0" stroke-dasharray="6,3" />
+<text x="594" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">CANDIDATE LOOPS</text>
+<rect x="720" y="4" width="22" height="15" rx="2" fill="#dc2626" stroke="#991b1b" stroke-width="1.2" />
+<text x="754" y="16" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#334155">COLUMNS</text>
+</g>
+  <g id="boundaries_layer">
+    <line x1="698.4" y1="577.1" x2="698.4" y2="447.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22EC | Layer: wall</title></line>
+    <line x1="699.2" y1="576.2" x2="699.2" y2="524.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22ED | Layer: wall</title></line>
+    <line x1="699.2" y1="523.2" x2="699.2" y2="448.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22EE | Layer: wall</title></line>
+    <line x1="698.4" y1="447.5" x2="779.6" y2="447.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22EF | Layer: wall</title></line>
+    <line x1="788.2" y1="447.5" x2="789.0" y2="447.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22F0 | Layer: wall</title></line>
+    <line x1="699.2" y1="448.4" x2="779.6" y2="448.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22F1 | Layer: wall</title></line>
+    <line x1="932.7" y1="460.0" x2="932.8" y2="460.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22F2 | Layer: wall</title></line>
+    <line x1="932.7" y1="460.9" x2="932.8" y2="460.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22F3 | Layer: wall</title></line>
+    <line x1="1082.2" y1="433.5" x2="1082.2" y2="523.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22F4 | Layer: wall</title></line>
+    <line x1="1081.3" y1="433.5" x2="1081.3" y2="523.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22F5 | Layer: wall</title></line>
+    <line x1="1102.1" y1="577.1" x2="1078.7" y2="577.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22F6 | Layer: wall</title></line>
+    <line x1="1102.1" y1="576.2" x2="1078.7" y2="576.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22F7 | Layer: wall</title></line>
+    <line x1="933.6" y1="550.5" x2="911.1" y2="550.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22F8 | Layer: wall</title></line>
+    <line x1="932.8" y1="549.7" x2="911.9" y2="549.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 22F9 | Layer: wall</title></line>
+    <line x1="932.8" y1="541.1" x2="911.9" y2="541.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22FA | Layer: stair</title></line>
+    <line x1="932.8" y1="539.4" x2="924.2" y2="539.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22FB | Layer: stair</title></line>
+    <line x1="920.5" y1="539.4" x2="911.9" y2="539.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22FC | Layer: stair</title></line>
+    <line x1="932.8" y1="537.7" x2="924.2" y2="537.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22FD | Layer: stair</title></line>
+    <line x1="920.5" y1="537.7" x2="911.9" y2="537.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22FE | Layer: stair</title></line>
+    <line x1="932.8" y1="536.0" x2="924.2" y2="536.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 22FF | Layer: stair</title></line>
+    <line x1="920.5" y1="536.0" x2="911.9" y2="536.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2300 | Layer: stair</title></line>
+    <line x1="932.8" y1="534.3" x2="924.2" y2="534.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2301 | Layer: stair</title></line>
+    <line x1="920.5" y1="534.3" x2="911.9" y2="534.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2302 | Layer: stair</title></line>
+    <line x1="932.8" y1="532.6" x2="924.2" y2="532.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2303 | Layer: stair</title></line>
+    <line x1="920.5" y1="532.6" x2="911.9" y2="532.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2304 | Layer: stair</title></line>
+    <line x1="932.8" y1="530.9" x2="924.2" y2="530.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2305 | Layer: stair</title></line>
+    <line x1="920.5" y1="530.9" x2="911.9" y2="530.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2306 | Layer: stair</title></line>
+    <line x1="932.8" y1="529.2" x2="924.2" y2="529.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2307 | Layer: stair</title></line>
+    <line x1="920.5" y1="529.2" x2="911.9" y2="529.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2308 | Layer: stair</title></line>
+    <line x1="932.8" y1="527.4" x2="924.2" y2="527.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2309 | Layer: stair</title></line>
+    <line x1="920.5" y1="527.4" x2="911.9" y2="527.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 230A | Layer: stair</title></line>
+    <line x1="932.3" y1="525.7" x2="911.9" y2="525.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 230B | Layer: stair</title></line>
+    <line x1="923.9" y1="526.0" x2="920.8" y2="526.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 230C | Layer: stair</title></line>
+    <line x1="932.8" y1="549.7" x2="932.8" y2="526.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 230D | Layer: wall</title></line>
+    <line x1="924.2" y1="549.7" x2="924.2" y2="525.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 230E | Layer: stair</title></line>
+    <line x1="923.9" y1="540.9" x2="923.9" y2="526.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 230F | Layer: stair</title></line>
+    <line x1="932.8" y1="465.7" x2="932.8" y2="434.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2310 | Layer: wall</title></line>
+    <line x1="933.6" y1="550.5" x2="933.6" y2="525.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2311 | Layer: wall</title></line>
+    <line x1="933.6" y1="466.6" x2="933.6" y2="433.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2312 | Layer: wall</title></line>
+    <line x1="911.1" y1="465.7" x2="932.8" y2="465.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2313 | Layer: wall</title></line>
+    <line x1="911.1" y1="466.6" x2="933.6" y2="466.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2314 | Layer: wall</title></line>
+    <line x1="911.1" y1="465.7" x2="911.1" y2="466.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2315 | Layer: wall</title></line>
+    <line x1="911.1" y1="465.7" x2="911.1" y2="466.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2316 | Layer: wall</title></line>
+    <line x1="911.1" y1="525.7" x2="911.1" y2="550.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2317 | Layer: wall</title></line>
+    <line x1="911.9" y1="526.6" x2="911.9" y2="549.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2318 | Layer: wall</title></line>
+    <line x1="920.5" y1="525.7" x2="920.5" y2="549.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2319 | Layer: stair</title></line>
+    <line x1="920.8" y1="526.0" x2="920.8" y2="540.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 231A | Layer: stair</title></line>
+    <line x1="911.1" y1="454.3" x2="932.8" y2="454.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 231B | Layer: stair</title></line>
+    <line x1="911.7" y1="453.8" x2="920.8" y2="453.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 231C | Layer: stair</title></line>
+    <line x1="921.3" y1="452.6" x2="932.8" y2="452.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 231D | Layer: stair</title></line>
+    <line x1="921.3" y1="450.9" x2="932.8" y2="450.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 231E | Layer: stair</title></line>
+    <line x1="921.3" y1="449.2" x2="932.8" y2="449.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 231F | Layer: stair</title></line>
+    <line x1="921.3" y1="447.5" x2="932.8" y2="447.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2320 | Layer: stair</title></line>
+    <line x1="921.3" y1="445.8" x2="932.8" y2="445.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2321 | Layer: stair</title></line>
+    <line x1="911.1" y1="445.8" x2="921.3" y2="445.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2322 | Layer: stair</title></line>
+    <line x1="911.7" y1="446.3" x2="920.8" y2="446.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2323 | Layer: stair</title></line>
+    <line x1="921.3" y1="434.4" x2="921.3" y2="465.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2324 | Layer: stair</title></line>
+    <line x1="920.8" y1="446.3" x2="920.8" y2="453.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2325 | Layer: stair</title></line>
+    <line x1="919.6" y1="434.4" x2="919.6" y2="445.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2326 | Layer: stair</title></line>
+    <line x1="919.6" y1="454.3" x2="919.6" y2="465.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2327 | Layer: stair</title></line>
+    <line x1="917.9" y1="434.4" x2="917.9" y2="445.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2328 | Layer: stair</title></line>
+    <line x1="917.9" y1="454.3" x2="917.9" y2="465.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2329 | Layer: stair</title></line>
+    <line x1="916.2" y1="434.4" x2="916.2" y2="445.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 232A | Layer: stair</title></line>
+    <line x1="916.2" y1="454.3" x2="916.2" y2="465.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 232B | Layer: stair</title></line>
+    <line x1="914.5" y1="434.4" x2="914.5" y2="445.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 232C | Layer: stair</title></line>
+    <line x1="914.5" y1="454.3" x2="914.5" y2="465.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 232D | Layer: stair</title></line>
+    <line x1="912.8" y1="434.4" x2="912.8" y2="445.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 232E | Layer: stair</title></line>
+    <line x1="912.8" y1="454.3" x2="912.8" y2="465.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 232F | Layer: stair</title></line>
+    <line x1="911.1" y1="434.4" x2="911.1" y2="446.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2330 | Layer: stair</title></line>
+    <line x1="911.1" y1="454.3" x2="911.1" y2="465.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2331 | Layer: stair</title></line>
+    <line x1="911.1" y1="454.3" x2="911.1" y2="446.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2332 | Layer: stair</title></line>
+    <line x1="911.7" y1="453.8" x2="911.7" y2="446.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2333 | Layer: stair</title></line>
+    <line x1="911.7" y1="446.3" x2="920.8" y2="453.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2334 | Layer: WI</title></line>
+    <line x1="911.7" y1="453.8" x2="920.8" y2="446.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2335 | Layer: WI</title></line>
+    <path d="M 914.5 460.0 L 927.7 460.0 L 927.7 440.0 L 911.1 440.0" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2336 | Layer: stair</title></path>
+    <line x1="911.1" y1="434.4" x2="911.1" y2="433.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2339 | Layer: wall</title></line>
+    <line x1="698.4" y1="577.1" x2="797.6" y2="577.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 233A | Layer: wall</title></line>
+    <line x1="797.6" y1="577.1" x2="995.4" y2="577.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 233B | Layer: wall</title></line>
+    <line x1="699.2" y1="576.2" x2="797.6" y2="576.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 233C | Layer: wall</title></line>
+    <line x1="798.5" y1="576.2" x2="1019.2" y2="576.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 233D | Layer: wall</title></line>
+    <path d="M 914.5 460.0 L 915.5 458.8 L 915.7 459.5 L 914.5 460.0" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 233E | Layer: stair</title></path>
+    <path d="M 914.5 460.0 L 915.5 461.3 L 915.7 460.6 L 914.5 460.0" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 233F | Layer: stair</title></path>
+    <path d="M 916.2 532.6 L 916.2 546.2 L 928.5 546.2 L 928.5 525.7" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2340 | Layer: stair</title></path>
+    <path d="M 916.2 532.6 L 917.5 533.6 L 916.8 533.8 L 916.2 532.6" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2341 | Layer: stair</title></path>
+    <path d="M 916.2 532.6 L 915.0 533.6 L 915.6 533.8 L 916.2 532.6" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2342 | Layer: stair</title></path>
+    <line x1="797.6" y1="524.0" x2="797.6" y2="439.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2345 | Layer: wall</title></line>
+    <line x1="789.0" y1="524.0" x2="789.0" y2="447.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2346 | Layer: wall</title></line>
+    <line x1="788.2" y1="523.2" x2="788.2" y2="447.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2347 | Layer: wall</title></line>
+    <line x1="779.6" y1="448.4" x2="779.6" y2="447.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2348 | Layer: wall</title></line>
+    <line x1="797.6" y1="438.1" x2="797.6" y2="422.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2349 | Layer: wall</title></line>
+    <line x1="770.5" y1="447.5" x2="770.5" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 234A | Layer: stair</title></line>
+    <line x1="772.0" y1="447.5" x2="772.0" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 234B | Layer: stair</title></line>
+    <line x1="773.4" y1="447.5" x2="773.4" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 234C | Layer: stair</title></line>
+    <line x1="774.8" y1="447.5" x2="774.8" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 234D | Layer: stair</title></line>
+    <line x1="769.1" y1="447.5" x2="769.1" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 234E | Layer: stair</title></line>
+    <line x1="767.7" y1="447.5" x2="767.7" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 234F | Layer: stair</title></line>
+    <line x1="766.2" y1="447.5" x2="766.2" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2350 | Layer: stair</title></line>
+    <line x1="764.8" y1="447.5" x2="764.8" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2351 | Layer: stair</title></line>
+    <line x1="763.4" y1="447.5" x2="763.4" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2352 | Layer: stair</title></line>
+    <line x1="762.0" y1="447.5" x2="762.0" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2353 | Layer: stair</title></line>
+    <line x1="760.5" y1="447.5" x2="760.5" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2354 | Layer: stair</title></line>
+    <line x1="759.1" y1="447.5" x2="759.1" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2355 | Layer: stair</title></line>
+    <line x1="757.7" y1="447.5" x2="757.7" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2356 | Layer: stair</title></line>
+    <line x1="756.3" y1="447.5" x2="756.3" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2357 | Layer: stair</title></line>
+    <line x1="754.8" y1="447.5" x2="754.8" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2358 | Layer: stair</title></line>
+    <line x1="753.4" y1="447.5" x2="753.4" y2="439.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2359 | Layer: DIAMENTION</title></line>
+    <line x1="797.6" y1="577.1" x2="797.6" y2="524.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 235A | Layer: wall</title></line>
+    <line x1="798.5" y1="576.2" x2="798.5" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 235B | Layer: wall</title></line>
+    <line x1="798.5" y1="523.2" x2="798.5" y2="423.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 235C | Layer: wall</title></line>
+    <line x1="911.1" y1="474.3" x2="924.2" y2="474.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 235D | Layer: wall</title></line>
+    <line x1="911.1" y1="487.4" x2="924.2" y2="487.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 235E | Layer: wall</title></line>
+    <line x1="924.2" y1="474.3" x2="924.2" y2="487.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 235F | Layer: wall</title></line>
+    <line x1="923.9" y1="540.9" x2="920.8" y2="540.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2362 | Layer: stair</title></line>
+    <line x1="699.2" y1="523.2" x2="788.2" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 236E | Layer: wall</title></line>
+    <line x1="798.5" y1="523.2" x2="798.5" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 236F | Layer: wall</title></line>
+    <line x1="699.2" y1="524.0" x2="789.0" y2="524.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2370 | Layer: wall</title></line>
+    <line x1="797.6" y1="524.0" x2="797.6" y2="524.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2371 | Layer: wall</title></line>
+    <line x1="1047.1" y1="450.6" x2="1081.3" y2="450.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2376 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="448.9" x2="1081.3" y2="448.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2377 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="447.2" x2="1081.3" y2="447.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2378 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="445.5" x2="1081.3" y2="445.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2379 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="443.8" x2="1081.3" y2="443.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 237A | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="442.1" x2="1081.3" y2="442.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 237B | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="440.4" x2="1081.3" y2="440.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 237C | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="438.6" x2="1081.3" y2="438.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 237D | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="436.9" x2="1081.3" y2="436.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 237E | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="435.2" x2="1081.3" y2="435.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 237F | Layer: hatch_wall</title></line>
+    <line x1="1046.2" y1="433.5" x2="1081.3" y2="433.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2380 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="452.3" x2="1081.3" y2="452.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2381 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="454.0" x2="1081.3" y2="454.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2382 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="455.8" x2="1081.3" y2="455.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2383 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="457.5" x2="1081.3" y2="457.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2384 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="459.2" x2="1081.3" y2="459.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2385 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="460.9" x2="1081.3" y2="460.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2386 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="462.6" x2="1081.3" y2="462.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2387 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="464.3" x2="1081.3" y2="464.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2388 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="466.0" x2="1081.3" y2="466.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2389 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="467.4" x2="1081.3" y2="467.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 238A | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="468.9" x2="1081.3" y2="468.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 238B | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="470.3" x2="1081.3" y2="470.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 238C | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="471.7" x2="1081.3" y2="471.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 238D | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="473.1" x2="1081.3" y2="473.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 238E | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="474.6" x2="1081.3" y2="474.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 238F | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="476.0" x2="1081.3" y2="476.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2390 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="477.4" x2="1081.3" y2="477.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2391 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="478.9" x2="1081.3" y2="478.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2392 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="480.0" x2="1081.3" y2="480.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2393 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="481.1" x2="1081.3" y2="481.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2394 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="482.3" x2="1081.3" y2="482.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2395 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="483.4" x2="1081.3" y2="483.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2396 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="484.6" x2="1081.3" y2="484.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2397 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="485.7" x2="1081.3" y2="485.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2398 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="486.8" x2="1081.3" y2="486.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2399 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="488.0" x2="1081.3" y2="488.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 239A | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="489.1" x2="1081.3" y2="489.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 239B | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="490.3" x2="1081.3" y2="490.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 239C | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="491.4" x2="1081.3" y2="491.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 239D | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="492.5" x2="1081.3" y2="492.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 239E | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="493.7" x2="1081.3" y2="493.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 239F | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="494.8" x2="1081.3" y2="494.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23A0 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="496.0" x2="1081.3" y2="496.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23A1 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="497.1" x2="1081.3" y2="497.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23A2 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="498.2" x2="1081.3" y2="498.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23A3 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="499.4" x2="1081.3" y2="499.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23A4 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="500.5" x2="1081.3" y2="500.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23A5 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="501.7" x2="1081.3" y2="501.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23A6 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="502.8" x2="1081.3" y2="502.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23A7 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="503.9" x2="1081.3" y2="503.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23A8 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="505.1" x2="1081.3" y2="505.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23A9 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="506.2" x2="1081.3" y2="506.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23AA | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="507.4" x2="1081.3" y2="507.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23AB | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="508.5" x2="1081.3" y2="508.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23AC | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="509.6" x2="1081.3" y2="509.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23AD | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="510.8" x2="1081.3" y2="510.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23AE | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="511.9" x2="1081.3" y2="511.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23AF | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="513.1" x2="1081.3" y2="513.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23B0 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="514.2" x2="1081.3" y2="514.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23B1 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="515.3" x2="1081.3" y2="515.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23B2 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="516.5" x2="1081.3" y2="516.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23B3 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="517.6" x2="1081.3" y2="517.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23B4 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="518.8" x2="1081.3" y2="518.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23B5 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="519.9" x2="1081.3" y2="519.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23B6 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="521.1" x2="1081.3" y2="521.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23B7 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="522.2" x2="1081.3" y2="522.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23B8 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="523.3" x2="1081.3" y2="523.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23B9 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="523.9" x2="1081.3" y2="523.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23BA | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="524.5" x2="1081.3" y2="524.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23BB | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="525.0" x2="1081.3" y2="525.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23BC | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="525.6" x2="1078.7" y2="525.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23BD | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="526.2" x2="1078.7" y2="526.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23BE | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="526.8" x2="1078.7" y2="526.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23BF | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="527.3" x2="1078.7" y2="527.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23C0 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="527.9" x2="1078.7" y2="527.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23C1 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="528.5" x2="1078.7" y2="528.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23C2 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="529.0" x2="1078.7" y2="529.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23C3 | Layer: hatch_wall</title></line>
+    <line x1="1064.2" y1="433.5" x2="1064.2" y2="529.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23C4 | Layer: hatch_wall</title></line>
+    <line x1="1047.1" y1="422.1" x2="1047.1" y2="529.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23C5 | Layer: wall</title></line>
+    <line x1="1046.2" y1="423.0" x2="1046.2" y2="529.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23C6 | Layer: wall</title></line>
+    <line x1="797.6" y1="422.1" x2="1047.1" y2="422.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23C7 | Layer: wall</title></line>
+    <line x1="798.5" y1="423.0" x2="1046.2" y2="423.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23C8 | Layer: wall</title></line>
+    <line x1="1047.1" y1="529.0" x2="1046.2" y2="529.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23C9 | Layer: wall</title></line>
+    <line x1="1071.5" y1="506.2" x2="1071.5" y2="433.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23CA | Layer: hatch_wall</title></line>
+    <path d="M 1071.5 506.2 L 1070.0 504.9 L 1070.7 504.8 L 1071.5 506.2" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 23CB | Layer: hatch_wall</title></path>
+    <path d="M 1071.5 506.2 L 1073.1 504.9 L 1072.3 504.8 L 1071.5 506.2" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 23CC | Layer: hatch_wall</title></path>
+    <line x1="1055.4" y1="506.2" x2="1055.4" y2="433.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23CF | Layer: hatch_wall</title></line>
+    <path d="M 1055.4 506.2 L 1053.9 504.9 L 1054.6 504.8 L 1055.4 506.2" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 23D0 | Layer: hatch_wall</title></path>
+    <path d="M 1055.4 506.2 L 1057.0 504.9 L 1056.2 504.8 L 1055.4 506.2" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 23D1 | Layer: hatch_wall</title></path>
+    <line x1="914.5" y1="433.5" x2="932.3" y2="433.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23D4 | Layer: wall</title></line>
+    <line x1="914.5" y1="434.4" x2="932.3" y2="434.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23D5 | Layer: wall</title></line>
+    <line x1="797.6" y1="439.0" x2="753.4" y2="439.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23DF | Layer: wall</title></line>
+    <line x1="797.6" y1="438.1" x2="753.4" y2="438.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23E0 | Layer: wall</title></line>
+    <line x1="753.4" y1="439.0" x2="753.4" y2="447.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 23E1 | Layer: DIAMENTION</title></line>
+    <line x1="753.4" y1="439.0" x2="753.4" y2="438.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23E2 | Layer: wall</title></line>
+    <line x1="773.4" y1="443.2" x2="753.4" y2="443.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 23E3 | Layer: stair</title></line>
+    <path d="M 773.4 443.2 L 772.6 441.8 L 772.3 442.5 L 773.4 443.2" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 23E4 | Layer: stair</title></path>
+    <path d="M 773.4 443.2 L 772.6 444.7 L 772.3 444.0 L 773.4 443.2" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 23E5 | Layer: stair</title></path>
+    <line x1="798.5" y1="577.1" x2="797.6" y2="577.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 23E8 | Layer: DIAMENTION</title></line>
+    <line x1="798.5" y1="554.3" x2="797.6" y2="554.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 23E9 | Layer: wall</title></line>
+    <path d="M 698.4 577.1 L 698.4 447.5 L 753.4 447.5 L 753.4 438.1 L 798.5 438.1 L 798.5 523.2 L 798.5 523.2 L 798.5 577.1 L 698.4 577.1" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 23EA | Layer: DIAMENTION</title></path>
+    <path d="M 1082.1 570.5 L 1097.5 570.5 L 1097.5 553.5 L 1075.3 553.5" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 241F | Layer: stair</title></path>
+    <path d="M 1082.1 570.5 L 1083.1 569.3 L 1083.3 569.9 L 1082.1 570.5" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2420 | Layer: stair</title></path>
+    <path d="M 1082.1 570.5 L 1083.1 571.7 L 1083.3 571.1 L 1082.1 570.5" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2421 | Layer: stair</title></path>
+    <line x1="779.6" y1="447.5" x2="788.2" y2="447.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2422 | Layer: DIAMENTION</title></line>
+    <line x1="789.0" y1="523.1" x2="797.6" y2="523.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2423 | Layer: DIAMENTION</title></line>
+    <line x1="1019.2" y1="576.2" x2="1047.8" y2="576.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2429 | Layer: wall</title></line>
+    <line x1="1078.5" y1="576.2" x2="1085.9" y2="576.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 242A | Layer: wall</title></line>
+    <line x1="996.3" y1="577.1" x2="1047.8" y2="577.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 242B | Layer: wall</title></line>
+    <line x1="1090.7" y1="548.3" x2="1090.7" y2="576.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2470 | Layer: Staircase_TMOS</title></line>
+    <line x1="1090.4" y1="559.9" x2="1090.4" y2="564.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2471 | Layer: Staircase_TMOS</title></line>
+    <line x1="1089.0" y1="548.3" x2="1089.0" y2="559.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2472 | Layer: Staircase_TMOS</title></line>
+    <line x1="1089.0" y1="564.8" x2="1089.0" y2="576.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2473 | Layer: Staircase_TMOS</title></line>
+    <line x1="1087.2" y1="548.3" x2="1087.2" y2="559.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2474 | Layer: Staircase_TMOS</title></line>
+    <line x1="1087.2" y1="564.8" x2="1087.2" y2="576.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2475 | Layer: Staircase_TMOS</title></line>
+    <line x1="1085.5" y1="548.3" x2="1085.5" y2="559.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2476 | Layer: Staircase_TMOS</title></line>
+    <line x1="1085.5" y1="564.8" x2="1085.5" y2="576.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2477 | Layer: Staircase_TMOS</title></line>
+    <line x1="1083.8" y1="548.3" x2="1083.8" y2="559.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2478 | Layer: Staircase_TMOS</title></line>
+    <line x1="1083.8" y1="564.8" x2="1083.8" y2="576.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2479 | Layer: Staircase_TMOS</title></line>
+    <line x1="1082.1" y1="548.3" x2="1082.1" y2="559.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 247A | Layer: Staircase_TMOS</title></line>
+    <line x1="1082.1" y1="564.8" x2="1082.1" y2="576.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 247B | Layer: Staircase_TMOS</title></line>
+    <line x1="1080.4" y1="548.3" x2="1080.4" y2="559.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 247C | Layer: Staircase_TMOS</title></line>
+    <line x1="1080.4" y1="564.8" x2="1080.4" y2="576.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 247D | Layer: Staircase_TMOS</title></line>
+    <line x1="1078.7" y1="548.3" x2="1078.7" y2="559.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 247E | Layer: Staircase_TMOS</title></line>
+    <line x1="1078.7" y1="564.8" x2="1078.7" y2="576.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 247F | Layer: Staircase_TMOS</title></line>
+    <line x1="1078.7" y1="559.7" x2="1102.1" y2="559.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2480 | Layer: Staircase_TMOS</title></line>
+    <line x1="1079.0" y1="559.9" x2="1090.4" y2="559.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2481 | Layer: Staircase_TMOS</title></line>
+    <line x1="1090.7" y1="561.4" x2="1102.1" y2="561.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2482 | Layer: Staircase_TMOS</title></line>
+    <line x1="1090.7" y1="563.1" x2="1102.1" y2="563.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2483 | Layer: Staircase_TMOS</title></line>
+    <line x1="1090.7" y1="564.8" x2="1102.1" y2="564.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2484 | Layer: Staircase_TMOS</title></line>
+    <line x1="1078.7" y1="564.8" x2="1090.7" y2="564.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2485 | Layer: Staircase_TMOS</title></line>
+    <line x1="1079.0" y1="564.5" x2="1090.4" y2="564.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2486 | Layer: Staircase_TMOS</title></line>
+    <line x1="1078.7" y1="564.8" x2="1078.7" y2="559.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2487 | Layer: Staircase_TMOS</title></line>
+    <line x1="1079.0" y1="564.5" x2="1079.0" y2="559.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2488 | Layer: Staircase_TMOS</title></line>
+    <line x1="1079.0" y1="564.5" x2="1090.4" y2="559.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2489 | Layer: Staircase_TMOS</title></line>
+    <line x1="1079.0" y1="559.9" x2="1090.4" y2="564.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 248A | Layer: Staircase_TMOS</title></line>
+    <line x1="1078.7" y1="548.3" x2="1102.1" y2="548.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 248B | Layer: wall</title></line>
+    <line x1="1078.7" y1="547.1" x2="1096.4" y2="547.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 248C | Layer: wall</title></line>
+    <line x1="1102.9" y1="577.1" x2="1102.9" y2="547.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 248D | Layer: wall</title></line>
+    <line x1="1102.1" y1="577.1" x2="1102.1" y2="548.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 248E | Layer: wall</title></line>
+    <line x1="1078.7" y1="547.4" x2="1078.7" y2="548.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 248F | Layer: wall</title></line>
+    <path d="M 911.5 483.0 L 911.8 483.0 L 911.8 478.7 L 911.5 478.7 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2494 | Layer: Door_TMOS</title></path>
+    <path d="M 911.1 483.4 L 912.2 483.4 L 912.2 478.3 L 911.1 478.3 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2495 | Layer: Door_TMOS</title></path>
+    <line x1="947.9" y1="524.0" x2="948.7" y2="524.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2496 | Layer: wall</title></line>
+    <line x1="935.3" y1="524.0" x2="933.6" y2="524.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2497 | Layer: wall</title></line>
+    <line x1="948.7" y1="524.0" x2="948.7" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2498 | Layer: wall</title></line>
+    <line x1="935.3" y1="524.0" x2="935.3" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2499 | Layer: wall</title></line>
+    <line x1="947.9" y1="542.0" x2="933.6" y2="542.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 249A | Layer: wall</title></line>
+    <line x1="947.9" y1="541.1" x2="933.6" y2="541.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 249B | Layer: wall</title></line>
+    <line x1="937.6" y1="524.0" x2="933.6" y2="524.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 249C | Layer: wall</title></line>
+    <line x1="937.6" y1="523.2" x2="933.6" y2="523.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 249D | Layer: wall</title></line>
+    <line x1="937.6" y1="523.2" x2="937.6" y2="524.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 249E | Layer: wall</title></line>
+    <line x1="937.6" y1="523.2" x2="943.9" y2="523.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 24A4 | Layer: door</title></line>
+    <line x1="994.7" y1="487.4" x2="999.9" y2="487.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 24A5 | Layer: door</title></line>
+    <path d="M 933.6 466.6 L 933.6 487.4 L 924.2 487.4 L 924.2 466.6 L 933.6 466.6" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 24C1 | Layer: WI</title></path>
+    <line x1="933.6" y1="466.6" x2="924.2" y2="487.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 24C2 | Layer: WI</title></line>
+    <line x1="924.2" y1="466.6" x2="933.6" y2="487.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 24C3 | Layer: WI</title></line>
+    <line x1="934.5" y1="542.0" x2="948.7" y2="550.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 24C4 | Layer: DUCT (DCPL)</title></line>
+    <line x1="948.7" y1="542.0" x2="933.6" y2="550.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 24C5 | Layer: DUCT (DCPL)</title></line>
+    <path d="M 948.7 542.0 L 948.7 550.5 L 933.6 550.5" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 24C6 | Layer: DUCT (DCPL)</title></path>
+    <line x1="990.6" y1="460.9" x2="1004.9" y2="468.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 24C7 | Layer: DUCT (DCPL)</title></line>
+    <line x1="1004.9" y1="460.9" x2="990.6" y2="468.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 24C8 | Layer: DUCT (DCPL)</title></line>
+    <path d="M 990.6 468.0 L 990.6 460.9 L 1004.9 460.9 L 1004.9 468.0" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 24C9 | Layer: DUCT (DCPL)</title></path>
+    <line x1="1047.8" y1="576.2" x2="1047.8" y2="577.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 24F1 | Layer: wall</title></line>
+    <line x1="911.1" y1="525.7" x2="911.9" y2="525.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2520 | Layer: wall</title></line>
+    <line x1="920.8" y1="526.0" x2="923.9" y2="540.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2521 | Layer: DUCT (DCPL)</title></line>
+    <line x1="923.9" y1="526.0" x2="920.8" y2="540.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2522 | Layer: DUCT (DCPL)</title></line>
+    <line x1="980.6" y1="611.3" x2="531.7" y2="611.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2526 | Layer: 0</title></line>
+    <line x1="634.3" y1="611.3" x2="643.4" y2="396.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2527 | Layer: 0</title></line>
+    <line x1="761.8" y1="397.1" x2="1113.4" y2="397.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2528 | Layer: DIAMENTION</title></line>
+    <line x1="546.6" y1="423.0" x2="544.7" y2="447.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2529 | Layer: DIAMENTION</title></line>
+    <line x1="544.0" y1="456.7" x2="531.7" y2="611.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 252A | Layer: 0</title></line>
+    <line x1="546.6" y1="423.0" x2="643.4" y2="396.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 252B | Layer: DIAMENTION</title></line>
+    <line x1="544.7" y1="446.8" x2="531.7" y2="611.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 252C | Layer: 0</title></line>
+    <line x1="531.7" y1="611.3" x2="980.6" y2="611.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 252D | Layer: 0</title></line>
+    <line x1="980.6" y1="611.3" x2="989.5" y2="850.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 252E | Layer: 0</title></line>
+    <line x1="989.5" y1="850.5" x2="1190.9" y2="837.3" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 252F | Layer: 0</title></line>
+    <line x1="1190.9" y1="837.3" x2="1143.8" y2="572.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2530 | Layer: 0</title></line>
+    <line x1="1143.8" y1="572.4" x2="1098.6" y2="311.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2531 | Layer: 0</title></line>
+    <path d="M 1098.6 311.8 L 1091.7 272.0 L 864.7 335.5 L 643.4 396.4 L 546.6 423.0 L 544.7 447.1" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2532 | Layer: 0</title></path>
+    <line x1="1137.1" y1="788.1" x2="1137.1" y2="577.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2535 | Layer: DIAMENTION</title></line>
+    <line x1="544.7" y1="447.1" x2="745.8" y2="401.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2536 | Layer: 0</title></line>
+    <line x1="870.9" y1="369.6" x2="998.1" y2="337.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2537 | Layer: 0</title></line>
+    <path d="M 1144.8 577.9 L 1137.1 577.9 L 1137.1 788.1 L 987.2 788.1" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2539 | Layer: DIAMENTION</title></path>
+    <line x1="998.1" y1="337.4" x2="1098.6" y2="311.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 253E | Layer: 0</title></line>
+    <line x1="544.7" y1="447.1" x2="745.8" y2="401.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 253F | Layer: 0</title></line>
+    <line x1="745.8" y1="401.1" x2="870.9" y2="369.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2540 | Layer: 0</title></line>
+    <line x1="870.9" y1="369.6" x2="998.1" y2="337.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2541 | Layer: 0</title></line>
+    <line x1="596.8" y1="573.5" x2="604.6" y2="471.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2548 | Layer: 0</title></line>
+    <line x1="995.4" y1="779.5" x2="995.4" y2="577.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2549 | Layer: wall</title></line>
+    <line x1="996.3" y1="778.7" x2="996.3" y2="577.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 254A | Layer: wall</title></line>
+    <line x1="995.4" y1="779.5" x2="1128.6" y2="779.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 254B | Layer: wall</title></line>
+    <line x1="996.3" y1="778.7" x2="1127.7" y2="778.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 254C | Layer: wall</title></line>
+    <line x1="1128.6" y1="779.5" x2="1128.6" y2="576.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 254D | Layer: wall</title></line>
+    <line x1="1127.7" y1="778.7" x2="1127.7" y2="577.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 254E | Layer: wall</title></line>
+    <line x1="1128.6" y1="576.2" x2="1102.9" y2="576.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 254F | Layer: wall</title></line>
+    <line x1="1127.7" y1="577.1" x2="1102.9" y2="577.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2550 | Layer: wall</title></line>
+    <path d="M 1047.1 422.1 L 1082.2 422.1 L 1082.2 433.5" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2551 | Layer: WI</title></path>
+    <line x1="1097.7" y1="547.1" x2="1102.9" y2="547.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2555 | Layer: wall</title></line>
+    <line x1="1083.0" y1="548.3" x2="1100.6" y2="548.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26CA | Layer: wall</title></line>
+    <line x1="1086.9" y1="536.4" x2="1086.9" y2="537.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26CB | Layer: wall</title></line>
+    <line x1="1083.0" y1="548.3" x2="1083.0" y2="547.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26CC | Layer: Wall_TMOS</title></line>
+    <line x1="1083.0" y1="548.3" x2="1100.6" y2="548.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26CD | Layer: Wall_TMOS</title></line>
+    <line x1="1100.6" y1="539.7" x2="1100.6" y2="540.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26CE | Layer: Wall_TMOS</title></line>
+    <line x1="1100.6" y1="534.6" x2="1088.1" y2="534.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26CF | Layer: Wall_TMOS</title></line>
+    <line x1="1100.6" y1="548.3" x2="1100.6" y2="534.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26D0 | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="534.6" x2="1087.0" y2="534.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26D1 | Layer: Wall_TMOS</title></line>
+    <line x1="1087.0" y1="534.6" x2="1087.0" y2="535.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26D2 | Layer: Wall_TMOS</title></line>
+    <line x1="1087.0" y1="544.0" x2="1087.0" y2="547.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26D3 | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="535.7" x2="1088.1" y2="538.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26D4 | Layer: Wall_TMOS</title></line>
+    <line x1="1087.0" y1="535.7" x2="1099.5" y2="535.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26D5 | Layer: Wall_TMOS</title></line>
+    <line x1="1099.5" y1="535.7" x2="1099.5" y2="547.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26D6 | Layer: Wall_TMOS</title></line>
+    <line x1="1099.5" y1="547.1" x2="1083.0" y2="547.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26D7 | Layer: Wall_TMOS</title></line>
+    <line x1="1083.0" y1="547.1" x2="1083.0" y2="548.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26D8 | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="538.8" x2="1087.0" y2="538.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26D9 | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="544.0" x2="1087.0" y2="544.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26DA | Layer: Wall_TMOS</title></line>
+    <line x1="1087.0" y1="535.7" x2="1087.0" y2="538.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26DB | Layer: Wall_TMOS</title></line>
+    <path d="M 1087.4 543.5 L 1087.6 543.5 L 1087.6 539.3 L 1087.4 539.3 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 26DC | Layer: Door_TMOS</title></path>
+    <line x1="1088.1" y1="544.0" x2="1088.1" y2="547.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26DF | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="544.0" x2="1087.0" y2="544.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26E0 | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="538.8" x2="1087.0" y2="538.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26E1 | Layer: Wall_TMOS</title></line>
+    <path d="M 1087.0 544.0 L 1088.1 544.0 L 1088.1 538.8 L 1087.0 538.8 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 26E2 | Layer: Door_TMOS</title></path>
+    <line x1="1087.0" y1="535.7" x2="1087.0" y2="534.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26E3 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.6" y1="527.1" x2="1100.6" y2="527.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26E4 | Layer: Wall_TMOS</title></line>
+    <line x1="1100.6" y1="522.0" x2="1088.1" y2="522.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26E5 | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="522.0" x2="1087.0" y2="522.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26E6 | Layer: Wall_TMOS</title></line>
+    <line x1="1087.0" y1="522.0" x2="1087.0" y2="523.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26E7 | Layer: Wall_TMOS</title></line>
+    <line x1="1082.2" y1="523.1" x2="1099.5" y2="523.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26E8 | Layer: Wall_TMOS</title></line>
+    <line x1="1099.5" y1="523.1" x2="1099.5" y2="534.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26E9 | Layer: Wall_TMOS</title></line>
+    <line x1="1099.5" y1="534.5" x2="1087.0" y2="534.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26EA | Layer: Wall_TMOS</title></line>
+    <line x1="1087.0" y1="534.5" x2="1087.0" y2="535.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26EB | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="526.3" x2="1087.0" y2="526.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26EC | Layer: Wall_TMOS</title></line>
+    <line x1="1087.0" y1="535.7" x2="1100.6" y2="535.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26ED | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="531.4" x2="1087.0" y2="531.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26EE | Layer: Wall_TMOS</title></line>
+    <line x1="1100.6" y1="535.7" x2="1100.6" y2="522.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26EF | Layer: Wall_TMOS</title></line>
+    <line x1="1087.0" y1="523.1" x2="1087.0" y2="526.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26F0 | Layer: Wall_TMOS</title></line>
+    <line x1="1087.0" y1="531.4" x2="1087.0" y2="534.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26F1 | Layer: Wall_TMOS</title></line>
+    <path d="M 1087.4 530.9 L 1087.6 530.9 L 1087.6 526.7 L 1087.4 526.7 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 26F2 | Layer: Door_TMOS</title></path>
+    <line x1="1088.1" y1="523.1" x2="1088.1" y2="526.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26F3 | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="531.4" x2="1088.1" y2="534.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26F6 | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="531.4" x2="1087.0" y2="531.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26F7 | Layer: Wall_TMOS</title></line>
+    <line x1="1088.1" y1="526.3" x2="1087.0" y2="526.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26F8 | Layer: Wall_TMOS</title></line>
+    <path d="M 1087.0 531.4 L 1088.1 531.4 L 1088.1 526.3 L 1087.0 526.3 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 26F9 | Layer: Door_TMOS</title></path>
+    <line x1="1087.0" y1="522.0" x2="1082.2" y2="522.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 26FA | Layer: Wall_TMOS</title></line>
+    <line x1="1078.7" y1="525.0" x2="1078.7" y2="529.0" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 278C | Layer: hatch_wall</title></line>
+    <line x1="1081.3" y1="523.1" x2="1082.2" y2="523.1" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 278D | Layer: wall</title></line>
+    <path d="M 513.7 259.7 L 1204.2 259.7 L 1204.2 921.8 L 513.7 921.8 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 278E | Layer: 0</title></path>
+    <path d="M 510.9 256.9 L 1207.0 256.9 L 1207.0 924.6 L 510.9 924.6 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 278F | Layer: 0</title></path>
+    <line x1="513.7" y1="870.6" x2="1189.0" y2="870.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2790 | Layer: wall</title></line>
+    <line x1="550.9" y1="870.6" x2="550.9" y2="921.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2791 | Layer: wall</title></line>
+    <path d="M 513.7 870.6 L 1204.2 870.6 L 1204.2 921.8 L 513.7 921.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 2792 | Layer: wall</title></path>
+    <line x1="1049.3" y1="870.6" x2="1049.3" y2="921.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2793 | Layer: wall</title></line>
+    <line x1="1049.3" y1="870.6" x2="1049.3" y2="921.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2794 | Layer: BOUNDRY</title></line>
+    <line x1="1049.3" y1="870.6" x2="1049.3" y2="921.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2797 | Layer: BOUNDRY</title></line>
+    <line x1="1084.2" y1="877.8" x2="1089.5" y2="877.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 2798 | Layer: F4</title></line>
+    <line x1="1088.1" y1="882.6" x2="1094.3" y2="882.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 279C | Layer: F4</title></line>
+    <line x1="1088.3" y1="883.1" x2="1083.5" y2="887.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 279E | Layer: F4</title></line>
+    <line x1="1088.1" y1="882.6" x2="1082.8" y2="887.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 279F | Layer: F4</title></line>
+    <line x1="1078.9" y1="883.1" x2="1072.7" y2="883.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27A0 | Layer: F4</title></line>
+    <line x1="1083.5" y1="887.9" x2="1089.5" y2="887.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27A1 | Layer: F4</title></line>
+    <line x1="1084.2" y1="877.8" x2="1078.9" y2="883.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27A2 | Layer: F4</title></line>
+    <line x1="1083.5" y1="877.8" x2="1078.7" y2="882.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27A3 | Layer: F4</title></line>
+    <path d="M 1080.7 876.2 L 1086.3 876.2 L 1083.5 873.3 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 27A4 | Layer: F4</title></path>
+    <path d="M 1078.2 877.2 L 1088.8 877.2 L 1083.5 871.9 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 27A5 | Layer: F4</title></path>
+    <line x1="1077.5" y1="877.8" x2="1072.7" y2="882.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27A6 | Layer: F4</title></line>
+    <line x1="1077.5" y1="877.8" x2="1083.5" y2="877.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27A7 | Layer: F4</title></line>
+    <line x1="1083.5" y1="893.9" x2="1088.8" y2="888.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27A8 | Layer: F4</title></line>
+    <line x1="1089.5" y1="887.9" x2="1094.3" y2="883.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27A9 | Layer: F4</title></line>
+    <line x1="1078.2" y1="888.6" x2="1083.5" y2="893.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27AA | Layer: F4</title></line>
+    <line x1="1072.7" y1="883.1" x2="1077.5" y2="887.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27AB | Layer: F4</title></line>
+    <line x1="1094.3" y1="883.1" x2="1088.3" y2="883.1" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27AC | Layer: F4</title></line>
+    <line x1="1072.7" y1="882.6" x2="1078.7" y2="882.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27AD | Layer: F4</title></line>
+    <line x1="1094.3" y1="882.6" x2="1089.5" y2="877.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27AE | Layer: F4</title></line>
+    <line x1="1077.5" y1="887.9" x2="1082.8" y2="887.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27AF | Layer: F4</title></line>
+    <line x1="1078.2" y1="888.6" x2="1088.8" y2="888.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27B0 | Layer: F4</title></line>
+    <line x1="1096.7" y1="883.4" x2="1107.6" y2="883.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27B2 | Layer: H</title></line>
+    <line x1="1095.4" y1="884.7" x2="1107.6" y2="884.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27B3 | Layer: H</title></line>
+    <line x1="1094.1" y1="886.0" x2="1107.6" y2="886.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27B4 | Layer: H</title></line>
+    <line x1="1092.9" y1="887.2" x2="1107.6" y2="887.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27B5 | Layer: H</title></line>
+    <line x1="1091.6" y1="888.5" x2="1107.6" y2="888.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27B6 | Layer: H</title></line>
+    <line x1="1095.2" y1="880.9" x2="1107.6" y2="880.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27B7 | Layer: H</title></line>
+    <line x1="1094.0" y1="879.6" x2="1107.6" y2="879.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27B8 | Layer: H</title></line>
+    <line x1="1092.7" y1="878.4" x2="1107.6" y2="878.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27B9 | Layer: H</title></line>
+    <line x1="1096.5" y1="882.2" x2="1107.6" y2="882.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27BA | Layer: H</title></line>
+    <line x1="1070.3" y1="883.4" x2="1059.5" y2="883.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27BB | Layer: H</title></line>
+    <line x1="1071.6" y1="884.7" x2="1059.5" y2="884.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27BC | Layer: H</title></line>
+    <line x1="1072.9" y1="886.0" x2="1059.5" y2="886.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27BD | Layer: H</title></line>
+    <line x1="1074.2" y1="887.2" x2="1059.5" y2="887.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27BE | Layer: H</title></line>
+    <line x1="1075.4" y1="888.5" x2="1059.5" y2="888.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27BF | Layer: H</title></line>
+    <line x1="1071.8" y1="880.9" x2="1059.5" y2="880.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27C0 | Layer: H</title></line>
+    <line x1="1073.1" y1="879.6" x2="1059.5" y2="879.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27C1 | Layer: H</title></line>
+    <line x1="1074.3" y1="878.4" x2="1059.5" y2="878.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27C2 | Layer: H</title></line>
+    <line x1="1070.5" y1="882.2" x2="1059.5" y2="882.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27C3 | Layer: H</title></line>
+    <line x1="1201.7" y1="883.4" x2="1187.5" y2="883.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27C4 | Layer: H</title></line>
+    <line x1="1201.7" y1="884.7" x2="1187.5" y2="884.7" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27C5 | Layer: H</title></line>
+    <line x1="1201.7" y1="886.0" x2="1187.5" y2="886.0" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27C6 | Layer: H</title></line>
+    <line x1="1201.7" y1="887.2" x2="1187.5" y2="887.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27C7 | Layer: H</title></line>
+    <line x1="1201.7" y1="888.5" x2="1187.5" y2="888.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27C8 | Layer: H</title></line>
+    <line x1="1201.7" y1="880.9" x2="1187.5" y2="880.9" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27C9 | Layer: H</title></line>
+    <line x1="1201.7" y1="879.6" x2="1187.5" y2="879.6" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27CA | Layer: H</title></line>
+    <line x1="1201.7" y1="878.4" x2="1187.5" y2="878.4" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27CB | Layer: H</title></line>
+    <line x1="1201.7" y1="882.2" x2="1187.5" y2="882.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27CC | Layer: H</title></line>
+    <line x1="1049.3" y1="895.5" x2="1204.2" y2="895.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27CD | Layer: WIN</title></line>
+    <line x1="1049.3" y1="904.2" x2="1204.2" y2="904.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27CE | Layer: WIN</title></line>
+    <line x1="1100.0" y1="921.8" x2="1100.0" y2="904.2" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27CF | Layer: WIN</title></line>
+    <line x1="1100.0" y1="912.5" x2="1049.3" y2="912.5" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27D0 | Layer: WIN</title></line>
+    <line x1="1049.3" y1="870.0" x2="1049.3" y2="921.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27D1 | Layer: BOUNDRY</title></line>
+    <line x1="1074.7" y1="904.2" x2="1074.7" y2="921.8" stroke="#e2e8f0" stroke-width="0.5"><title>Handle: 27D2 | Layer: WIN</title></line>
+    <path d="M 1049.3 870.6 L 1204.2 870.6 L 1204.2 921.8 L 1049.3 921.8 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 27DD | Layer: DIMENTION</title></path>
+    <line x1="1049.3" y1="870.6" x2="1049.3" y2="921.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 27E0 | Layer: wall</title></line>
+    <line x1="550.9" y1="881.7" x2="1046.8" y2="881.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 27E1 | Layer: wall</title></line>
+    <line x1="545.6" y1="897.4" x2="521.8" y2="897.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 27E7 | Layer: wall</title></line>
+    <line x1="533.7" y1="885.5" x2="533.7" y2="909.3" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 27E8 | Layer: wall</title></line>
+    <line x1="545.6" y1="897.4" x2="533.7" y2="885.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 27EA | Layer: wall</title></line>
+    <line x1="533.7" y1="885.5" x2="521.8" y2="897.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 27EB | Layer: wall</title></line>
+    <line x1="1046.8" y1="870.6" x2="1046.8" y2="921.8" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 27EF | Layer: wall</title></line>
+    <path d="M 1245.3 259.7 L 1935.8 259.7 L 1935.8 921.8 L 1245.3 921.8 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 27F0 | Layer: 0</title></path>
+    <path d="M 1242.4 256.9 L 1938.6 256.9 L 1938.6 924.6 L 1242.4 924.6 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 27F1 | Layer: 0</title></path>
+    <line x1="1245.3" y1="870.6" x2="1920.6" y2="870.6" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 27F2 | Layer: wall</title></line>
+    <path d="M 1245.3 870.6 L 1935.8 870.6 L 1935.8 921.8 L 1245.3 921.8 Z" stroke="#94a3b8" stroke-width="0.8" fill="none"><title>Handle: 27F4 | Layer: wall</title></path>
+    <line x1="1277.2" y1="897.4" x2="1253.3" y2="897.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 283E | Layer: wall</title></line>
+    <line x1="1265.3" y1="885.5" x2="1253.3" y2="897.4" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 2842 | Layer: wall</title></line>
+    <line x1="930.3" y1="625.2" x2="928.4" y2="621.7" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29B2 | Layer: wall</title></line>
+    <line x1="929.7" y1="623.2" x2="928.8" y2="621.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29B3 | Layer: wall</title></line>
+    <line x1="929.0" y1="623.6" x2="928.1" y2="621.9" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29B4 | Layer: wall</title></line>
+    <line x1="936.0" y1="625.0" x2="933.6" y2="626.2" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29B5 | Layer: wall</title></line>
+    <line x1="927.0" y1="629.8" x2="929.3" y2="628.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29B6 | Layer: wall</title></line>
+    <line x1="934.2" y1="632.4" x2="932.6" y2="629.5" stroke="#94a3b8" stroke-width="0.8"><title>Handle: 29B7 | Layer: wall</title></line>
+    <path d="M 391.5 145.4 L 4739.6 145.4 L 4739.6 1083.0 L 391.5 1083.0 Z" stroke="#e2e8f0" stroke-width="0.5" fill="none"><title>Handle: 2A1A | Layer: 0</title></path>
+    <path d="M 389.4 1087.0 L 1210.6 1087.0 L 1210.6 203.0 L 389.4 203.0 Z" stroke="#64748b" stroke-width="1.5" fill="none" stroke-dasharray="6,4"><title>Plan Region BBox: BASEMENT FLOOR PLAN</title></path>
+    <path d="M 510.9 256.9 L 1207.0 256.9 L 1207.0 924.6 L 510.9 924.6 Z" stroke="#2563eb" stroke-width="2.5" fill="none" stroke-dasharray="10,5"><title>Framing Rectangle: [278F] | 122.08 x 117.09 ft | Area: 14294.79 sqft</title></path>
+    <path d="M 545.7 897.6 L 521.7 897.6 L 533.7 885.7 Z" stroke="#0284c7" stroke-width="2.0" fill="rgba(2, 132, 199, 0.06)" stroke-dasharray="6,3"><title>loop-2 | Conf: LOW | Class: internal_enclosed_region | Area: 4.41 sqft | Dim: 4.2 x 2.1 ft</title></path>
+    <g transform="translate(520.0, 291.1)">  <rect width="560" height="36" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5" />  <text x="280.0" y="22" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">BOUNDARY_RECONSTRUCTION_INSUFFICIENT_EVIDENCE — UNCLOSED PERIMETER</text></g>
+    <path d="M 698.4 451.4 L 698.4 447.5 L 702.2 447.5 L 702.2 451.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [242D] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 797.6 577.1 L 797.6 573.2 L 801.5 573.2 L 801.5 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [242F] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 832.0 437.4 L 832.0 433.5 L 835.9 433.5 L 835.9 437.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2431] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 832.0 487.4 L 832.0 483.5 L 835.9 483.5 L 835.9 487.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2433] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 832.0 527.0 L 832.0 523.2 L 835.9 523.2 L 835.9 527.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2435] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 832.0 577.1 L 832.0 573.2 L 835.9 573.2 L 835.9 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2437] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 869.5 437.4 L 869.5 433.5 L 873.3 433.5 L 873.3 437.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2439] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 869.5 487.4 L 869.5 483.5 L 873.3 483.5 L 873.3 487.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [243B] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 869.5 527.0 L 869.5 523.2 L 873.3 523.2 L 873.3 527.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [243D] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 869.5 577.1 L 869.5 573.2 L 873.3 573.2 L 873.3 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [243F] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 911.1 435.2 L 911.1 433.5 L 916.2 433.5 L 916.2 435.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2441] | Dim: 0.9 x 0.3 ft</title></path>
+    <path d="M 698.4 527.4 L 698.4 523.2 L 702.6 523.2 L 702.6 527.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2443] | Dim: 0.75 x 0.75 ft</title></path>
+    <path d="M 911.1 466.6 L 911.1 464.9 L 915.4 464.9 L 915.4 466.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2445] | Dim: 0.75 x 0.3 ft</title></path>
+    <path d="M 933.6 466.6 L 931.9 466.6 L 931.9 462.3 L 933.6 462.3 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2447] | Dim: 0.3 x 0.75 ft</title></path>
+    <path d="M 933.6 438.6 L 931.9 438.6 L 931.9 433.5 L 933.6 433.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2449] | Dim: 0.3 x 0.9 ft</title></path>
+    <path d="M 933.6 487.4 L 931.9 487.4 L 931.9 484.0 L 933.6 484.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [244B] | Dim: 0.3 x 0.6 ft</title></path>
+    <path d="M 967.2 437.4 L 967.2 433.5 L 971.0 433.5 L 971.0 437.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [244D] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 967.2 487.4 L 967.2 483.5 L 971.0 483.5 L 971.0 487.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [244F] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 1004.6 437.4 L 1004.6 433.5 L 1008.5 433.5 L 1008.5 437.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2451] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 698.4 577.1 L 698.4 573.2 L 702.2 573.2 L 702.2 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2453] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 908.5 526.6 L 908.5 523.2 L 911.9 523.2 L 911.9 526.6 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2455] | Dim: 0.6 x 0.6 ft</title></path>
+    <path d="M 911.9 550.5 L 910.2 550.5 L 910.2 546.3 L 911.9 546.3 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2457] | Dim: 0.3 x 0.75 ft</title></path>
+    <path d="M 908.1 577.1 L 908.1 573.2 L 911.9 573.2 L 911.9 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2459] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 967.2 527.0 L 967.2 523.2 L 971.0 523.2 L 971.0 527.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [245B] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 967.2 577.1 L 967.2 573.2 L 971.0 573.2 L 971.0 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [245D] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 743.7 451.8 L 743.7 447.5 L 748.0 447.5 L 748.0 451.8 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [245F] | Dim: 0.75 x 0.75 ft</title></path>
+    <path d="M 743.7 528.3 L 743.7 523.2 L 748.8 523.2 L 748.8 528.3 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2461] | Dim: 0.9 x 0.9 ft</title></path>
+    <path d="M 743.7 577.1 L 743.7 573.2 L 747.6 573.2 L 747.6 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2463] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 933.6 526.6 L 931.9 526.6 L 931.9 523.2 L 933.6 523.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2465] | Dim: 0.3 x 0.6 ft</title></path>
+    <path d="M 797.6 437.4 L 797.6 433.5 L 801.5 433.5 L 801.5 437.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2467] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 933.6 550.5 L 931.9 550.5 L 931.9 546.3 L 933.6 546.3 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2469] | Dim: 0.3 x 0.75 ft</title></path>
+    <path d="M 797.6 487.4 L 797.6 483.1 L 801.9 483.1 L 801.9 487.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [246B] | Dim: 0.75 x 0.75 ft</title></path>
+    <path d="M 797.6 527.4 L 797.6 523.2 L 801.9 523.2 L 801.9 527.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [246D] | Dim: 0.75 x 0.75 ft</title></path>
+    <path d="M 911.1 478.3 L 911.1 474.3 L 924.2 474.3 L 924.2 487.4 L 911.1 487.4 L 911.1 483.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [246E] | Dim: 2.3 x 2.3 ft</title></path>
+    <path d="M 911.1 478.3 L 912.2 478.3 L 912.2 475.4 L 923.1 475.4 L 923.1 486.3 L 912.2 486.3 L 912.2 483.4 L 911.1 483.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [246F] | Dim: 2.1 x 1.9 ft</title></path>
+    <path d="M 994.7 486.3 L 990.6 486.3 L 990.6 469.2 L 1004.3 469.2 L 1004.3 486.3 L 999.9 486.3 L 999.9 487.4 L 1005.5 487.4 L 1005.5 468.0 L 989.5 468.0 L 989.5 487.4 L 994.7 487.4 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2491] | Dim: 2.8 x 3.4 ft</title></path>
+    <path d="M 948.7 523.2 L 943.9 523.2 L 943.9 524.0 L 947.9 524.0 L 947.9 541.1 L 933.6 541.1 L 933.6 526.6 L 932.8 526.6 L 932.8 542.0 L 948.7 542.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [249F] | Dim: 2.8 x 3.3 ft</title></path>
+    <path d="M 937.6 523.2 L 933.6 523.2 L 933.6 524.0 L 937.6 524.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24A0] | Dim: 0.7 x 0.15 ft</title></path>
+    <path d="M 1028.5 577.1 L 1028.5 574.5 L 1032.0 574.5 L 1032.0 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24A6] | Dim: 0.6 x 0.45 ft</title></path>
+    <path d="M 1047.1 437.8 L 1044.5 437.8 L 1044.5 433.5 L 1047.1 433.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24A9] | Dim: 0.45 x 0.75 ft</title></path>
+    <path d="M 1082.2 437.8 L 1080.4 437.8 L 1080.4 433.5 L 1082.2 433.5 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24AB] | Dim: 0.3 x 0.75 ft</title></path>
+    <path d="M 1047.1 478.1 L 1044.5 478.1 L 1044.5 473.9 L 1047.1 473.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24AD] | Dim: 0.45 x 0.75 ft</title></path>
+    <path d="M 1082.2 478.1 L 1080.4 478.1 L 1080.4 473.9 L 1082.2 473.9 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24AF] | Dim: 0.3 x 0.75 ft</title></path>
+    <path d="M 1047.1 518.5 L 1044.5 518.5 L 1044.5 514.2 L 1047.1 514.2 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24B1] | Dim: 0.45 x 0.75 ft</title></path>
+    <path d="M 1078.7 525.1 L 1078.7 522.5 L 1082.2 522.5 L 1082.2 525.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24B3] | Dim: 0.6 x 0.45 ft</title></path>
+    <path d="M 1099.0 577.1 L 1099.0 575.4 L 1102.9 575.4 L 1102.9 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24B5] | Dim: 0.68 x 0.3 ft</title></path>
+    <path d="M 1078.5 577.1 L 1078.5 575.4 L 1082.4 575.4 L 1082.4 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24B7] | Dim: 0.68 x 0.3 ft</title></path>
+    <path d="M 1083.0 547.1 L 1083.0 548.8 L 1078.7 548.8 L 1078.7 547.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24B9] | Dim: 0.75 x 0.3 ft</title></path>
+    <path d="M 1004.6 577.1 L 1004.6 573.2 L 1008.5 573.2 L 1008.5 577.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24BB] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 1004.6 527.0 L 1004.6 523.2 L 1008.5 523.2 L 1008.5 527.0 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24BC] | Dim: 0.68 x 0.68 ft</title></path>
+    <path d="M 1004.6 473.9 L 1008.9 473.9 L 1008.9 478.1 L 1004.6 478.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [24BD] | Dim: 0.75 x 0.75 ft</title></path>
+    <path d="M 1102.9 547.1 L 1102.9 548.8 L 1098.6 548.8 L 1098.6 547.1 Z" stroke="#991b1b" stroke-width="1.2" fill="#dc2626"><title>Column [2556] | Dim: 0.75 x 0.3 ft</title></path>
+  </g>
+</svg>

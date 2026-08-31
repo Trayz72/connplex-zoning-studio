@@ -1,0 +1,53 @@
+{
+  "title": "Connplex Zoning Studio \u2014 Usable Area Safety Checks Report v1",
+  "checks": [
+    {
+      "check": "1. No usable geometry outside the verified floor boundary",
+      "status": "PASS"
+    },
+    {
+      "check": "2. No hard obstruction remains inside usable geometry",
+      "status": "PASS"
+    },
+    {
+      "check": "3. No drawing frame becomes usable area",
+      "status": "PASS"
+    },
+    {
+      "check": "4. No title block becomes usable area",
+      "status": "PASS"
+    },
+    {
+      "check": "5. No schedule geometry becomes usable area",
+      "status": "PASS"
+    },
+    {
+      "check": "6. No LOW-confidence geometry is silently subtracted",
+      "status": "PASS"
+    },
+    {
+      "check": "7. No FOOTPRINT_UNCERTAIN stair geometry is silently subtracted",
+      "status": "PASS"
+    },
+    {
+      "check": "8. Every subtraction has source provenance",
+      "status": "PASS"
+    },
+    {
+      "check": "9. Polygon area agrees with reported area within tolerance (< 0.01 sq ft)",
+      "status": "PASS"
+    },
+    {
+      "check": "10. Regions without verified boundaries remain usable_planning_area = null",
+      "status": "PASS"
+    },
+    {
+      "check": "11. No bounding-box-only subtraction (actual polygon geometry used)",
+      "status": "PASS"
+    },
+    {
+      "check": "12. Existing M0-M1 regression tests remain functional",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,1345 @@
+{
+  "schema_version": "2.0",
+  "title": "Connplex Zoning Studio \u2014 Seat-Aware Decision Package (M8)",
+  "description": "Rescoring of the frozen M5 candidates with total seat count as the dominant weighted objective (30/100 pts), per the v1 stakeholder decision to maximize seat count. zoning_decision_v1.json remains frozen and unmodified.",
+  "scoring_weights": {
+    "area_efficiency": 20,
+    "circulation": 15,
+    "adjacency": 15,
+    "proportion": 8,
+    "clearance": 7,
+    "simplicity": 5,
+    "seats": 30
+  },
+  "seats_full_marks_threshold_per_screen": 60,
+  "ranking_changes_vs_v1": [],
+  "regions": [
+    {
+      "region_id": "dhule-basement",
+      "document": "dhule",
+      "plan_region": "BASEMENT FLOOR PLAN",
+      "boundary_area_sqft": null,
+      "step5_usable_area_sqft": null,
+      "step6_theoretical_usable_area_sqft": null,
+      "candidate_count": 0,
+      "candidates": [],
+      "preferred_candidate": null,
+      "preferred_score": null,
+      "score_breakdown": null,
+      "room_summary": null,
+      "circulation_summary": null,
+      "adjacency_summary": null,
+      "structural_clearance_summary": null,
+      "uncertainty_summary": {
+        "status": "UNVERIFIED_OUTER_BOUNDARY",
+        "reason": "Region lacks verified closed exterior wall boundary; all room placement blocked."
+      },
+      "review_required_items": [],
+      "provenance": {
+        "boundary_status": "NOT_VERIFIED",
+        "source": "CAD_Forensic_Extraction_v2"
+      },
+      "decision_status": "BLOCKED_NO_VERIFIED_BOUNDARY"
+    },
+    {
+      "region_id": "dhule-ground",
+      "document": "dhule",
+      "plan_region": "GROUND FLOOR PLAN",
+      "boundary_area_sqft": null,
+      "step5_usable_area_sqft": null,
+      "step6_theoretical_usable_area_sqft": null,
+      "candidate_count": 0,
+      "candidates": [],
+      "preferred_candidate": null,
+      "preferred_score": null,
+      "score_breakdown": null,
+      "room_summary": null,
+      "circulation_summary": null,
+      "adjacency_summary": null,
+      "structural_clearance_summary": null,
+      "uncertainty_summary": {
+        "status": "UNVERIFIED_OUTER_BOUNDARY",
+        "reason": "Region lacks verified closed exterior wall boundary; all room placement blocked."
+      },
+      "review_required_items": [],
+      "provenance": {
+        "boundary_status": "NOT_VERIFIED",
+        "source": "CAD_Forensic_Extraction_v2"
+      },
+      "decision_status": "BLOCKED_NO_VERIFIED_BOUNDARY"
+    },
+    {
+      "region_id": "dhule-first-floor",
+      "document": "dhule",
+      "plan_region": "FIRST FLOOR PLAN",
+      "boundary_area_sqft": 5242.03,
+      "step5_usable_area_sqft": 5215.06,
+      "step6_theoretical_usable_area_sqft": 5215.06,
+      "candidate_count": 4,
+      "candidates": [
+        {
+          "candidate_id": "dhule-first-floor-candidate-c",
+          "candidate_label": "Candidate C",
+          "strategy": "Adjacency-Optimized Layout",
+          "total_score": 78.14,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 23.18,
+            "circulation": 20.0,
+            "adjacency": 18.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2197.45,
+          "circulation_area_sqft": 796.76,
+          "efficiency_ratio": 0.4214,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 18.54,
+            "circulation": 15.0,
+            "adjacency": 13.5,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 90.28
+        },
+        {
+          "candidate_id": "dhule-first-floor-candidate-d",
+          "candidate_label": "Candidate D",
+          "strategy": "Area-Efficiency-Optimized Layout",
+          "total_score": 76.68,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 24.16,
+            "circulation": 20.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2290.82,
+          "circulation_area_sqft": 728.44,
+          "efficiency_ratio": 0.4393,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 19.33,
+            "circulation": 15.0,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 88.26
+        },
+        {
+          "candidate_id": "dhule-first-floor-candidate-b",
+          "candidate_label": "Candidate B",
+          "strategy": "Circulation-Optimized Layout",
+          "total_score": 76.13,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 21.6,
+            "circulation": 22.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2048.6,
+          "circulation_area_sqft": 859.16,
+          "efficiency_ratio": 0.3928,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 17.28,
+            "circulation": 16.5,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 87.7
+        },
+        {
+          "candidate_id": "dhule-first-floor-candidate-a",
+          "candidate_label": "Candidate A",
+          "strategy": "Baseline M3 Layout",
+          "total_score": 75.53,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 22.72,
+            "circulation": 20.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2154.15,
+          "circulation_area_sqft": 835.41,
+          "efficiency_ratio": 0.4131,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 18.18,
+            "circulation": 15.0,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 86.82
+        }
+      ],
+      "preferred_candidate": {
+        "candidate_id": "dhule-first-floor-candidate-c",
+        "candidate_label": "Candidate C",
+        "strategy": "Adjacency-Optimized Layout",
+        "total_score": 78.14,
+        "status": "VALID",
+        "score_components": {
+          "area_efficiency": 23.18,
+          "circulation": 20.0,
+          "adjacency": 18.0,
+          "proportion": 10.6,
+          "clearance": 8.5,
+          "simplicity": 10.0,
+          "uncertainty_penalty": 0.0
+        },
+        "occupied_area_sqft": 2197.45,
+        "circulation_area_sqft": 796.76,
+        "efficiency_ratio": 0.4214,
+        "hard_constraints_satisfied": true,
+        "warnings_count": 0,
+        "seat_data": {
+          "total_seats": 58,
+          "screen_count": 2,
+          "seats_per_screen": 29.0
+        },
+        "score_components_v2": {
+          "area_efficiency": 18.54,
+          "circulation": 15.0,
+          "adjacency": 13.5,
+          "proportion": 5.65,
+          "clearance": 5.95,
+          "simplicity": 5.0,
+          "seats": 14.5,
+          "uncertainty_penalty": 0.0
+        },
+        "total_score_v1": 90.28
+      },
+      "preferred_score": 78.14,
+      "score_breakdown": {
+        "area_efficiency_score": 23.18,
+        "circulation_score": 20.0,
+        "adjacency_score": 18.0,
+        "proportion_score": 10.6,
+        "clearance_score": 8.5,
+        "simplicity_score": 10.0,
+        "uncertainty_penalty": 0.0,
+        "total_score": 90.28
+      },
+      "room_summary": [
+        {
+          "room_id": "dhule-first-floor-candidate-c-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "area_sqft": 744.0,
+          "dimensions": "31.0 x 24.0 ft",
+          "aspect_ratio": 1.29,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-first-floor-candidate-c-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "area_sqft": 130.5,
+          "dimensions": "29.0 x 4.5 ft",
+          "aspect_ratio": 6.44,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-first-floor-candidate-c-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "area_sqft": 355.6,
+          "dimensions": "12.7 x 28.0 ft",
+          "aspect_ratio": 2.2,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-first-floor-candidate-c-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "area_sqft": 798.0,
+          "dimensions": "28.5 x 28.0 ft",
+          "aspect_ratio": 1.02,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-first-floor-candidate-c-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "area_sqft": 109.35,
+          "dimensions": "8.1 x 13.5 ft",
+          "aspect_ratio": 1.67,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-first-floor-candidate-c-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "area_sqft": 60.0,
+          "dimensions": "6.0 x 10.0 ft",
+          "aspect_ratio": 1.67,
+          "status": "VALID"
+        }
+      ],
+      "circulation_summary": {
+        "circulation_id": "dhule-first-floor-candidate-c-circulation",
+        "area_sqft": 796.76,
+        "is_connected": true,
+        "touches_all_rooms": true,
+        "primary_corridor_width_ft": 5.5,
+        "minimum_corridor_width_ft": 2.0
+      },
+      "adjacency_summary": {
+        "projection_to_auditorium_shared_wall_ft": 29.0,
+        "auditorium_to_foyer_access": "DIRECT_AND_CONCOURSE",
+        "restroom_office_access": "CONTINUOUS_CORRIDOR_SPINE",
+        "satisfaction_rate": "100%"
+      },
+      "structural_clearance_summary": {
+        "hard_obstruction_collisions": 0,
+        "minimum_room_column_clearance_ft": 0.1596,
+        "minimum_corridor_column_clearance_ft": 0.2599,
+        "columns_avoided_count": 53,
+        "additional_verified_obstructions_avoided": 0
+      },
+      "uncertainty_summary": {
+        "uncertain_obstructions_preserved": 11,
+        "review_required_rooms_count": 0,
+        "uncertainty_penalty": 0.0
+      },
+      "review_required_items": [],
+      "decision_explanation": "Candidate C (Adjacency-Optimized Layout) is selected as the preferred candidate layout with a score of 90.28 / 100. It outperforms the next-highest candidate (Candidate D, 88.26 pts) by +2.02 points. Its primary architectural advantages are maximized direct acoustic wall adjacencies (18.0 / 20.0 pts), direct projection-to-screen boundary alignment (29.0 ft shared wall), full column avoidance (> 0.16 ft clearance), and 100% connected circulation touching all functional spaces.",
+      "provenance": {
+        "boundary_source_handle": "6A8",
+        "input_contract": "M2_Zoning_Inputs_v1",
+        "candidate_optimizer": "M4_Zoning_Optimizer_v2"
+      },
+      "decision_status": "DECISION_READY",
+      "preferred_score_v1": 90.28
+    },
+    {
+      "region_id": "dhule-second-floor",
+      "document": "dhule",
+      "plan_region": "SECOND FLOOR PLAN",
+      "boundary_area_sqft": 5242.03,
+      "step5_usable_area_sqft": 5216.19,
+      "step6_theoretical_usable_area_sqft": 5216.19,
+      "candidate_count": 4,
+      "candidates": [
+        {
+          "candidate_id": "dhule-second-floor-candidate-c",
+          "candidate_label": "Candidate C",
+          "strategy": "Adjacency-Optimized Layout",
+          "total_score": 78.14,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 23.17,
+            "circulation": 20.0,
+            "adjacency": 18.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2197.45,
+          "circulation_area_sqft": 796.76,
+          "efficiency_ratio": 0.4213,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 18.54,
+            "circulation": 15.0,
+            "adjacency": 13.5,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 90.27
+        },
+        {
+          "candidate_id": "dhule-second-floor-candidate-d",
+          "candidate_label": "Candidate D",
+          "strategy": "Area-Efficiency-Optimized Layout",
+          "total_score": 76.68,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 24.16,
+            "circulation": 20.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2290.82,
+          "circulation_area_sqft": 728.44,
+          "efficiency_ratio": 0.4392,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 19.33,
+            "circulation": 15.0,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 88.26
+        },
+        {
+          "candidate_id": "dhule-second-floor-candidate-b",
+          "candidate_label": "Candidate B",
+          "strategy": "Circulation-Optimized Layout",
+          "total_score": 76.13,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 21.6,
+            "circulation": 22.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2048.6,
+          "circulation_area_sqft": 859.16,
+          "efficiency_ratio": 0.3927,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 17.28,
+            "circulation": 16.5,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 87.7
+        },
+        {
+          "candidate_id": "dhule-second-floor-candidate-a",
+          "candidate_label": "Candidate A",
+          "strategy": "Baseline M3 Layout",
+          "total_score": 75.52,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 22.71,
+            "circulation": 20.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2154.15,
+          "circulation_area_sqft": 835.41,
+          "efficiency_ratio": 0.413,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 18.17,
+            "circulation": 15.0,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 86.81
+        }
+      ],
+      "preferred_candidate": {
+        "candidate_id": "dhule-second-floor-candidate-c",
+        "candidate_label": "Candidate C",
+        "strategy": "Adjacency-Optimized Layout",
+        "total_score": 78.14,
+        "status": "VALID",
+        "score_components": {
+          "area_efficiency": 23.17,
+          "circulation": 20.0,
+          "adjacency": 18.0,
+          "proportion": 10.6,
+          "clearance": 8.5,
+          "simplicity": 10.0,
+          "uncertainty_penalty": 0.0
+        },
+        "occupied_area_sqft": 2197.45,
+        "circulation_area_sqft": 796.76,
+        "efficiency_ratio": 0.4213,
+        "hard_constraints_satisfied": true,
+        "warnings_count": 0,
+        "seat_data": {
+          "total_seats": 58,
+          "screen_count": 2,
+          "seats_per_screen": 29.0
+        },
+        "score_components_v2": {
+          "area_efficiency": 18.54,
+          "circulation": 15.0,
+          "adjacency": 13.5,
+          "proportion": 5.65,
+          "clearance": 5.95,
+          "simplicity": 5.0,
+          "seats": 14.5,
+          "uncertainty_penalty": 0.0
+        },
+        "total_score_v1": 90.27
+      },
+      "preferred_score": 78.14,
+      "score_breakdown": {
+        "area_efficiency_score": 23.17,
+        "circulation_score": 20.0,
+        "adjacency_score": 18.0,
+        "proportion_score": 10.6,
+        "clearance_score": 8.5,
+        "simplicity_score": 10.0,
+        "uncertainty_penalty": 0.0,
+        "total_score": 90.27
+      },
+      "room_summary": [
+        {
+          "room_id": "dhule-second-floor-candidate-c-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "area_sqft": 744.0,
+          "dimensions": "31.0 x 24.0 ft",
+          "aspect_ratio": 1.29,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-second-floor-candidate-c-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "area_sqft": 130.5,
+          "dimensions": "29.0 x 4.5 ft",
+          "aspect_ratio": 6.44,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-second-floor-candidate-c-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "area_sqft": 355.6,
+          "dimensions": "12.7 x 28.0 ft",
+          "aspect_ratio": 2.2,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-second-floor-candidate-c-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "area_sqft": 798.0,
+          "dimensions": "28.5 x 28.0 ft",
+          "aspect_ratio": 1.02,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-second-floor-candidate-c-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "area_sqft": 109.35,
+          "dimensions": "8.1 x 13.5 ft",
+          "aspect_ratio": 1.67,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-second-floor-candidate-c-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "area_sqft": 60.0,
+          "dimensions": "6.0 x 10.0 ft",
+          "aspect_ratio": 1.67,
+          "status": "VALID"
+        }
+      ],
+      "circulation_summary": {
+        "circulation_id": "dhule-second-floor-candidate-c-circulation",
+        "area_sqft": 796.76,
+        "is_connected": true,
+        "touches_all_rooms": true,
+        "primary_corridor_width_ft": 5.5,
+        "minimum_corridor_width_ft": 2.0
+      },
+      "adjacency_summary": {
+        "projection_to_auditorium_shared_wall_ft": 29.0,
+        "auditorium_to_foyer_access": "DIRECT_AND_CONCOURSE",
+        "restroom_office_access": "CONTINUOUS_CORRIDOR_SPINE",
+        "satisfaction_rate": "100%"
+      },
+      "structural_clearance_summary": {
+        "hard_obstruction_collisions": 0,
+        "minimum_room_column_clearance_ft": 0.1595,
+        "minimum_corridor_column_clearance_ft": 0.2599,
+        "columns_avoided_count": 49,
+        "additional_verified_obstructions_avoided": 0
+      },
+      "uncertainty_summary": {
+        "uncertain_obstructions_preserved": 11,
+        "review_required_rooms_count": 0,
+        "uncertainty_penalty": 0.0
+      },
+      "review_required_items": [],
+      "decision_explanation": "Candidate C (Adjacency-Optimized Layout) is selected as the preferred candidate layout with a score of 90.27 / 100. It outperforms the next-highest candidate (Candidate D, 88.26 pts) by +2.01 points. Its primary architectural advantages are maximized direct acoustic wall adjacencies (18.0 / 20.0 pts), direct projection-to-screen boundary alignment (29.0 ft shared wall), full column avoidance (> 0.16 ft clearance), and 100% connected circulation touching all functional spaces.",
+      "provenance": {
+        "boundary_source_handle": "1393",
+        "input_contract": "M2_Zoning_Inputs_v1",
+        "candidate_optimizer": "M4_Zoning_Optimizer_v2"
+      },
+      "decision_status": "DECISION_READY",
+      "preferred_score_v1": 90.27
+    },
+    {
+      "region_id": "dhule-third-floor",
+      "document": "dhule",
+      "plan_region": "THIRD FLOOR PLAN",
+      "boundary_area_sqft": 5242.03,
+      "step5_usable_area_sqft": 5216.2,
+      "step6_theoretical_usable_area_sqft": 5216.2,
+      "candidate_count": 4,
+      "candidates": [
+        {
+          "candidate_id": "dhule-third-floor-candidate-c",
+          "candidate_label": "Candidate C",
+          "strategy": "Adjacency-Optimized Layout",
+          "total_score": 78.14,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 23.17,
+            "circulation": 20.0,
+            "adjacency": 18.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2197.45,
+          "circulation_area_sqft": 796.76,
+          "efficiency_ratio": 0.4213,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 18.54,
+            "circulation": 15.0,
+            "adjacency": 13.5,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 90.27
+        },
+        {
+          "candidate_id": "dhule-third-floor-candidate-d",
+          "candidate_label": "Candidate D",
+          "strategy": "Area-Efficiency-Optimized Layout",
+          "total_score": 76.68,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 24.16,
+            "circulation": 20.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2290.82,
+          "circulation_area_sqft": 728.44,
+          "efficiency_ratio": 0.4392,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 19.33,
+            "circulation": 15.0,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 88.26
+        },
+        {
+          "candidate_id": "dhule-third-floor-candidate-b",
+          "candidate_label": "Candidate B",
+          "strategy": "Circulation-Optimized Layout",
+          "total_score": 76.13,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 21.6,
+            "circulation": 22.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2048.6,
+          "circulation_area_sqft": 859.16,
+          "efficiency_ratio": 0.3927,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 17.28,
+            "circulation": 16.5,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 87.7
+        },
+        {
+          "candidate_id": "dhule-third-floor-candidate-a",
+          "candidate_label": "Candidate A",
+          "strategy": "Baseline M3 Layout",
+          "total_score": 75.52,
+          "status": "VALID",
+          "score_components": {
+            "area_efficiency": 22.71,
+            "circulation": 20.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 0.0
+          },
+          "occupied_area_sqft": 2154.15,
+          "circulation_area_sqft": 835.41,
+          "efficiency_ratio": 0.413,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 0,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 18.17,
+            "circulation": 15.0,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 0.0
+          },
+          "total_score_v1": 86.81
+        }
+      ],
+      "preferred_candidate": {
+        "candidate_id": "dhule-third-floor-candidate-c",
+        "candidate_label": "Candidate C",
+        "strategy": "Adjacency-Optimized Layout",
+        "total_score": 78.14,
+        "status": "VALID",
+        "score_components": {
+          "area_efficiency": 23.17,
+          "circulation": 20.0,
+          "adjacency": 18.0,
+          "proportion": 10.6,
+          "clearance": 8.5,
+          "simplicity": 10.0,
+          "uncertainty_penalty": 0.0
+        },
+        "occupied_area_sqft": 2197.45,
+        "circulation_area_sqft": 796.76,
+        "efficiency_ratio": 0.4213,
+        "hard_constraints_satisfied": true,
+        "warnings_count": 0,
+        "seat_data": {
+          "total_seats": 58,
+          "screen_count": 2,
+          "seats_per_screen": 29.0
+        },
+        "score_components_v2": {
+          "area_efficiency": 18.54,
+          "circulation": 15.0,
+          "adjacency": 13.5,
+          "proportion": 5.65,
+          "clearance": 5.95,
+          "simplicity": 5.0,
+          "seats": 14.5,
+          "uncertainty_penalty": 0.0
+        },
+        "total_score_v1": 90.27
+      },
+      "preferred_score": 78.14,
+      "score_breakdown": {
+        "area_efficiency_score": 23.17,
+        "circulation_score": 20.0,
+        "adjacency_score": 18.0,
+        "proportion_score": 10.6,
+        "clearance_score": 8.5,
+        "simplicity_score": 10.0,
+        "uncertainty_penalty": 0.0,
+        "total_score": 90.27
+      },
+      "room_summary": [
+        {
+          "room_id": "dhule-third-floor-candidate-c-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "area_sqft": 744.0,
+          "dimensions": "31.0 x 24.0 ft",
+          "aspect_ratio": 1.29,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-third-floor-candidate-c-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "area_sqft": 130.5,
+          "dimensions": "29.0 x 4.5 ft",
+          "aspect_ratio": 6.44,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-third-floor-candidate-c-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "area_sqft": 355.6,
+          "dimensions": "12.7 x 28.0 ft",
+          "aspect_ratio": 2.2,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-third-floor-candidate-c-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "area_sqft": 798.0,
+          "dimensions": "28.5 x 28.0 ft",
+          "aspect_ratio": 1.02,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-third-floor-candidate-c-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "area_sqft": 109.35,
+          "dimensions": "8.1 x 13.5 ft",
+          "aspect_ratio": 1.67,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-third-floor-candidate-c-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "area_sqft": 60.0,
+          "dimensions": "6.0 x 10.0 ft",
+          "aspect_ratio": 1.67,
+          "status": "VALID"
+        }
+      ],
+      "circulation_summary": {
+        "circulation_id": "dhule-third-floor-candidate-c-circulation",
+        "area_sqft": 796.76,
+        "is_connected": true,
+        "touches_all_rooms": true,
+        "primary_corridor_width_ft": 5.5,
+        "minimum_corridor_width_ft": 2.0
+      },
+      "adjacency_summary": {
+        "projection_to_auditorium_shared_wall_ft": 29.0,
+        "auditorium_to_foyer_access": "DIRECT_AND_CONCOURSE",
+        "restroom_office_access": "CONTINUOUS_CORRIDOR_SPINE",
+        "satisfaction_rate": "100%"
+      },
+      "structural_clearance_summary": {
+        "hard_obstruction_collisions": 0,
+        "minimum_room_column_clearance_ft": 0.1596,
+        "minimum_corridor_column_clearance_ft": 0.2599,
+        "columns_avoided_count": 49,
+        "additional_verified_obstructions_avoided": 0
+      },
+      "uncertainty_summary": {
+        "uncertain_obstructions_preserved": 11,
+        "review_required_rooms_count": 0,
+        "uncertainty_penalty": 0.0
+      },
+      "review_required_items": [],
+      "decision_explanation": "Candidate C (Adjacency-Optimized Layout) is selected as the preferred candidate layout with a score of 90.27 / 100. It outperforms the next-highest candidate (Candidate D, 88.26 pts) by +2.01 points. Its primary architectural advantages are maximized direct acoustic wall adjacencies (18.0 / 20.0 pts), direct projection-to-screen boundary alignment (29.0 ft shared wall), full column avoidance (> 0.16 ft clearance), and 100% connected circulation touching all functional spaces.",
+      "provenance": {
+        "boundary_source_handle": "177B",
+        "input_contract": "M2_Zoning_Inputs_v1",
+        "candidate_optimizer": "M4_Zoning_Optimizer_v2"
+      },
+      "decision_status": "DECISION_READY",
+      "preferred_score_v1": 90.27
+    },
+    {
+      "region_id": "dhule-fourth-floor",
+      "document": "dhule",
+      "plan_region": "FOURTH FLOOR PLAN",
+      "boundary_area_sqft": 5242.04,
+      "step5_usable_area_sqft": 5222.04,
+      "step6_theoretical_usable_area_sqft": 5218.43,
+      "candidate_count": 4,
+      "candidates": [
+        {
+          "candidate_id": "dhule-fourth-floor-candidate-c",
+          "candidate_label": "Candidate C",
+          "strategy": "Adjacency-Optimized Layout",
+          "total_score": 73.11,
+          "status": "VALID_REVIEW_REQUIRED",
+          "score_components": {
+            "area_efficiency": 23.14,
+            "circulation": 20.0,
+            "adjacency": 18.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 5.0
+          },
+          "occupied_area_sqft": 2197.45,
+          "circulation_area_sqft": 796.76,
+          "efficiency_ratio": 0.4208,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 2,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 18.51,
+            "circulation": 15.0,
+            "adjacency": 13.5,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 5.0
+          },
+          "total_score_v1": 85.24
+        },
+        {
+          "candidate_id": "dhule-fourth-floor-candidate-d",
+          "candidate_label": "Candidate D",
+          "strategy": "Area-Efficiency-Optimized Layout",
+          "total_score": 71.65,
+          "status": "VALID_REVIEW_REQUIRED",
+          "score_components": {
+            "area_efficiency": 24.13,
+            "circulation": 20.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 5.0
+          },
+          "occupied_area_sqft": 2290.82,
+          "circulation_area_sqft": 728.44,
+          "efficiency_ratio": 0.4387,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 2,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 19.3,
+            "circulation": 15.0,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 5.0
+          },
+          "total_score_v1": 83.23
+        },
+        {
+          "candidate_id": "dhule-fourth-floor-candidate-b",
+          "candidate_label": "Candidate B",
+          "strategy": "Circulation-Optimized Layout",
+          "total_score": 71.11,
+          "status": "VALID_REVIEW_REQUIRED",
+          "score_components": {
+            "area_efficiency": 21.58,
+            "circulation": 22.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 5.0
+          },
+          "occupied_area_sqft": 2048.6,
+          "circulation_area_sqft": 859.16,
+          "efficiency_ratio": 0.3923,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 2,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 17.26,
+            "circulation": 16.5,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 5.0
+          },
+          "total_score_v1": 82.68
+        },
+        {
+          "candidate_id": "dhule-fourth-floor-candidate-a",
+          "candidate_label": "Candidate A",
+          "strategy": "Baseline M3 Layout",
+          "total_score": 70.5,
+          "status": "VALID_REVIEW_REQUIRED",
+          "score_components": {
+            "area_efficiency": 22.69,
+            "circulation": 20.0,
+            "adjacency": 15.0,
+            "proportion": 10.6,
+            "clearance": 8.5,
+            "simplicity": 10.0,
+            "uncertainty_penalty": 5.0
+          },
+          "occupied_area_sqft": 2154.15,
+          "circulation_area_sqft": 835.41,
+          "efficiency_ratio": 0.4125,
+          "hard_constraints_satisfied": true,
+          "warnings_count": 2,
+          "seat_data": {
+            "total_seats": 58,
+            "screen_count": 2,
+            "seats_per_screen": 29.0
+          },
+          "score_components_v2": {
+            "area_efficiency": 18.15,
+            "circulation": 15.0,
+            "adjacency": 11.25,
+            "proportion": 5.65,
+            "clearance": 5.95,
+            "simplicity": 5.0,
+            "seats": 14.5,
+            "uncertainty_penalty": 5.0
+          },
+          "total_score_v1": 81.79
+        }
+      ],
+      "preferred_candidate": {
+        "candidate_id": "dhule-fourth-floor-candidate-c",
+        "candidate_label": "Candidate C",
+        "strategy": "Adjacency-Optimized Layout",
+        "total_score": 73.11,
+        "status": "VALID_REVIEW_REQUIRED",
+        "score_components": {
+          "area_efficiency": 23.14,
+          "circulation": 20.0,
+          "adjacency": 18.0,
+          "proportion": 10.6,
+          "clearance": 8.5,
+          "simplicity": 10.0,
+          "uncertainty_penalty": 5.0
+        },
+        "occupied_area_sqft": 2197.45,
+        "circulation_area_sqft": 796.76,
+        "efficiency_ratio": 0.4208,
+        "hard_constraints_satisfied": true,
+        "warnings_count": 2,
+        "seat_data": {
+          "total_seats": 58,
+          "screen_count": 2,
+          "seats_per_screen": 29.0
+        },
+        "score_components_v2": {
+          "area_efficiency": 18.51,
+          "circulation": 15.0,
+          "adjacency": 13.5,
+          "proportion": 5.65,
+          "clearance": 5.95,
+          "simplicity": 5.0,
+          "seats": 14.5,
+          "uncertainty_penalty": 5.0
+        },
+        "total_score_v1": 85.24
+      },
+      "preferred_score": 73.11,
+      "score_breakdown": {
+        "area_efficiency_score": 23.14,
+        "circulation_score": 20.0,
+        "adjacency_score": 18.0,
+        "proportion_score": 10.6,
+        "clearance_score": 8.5,
+        "simplicity_score": 10.0,
+        "uncertainty_penalty": 5.0,
+        "total_score": 85.24
+      },
+      "room_summary": [
+        {
+          "room_id": "dhule-fourth-floor-candidate-c-room-01-auditorium_1",
+          "room_type": "AUDITORIUM_1",
+          "display_name": "Screen 1 (Auditorium)",
+          "area_sqft": 744.0,
+          "dimensions": "31.0 x 24.0 ft",
+          "aspect_ratio": 1.29,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-fourth-floor-candidate-c-room-02-projection_room",
+          "room_type": "PROJECTION_ROOM",
+          "display_name": "Projection Booth",
+          "area_sqft": 130.5,
+          "dimensions": "29.0 x 4.5 ft",
+          "aspect_ratio": 6.44,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-fourth-floor-candidate-c-room-03-foyer_concession",
+          "room_type": "FOYER_CONCESSION",
+          "display_name": "Public Foyer & Concession",
+          "area_sqft": 355.6,
+          "dimensions": "12.7 x 28.0 ft",
+          "aspect_ratio": 2.2,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-fourth-floor-candidate-c-room-04-auditorium_2",
+          "room_type": "AUDITORIUM_2",
+          "display_name": "Screen 2 (Auditorium)",
+          "area_sqft": 798.0,
+          "dimensions": "28.5 x 28.0 ft",
+          "aspect_ratio": 1.02,
+          "status": "VALID"
+        },
+        {
+          "room_id": "dhule-fourth-floor-candidate-c-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "area_sqft": 109.35,
+          "dimensions": "8.1 x 13.5 ft",
+          "aspect_ratio": 1.67,
+          "status": "REVIEW_REQUIRED"
+        },
+        {
+          "room_id": "dhule-fourth-floor-candidate-c-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "area_sqft": 60.0,
+          "dimensions": "6.0 x 10.0 ft",
+          "aspect_ratio": 1.67,
+          "status": "REVIEW_REQUIRED"
+        }
+      ],
+      "circulation_summary": {
+        "circulation_id": "dhule-fourth-floor-candidate-c-circulation",
+        "area_sqft": 796.76,
+        "is_connected": true,
+        "touches_all_rooms": true,
+        "primary_corridor_width_ft": 5.5,
+        "minimum_corridor_width_ft": 2.0
+      },
+      "adjacency_summary": {
+        "projection_to_auditorium_shared_wall_ft": 29.0,
+        "auditorium_to_foyer_access": "DIRECT_AND_CONCOURSE",
+        "restroom_office_access": "CONTINUOUS_CORRIDOR_SPINE",
+        "satisfaction_rate": "100%"
+      },
+      "structural_clearance_summary": {
+        "hard_obstruction_collisions": 0,
+        "minimum_room_column_clearance_ft": 0.1596,
+        "minimum_corridor_column_clearance_ft": 0.255,
+        "columns_avoided_count": 40,
+        "additional_verified_obstructions_avoided": 1
+      },
+      "uncertainty_summary": {
+        "uncertain_obstructions_preserved": 43,
+        "review_required_rooms_count": 2,
+        "uncertainty_penalty": 5.0
+      },
+      "review_required_items": [
+        {
+          "room_id": "dhule-fourth-floor-candidate-c-room-05-restrooms",
+          "room_type": "RESTROOMS",
+          "display_name": "Restrooms / Washroom Core",
+          "reason": "Intersects unclosed CAD partition linework in model space.",
+          "warnings": [
+            {
+              "obstruction_id": "dhule-fourth-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "status": "UNRESOLVED"
+            }
+          ]
+        },
+        {
+          "room_id": "dhule-fourth-floor-candidate-c-room-06-manager_office",
+          "room_type": "MANAGER_OFFICE",
+          "display_name": "Manager & Staff Office",
+          "reason": "Intersects unclosed CAD partition linework in model space.",
+          "warnings": [
+            {
+              "obstruction_id": "dhule-fourth-floor-shaft-1",
+              "category": "MEP_SHAFT",
+              "status": "UNRESOLVED"
+            }
+          ]
+        }
+      ],
+      "decision_explanation": "Candidate C (Adjacency-Optimized Layout) is selected as the preferred candidate layout with a score of 85.24 / 100. It outperforms the next-highest candidate (Candidate D, 83.23 pts) by +2.01 points. Its primary architectural advantages are maximized direct acoustic wall adjacencies (18.0 / 20.0 pts), direct projection-to-screen boundary alignment (29.0 ft shared wall), full column avoidance (> 0.16 ft clearance), and 100% connected circulation touching all functional spaces. NOTE: Fourth-floor RESTROOMS and MANAGER_OFFICE are subject to architectural review (VALID_REVIEW_REQUIRED) due to unclosed residential/commercial CAD partition linework on that level. A -5.00 uncertainty penalty was applied.",
+      "provenance": {
+        "boundary_source_handle": "21D8",
+        "input_contract": "M2_Zoning_Inputs_v1",
+        "candidate_optimizer": "M4_Zoning_Optimizer_v2"
+      },
+      "decision_status": "VALID_REVIEW_REQUIRED",
+      "preferred_score_v1": 85.24
+    },
+    {
+      "region_id": "vadodara-option-1",
+      "document": "vadodara",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+      "boundary_area_sqft": null,
+      "step5_usable_area_sqft": null,
+      "step6_theoretical_usable_area_sqft": null,
+      "candidate_count": 0,
+      "candidates": [],
+      "preferred_candidate": null,
+      "preferred_score": null,
+      "score_breakdown": null,
+      "room_summary": null,
+      "circulation_summary": null,
+      "adjacency_summary": null,
+      "structural_clearance_summary": null,
+      "uncertainty_summary": {
+        "status": "UNVERIFIED_OUTER_BOUNDARY",
+        "reason": "Region lacks verified closed exterior wall boundary; all room placement blocked."
+      },
+      "review_required_items": [],
+      "provenance": {
+        "boundary_status": "NOT_VERIFIED",
+        "source": "CAD_Forensic_Extraction_v2"
+      },
+      "decision_status": "BLOCKED_NO_VERIFIED_BOUNDARY"
+    },
+    {
+      "region_id": "vadodara-option-2",
+      "document": "vadodara",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+      "boundary_area_sqft": null,
+      "step5_usable_area_sqft": null,
+      "step6_theoretical_usable_area_sqft": null,
+      "candidate_count": 0,
+      "candidates": [],
+      "preferred_candidate": null,
+      "preferred_score": null,
+      "score_breakdown": null,
+      "room_summary": null,
+      "circulation_summary": null,
+      "adjacency_summary": null,
+      "structural_clearance_summary": null,
+      "uncertainty_summary": {
+        "status": "UNVERIFIED_OUTER_BOUNDARY",
+        "reason": "Region lacks verified closed exterior wall boundary; all room placement blocked."
+      },
+      "review_required_items": [],
+      "provenance": {
+        "boundary_status": "NOT_VERIFIED",
+        "source": "CAD_Forensic_Extraction_v2"
+      },
+      "decision_status": "BLOCKED_NO_VERIFIED_BOUNDARY"
+    }
+  ]
+}

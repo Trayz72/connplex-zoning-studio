@@ -1,0 +1,13 @@
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+
+# Vendored third-party binary (253MB) — install separately, see STATUS.md
+services/cad-interop/oda/
+
+# SQLite write-ahead-log temp files (data.sqlite itself IS committed — it holds demo seed data)
+*.sqlite-shm
+*.sqlite-wal

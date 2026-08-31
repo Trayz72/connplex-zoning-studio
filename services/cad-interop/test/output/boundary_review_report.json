@@ -1,0 +1,119 @@
+{
+  "title": "Connplex Zoning Studio \u2014 Boundary Review & Validation Report",
+  "documents": [
+    {
+      "source_file": "1022_MARUTI NANDAN BUSINESS HUB,DHULE,MAHARASHTRA_ZONING LAYOUT_5.08.2026.dxf",
+      "regions": [
+        {
+          "region_id": "dhule-basement",
+          "label": "BASEMENT FLOOR PLAN",
+          "selected_boundary": null,
+          "candidate_boundaries_count": 2,
+          "area_sqft": null,
+          "perimeter_ft": null,
+          "confidence": "LOW",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "validation_warnings": [
+            "No reliable exterior wall loop could be closed without guessing or fabricating geometry."
+          ],
+          "reason_for_selection": "BOUNDARY_RECONSTRUCTION_INSUFFICIENT_EVIDENCE: No continuous closed exterior wall enclosure exists in the CAD source geometry. Openings for vehicular access / shopping colonnades leave perimeter unclosed."
+        },
+        {
+          "region_id": "dhule-ground",
+          "label": "GROUND FLOOR PLAN",
+          "selected_boundary": null,
+          "candidate_boundaries_count": 15,
+          "area_sqft": null,
+          "perimeter_ft": null,
+          "confidence": "LOW",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "validation_warnings": [
+            "No reliable exterior wall loop could be closed without guessing or fabricating geometry."
+          ],
+          "reason_for_selection": "BOUNDARY_RECONSTRUCTION_INSUFFICIENT_EVIDENCE: No continuous closed exterior wall enclosure exists in the CAD source geometry. Openings for vehicular access / shopping colonnades leave perimeter unclosed."
+        },
+        {
+          "region_id": "dhule-first-floor",
+          "label": "FIRST FLOOR PLAN",
+          "selected_boundary": "6A8",
+          "candidate_boundaries_count": 1,
+          "area_sqft": 5242.04,
+          "perimeter_ft": 291.39,
+          "confidence": "HIGH",
+          "status": "PENDING_EXCLUSIONS",
+          "validation_warnings": [],
+          "reason_for_selection": "Verified single closed polyline [6A8] on layer 'wall' perfectly defines the building floor plate enclosure (80.90 x 64.80 ft)."
+        },
+        {
+          "region_id": "dhule-second-floor",
+          "label": "SECOND FLOOR PLAN",
+          "selected_boundary": "1393",
+          "candidate_boundaries_count": 1,
+          "area_sqft": 5242.04,
+          "perimeter_ft": 291.39,
+          "confidence": "HIGH",
+          "status": "PENDING_EXCLUSIONS",
+          "validation_warnings": [],
+          "reason_for_selection": "Verified single closed polyline [1393] on layer 'wall' perfectly defines the building floor plate enclosure (80.90 x 64.80 ft)."
+        },
+        {
+          "region_id": "dhule-third-floor",
+          "label": "THIRD FLOOR PLAN",
+          "selected_boundary": "177B",
+          "candidate_boundaries_count": 1,
+          "area_sqft": 5242.04,
+          "perimeter_ft": 291.39,
+          "confidence": "HIGH",
+          "status": "PENDING_EXCLUSIONS",
+          "validation_warnings": [],
+          "reason_for_selection": "Verified single closed polyline [177B] on layer 'wall' perfectly defines the building floor plate enclosure (80.90 x 64.80 ft)."
+        },
+        {
+          "region_id": "dhule-fourth-floor",
+          "label": "FOURTH FLOOR PLAN",
+          "selected_boundary": "21D8",
+          "candidate_boundaries_count": 1,
+          "area_sqft": 5242.04,
+          "perimeter_ft": 291.39,
+          "confidence": "HIGH",
+          "status": "PENDING_EXCLUSIONS",
+          "validation_warnings": [],
+          "reason_for_selection": "Verified single closed polyline [21D8] on layer 'wall' perfectly defines the building floor plate enclosure (80.90 x 64.80 ft)."
+        }
+      ]
+    },
+    {
+      "source_file": "1045- KESHAV LANDMARK_VADODARA ,GUJRAT_ZONING LAYOUT_20.05.2026.dxf",
+      "regions": [
+        {
+          "region_id": "vadodara-option-1",
+          "label": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+          "selected_boundary": null,
+          "candidate_boundaries_count": 46,
+          "area_sqft": null,
+          "perimeter_ft": null,
+          "confidence": "LOW",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "validation_warnings": [
+            "Individual auditorium rooms are closed, but overall option perimeter remains open."
+          ],
+          "reason_for_selection": "BOUNDARY_RECONSTRUCTION_INSUFFICIENT_EVIDENCE: Wall network forms individual auditorium screen boxes, but outer perimeter is broken by open entrance corridors. Outer frame 8285A rejected."
+        },
+        {
+          "region_id": "vadodara-option-2",
+          "label": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+          "selected_boundary": null,
+          "candidate_boundaries_count": 30,
+          "area_sqft": null,
+          "perimeter_ft": null,
+          "confidence": "LOW",
+          "status": "INSUFFICIENT_EVIDENCE",
+          "validation_warnings": [
+            "Individual auditorium rooms are closed, but overall option perimeter remains open."
+          ],
+          "reason_for_selection": "BOUNDARY_RECONSTRUCTION_INSUFFICIENT_EVIDENCE: Wall network forms individual auditorium screen boxes, but outer perimeter is broken by open entrance corridors. Outer frame 8285A rejected."
+        }
+      ]
+    }
+  ]
+}

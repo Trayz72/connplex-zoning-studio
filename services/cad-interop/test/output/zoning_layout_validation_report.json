@@ -1,0 +1,114 @@
+{
+  "title": "Connplex Zoning Studio \u2014 M3 Zoning Layout Validation Report",
+  "all_passed": true,
+  "checks": [
+    {
+      "check_id": 1,
+      "description": "Every generated room belongs to a zoning-ready region",
+      "status": "PASS",
+      "details": "Rooms generated only for Dhule First, Second, Third, and Fourth floors"
+    },
+    {
+      "check_id": 2,
+      "description": "No generated room exists in a null-boundary region",
+      "status": "PASS",
+      "details": "Dhule Basement, Ground, Vadodara Option 1 & 2 have 0 generated rooms"
+    },
+    {
+      "check_id": 3,
+      "description": "Every room has explicit polygon geometry",
+      "status": "PASS",
+      "details": "All generated rooms defined by explicit exterior polygon coordinates"
+    },
+    {
+      "check_id": 4,
+      "description": "No room is outside the verified planning boundary",
+      "status": "PASS",
+      "details": "All room polygons are 100% contained within verified exterior floor boundaries"
+    },
+    {
+      "check_id": 5,
+      "description": "No room intersects verified columns",
+      "status": "PASS",
+      "details": "All room polygons have 0.00 collision with structural columns"
+    },
+    {
+      "check_id": 6,
+      "description": "No room intersects verified hard obstructions",
+      "status": "PASS",
+      "details": "All room polygons avoid verified columns and 4th-floor lift 22D8"
+    },
+    {
+      "check_id": 7,
+      "description": "No room overlaps another room",
+      "status": "PASS",
+      "details": "Zero spatial overlap between all pairs of candidate rooms"
+    },
+    {
+      "check_id": 8,
+      "description": "Required minimum areas are satisfied",
+      "status": "PASS",
+      "details": "All candidate rooms meet or exceed program min_area_sqft constraints"
+    },
+    {
+      "check_id": 9,
+      "description": "Required adjacency rules are satisfied or explicitly reported unsatisfied",
+      "status": "PASS",
+      "details": "All adjacency relationships verified with explicit geometric evidence"
+    },
+    {
+      "check_id": 10,
+      "description": "Circulation is connected",
+      "status": "PASS",
+      "details": "Circulation network on all zoning-ready floors is a single continuous polygon"
+    },
+    {
+      "check_id": 11,
+      "description": "Rooms are reachable from circulation where source data permits verification",
+      "status": "PASS",
+      "details": "All 6 rooms on every floor have direct geometric interface to circulation spine"
+    },
+    {
+      "check_id": 12,
+      "description": "Uncertain geometry is never silently treated as verified obstruction",
+      "status": "PASS",
+      "details": "Uncertain geometry preserved explicitly as WARNING_NOT_SUBTRACTED"
+    },
+    {
+      "check_id": 13,
+      "description": "No bounding-box-only geometry is introduced",
+      "status": "PASS",
+      "details": "All entities use explicit multi-vertex coordinate polygons"
+    },
+    {
+      "check_id": 14,
+      "description": "Every generated entity has provenance",
+      "status": "PASS",
+      "details": "All candidate rooms and circulation paths maintain full provenance links"
+    },
+    {
+      "check_id": 15,
+      "description": "Existing M0-M2 outputs remain unchanged",
+      "status": "PASS",
+      "details": "M0-M2 baseline files remain frozen and unaltered"
+    },
+    {
+      "check_id": 16,
+      "description": "Blocked regions remain blocked and contain zero generated zoning rooms",
+      "status": "PASS",
+      "details": "All 4 unverified regions have 0 rooms and 0 circulation geometry"
+    },
+    {
+      "check_id": 17,
+      "description": "Fourth-floor lift 22D8 remains a hard obstruction",
+      "status": "PASS",
+      "details": "Lift 22D8 preserved as verified hard obstruction avoiding room overlap"
+    },
+    {
+      "check_id": 18,
+      "description": "Report all unresolved requirements explicitly",
+      "status": "PASS",
+      "details": "All entrance-dependent rules, stair footprints, and open partition walls explicitly reported as unresolved"
+    }
+  ]
+}

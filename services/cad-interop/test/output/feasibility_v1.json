@@ -1,0 +1,507 @@
+{
+  "schema_version": "1.0",
+  "title": "Connplex Zoning Studio \u2014 Feasibility / Compliance Engine Results (M8)",
+  "note": "Replaces the previous hardcoded-pass ValidationPanel. Every result below is computed from real measured geometry/seat data against the versioned ViabilityRule registry; rules that cannot be evaluated from current CAD extraction are marked INSUFFICIENT_DATA, never silently passed.",
+  "regions": [
+    {
+      "region_id": "dhule-basement",
+      "plan_region": "BASEMENT FLOOR PLAN",
+      "feasibility_result": "INSUFFICIENT_DATA",
+      "reason": "No verified boundary / no preferred candidate \u2014 geometry stage blocked before feasibility can run.",
+      "rule_results": []
+    },
+    {
+      "region_id": "dhule-ground",
+      "plan_region": "GROUND FLOOR PLAN",
+      "feasibility_result": "INSUFFICIENT_DATA",
+      "reason": "No verified boundary / no preferred candidate \u2014 geometry stage blocked before feasibility can run.",
+      "rule_results": []
+    },
+    {
+      "region_id": "dhule-first-floor",
+      "plan_region": "FIRST FLOOR PLAN",
+      "preferred_candidate_id": "dhule-first-floor-candidate-c",
+      "property_type_assumed": "EXISTING_BUILDING",
+      "measurements": {
+        "carpet_area_sqft": 5242.03,
+        "seats_per_screen": 29.0,
+        "total_project_seats": 58,
+        "screen_count": 2
+      },
+      "feasibility_result": "NOT_FEASIBLE",
+      "hard_fail_count": 3,
+      "warning_count": 1,
+      "insufficient_data_count": 4,
+      "rule_results": [
+        {
+          "rule_id": "VR_CLEAR_HEIGHT_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "clear_height_ft",
+          "measured_value": null,
+          "threshold": 10.0,
+          "source": "SOP+FEASIBILITY_MANUAL",
+          "message": "Cannot evaluate \u2014 clear_height_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_COLUMN_GRID_WIDTH_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "column_grid_width_ft",
+          "measured_value": null,
+          "threshold": 20.0,
+          "source": "SOP",
+          "message": "Cannot evaluate \u2014 column_grid_width_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_COLUMN_GRID_LENGTH_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "column_grid_length_ft",
+          "measured_value": null,
+          "threshold": 30.0,
+          "source": "SOP",
+          "message": "Cannot evaluate \u2014 column_grid_length_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_MIN_CARPET_AREA_EXISTING",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "carpet_area_sqft",
+          "measured_value": 5242.03,
+          "threshold": 6000,
+          "unit": "sqft",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "\u00a71.1",
+          "message": "Carpet area below 6,000 sq.ft minimum."
+        },
+        {
+          "rule_id": "VR_SEATS_PER_SCREEN_SOP_FLOOR",
+          "result": "FAIL",
+          "severity": "WARNING",
+          "metric": "seats_per_screen",
+          "measured_value": 29.0,
+          "threshold": 55,
+          "unit": "seats",
+          "source": "SOP",
+          "source_section": "\u00a73.3",
+          "message": "Seats per screen below the SOP's 55-60 layout-efficiency floor."
+        },
+        {
+          "rule_id": "VR_SEATS_PER_SCREEN_FEASIBILITY_HARD",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "seats_per_screen",
+          "measured_value": 29.0,
+          "threshold": 60,
+          "unit": "seats",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "\u00a71.2",
+          "message": "Seats per screen below the Pre-Deal Feasibility Manual's 60-seat/screen hard minimum."
+        },
+        {
+          "rule_id": "VR_LEGAL_MIN_TOTAL_SEATS",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "total_project_seats",
+          "measured_value": 58,
+          "threshold": 175,
+          "unit": "seats",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "Legal \u00a71",
+          "message": "Total project seats below the legal minimum of 175 (min 1, max 6 screens)."
+        },
+        {
+          "rule_id": "VR_LEGAL_SCREEN_COUNT_RANGE",
+          "result": "PASS",
+          "severity": "HARD",
+          "metric": "screen_count",
+          "measured_value": 2,
+          "threshold": "1-6",
+          "unit": "screens",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "Legal \u00a71",
+          "message": "screen_count = 2 vs threshold 1-6"
+        },
+        {
+          "rule_id": "VR_FIRE_ESCAPE_MIN_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "fire_escape_staircase_count",
+          "measured_value": null,
+          "threshold": 2,
+          "source": "FEASIBILITY_MANUAL",
+          "message": "Cannot evaluate \u2014 fire_escape_staircase_count is not available from the current CAD extraction/intake."
+        }
+      ]
+    },
+    {
+      "region_id": "dhule-second-floor",
+      "plan_region": "SECOND FLOOR PLAN",
+      "preferred_candidate_id": "dhule-second-floor-candidate-c",
+      "property_type_assumed": "EXISTING_BUILDING",
+      "measurements": {
+        "carpet_area_sqft": 5242.03,
+        "seats_per_screen": 29.0,
+        "total_project_seats": 58,
+        "screen_count": 2
+      },
+      "feasibility_result": "NOT_FEASIBLE",
+      "hard_fail_count": 3,
+      "warning_count": 1,
+      "insufficient_data_count": 4,
+      "rule_results": [
+        {
+          "rule_id": "VR_CLEAR_HEIGHT_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "clear_height_ft",
+          "measured_value": null,
+          "threshold": 10.0,
+          "source": "SOP+FEASIBILITY_MANUAL",
+          "message": "Cannot evaluate \u2014 clear_height_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_COLUMN_GRID_WIDTH_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "column_grid_width_ft",
+          "measured_value": null,
+          "threshold": 20.0,
+          "source": "SOP",
+          "message": "Cannot evaluate \u2014 column_grid_width_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_COLUMN_GRID_LENGTH_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "column_grid_length_ft",
+          "measured_value": null,
+          "threshold": 30.0,
+          "source": "SOP",
+          "message": "Cannot evaluate \u2014 column_grid_length_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_MIN_CARPET_AREA_EXISTING",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "carpet_area_sqft",
+          "measured_value": 5242.03,
+          "threshold": 6000,
+          "unit": "sqft",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "\u00a71.1",
+          "message": "Carpet area below 6,000 sq.ft minimum."
+        },
+        {
+          "rule_id": "VR_SEATS_PER_SCREEN_SOP_FLOOR",
+          "result": "FAIL",
+          "severity": "WARNING",
+          "metric": "seats_per_screen",
+          "measured_value": 29.0,
+          "threshold": 55,
+          "unit": "seats",
+          "source": "SOP",
+          "source_section": "\u00a73.3",
+          "message": "Seats per screen below the SOP's 55-60 layout-efficiency floor."
+        },
+        {
+          "rule_id": "VR_SEATS_PER_SCREEN_FEASIBILITY_HARD",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "seats_per_screen",
+          "measured_value": 29.0,
+          "threshold": 60,
+          "unit": "seats",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "\u00a71.2",
+          "message": "Seats per screen below the Pre-Deal Feasibility Manual's 60-seat/screen hard minimum."
+        },
+        {
+          "rule_id": "VR_LEGAL_MIN_TOTAL_SEATS",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "total_project_seats",
+          "measured_value": 58,
+          "threshold": 175,
+          "unit": "seats",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "Legal \u00a71",
+          "message": "Total project seats below the legal minimum of 175 (min 1, max 6 screens)."
+        },
+        {
+          "rule_id": "VR_LEGAL_SCREEN_COUNT_RANGE",
+          "result": "PASS",
+          "severity": "HARD",
+          "metric": "screen_count",
+          "measured_value": 2,
+          "threshold": "1-6",
+          "unit": "screens",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "Legal \u00a71",
+          "message": "screen_count = 2 vs threshold 1-6"
+        },
+        {
+          "rule_id": "VR_FIRE_ESCAPE_MIN_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "fire_escape_staircase_count",
+          "measured_value": null,
+          "threshold": 2,
+          "source": "FEASIBILITY_MANUAL",
+          "message": "Cannot evaluate \u2014 fire_escape_staircase_count is not available from the current CAD extraction/intake."
+        }
+      ]
+    },
+    {
+      "region_id": "dhule-third-floor",
+      "plan_region": "THIRD FLOOR PLAN",
+      "preferred_candidate_id": "dhule-third-floor-candidate-c",
+      "property_type_assumed": "EXISTING_BUILDING",
+      "measurements": {
+        "carpet_area_sqft": 5242.03,
+        "seats_per_screen": 29.0,
+        "total_project_seats": 58,
+        "screen_count": 2
+      },
+      "feasibility_result": "NOT_FEASIBLE",
+      "hard_fail_count": 3,
+      "warning_count": 1,
+      "insufficient_data_count": 4,
+      "rule_results": [
+        {
+          "rule_id": "VR_CLEAR_HEIGHT_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "clear_height_ft",
+          "measured_value": null,
+          "threshold": 10.0,
+          "source": "SOP+FEASIBILITY_MANUAL",
+          "message": "Cannot evaluate \u2014 clear_height_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_COLUMN_GRID_WIDTH_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "column_grid_width_ft",
+          "measured_value": null,
+          "threshold": 20.0,
+          "source": "SOP",
+          "message": "Cannot evaluate \u2014 column_grid_width_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_COLUMN_GRID_LENGTH_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "column_grid_length_ft",
+          "measured_value": null,
+          "threshold": 30.0,
+          "source": "SOP",
+          "message": "Cannot evaluate \u2014 column_grid_length_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_MIN_CARPET_AREA_EXISTING",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "carpet_area_sqft",
+          "measured_value": 5242.03,
+          "threshold": 6000,
+          "unit": "sqft",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "\u00a71.1",
+          "message": "Carpet area below 6,000 sq.ft minimum."
+        },
+        {
+          "rule_id": "VR_SEATS_PER_SCREEN_SOP_FLOOR",
+          "result": "FAIL",
+          "severity": "WARNING",
+          "metric": "seats_per_screen",
+          "measured_value": 29.0,
+          "threshold": 55,
+          "unit": "seats",
+          "source": "SOP",
+          "source_section": "\u00a73.3",
+          "message": "Seats per screen below the SOP's 55-60 layout-efficiency floor."
+        },
+        {
+          "rule_id": "VR_SEATS_PER_SCREEN_FEASIBILITY_HARD",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "seats_per_screen",
+          "measured_value": 29.0,
+          "threshold": 60,
+          "unit": "seats",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "\u00a71.2",
+          "message": "Seats per screen below the Pre-Deal Feasibility Manual's 60-seat/screen hard minimum."
+        },
+        {
+          "rule_id": "VR_LEGAL_MIN_TOTAL_SEATS",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "total_project_seats",
+          "measured_value": 58,
+          "threshold": 175,
+          "unit": "seats",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "Legal \u00a71",
+          "message": "Total project seats below the legal minimum of 175 (min 1, max 6 screens)."
+        },
+        {
+          "rule_id": "VR_LEGAL_SCREEN_COUNT_RANGE",
+          "result": "PASS",
+          "severity": "HARD",
+          "metric": "screen_count",
+          "measured_value": 2,
+          "threshold": "1-6",
+          "unit": "screens",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "Legal \u00a71",
+          "message": "screen_count = 2 vs threshold 1-6"
+        },
+        {
+          "rule_id": "VR_FIRE_ESCAPE_MIN_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "fire_escape_staircase_count",
+          "measured_value": null,
+          "threshold": 2,
+          "source": "FEASIBILITY_MANUAL",
+          "message": "Cannot evaluate \u2014 fire_escape_staircase_count is not available from the current CAD extraction/intake."
+        }
+      ]
+    },
+    {
+      "region_id": "dhule-fourth-floor",
+      "plan_region": "FOURTH FLOOR PLAN",
+      "preferred_candidate_id": "dhule-fourth-floor-candidate-c",
+      "property_type_assumed": "EXISTING_BUILDING",
+      "measurements": {
+        "carpet_area_sqft": 5242.04,
+        "seats_per_screen": 29.0,
+        "total_project_seats": 58,
+        "screen_count": 2
+      },
+      "feasibility_result": "NOT_FEASIBLE",
+      "hard_fail_count": 3,
+      "warning_count": 1,
+      "insufficient_data_count": 4,
+      "rule_results": [
+        {
+          "rule_id": "VR_CLEAR_HEIGHT_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "clear_height_ft",
+          "measured_value": null,
+          "threshold": 10.0,
+          "source": "SOP+FEASIBILITY_MANUAL",
+          "message": "Cannot evaluate \u2014 clear_height_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_COLUMN_GRID_WIDTH_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "column_grid_width_ft",
+          "measured_value": null,
+          "threshold": 20.0,
+          "source": "SOP",
+          "message": "Cannot evaluate \u2014 column_grid_width_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_COLUMN_GRID_LENGTH_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "column_grid_length_ft",
+          "measured_value": null,
+          "threshold": 30.0,
+          "source": "SOP",
+          "message": "Cannot evaluate \u2014 column_grid_length_ft is not available from the current CAD extraction/intake."
+        },
+        {
+          "rule_id": "VR_MIN_CARPET_AREA_EXISTING",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "carpet_area_sqft",
+          "measured_value": 5242.04,
+          "threshold": 6000,
+          "unit": "sqft",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "\u00a71.1",
+          "message": "Carpet area below 6,000 sq.ft minimum."
+        },
+        {
+          "rule_id": "VR_SEATS_PER_SCREEN_SOP_FLOOR",
+          "result": "FAIL",
+          "severity": "WARNING",
+          "metric": "seats_per_screen",
+          "measured_value": 29.0,
+          "threshold": 55,
+          "unit": "seats",
+          "source": "SOP",
+          "source_section": "\u00a73.3",
+          "message": "Seats per screen below the SOP's 55-60 layout-efficiency floor."
+        },
+        {
+          "rule_id": "VR_SEATS_PER_SCREEN_FEASIBILITY_HARD",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "seats_per_screen",
+          "measured_value": 29.0,
+          "threshold": 60,
+          "unit": "seats",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "\u00a71.2",
+          "message": "Seats per screen below the Pre-Deal Feasibility Manual's 60-seat/screen hard minimum."
+        },
+        {
+          "rule_id": "VR_LEGAL_MIN_TOTAL_SEATS",
+          "result": "FAIL",
+          "severity": "HARD",
+          "metric": "total_project_seats",
+          "measured_value": 58,
+          "threshold": 175,
+          "unit": "seats",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "Legal \u00a71",
+          "message": "Total project seats below the legal minimum of 175 (min 1, max 6 screens)."
+        },
+        {
+          "rule_id": "VR_LEGAL_SCREEN_COUNT_RANGE",
+          "result": "PASS",
+          "severity": "HARD",
+          "metric": "screen_count",
+          "measured_value": 2,
+          "threshold": "1-6",
+          "unit": "screens",
+          "source": "FEASIBILITY_MANUAL",
+          "source_section": "Legal \u00a71",
+          "message": "screen_count = 2 vs threshold 1-6"
+        },
+        {
+          "rule_id": "VR_FIRE_ESCAPE_MIN_EXISTING",
+          "result": "INSUFFICIENT_DATA",
+          "severity": "HARD",
+          "metric": "fire_escape_staircase_count",
+          "measured_value": null,
+          "threshold": 2,
+          "source": "FEASIBILITY_MANUAL",
+          "message": "Cannot evaluate \u2014 fire_escape_staircase_count is not available from the current CAD extraction/intake."
+        }
+      ]
+    },
+    {
+      "region_id": "vadodara-option-1",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 1 (Lower Layout / Screens 1\u20135)",
+      "feasibility_result": "INSUFFICIENT_DATA",
+      "reason": "No verified boundary / no preferred candidate \u2014 geometry stage blocked before feasibility can run.",
+      "rule_results": []
+    },
+    {
+      "region_id": "vadodara-option-2",
+      "plan_region": "Cinema Zoning Studio \u2014 Option 2 (Upper Layout / Screens 1\u20135)",
+      "feasibility_result": "INSUFFICIENT_DATA",
+      "reason": "No verified boundary / no preferred candidate \u2014 geometry stage blocked before feasibility can run.",
+      "rule_results": []
+    }
+  ]
+}
