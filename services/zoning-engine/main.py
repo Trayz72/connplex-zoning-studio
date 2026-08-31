@@ -313,8 +313,10 @@ def export_pdf_endpoint(project_id: str, body: ExportIn):
     meta["revision"] = rev
     meta["generated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
+    region_meta = {"net_usage_area_sqft": f"{layout_engine.poly_from_points(layout['boundary_points_ft']).area:,.0f}"}
     out_path = os.path.join(storage.export_dir(project_id), f"{project_id}_{body.sheet_type.replace(' ', '_')}_{rev}.pdf")
-    export_pdf.render_pdf(meta, layout["boundary_points_ft"], layout["rooms"], enriched["area_seat_chart"], enriched["feasibility"], out_path, body.sheet_type)
+    export_pdf.render_pdf(meta, layout["boundary_points_ft"], layout["rooms"], enriched["area_seat_chart"], enriched["feasibility"],
+                           out_path, body.sheet_type, obstacles=layout.get("obstacles"), region_meta=region_meta)
     return FileResponse(out_path, filename=os.path.basename(out_path), media_type="application/pdf")
 
 

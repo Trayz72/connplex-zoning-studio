@@ -1,6 +1,26 @@
 # STATUS
 
-Last updated: 2026-08-31 (second session, same day — real pipeline build)
+Last updated: 2026-08-31 (third session, same day — PDF format now matches the real Connplex sheet)
+
+## Update: PDF export now matches Connplex's real drawing format
+
+The user supplied a real Connplex reference PDF (Keshav Landmark, Vadodara,
+DRG ZL-01-R1) and asked the exported PDF to match its format, logo, and style.
+`export_pdf.py` was rewritten to that exact structure: single portrait sheet,
+floor plan on the left, and a right info column in the same order as the real
+sheet — General Notes, Notes, Legends, Area Chart(Sq.Ft.)&Seat Chart (same
+column set: LOCATION/AREA/LOUNGER/SOFA SLIDER/DUO LOUNGER/PREMIUM
+RECLINER/TOTAL SEATS), Revisions log, Drawing Issued log with FOR
+APPROVAL/FOR GFC checkboxes, Key Plan box, the project info block, the DRG
+NO/TITLE/SCALE/DRAWN BY/CHECKED BY/DATE stamp, and a CONNPLEX SMART THEATRES
+company block with their real address/contact info and a drawn approximation
+of their yellow/black logo badge (no vector asset file was available to this
+session, so it's a faithful redraw in their real brand colors, not a traced
+copy). Verified by rendering to PNG and comparing side-by-side against the
+real reference: found and fixed several label/content text-collisions and a
+truncated table column in the process. Re-tested through the live Export PDF
+button afterward — still a real 200 OK export end-to-end. See CLAUDE.md for
+the honest gap that remains (exact vector logo artwork).
 
 ## Where this stands right now
 
@@ -90,15 +110,21 @@ adding more later — worth confirming the current per-project (not per-region)
 storage in `storage.py` doesn't quietly become that blocker as this gets built
 out further.
 
-### 4. Exact-match PDF/DWG title-block artwork
+### 4. PDF format matching — mostly done; one honest gap remains
 
-`export_pdf.py`/`export_dxf.py` reproduce every *required piece of content*
-(spec §2.11 item 2 / Master Context §42) but use a clean generic template, not
-Connplex's actual logo/letterhead/exact title-block layout — that needs
-Connplex's brand assets and the two real reference PDFs as a pixel-level
-acceptance test (spec §7.3), neither of which this session had a path to
-produce from scratch. If exact visual fidelity is a hard requirement for the
-next milestone, get the brand assets first.
+**Update (third session):** `export_pdf.py` was rewritten to match the real
+Connplex sheet structure/order/style exactly (see the update note at the top
+of this file) — this used to be the biggest gap and now isn't. What's left:
+- The logo is a drawn approximation (yellow/black, right wordmark/colors) —
+  not their actual vector artwork. Drop their real logo file (SVG/PNG) into
+  `services/zoning-engine/` and swap `_draw_logo()` in `export_pdf.py` for an
+  image draw (`reportlab.lib.utils.ImageReader` + `c.drawImage`) to close this
+  the rest of the way — that's a ~15-minute change once the asset exists.
+- Fonts are Helvetica (reportlab's built-in), not whatever exact typeface
+  Connplex's drawings use — close enough visually, not byte-identical.
+- `export_dxf.py`'s DWG/DXF output still doesn't attempt exact layer-name/
+  block-structure parity with Connplex's AutoCAD templates (spec §7.3's own
+  acceptance test needs their real DWG template, not just the reference PDF).
 
 ### 5. `config over code` cleanup in the legacy `cadService.ts`
 

@@ -268,7 +268,9 @@ export const ZoningWorkspace: React.FC = () => {
                   projectId={id!}
                   projectMeta={{
                     property_name: project.property_name, project_code: project.project_code,
-                    client_name: project.client_name, city: project.city, state: project.state
+                    client_name: project.client_name, client_by: project.client_name, city: project.city, state: project.state,
+                    floor_shop_no: project.floor_shop_no, beam_bottom_clear_height: project.beam_bottom_clear_height,
+                    drawn_by: 'AR. ZONING ENGINE (AUTO)', checked_by: 'PENDING ARCHITECT REVIEW'
                   }}
                 />
               )}

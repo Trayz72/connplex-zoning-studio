@@ -163,9 +163,35 @@ Known, honestly-scoped limitations of Part 2 (not fixed this session — see
 STATUS.md backlog): a hard `npm run build` / cold browser navigation straight to
 `/projects/:id/studio` 404s on Vite's dev server (works fine via in-app client-side
 navigation; pre-existing behavior, same as the legacy `/canvas` route); one cosmetic
-stale-state edge case in the live collision-hint banner; PDF/DXF export reproduces
-the *required content* of Connplex's zoning sheet, not a byte-for-byte copy of their
-proprietary title-block artwork (no logo/brand asset access from this session).
+stale-state edge case in the live collision-hint banner. PDF format matching is now
+covered in Part 3 below (was a bigger gap when this paragraph was first written).
+
+### Part 3 — PDF export rebuilt to match the real Connplex sheet format
+
+The user supplied a real Connplex reference PDF (Keshav Landmark, Vadodara, DRG
+ZL-01-R1) and asked exports to match its format/logo/style. Read the reference
+PDF in full first, then rewrote `export_pdf.py` from a generic two-page report
+into a single-sheet template matching the real drawing's exact structure and
+section order: floor plan on the left; a right info column with General Notes
+→ Notes → Legends → "AREA CHART(SQ.FT.) & SEAT CHART" (same seven columns as
+the real sheet) → Revisions log → Drawing Issued log with FOR APPROVAL/FOR GFC
+checkboxes → Key Plan box → project info block → DRG NO/TITLE/SCALE/DRAWN
+BY/CHECKED BY/DATE stamp → CONNPLEX SMART THEATRES company block with their
+real address/contact details (both taken directly from the reference PDF) and
+a drawn approximation of their yellow/black logo badge.
+
+Verified by rendering to PNG and comparing against the reference side by side
+— this caught and fixed real bugs: every sidebar section's label text was
+overlapping its own content (a vertical-spacing bug, not a cosmetic nit — it
+made the first line of every box illegible), and the Area/Seat Chart's
+LOCATION column was truncating "SCREEN 1 (AUDITORIUM)" to "SCREEN 1 (AUDITO".
+Re-verified through the live Export PDF button afterward (still a real 200 OK,
+not just the standalone script).
+
+**Honest gap, stated plainly:** the logo is a redraw in Connplex's real brand
+colors, not their actual vector artwork — no logo asset file was available to
+this session. Swapping in a real logo file later is a small, contained change
+(see STATUS.md backlog item 4 for exactly where).
 
 ### Part 1 — audit and fixes to the legacy demo pipeline (earlier the same day)
 

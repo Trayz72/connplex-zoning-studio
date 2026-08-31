@@ -1,33 +1,62 @@
 """
-Real PDF zoning report (spec Sec 41/42/8.7): a templated renderer driven entirely
-by structured project/candidate data (Product Principle #5 — the drawing is a
-projection of data, not hand-edited). Produces the required content list from
-Master Context Sec 42: project info, floor plan, auditorium dimensions/type, seat
-types/counts, foyer/F&B/toilet/service/circulation areas, and an Area/Seat Chart.
+Real PDF zoning report, templated to match Connplex's actual "Zoning Layout"
+sheet format 1:1 in structure (spec Sec 41/42/7.3/8.7): single portrait sheet,
+floor plan on the left, a fixed-width info column on the right containing —
+top to bottom — General Notes, Notes, Legends, the Area & Seat Chart, a
+Revisions log, a Drawing Issued log with FOR APPROVAL/FOR GFC checkboxes, a Key
+Plan box, the project info block, the DRG NO/TITLE/SCALE/DRAWN BY/CHECKED
+BY/DATE title block, and the CONNPLEX SMART THEATRES company block with
+address and a drawn approximation of their logo.
 
-Honest scope note: this reproduces the REQUIRED CONTENT of Connplex's zoning
-sheet (title block, floor plan, Area & Seat Chart, legend, revision log) using a
-clean generic template. It does not attempt to byte-for-byte replicate Connplex's
-proprietary title-block artwork/logo — spec Sec 7.3 flags exact visual-format
-matching as its own acceptance-tested milestone (M8) requiring the real reference
-PDFs and Connplex's brand assets, which are not available to generate pixel-exact
-replicas from inside this session.
+This structure and every static label/legend/notes string below were taken
+directly from a real Connplex reference drawing (Keshav Landmark, Vadodara,
+DRG ZL-01-R1) supplied by the user, not invented. The one thing this cannot
+reproduce is Connplex's exact vector logo artwork (no asset file available to
+this session) — the logo block below is a drawn approximation using their
+real brand colors (yellow/black) and wordmark, not a traced copy.
 """
 import os
 from datetime import datetime
 
-from reportlab.lib.pagesizes import landscape, A3
-from reportlab.lib.units import inch
-from reportlab.lib.colors import HexColor, black, white
+from reportlab.lib.pagesizes import A2, portrait
+from reportlab.lib.units import inch, mm
+from reportlab.lib.colors import HexColor, black, white, red
 from reportlab.pdfgen import canvas as pdfcanvas
 
-PAGE_SIZE = landscape(A3)
-MARGIN = 0.4 * inch
+PAGE_SIZE = portrait(A2)
+MARGIN = 14 * mm
+SIDEBAR_W = 190 * mm
+GAP = 6 * mm
 
 ROOM_FILL = {
-    "AUDITORIUM": HexColor("#c7d9f5"), "FOYER": HexColor("#d9f5d0"), "FNB": HexColor("#f5e8c7"),
-    "WASHROOM": HexColor("#e0d0f5"), "BOX_OFFICE": HexColor("#f5d0e0"), "BOH": HexColor("#e6e6e6")
+    "AUDITORIUM": HexColor("#cdb8e8"), "FOYER": HexColor("#d9f5d0"), "FNB": HexColor("#f3b8a8"),
+    "WASHROOM": HexColor("#bcd9f0"), "BOX_OFFICE": HexColor("#ffffff"), "BOH": HexColor("#e6b8d9"),
+    "CAFE": HexColor("#f0b878"), "STORE": HexColor("#d9d9d9")
 }
+
+COMPANY_NAME = "CONNPLEX SMART THEATRES"
+COMPANY_ADDRESS_LINES = [
+    "Address: VCS Industries Limited 703, Titanium One, nr. Rajpath Club, SG",
+    "Highway, Ahmedabad - 380054 Gujarat",
+    "E: drawings@theconnplex.com   Mo: +91 97666 47609",
+]
+COMPANY_WEBSITE = "Website : www.theconnplex.com"
+
+GENERAL_NOTE = ("THIS DRAWING IS THE PROPERTY OF CONNPLEX SMART THEATRES AND NOT TO BE "
+                "COPIED OR USED WITHOUT OUR PERMISSION")
+NOTES = [
+    "ALL DIMENSIONS ARE TO BE CHECKED AND CO-RELATED WITH THE ARCHITECTURAL/"
+    "INTERIOR DRAWINGS AND ANY AMBIGUITY SHALL BE IMMEDIATELY BROUGHT TO THE "
+    "NOTICE OF THE ARCHITECT BEFORE COMMENCEMENT OF THE WORK.",
+    "ALL DRAWINGS ARE TO BE READ AND NOT TO BE MEASURED.",
+    "ALL DIMENSIONS ARE IN FEET-INCH.",
+]
+LEGEND_ITEMS = [
+    ("UFL", "UNFINISHED FLOOR LEVEL"), ("TB", "TRUSS BOTTOM LEVEL"),
+    ("FFL", "FINISHED FLOOR LEVEL"), ("LS", "LAST STEP LEVEL"),
+    ("SB", "SLAB BOTTOM LEVEL"), ("FC", "FALSE CEILING LEVEL"),
+    ("BB", "BEAM BOTTOM LEVEL"), ("GFC", "GOOD FOR CONSTRUCTION"),
+]
 
 
 def _room_color(room_type):
@@ -35,37 +64,261 @@ def _room_color(room_type):
     return ROOM_FILL.get(key, HexColor("#eeeeee"))
 
 
-def _draw_title_block(c, project_meta, sheet_type, page_w, page_h):
-    box_h = 1.4 * inch
+def _draw_logo(c, x, y, w, h):
+    """Drawn approximation of the Connplex badge: yellow rounded rect + black
+    wordmark + a dark strip with 'CINEMAS' — real brand colors, not traced art."""
+    c.saveState()
+    c.setFillColor(HexColor("#f5c518"))
+    c.roundRect(x, y, w, h, 6, stroke=0, fill=1)
+    c.setFillColor(black)
+    c.setFont("Helvetica-Bold", h * 0.42)
+    c.drawCentredString(x + w / 2, y + h * 0.52, "CONNPLEX")
+    c.setFillColor(black)
+    c.rect(x, y, w, h * 0.28, stroke=0, fill=1)
+    c.setFillColor(white)
+    c.setFont("Helvetica-Bold", h * 0.16)
+    c.drawCentredString(x + w / 2, y + h * 0.09, "C  I  N  E  M  A  S")
+    c.restoreState()
+
+
+def _box(c, x, y, w, h, label=None, label_size=6.5):
     c.setStrokeColor(black)
-    c.setLineWidth(1)
-    c.rect(MARGIN, MARGIN, page_w - 2 * MARGIN, box_h)
+    c.setLineWidth(0.6)
+    c.rect(x, y, w, h, stroke=1, fill=0)
+    if label:
+        c.setFont("Helvetica-Bold", label_size)
+        c.setFillColor(black)
+        c.drawString(x + 3, y + h - label_size - 3, label)
 
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(MARGIN + 10, MARGIN + box_h - 20, "CONNPLEX ZONING STUDIO")
-    c.setFont("Helvetica", 8)
-    c.drawString(MARGIN + 10, MARGIN + box_h - 32, "Computational decision-support draft — not a final architectural/structural/fire-engineering document.")
 
+def _wrap_text(c, text, font, size, max_w):
+    c.setFont(font, size)
+    words = text.split()
+    lines, cur = [], ""
+    for w in words:
+        trial = (cur + " " + w).strip()
+        if c.stringWidth(trial, font, size) <= max_w:
+            cur = trial
+        else:
+            if cur:
+                lines.append(cur)
+            cur = w
+    if cur:
+        lines.append(cur)
+    return lines
+
+
+LABEL_CLEARANCE = 13  # vertical gap (pt) reserved below a box's top-left label before content starts
+
+
+def _draw_general_notes(c, x, y_top, w):
+    h = 24 * mm
+    _box(c, x, y_top - h, w, h, "GENERAL NOTES :-")
+    lines = _wrap_text(c, GENERAL_NOTE, "Helvetica", 6, w - 8)
+    ty = y_top - LABEL_CLEARANCE - 6
+    c.setFont("Helvetica", 6)
+    for line in lines:
+        c.drawString(x + 4, ty, line)
+        ty -= 7.5
+    return y_top - h
+
+
+def _draw_notes(c, x, y_top, w):
+    h = 32 * mm
+    _box(c, x, y_top - h, w, h, "NOTES :-")
+    ty = y_top - LABEL_CLEARANCE - 6
+    c.setFont("Helvetica", 6)
+    for i, note in enumerate(NOTES, start=1):
+        lines = _wrap_text(c, f"{i}. {note}", "Helvetica", 6, w - 8)
+        for line in lines:
+            c.drawString(x + 4, ty, line)
+            ty -= 7.2
+    return y_top - h
+
+
+def _draw_legends(c, x, y_top, w):
+    h = 25 * mm
+    _box(c, x, y_top - h, w, h, "LEGENDS :-")
+    col_w = w / 2
+    top = y_top - LABEL_CLEARANCE - 6
+    c.setFont("Helvetica", 5.8)
+    for i, (abbr, meaning) in enumerate(LEGEND_ITEMS):
+        col = i // 4
+        row = i % 4
+        cx = x + 4 + col * col_w
+        cy = top - row * 8.5
+        c.setFillColor(red)
+        c.setFont("Helvetica-Bold", 5.8)
+        c.drawString(cx, cy, abbr)
+        c.setFillColor(black)
+        c.setFont("Helvetica", 5.5)
+        c.drawString(cx + 22, cy, meaning)
+    return y_top - h
+
+
+def _draw_area_seat_chart(c, x, y_top, w, chart):
+    col_w = [w * 0.32, w * 0.13, w * 0.11, w * 0.14, w * 0.12, w * 0.12, w * 0.06]
+    headers = ["LOCATION", "AREA", "LNGR", "SOFA\nSLD", "DUO\nLNGR", "PREM\nRECL", "TOT"]
+    row_h = 7.4 * mm
+    header_h = 16 * mm
+    n_data_rows = len(chart["screen_rows"]) + 3
+    h = header_h + n_data_rows * row_h + 4 * mm
+    _box(c, x, y_top - h, w, h, "AREA CHART(SQ.FT.) & SEAT CHART")
+
+    ty = y_top - LABEL_CLEARANCE - 10
+    cx = x
+    c.setFont("Helvetica-Bold", 5.4)
+    for header, cw in zip(headers, col_w):
+        for j, part in enumerate(header.split("\n")):
+            c.drawCentredString(cx + cw / 2, ty - j * 5.5, part)
+        cx += cw
+    c.line(x, ty - 12, x + w, ty - 12)
+    y = ty - 20
+
+    def zb(v):  # zero/blank helper — show a real 0 as blank, matching the reference sheet's convention
+        return v if v else ""
+
+    def row(cells, bold=False, fill=None):
+        nonlocal y
+        if fill:
+            c.setFillColor(fill)
+            c.rect(x, y - 4, w, row_h, stroke=0, fill=1)
+        c.setFillColor(black)
+        c.setFont("Helvetica-Bold" if bold else "Helvetica", 5.4)
+        cxi = x
+        for cell, cw in zip(cells, col_w):
+            c.drawCentredString(cxi + cw / 2, y, str(cell))
+            cxi += cw
+        y -= row_h
+
+    for r in chart["screen_rows"]:
+        row([r["location"], f"{r['area_sqft']:,.0f}", zb(r["lounger"]), zb(r["sofa_slider"]),
+             zb(r["duo_lounger"]), zb(r["premium_recliner"]), r["total_seats"]])
+
+    t = chart["total_screen_row"]
+    row(["TOTAL SCREEN", f"{t['area_sqft']:,.0f}", zb(t["lounger"]), zb(t["sofa_slider"]),
+         zb(t["duo_lounger"]), zb(t["premium_recliner"]), t["total_seats"]], bold=True, fill=HexColor("#f0f0f0"))
+
+    f_ = chart["foyer_row"]
+    row(["FOYER", f"{f_['area_sqft']:,.0f}", "", "", "", "", ""])
+    e = chart["exit_passage_row"]
+    row([e["location"], f"{e['area_sqft']:,.0f}", "", "", "", "", ""])
+
+    g = chart["grand_total_row"]
+    row(["TOTAL", f"{g['area_sqft']:,.0f}", zb(g["lounger"]), zb(g["sofa_slider"]), zb(g["duo_lounger"]),
+         zb(g["premium_recliner"]), g["total_seats"]], bold=True, fill=HexColor("#ffd7d7"))
+
+    return y_top - h
+
+
+def _draw_revisions(c, x, y_top, w):
+    h = 34 * mm
+    _box(c, x, y_top - h, w, h, "REVISIONS :-")
+    col_w = [w * 0.12, w * 0.18, w * 0.55, w * 0.15]
+    headers = ["NO.", "DATE", "REMARKS", "R.BY"]
+    ty = y_top - LABEL_CLEARANCE - 6
+    c.setFont("Helvetica-Bold", 5.6)
+    cx = x
+    for hd, cw in zip(headers, col_w):
+        c.drawCentredString(cx + cw / 2, ty, hd)
+        cx += cw
+    c.line(x, ty - 3, x + w, ty - 3)
+    for i in range(1, len(col_w)):
+        lx = x + sum(col_w[:i])
+        c.line(lx, y_top - h, lx, ty + 8)
+    return y_top - h
+
+
+def _draw_drawing_issued(c, x, y_top, w, revision):
+    h = 26 * mm
+    _box(c, x, y_top - h, w, h, "DRAWING ISSUED :-")
+    top = y_top - LABEL_CLEARANCE - 6
+    c.setFont("Helvetica", 5.6)
+    c.drawString(x + 4, top, f"NOS. Email  App. {revision}")
+    c.drawString(x + 4, top - 8, f"DATE: {datetime.utcnow().strftime('%d/%m/%Y')}")
+    box_size = 7
+    by = top - 20
+    c.setFillColor(black)
+    c.rect(x + 4, by, box_size, box_size, stroke=1, fill=1)
+    c.setFont("Helvetica", 5.8)
+    c.drawString(x + 4 + box_size + 3, by + 1, "FOR APPROVAL")
+    c.setFillColor(white)
+    c.rect(x + 90, by, box_size, box_size, stroke=1, fill=1)
+    c.setFillColor(black)
+    c.drawString(x + 90 + box_size + 3, by + 1, "FOR GFC")
+    return y_top - h
+
+
+def _draw_key_plan(c, x, y_top, w):
+    h = 26 * mm
+    _box(c, x, y_top - h, w, h, "KEY PLAN :-")
+    return y_top - h
+
+
+def _draw_project_info(c, x, y_top, w, project_meta, region_meta):
+    h = 34 * mm
+    _box(c, x, y_top - h, w, h)
     fields = [
-        ("Project Code", project_meta.get("project_code", "-")),
-        ("Property", project_meta.get("property_name", "-")),
-        ("Client", project_meta.get("client_name", "-")),
-        ("City / State", f"{project_meta.get('city','-')}, {project_meta.get('state','-')}"),
-        ("Sheet", sheet_type),
-        ("Revision", project_meta.get("revision", "R0")),
-        ("Drawn By", project_meta.get("drawn_by", "Zoning Engine (auto)")),
-        ("Date", project_meta.get("generated_at", datetime.utcnow().strftime("%Y-%m-%d"))),
+        ("PROJECT CODE", project_meta.get("project_code", "-")),
+        ("PROPERTY NAME", (project_meta.get("property_name") or "-").upper()),
+        ("CITY / STATE", f"{project_meta.get('city','-')} / {project_meta.get('state','-')}".upper()),
+        ("CLIENT", project_meta.get("client_name", "-")),
+        ("CLIENT BY", project_meta.get("client_by", "-")),
+        ("NET USAGE AREA", f"{region_meta.get('net_usage_area_sqft','-')} SQ.FT"),
+        ("FLOOR / HEIGHT", f"{project_meta.get('floor_shop_no','-')} / {project_meta.get('beam_bottom_clear_height','-')}"),
     ]
-    col_w = (page_w - 2 * MARGIN - 20) / len(fields)
-    for i, (label, value) in enumerate(fields):
-        x = MARGIN + 10 + i * col_w
+    ty = y_top - 10
+    for label, value in fields:
+        c.setFont("Helvetica", 5.8)
+        c.setFillColor(HexColor("#444444"))
+        c.drawString(x + 4, ty, f"{label} :")
+        c.setFont("Helvetica-Bold", 6.4)
+        c.setFillColor(black)
+        c.drawString(x + 62, ty, str(value)[:40])
+        ty -= 8.5
+    return y_top - h
+
+
+def _draw_title_stamp(c, x, y_top, w, project_meta, sheet_type):
+    h = 34 * mm
+    _box(c, x, y_top - h, w, h)
+    fields = [
+        ("DRG NO. :-", project_meta.get("drg_no", f"ZL-01-{project_meta.get('revision', 'R0')}")),
+        ("TITLE :-", sheet_type.upper()),
+        ("SCALE :", "N.T.S"),
+        ("DRAWN BY :", project_meta.get("drawn_by", "AR. ZONING ENGINE")),
+        ("CHECKED BY :", project_meta.get("checked_by", "-")),
+        ("DATE :", project_meta.get("generated_at", datetime.utcnow().strftime("%d/%m/%Y"))),
+    ]
+    ty = y_top - 12
+    for label, value in fields:
+        c.setFont("Helvetica-Bold", 7)
+        c.setFillColor(black)
+        c.drawString(x + 4, ty, label)
         c.setFont("Helvetica", 7)
-        c.drawString(x, MARGIN + 22, label.upper())
-        c.setFont("Helvetica-Bold", 9)
-        c.drawString(x, MARGIN + 10, str(value)[:24])
+        c.drawString(x + 70, ty, str(value)[:34])
+        ty -= 9.5
+    return y_top - h
 
 
-def _draw_floor_plan(c, boundary_points_ft, rooms, page_w, page_h, top_y, area_h):
+def _draw_company_block(c, x, y_top, w):
+    h = 40 * mm
+    _box(c, x, y_top - h, w, h)
+    c.setFont("Helvetica-Bold", 9)
+    c.setFillColor(black)
+    c.drawString(x + 4, y_top - 12, COMPANY_NAME)
+    c.setFont("Helvetica", 5.6)
+    ty = y_top - 21
+    for line in COMPANY_ADDRESS_LINES:
+        c.drawString(x + 4, ty, line)
+        ty -= 7
+    c.setFont("Helvetica", 5.6)
+    c.drawString(x + 4, ty - 2, COMPANY_WEBSITE)
+    _draw_logo(c, x + w - 46 * mm, y_top - h + 4, 42 * mm, 14 * mm)
+    return y_top - h
+
+
+def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h):
     if not boundary_points_ft:
         return
     xs = [p[0] for p in boundary_points_ft]
@@ -74,17 +327,15 @@ def _draw_floor_plan(c, boundary_points_ft, rooms, page_w, page_h, top_y, area_h
     if bw <= 0 or bh <= 0:
         return
 
-    avail_w = page_w - 2 * MARGIN - 20
-    avail_h = area_h - 30
-    scale = min(avail_w / bw, avail_h / bh) * 0.92
-    ox = MARGIN + 10 + (avail_w - bw * scale) / 2 - min(xs) * scale
-    oy = top_y - area_h + 15 + (avail_h - bh * scale) / 2 - min(ys) * scale
+    scale = min(plan_w / bw, plan_h / bh) * 0.94
+    ox = plan_x + (plan_w - bw * scale) / 2 - min(xs) * scale
+    oy = plan_y + (plan_h - bh * scale) / 2 - min(ys) * scale
 
     def tx(pt):
         return (ox + pt[0] * scale, oy + pt[1] * scale)
 
     c.setStrokeColor(black)
-    c.setLineWidth(1.5)
+    c.setLineWidth(1.6)
     c.setFillColor(white)
     path = c.beginPath()
     px, py = tx(boundary_points_ft[0])
@@ -95,11 +346,11 @@ def _draw_floor_plan(c, boundary_points_ft, rooms, page_w, page_h, top_y, area_h
     path.close()
     c.drawPath(path, stroke=1, fill=1)
 
-    for room in rooms:
-        pts = room["geometry_points_ft"]
-        c.setFillColor(_room_color(room["room_type"]))
+    for obs in obstacles or []:
+        pts = obs.get("points_ft") if isinstance(obs, dict) else obs
+        c.setFillColor(HexColor("#555555"))
         c.setStrokeColor(black)
-        c.setLineWidth(0.75)
+        c.setLineWidth(0.5)
         path = c.beginPath()
         x0, y0 = tx(pts[0])
         path.moveTo(x0, y0)
@@ -109,126 +360,83 @@ def _draw_floor_plan(c, boundary_points_ft, rooms, page_w, page_h, top_y, area_h
         path.close()
         c.drawPath(path, stroke=1, fill=1)
 
+    for room in rooms:
+        pts = room["geometry_points_ft"]
+        c.setFillColor(_room_color(room["room_type"]))
+        c.setStrokeColor(black)
+        c.setLineWidth(1.1)
+        path = c.beginPath()
+        x0, y0 = tx(pts[0])
+        path.moveTo(x0, y0)
+        for p in pts[1:]:
+            x, y = tx(p)
+            path.lineTo(x, y)
+        path.close()
+        c.drawPath(path, stroke=1, fill=1)
+
+        rxs = [p[0] for p in pts]
+        rys = [p[1] for p in pts]
+        rw, rh = (max(rxs) - min(rxs)) * scale, (max(rys) - min(rys)) * scale
         cx = sum(p[0] for p in pts) / len(pts)
         cy = sum(p[1] for p in pts) / len(pts)
         lx, ly = tx((cx, cy))
+
+        seat = room.get("seat_estimate") or {}
+        seat_count = seat.get("seat_count")
+        name = room["display_name"].upper()
+        name_size = max(min(rw, rh) * 0.11, 6)
+        # Cap font size so the name text actually fits the room's width, rather than
+        # spilling past its boundary — real rooms vary a lot in aspect ratio.
+        while name_size > 4.5 and c.stringWidth(name, "Helvetica-Bold", name_size) > rw * 0.92:
+            name_size -= 0.4
         c.setFillColor(black)
-        c.setFont("Helvetica-Bold", 7)
-        c.drawCentredString(lx, ly + 4, room["display_name"])
-        c.setFont("Helvetica", 6)
-        seat_txt = f" / {room['seat_estimate']['seat_count']} seats" if room.get("seat_estimate", {}).get("seat_count") else ""
-        c.drawCentredString(lx, ly - 5, f"{room['area_sqft']} sqft{seat_txt}")
+        c.setFont("Helvetica-Bold", name_size)
+        line_y = ly + (name_size * 0.8 if seat_count else 0)
+        c.drawCentredString(lx, line_y, name)
+        if seat_count:
+            c.setFont("Helvetica-Bold", name_size * 0.95)
+            c.drawCentredString(lx, line_y - name_size * 1.2, str(seat_count))
+            breakdown = seat.get("seat_breakdown", {})
+            by = line_y - name_size * 2.3
+            c.setFont("Helvetica", name_size * 0.62)
+            for label, key in [("SOFA SLIDER", "SOFA_SLIDER"), ("FRONT LOUNGER", "LOUNGER"), ("PREMIUM RECLINER", "PREMIUM_RECLINER")]:
+                if breakdown.get(key):
+                    c.drawCentredString(lx, by, f"{label} : {breakdown[key]}")
+                    by -= name_size * 0.85
+        else:
+            c.setFont("Helvetica", name_size * 0.7)
+            c.drawCentredString(lx, line_y - name_size * 1.1, f"{room['area_sqft']:,.0f} SQ.FT")
 
 
-def _draw_legend(c, page_w, y):
-    x = MARGIN + 10
-    c.setFont("Helvetica-Bold", 8)
-    c.drawString(x, y, "LEGEND:")
-    x += 55
-    for room_type, label in [("AUDITORIUM", "Auditorium"), ("FOYER", "Foyer"), ("FNB", "F&B"),
-                              ("WASHROOM", "Washroom"), ("BOX_OFFICE", "Box Office"), ("BOH", "Back-of-House")]:
-        c.setFillColor(_room_color(room_type))
-        c.rect(x, y - 2, 10, 8, stroke=1, fill=1)
-        c.setFillColor(black)
-        c.setFont("Helvetica", 7)
-        c.drawString(x + 14, y, label)
-        x += 90
-
-
-def _draw_chart_table(c, chart, page_w, top_y):
-    x0 = MARGIN + 10
-    col_widths = [340, 70, 60, 80, 80, 100, 80]
-    headers = ["LOCATION", "AREA (sqft)", "LOUNGER", "SOFA SLIDER", "DUO LOUNGER", "PREMIUM RECLINER", "TOTAL SEATS"]
-    row_h = 16
-    y = top_y
-
-    def draw_row(cells, bold=False, fill=None):
-        nonlocal y
-        x = x0
-        if fill:
-            c.setFillColor(fill)
-            c.rect(x0, y - row_h + 4, sum(col_widths), row_h, stroke=0, fill=1)
-        c.setFillColor(black)
-        c.setFont("Helvetica-Bold" if bold else "Helvetica", 8)
-        for cell, w in zip(cells, col_widths):
-            c.drawString(x + 3, y - 10, str(cell))
-            x += w
-        y -= row_h
-
-    c.setStrokeColor(black)
-    c.line(x0, y + 4, x0 + sum(col_widths), y + 4)
-    draw_row(headers, bold=True, fill=HexColor("#e0e0e0"))
-    c.line(x0, y + 4, x0 + sum(col_widths), y + 4)
-
-    for row in chart["screen_rows"]:
-        draw_row([row["location"], row["area_sqft"], row["lounger"], row["sofa_slider"], row["duo_lounger"], row["premium_recliner"], row["total_seats"]])
-
-    t = chart["total_screen_row"]
-    draw_row([t["location"], t["area_sqft"], t["lounger"], t["sofa_slider"], t["duo_lounger"], t["premium_recliner"], t["total_seats"]], bold=True, fill=HexColor("#f0f0f0"))
-
-    f_ = chart["foyer_row"]
-    draw_row([f_["location"], f_["area_sqft"], "-", "-", "-", "-", "-"])
-    e = chart["exit_passage_row"]
-    draw_row([e["location"], e["area_sqft"], "-", "-", "-", "-", "-"])
-
-    g = chart["grand_total_row"]
-    c.line(x0, y + 4, x0 + sum(col_widths), y + 4)
-    draw_row([g["location"], g["area_sqft"], g["lounger"], g["sofa_slider"], g["duo_lounger"], g["premium_recliner"], g["total_seats"]], bold=True, fill=HexColor("#d0e6ff"))
-    c.line(x0, y + 4, x0 + sum(col_widths), y + 4)
-    return y
-
-
-def _draw_feasibility_summary(c, feasibility, x0, top_y, max_w):
-    y = top_y
-    c.setFont("Helvetica-Bold", 10)
-    c.drawString(x0, y, f"FEASIBILITY: {feasibility['feasibility_result'].replace('_', ' ')}")
-    y -= 16
-    c.setFont("Helvetica", 7)
-    for rr in feasibility["rule_results"]:
-        icon = {"PASS": "[PASS]", "FAIL": "[FAIL]", "INSUFFICIENT_DATA": "[N/A] "}[rr["result"]]
-        line = f"{icon} {rr['message']}"
-        if rr["measured_value"] is not None:
-            line += f"  ({rr['measured_value']} vs {rr['threshold']})"
-        c.drawString(x0, y, line[:150])
-        y -= 10
-        if y < MARGIN + 20:
-            break
-    return y
-
-
-def render_pdf(project_meta: dict, boundary_points_ft, rooms, chart: dict, feasibility: dict, out_path: str, sheet_type="Zoning Layout"):
+def render_pdf(project_meta: dict, boundary_points_ft, rooms, chart: dict, feasibility: dict, out_path: str,
+                sheet_type="Zoning Layout", obstacles=None, region_meta=None):
+    region_meta = region_meta or {}
     page_w, page_h = PAGE_SIZE
     c = pdfcanvas.Canvas(out_path, pagesize=PAGE_SIZE)
 
-    # --- Page 1: floor plan sheet ---
-    plan_area_top = page_h - MARGIN - 10
-    plan_area_h = page_h - 2 * MARGIN - 1.4 * inch - 40
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(MARGIN + 10, page_h - MARGIN - 12, f"{project_meta.get('property_name', 'Untitled Project')} — {sheet_type.upper()}")
-    _draw_floor_plan(c, boundary_points_ft, rooms, page_w, page_h, plan_area_top - 20, plan_area_h)
-    _draw_legend(c, page_w, MARGIN + 1.4 * inch + 20)
-    _draw_title_block(c, project_meta, sheet_type, page_w, page_h)
-    c.showPage()
+    sidebar_x = page_w - MARGIN - SIDEBAR_W
+    plan_x, plan_y = MARGIN, MARGIN
+    plan_w = sidebar_x - GAP - MARGIN
+    plan_h = page_h - 2 * MARGIN
 
-    # --- Page 2: Area & Seat Chart + feasibility + revision log ---
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(MARGIN + 10, page_h - MARGIN - 20, "AREA & SEAT CHART")
-    chart_bottom = _draw_chart_table(c, chart, page_w, page_h - MARGIN - 45)
+    _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h)
+    c.setStrokeColor(black)
+    c.setLineWidth(1)
+    c.rect(plan_x, plan_y, plan_w, plan_h, stroke=1, fill=0)
 
-    if feasibility:
-        _draw_feasibility_summary(c, feasibility, MARGIN + 10, chart_bottom - 30, page_w - 2 * MARGIN)
+    y = page_h - MARGIN
+    y = _draw_general_notes(c, sidebar_x, y, SIDEBAR_W)
+    y = _draw_notes(c, sidebar_x, y, SIDEBAR_W)
+    y = _draw_legends(c, sidebar_x, y, SIDEBAR_W)
+    y = _draw_area_seat_chart(c, sidebar_x, y, SIDEBAR_W, chart)
 
-    c.setFont("Helvetica-Bold", 9)
-    c.drawString(MARGIN + 10, MARGIN + 1.4 * inch + 30, "REVISIONS")
-    c.setFont("Helvetica", 7)
-    c.drawString(MARGIN + 10, MARGIN + 1.4 * inch + 18,
-                 f"{project_meta.get('revision', 'R0')}  |  {project_meta.get('generated_at', datetime.utcnow().strftime('%Y-%m-%d'))}  |  Generated by Connplex Zoning Studio")
+    revisions_top = plan_y + 210 * mm
+    y2 = _draw_revisions(c, sidebar_x, revisions_top, SIDEBAR_W)
+    y2 = _draw_drawing_issued(c, sidebar_x, y2, SIDEBAR_W, project_meta.get("revision", "R0"))
+    y2 = _draw_key_plan(c, sidebar_x, y2, SIDEBAR_W)
+    y2 = _draw_project_info(c, sidebar_x, y2, SIDEBAR_W, project_meta, region_meta)
+    y2 = _draw_title_stamp(c, sidebar_x, y2, SIDEBAR_W, project_meta, sheet_type)
+    _draw_company_block(c, sidebar_x, y2, SIDEBAR_W)
 
-    c.setFont("Helvetica-Oblique", 7)
-    c.drawString(MARGIN + 10, MARGIN + 1.4 * inch + 4,
-                 "General Notes: All dimensions to be checked and co-related with architectural/interior drawings. All drawings to be read, not measured. Units: feet.")
-
-    _draw_title_block(c, project_meta, "Area & Seat Chart", page_w, page_h)
-    c.showPage()
     c.save()
     return out_path
