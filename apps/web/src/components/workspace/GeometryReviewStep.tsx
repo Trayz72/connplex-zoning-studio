@@ -92,7 +92,18 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
   // the user just hand-drew auto-confirm 1.6s later with no chance to
   // review it — found via a real click-through, not by inspection.
   const isHandDrawn = activeRegionId.startsWith('manual-');
-  const autoMode = boundaryIsClean && !manualOverride && !isHandDrawn;
+  // Real bug found via a real upload (a file with no $INSUNITS set at all):
+  // every area/distance the extractor reports is computed against an
+  // assumed 1 drawing-unit = 1 ft scale when the real unit is unknown —
+  // geometry.units.needs_user_confirmation is exactly the flag that says
+  // so, but nothing here ever checked it, so a file like that could sail
+  // through the "clean, no note" auto-advance path and get its (probably
+  // wildly wrong-scale) boundary silently confirmed within 1.6s, before a
+  // user could even look at what was detected. That reads as "the CAD file
+  // isn't rendering" from the outside — it renders, but you're never shown
+  // it before the app moves on.
+  const unitsUnconfirmed = geometry.units.needs_user_confirmation;
+  const autoMode = boundaryIsClean && !manualOverride && !isHandDrawn && !unitsUnconfirmed;
 
   useEffect(() => {
     setManualOverride(false);
@@ -189,7 +200,13 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
   }
 
   const regionSwitcher = regions.length > 1 && (
-    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
+    // maxHeight + its own scroll, and flex: '0 0 auto' so this never grows
+    // to push the canvas below it out of the flex column entirely — a real
+    // file with many candidate regions (a noisy/unscaled drawing can easily
+    // propose 50+) was found to collapse the canvas to 0 height, because an
+    // unbounded wrapping row of that many buttons has no natural limit on
+    // how tall it grows inside a `height: 100%` flex chain.
+    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', flex: '0 0 auto', maxHeight: '110px', overflowY: 'auto', padding: '2px' }}>
       {regions.map(r => (
         <button
           key={r.region_id}
@@ -310,6 +327,14 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
       </div>
 
       <div style={{ width: '360px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
+        {unitsUnconfirmed && (
+          <div className="alert-box alert-error" style={{ fontSize: '0.75rem', lineHeight: 1.6 }}>
+            <strong>This file doesn't specify real-world units</strong> ($INSUNITS is unset). Every area/distance
+            below is computed assuming 1 drawing unit = 1 ft, which is very likely wrong — treat the numbers as
+            unreliable until you've checked them against a known real dimension in the file (e.g. a labeled room
+            size), and correct the file's units at the source (re-save/re-export with units set) if they're off.
+          </div>
+        )}
         {boundaryIsClean && (
           <div className="panel" style={{
             fontSize: '0.72rem', color: 'var(--text-tertiary)', padding: '8px 10px'
