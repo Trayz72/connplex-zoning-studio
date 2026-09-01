@@ -69,8 +69,19 @@ BOUNDARY_LAYER_HINTS = ["wall", "boundary", "outline"]
 # technique already used for COLUMN_LAYER_HINTS above, not an invented rule.
 # Order matters: checked most-specific-first so e.g. "door" doesn't also
 # match a generic "furniture" catch-all.
+#
+# WALL was added because an interior partition wall drawn as its own closed
+# shape (a real shape nested inside the outer boundary — e.g. a stairwell
+# core, a lift shaft, a service duct enclosure) was previously only reachable
+# via the generic UNCLASSIFIED_OBSTACLE bucket even when its own layer name
+# said exactly what it was. It reuses the same "wall"/"boundary" vocabulary
+# BOUNDARY_LAYER_HINTS already trusts for the *outer* boundary's own
+# confidence score below — same evidence, applied to an interior shape
+# instead of the one chosen as the region's boundary.
+WALL_LAYER_HINTS = ["wall", "partition", "shear"]
 OBSTACLE_LAYER_HINTS = [
     ("COLUMN", COLUMN_LAYER_HINTS),
+    ("WALL", WALL_LAYER_HINTS),
     ("DOOR", ["door", "-dr", "_dr"]),
     ("WINDOW", ["window", "glaz", "-win", "_win"]),
     ("STAIRCASE", ["stair", "stnc"]),

@@ -3,7 +3,7 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { getProject, Project } from '../api';
 import * as engine from '../services/zoningEngineApi';
 import { ValidationRejectedError } from '../services/zoningEngineApi';
-import { GeometryResult, GeometryRegion, Requirements, EditableLayout, LiveRoom, ValidationError, SelectableSeatType, SeatConfig } from '../types/live';
+import { GeometryResult, GeometryRegion, Requirements, EditableLayout, LiveRoom, LiveCandidate, ValidationError, SelectableSeatType, SeatConfig } from '../types/live';
 import { UploadStep } from '../components/workspace/UploadStep';
 import { GeometryReviewStep } from '../components/workspace/GeometryReviewStep';
 import { RequirementsStep } from '../components/workspace/RequirementsStep';
@@ -42,10 +42,36 @@ export const ZoningWorkspace: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [seatTypes, setSeatTypes] = useState<SelectableSeatType[]>([]);
   const [applyingSeatConfig, setApplyingSeatConfig] = useState(false);
+  const [alternateCandidates, setAlternateCandidates] = useState<LiveCandidate[]>([]);
+  const [switchingStrategy, setSwitchingStrategy] = useState(false);
 
   useEffect(() => {
     engine.getSeatTypes().then(setSeatTypes).catch(() => {});
   }, []);
+
+  // The auto-run flow (RunStep) picks the higher-seat-count strategy without
+  // asking, so the architect who never touches anything still gets a real
+  // layout — but the choice of *strategy* (max seats/screen vs max screen
+  // count) is a real tradeoff, not a fact, so it stays switchable here as an
+  // optional action rather than being locked in.
+  useEffect(() => {
+    if (step !== 'EDIT' || !id) return;
+    engine.getLatestRun(id).then(run => setAlternateCandidates(run?.candidates || [])).catch(() => {});
+  }, [step, id]);
+
+  const switchStrategy = async (candidateId: string) => {
+    if (!id) return;
+    setSwitchingStrategy(true);
+    try {
+      const l = await engine.selectCandidate(id, candidateId);
+      setLayout(l);
+      setSelectedRoomId(null);
+    } catch {
+      // Best-effort — the current layout stays exactly as it was if this fails.
+    } finally {
+      setSwitchingStrategy(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -272,6 +298,28 @@ export const ZoningWorkspace: React.FC = () => {
             </div>
 
             <div style={{ width: '360px', borderLeft: '1px solid #30363d', padding: '12px', overflowY: 'auto' }}>
+              {alternateCandidates.length > 1 && (
+                <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '8px' }}>Layout Strategy</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {alternateCandidates.map(c => (
+                      <button
+                        key={c.candidate_id}
+                        className={c.candidate_id === layout.source_candidate_id ? 'btn btn-primary' : 'btn btn-secondary'}
+                        disabled={switchingStrategy}
+                        style={{ fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left' }}
+                        onClick={() => c.candidate_id !== layout.source_candidate_id && switchStrategy(c.candidate_id)}
+                      >
+                        {c.candidate_id === layout.source_candidate_id ? '✓ ' : ''}{c.strategy_label} — {c.screen_count} screens, {c.total_seats} seats
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: '0.66rem', color: '#8b949e', marginTop: '6px' }}>
+                    Switching discards manual edits made on the current layout and starts from that strategy's generated rooms.
+                  </div>
+                </div>
+              )}
+
               <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '8px' }}>
                   <span>Feasibility</span>

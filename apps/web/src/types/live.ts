@@ -9,7 +9,7 @@ export interface Obstacle {
   dxftype: string;
   area_sqft: number;
   points_ft: number[][];
-  classification: 'COLUMN' | 'UNCLASSIFIED_OBSTACLE';
+  classification: 'COLUMN' | 'WALL' | 'DOOR' | 'WINDOW' | 'STAIRCASE' | 'WASHROOM_FIXTURE' | 'FURNITURE' | 'UNCLASSIFIED_OBSTACLE';
   confidence: 'high' | 'medium' | 'low';
   status: 'PROPOSED' | 'CONFIRMED' | 'IGNORED';
 }
