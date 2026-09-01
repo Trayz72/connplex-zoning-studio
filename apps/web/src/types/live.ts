@@ -94,6 +94,11 @@ export interface SeatEstimate {
   seats_per_row: number;
   seat_type_used?: string;
   seat_breakdown?: { LOUNGER: number; SOFA_SLIDER: number; DUO_LOUNGER: number; PREMIUM_RECLINER: number };
+  // Present when a confirmed structural column was allowed to fall inside
+  // this room (see layout_engine.py's two-tier placement) — seat_count above
+  // is already discounted for it; this explains why and asks for a manual
+  // seat-plan check around the column position.
+  note?: string;
 }
 
 export interface PresetFit {
@@ -133,6 +138,11 @@ export interface LiveRoom {
   preset_fit?: PresetFit;
   area_basis_note?: string;
   shrink_note?: string;
+  // Present when this room (support zone) was allowed to enclose a confirmed
+  // structural column — see layout_engine.py's two-tier placement. Auditoriums
+  // carry the equivalent note on seat_estimate.note instead, since there it's
+  // tied to the seat-count discount.
+  obstacle_note?: string;
 }
 
 export interface FeasibilityRuleResult {
@@ -206,6 +216,10 @@ export interface EditableLayout {
   obstacles: Obstacle[];
   rooms: LiveRoom[];
   circulation_area_sqft: number;
+  // Algorithm-level notes from when this layout was generated (unmarked
+  // entrance, undersized auditorium presets, low utilization w/ real cause,
+  // etc.) — carried forward as-is across manual edits, not recomputed.
+  warnings: string[];
   revision: string;
   updated_at: string;
   feasibility: Feasibility;
