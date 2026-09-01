@@ -189,12 +189,15 @@ def run_zoning(project_id: str, body: ZoningRunIn):
         raise HTTPException(400, "The floor boundary must be CONFIRMED (not left PROPOSED) before a zoning run — "
                                   "uncertain CAD detection must not silently become authoritative.")
 
-    confirmed_obstacles = [o["points_ft"] for o in region["obstacles"] if o["status"] == "CONFIRMED"]
+    confirmed_obstacle_records = [o for o in region["obstacles"] if o["status"] == "CONFIRMED"]
     unresolved = [o for o in region["obstacles"] if o["status"] == "PROPOSED"]
 
-    candidates = layout_engine.generate_candidates(region["boundary"]["points_ft"], confirmed_obstacles, requirements)
+    # Full obstacle dicts (with classification), not bare points — layout_engine
+    # needs classification to know which obstacles a room may legitimately
+    # enclose (a confirmed COLUMN) vs which must keep blocking placement
+    # (wall/stair/washroom/etc — see layout_engine.compute_usable_area).
+    candidates = layout_engine.generate_candidates(region["boundary"]["points_ft"], confirmed_obstacle_records, requirements)
 
-    confirmed_obstacle_records = [o for o in region["obstacles"] if o["status"] == "CONFIRMED"]
     for cand in candidates:
         measurements = _build_measurements(requirements, confirmed_obstacle_records, cand["boundary_area_sqft"],
                                             cand["total_seats"], cand["screen_count"])
@@ -286,8 +289,10 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
     if not existing:
         raise HTTPException(404, "No editable layout exists for this project yet — run zoning first.")
 
-    obstacle_points = [o["points_ft"] for o in body.obstacles]
-    validation = layout_engine.validate_rooms(body.boundary_points_ft, obstacle_points, body.rooms)
+    # body.obstacles carries classification (points_ft + classification), same
+    # as generate_candidates below — validate_rooms only hard-blocks on
+    # non-COLUMN obstacles (a room may legitimately enclose a column).
+    validation = layout_engine.validate_rooms(body.boundary_points_ft, body.obstacles, body.rooms)
     if not validation["valid"]:
         raise HTTPException(422, {"message": "Layout edit rejected — geometry validation failed.", "errors": validation["errors"]})
 
@@ -304,7 +309,12 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
 
     boundary_poly = layout_engine.poly_from_points(body.boundary_points_ft)
     room_area = sum(r["area_sqft"] for r in body.rooms)
-    obstacle_area = sum(layout_engine.poly_from_points(o).area for o in obstacle_points) if obstacle_points else 0
+    # A confirmed COLUMN is excluded here too — a room may now legitimately
+    # enclose one, so it's no longer "lost" area the way a wall/stair/washroom
+    # genuinely is (matches layout_engine.generate_candidate's own
+    # fallback_poly-based usable-area accounting).
+    non_column_obstacle_points = [o["points_ft"] for o in body.obstacles if o.get("classification") != "COLUMN"]
+    obstacle_area = sum(layout_engine.poly_from_points(o).area for o in non_column_obstacle_points) if non_column_obstacle_points else 0
     circulation = body.circulation_area_sqft if body.circulation_area_sqft is not None else max(
         boundary_poly.area - room_area - obstacle_area, 0.0
     )

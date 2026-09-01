@@ -93,7 +93,8 @@ def _pack_band(usable_width_ft, band_depth_ft, seat_type_id, central_aisle_ft):
 
 
 def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str = DEFAULT_SEAT_TYPE_ID,
-                    secondary_seat_type_id: str = None, primary_ratio_pct: float = 100) -> dict:
+                    secondary_seat_type_id: str = None, primary_ratio_pct: float = 100,
+                    enclosed_obstacle_area_sqft: float = 0.0) -> dict:
     central_aisle_ft = rules_registry.planning_norm("CENTRAL_AISLE_MIN_FT")
     side_clear_ft = rules_registry.planning_norm("SIDE_CLEARANCE_ASSUMPTION_FT")
     rear_clear_ft = rules_registry.planning_norm("REAR_CLEARANCE_ASSUMPTION_FT")
@@ -130,7 +131,29 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
 
     seat_count = sum(breakdown.values())
 
-    return {
+    # A confirmed obstacle (structural column) allowed to fall inside this
+    # room (see layout_engine.py's two-tier placement — columns are the only
+    # obstacle type a room can be placed over) does cost real seats even
+    # though the row/column packing above has no per-obstacle geometry
+    # awareness. Rather than either ignore this (an optimistic overcount) or
+    # refuse the placement entirely (the old behavior this replaces),
+    # conservatively scale the seat count down by the enclosed obstacle's
+    # share of the room's own footprint — a real, reproducible correction,
+    # not a fabricated number — and say so explicitly rather than silently
+    # presenting a seat count as exact.
+    note = None
+    room_area = width_ft * depth_ft
+    if enclosed_obstacle_area_sqft > 0 and room_area > 0 and seat_count > 0:
+        retained_fraction = max(1.0 - (enclosed_obstacle_area_sqft / room_area), 0.0)
+        breakdown = {k: math.floor(v * retained_fraction) for k, v in breakdown.items()}
+        seat_count = sum(breakdown.values())
+        note = (
+            f"{round(enclosed_obstacle_area_sqft, 1)} sqft of confirmed obstacle(s) (e.g. a structural column) "
+            f"fall inside this room's footprint — seat count reduced proportionally from the raw row/column "
+            f"packing above; verify the actual seat plan around the obstacle position(s) before finalizing."
+        )
+
+    result = {
         "status": "OK" if seat_count > 0 else "ZERO_SEATS_FIT",
         "seat_count": seat_count,
         "rows": total_rows,
@@ -138,6 +161,9 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
         "seat_type_used": seat_type_used,
         "seat_breakdown": breakdown
     }
+    if note:
+        result["note"] = note
+    return result
 
 
 def best_fit_preset(area_sqft: float) -> dict:

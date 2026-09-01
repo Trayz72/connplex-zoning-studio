@@ -111,12 +111,31 @@ def _exterior_lines(poly):
     return MultiLineString([p.exterior for p in poly.geoms])
 
 
-def compute_usable_area(boundary_points_ft, confirmed_obstacle_point_lists):
+def compute_usable_area(boundary_points_ft, confirmed_obstacles, exclude_classifications=()):
+    """confirmed_obstacles: list of {"points_ft":..., "classification":...} dicts
+    (cad_extraction.py already attaches classification to every obstacle), or
+    bare point-lists for backward compatibility (treated as classification-less,
+    i.e. always subtracted). exclude_classifications lets a caller build a
+    "tolerant" usable area that doesn't treat certain obstacle types as holes —
+    used for the column-tolerant fallback polygon in _place_auditoriums/
+    _place_support_zones below, since a room is allowed to be placed over a
+    confirmed COLUMN (but never a wall/stair/washroom/etc) when no column-free
+    placement exists."""
     boundary = poly_from_points(boundary_points_ft)
-    if not confirmed_obstacle_point_lists:
+    if not confirmed_obstacles:
         return boundary
-    obstacles = [poly_from_points(p).buffer(OBSTACLE_BUFFER_FT) for p in confirmed_obstacle_point_lists]
-    obstacle_union = unary_union(obstacles)
+    polys = []
+    for o in confirmed_obstacles:
+        if isinstance(o, dict):
+            pts, classification = o.get("points_ft"), o.get("classification")
+        else:
+            pts, classification = o, None
+        if classification in exclude_classifications:
+            continue
+        polys.append(poly_from_points(pts).buffer(OBSTACLE_BUFFER_FT))
+    if not polys:
+        return boundary
+    obstacle_union = unary_union(polys)
     usable = boundary.difference(obstacle_union)
     return usable if not usable.is_empty else boundary
 
@@ -213,7 +232,48 @@ def _scan_place_best(usable_poly, placed_polys, w, h, bbox, allow_rotate=True, s
     return best, satisfied_preference
 
 
-def _place_auditoriums(usable_poly, bbox, presets, max_count, preset_order):
+def _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, w, h, bbox, allow_rotate=True):
+    """Try the strict (all-obstacles-subtracted) polygon first — a column-free
+    placement is always preferred when one exists, this changes nothing about
+    today's behavior in that case. Only if that fails does it retry against
+    fallback_poly (obstacles minus COLUMN — see compute_usable_area), which
+    allows the rectangle to cover a confirmed structural column but nothing
+    else. Returns (placement_or_None, used_fallback: bool)."""
+    result = _scan_place(usable_poly, placed_polys, w, h, bbox, allow_rotate)
+    if result:
+        return result, False
+    if fallback_poly is not None and fallback_poly is not usable_poly:
+        result = _scan_place(fallback_poly, placed_polys, w, h, bbox, allow_rotate)
+        if result:
+            return result, True
+    return None, False
+
+
+def _scan_place_best_with_fallback(usable_poly, fallback_poly, placed_polys, w, h, bbox, allow_rotate=True,
+                                    score_fn=None, prefer_fn=None, max_candidates=80):
+    """Same strict-then-column-tolerant retry as _scan_place_with_fallback,
+    for the score_fn/prefer_fn-driven placements (foyer-near-entry etc)."""
+    best, satisfied = _scan_place_best(usable_poly, placed_polys, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates)
+    if best:
+        return best, satisfied, False
+    if fallback_poly is not None and fallback_poly is not usable_poly:
+        best, satisfied = _scan_place_best(fallback_poly, placed_polys, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates)
+        if best:
+            return best, satisfied, True
+    return None, False, False
+
+
+def _enclosed_obstacle_area(rect, column_polys):
+    """How much of rect's own area is covered by confirmed COLUMN obstacles —
+    used to honestly discount a seat estimate and to flag which rooms need
+    the enclosed-obstacle note, only meaningful when a placement actually
+    used the column-tolerant fallback tier above."""
+    if not column_polys:
+        return 0.0
+    return sum(rect.intersection(cp).area for cp in column_polys)
+
+
+def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, max_count, preset_order):
     placed = []
     placed_polys = []
     warnings = []
@@ -232,9 +292,9 @@ def _place_auditoriums(usable_poly, bbox, presets, max_count, preset_order):
             # both seats (the locked v1 objective) and area utilization.
             w_max = preset.get("width_max_ft", preset["width_min_ft"])
             h_max = preset.get("length_max_ft", preset["length_min_ft"])
-            result = _scan_place(usable_poly, placed_polys, w_max, h_max, bbox)
+            result, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, w_max, h_max, bbox)
             if not result and (w_max, h_max) != (preset["width_min_ft"], preset["length_min_ft"]):
-                result = _scan_place(usable_poly, placed_polys, preset["width_min_ft"], preset["length_min_ft"], bbox)
+                result, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, preset["width_min_ft"], preset["length_min_ft"], bbox)
             if result:
                 placement = result
                 used_preset = preset
@@ -249,8 +309,16 @@ def _place_auditoriums(usable_poly, bbox, presets, max_count, preset_order):
         x, y, w, h = placement
         rect = _rect(x, y, w, h)
         placed_polys.append(rect)
-        seat_est = seat_engine.estimate_seats(w, h)
-        placed.append({
+        # used_fallback means no column-free placement existed for this
+        # preset tier at this step — the winning rect is allowed to cover a
+        # confirmed structural column (never any other obstacle type; see
+        # compute_usable_area's exclude_classifications), same as a real
+        # architect designing an auditorium around an existing column in a
+        # retrofit building. Seat count is discounted honestly, not
+        # optimistically ignored — see seat_engine.estimate_seats.
+        enclosed_area = _enclosed_obstacle_area(rect, column_polys) if used_fallback else 0.0
+        seat_est = seat_engine.estimate_seats(w, h, enclosed_obstacle_area_sqft=enclosed_area)
+        room = {
             "room_id": f"auditorium-{uuid.uuid4().hex[:8]}",
             "room_type": f"AUDITORIUM_{len(placed) + 1}",
             "display_name": f"Screen {len(placed) + 1} (Auditorium)",
@@ -262,12 +330,15 @@ def _place_auditoriums(usable_poly, bbox, presets, max_count, preset_order):
             "origin_ft": [round(x, 2), round(y, 2)],
             "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
             "seat_estimate": seat_est
-        })
+        }
+        if seat_est.get("note"):
+            room["obstacle_note"] = seat_est["note"]
+        placed.append(room)
 
     return placed, placed_polys, warnings, undersized_count
 
 
-def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area, franchise_tier_id, requirements):
+def _place_support_zones(usable_poly, fallback_poly, column_polys, placed_polys, bbox, total_auditorium_area, franchise_tier_id, requirements):
     zones = []
     warnings = []
 
@@ -297,10 +368,14 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
     # silently vanish into "circulation" — never shrinks a target below its
     # formulaic value, and capped at SUPPORT_ZONE_MAX_SCALE (see its comment
     # above) so no single zone balloons past what's plausible.
-    remaining_area = max(usable_poly.area - total_auditorium_area, 0.0)
+    # fallback_poly (columns not subtracted), not usable_poly (strict) — a
+    # column is now legitimately buildable-over, so the "how much floor is
+    # really left for support zones" accounting should include it too,
+    # consistent with generate_candidate's own usable_area_sqft below.
+    remaining_area = max(fallback_poly.area - total_auditorium_area, 0.0)
     base_targets_sum = sum(t for _, _, t, _, _ in targets)
     if base_targets_sum > 0:
-        reserved_circulation = usable_poly.area * TARGET_CIRCULATION_RATIO
+        reserved_circulation = fallback_poly.area * TARGET_CIRCULATION_RATIO
         scalable_budget = max(remaining_area - reserved_circulation, 0.0)
         scale = min(max(scalable_budget / base_targets_sum, 1.0), SUPPORT_ZONE_MAX_SCALE)
         if scale > 1.01:
@@ -377,11 +452,12 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
             # usable_poly.exterior). Falls back to the best available fit if
             # nothing touches the perimeter, same soft-constraint semantics
             # as the entry-aware rules above.
-            perimeter = _exterior_lines(usable_poly)
+            perimeter = _exterior_lines(fallback_poly)
             prefer_fn = lambda c: _rect(*c).distance(perimeter) < PERIMETER_TOUCH_TOLERANCE_FT
 
+        used_fallback = False
         if score_fn or prefer_fn:
-            best, satisfied = _scan_place_best(usable_poly, placed_polys, w, h, bbox, score_fn=score_fn, prefer_fn=prefer_fn)
+            best, satisfied, used_fallback = _scan_place_best_with_fallback(usable_poly, fallback_poly, placed_polys, w, h, bbox, score_fn=score_fn, prefer_fn=prefer_fn)
             placement = best
             if placement and prefer_fn and not satisfied:
                 if room_type == "FNB":
@@ -392,7 +468,7 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
                     rule_desc = "a position touching the building's perimeter/frontage"
                 warnings.append(f"{display_name} placed, but no available position gave it {rule_desc} — used the best fit available instead.")
         else:
-            placement = _scan_place(usable_poly, placed_polys, w, h, bbox)
+            placement, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, w, h, bbox)
 
         shrink_note = None
         if not placement:
@@ -404,7 +480,7 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
                 h2 = (target_area * factor) / w2
                 if w2 * h2 < min_area:
                     break
-                placement = _scan_place(usable_poly, placed_polys, w2, h2, bbox)
+                placement, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, w2, h2, bbox)
                 if placement:
                     shrink_note = f"Shrunk from target {round(target_area,1)} sqft to fit available space ({round(w2*h2,1)} sqft, {int(factor*100)}% of target)."
                     break
@@ -431,14 +507,46 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
         }
         if shrink_note:
             zone["shrink_note"] = shrink_note
+        # A support zone tolerates an enclosed column far more naturally than
+        # an auditorium (real foyers/F&B areas commonly wrap a column) — still
+        # flagged honestly rather than silently absorbed, so the architect
+        # knows to route furniture/counters around it.
+        if used_fallback:
+            enclosed_area = _enclosed_obstacle_area(rect, column_polys)
+            if enclosed_area > 0:
+                zone["obstacle_note"] = (
+                    f"{round(enclosed_area, 1)} sqft of confirmed obstacle(s) (e.g. a structural column) fall "
+                    f"inside this room's footprint — plan furniture/layout around the obstacle position(s)."
+                )
         zones.append(zone)
 
     return zones, warnings
 
 
-def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requirements: dict, obstacle_count: int = 0) -> dict:
-    bbox = usable_poly.bounds
+def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requirements: dict, confirmed_obstacles: list = None) -> dict:
+    # True boundary bbox, not usable_poly's — obstacle subtraction almost
+    # never shrinks the bounding box (obstacles are interior), but computing
+    # it from the actual boundary is the strictly correct, zero-risk choice
+    # now that scanning may run against either of two different polygons.
+    bbox = poly_from_points(boundary_points_ft).bounds
     presets = rules_registry.auditorium_presets()  # already sorted largest-first
+    confirmed_obstacles = confirmed_obstacles or []
+    obstacle_count = len(confirmed_obstacles)
+
+    # Column-tolerant fallback polygon + the raw column geometries — a room
+    # can be placed over a confirmed COLUMN (never any other obstacle type)
+    # when no column-free placement exists for it; see _scan_place_with_fallback
+    # and compute_usable_area's exclude_classifications for the real-world
+    # reasoning (the SOP's own hard-minimum column grid is smaller than its
+    # own smallest auditorium preset, so any compliant existing building
+    # already requires this in practice). This is also the polygon "usable
+    # area"/circulation get accounted against below — a column is now a
+    # legitimately buildable-over structural element, not floor area that's
+    # unavailable the way a wall or stairwell is, so it shouldn't read as
+    # permanently lost area once a room can legitimately enclose it.
+    fallback_poly = compute_usable_area(boundary_points_ft, confirmed_obstacles, exclude_classifications=("COLUMN",)) if confirmed_obstacles else usable_poly
+    column_polys = [poly_from_points(o["points_ft"]) for o in confirmed_obstacles
+                     if isinstance(o, dict) and o.get("classification") == "COLUMN"]
 
     if strategy == "MAX_SEATS_PER_SCREEN":
         order = lambda p: p  # largest-first (default order)
@@ -447,11 +555,11 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
 
     max_auditoriums = requirements.get("max_auditoriums", 4) if requirements else 4
 
-    auditoriums, aud_polys, aud_warnings, undersized_count = _place_auditoriums(usable_poly, bbox, presets, max_auditoriums, order)
+    auditoriums, aud_polys, aud_warnings, undersized_count = _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, max_auditoriums, order)
     total_aud_area = sum(a["area_sqft"] for a in auditoriums)
 
     support_zones, support_warnings = _place_support_zones(
-        usable_poly, aud_polys, bbox, total_aud_area,
+        usable_poly, fallback_poly, column_polys, aud_polys, bbox, total_aud_area,
         requirements.get("franchise_tier_id") if requirements else None,
         requirements or {}
     )
@@ -465,16 +573,21 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
     # under-reporting circulation_area_sqft (the number shown to the architect
     # and used in the exported Area & Seat Chart's "EXIT PASSAGE" row) — found
     # via real testing while verifying the utilization fixes above.
+    # fallback_poly.area, not usable_poly.area — a room can now legitimately
+    # enclose a confirmed column (see fallback_poly's own comment above), so
+    # the true buildable floor area for "how much is left over" purposes
+    # includes it; using the strict, columns-subtracted figure here would
+    # under-count real usable area and over-report circulation.
     allocated_area = sum(p.area for p in aud_polys)
-    circulation_area = max(usable_poly.area - allocated_area, 0.0)
+    circulation_area = max(fallback_poly.area - allocated_area, 0.0)
 
     total_seats = sum(a["seat_estimate"]["seat_count"] for a in auditoriums)
     screen_count = len(auditoriums)
     seats_per_screen = round(total_seats / screen_count, 2) if screen_count else 0
 
     utilization_warnings = []
-    if usable_poly.area > 0:
-        circulation_ratio = circulation_area / usable_poly.area
+    if fallback_poly.area > 0:
+        circulation_ratio = circulation_area / fallback_poly.area
         # Real leftover space is expected (real aisles/back-of-house gaps/odd
         # corners a rectangle-packer can't reach) — this is a health check,
         # not a hard limit: never blocks a run, just makes an unusually large
@@ -519,7 +632,7 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
         "strategy_label": "Maximize Seats per Screen" if strategy == "MAX_SEATS_PER_SCREEN" else "Maximize Screen Count",
         "rooms": auditoriums + support_zones,
         "circulation_area_sqft": round(circulation_area, 2),
-        "usable_area_sqft": round(usable_poly.area, 2),
+        "usable_area_sqft": round(fallback_poly.area, 2),
         "boundary_area_sqft": round(poly_from_points(boundary_points_ft).area, 2),
         "total_seats": total_seats,
         "screen_count": screen_count,
@@ -580,12 +693,23 @@ def estimate_column_grid_spacing(confirmed_column_point_lists, cluster_tolerance
     return round(spacings[0], 2), round(spacings[1], 2)
 
 
-def validate_rooms(boundary_points_ft, confirmed_obstacle_point_lists, rooms: list) -> dict:
+def validate_rooms(boundary_points_ft, confirmed_obstacles, rooms: list) -> dict:
     """Real geometric validation for architect-edited layouts (spec Sec 38/61
     'geometry tests': overlap, containment, obstacle avoidance). Returns per-room
-    errors — never silently accepts an invalid edit."""
+    errors — never silently accepts an invalid edit.
+
+    confirmed_obstacles: list of {"points_ft":..., "classification":...} dicts
+    (or bare point-lists, treated as classification-less), matching
+    compute_usable_area's interface. A room overlapping a confirmed COLUMN is
+    only a warning — an architect manually placing a room over a column is
+    allowed, same as the auto-layout's own two-tier placement (see
+    generate_candidate) — everything else (wall/stair/washroom/door/window/
+    furniture/unclassified) stays a hard OBSTACLE_COLLISION error."""
     boundary = poly_from_points(boundary_points_ft)
-    obstacles = [poly_from_points(p) for p in (confirmed_obstacle_point_lists or [])]
+    hard_obstacles, column_obstacles = [], []
+    for o in (confirmed_obstacles or []):
+        pts, classification = (o.get("points_ft"), o.get("classification")) if isinstance(o, dict) else (o, None)
+        (column_obstacles if classification == "COLUMN" else hard_obstacles).append(poly_from_points(pts))
 
     errors = []
     warnings = []
@@ -603,11 +727,17 @@ def validate_rooms(boundary_points_ft, confirmed_obstacle_point_lists, rooms: li
             errors.append({"room_id": room["room_id"], "issue": "OUTSIDE_BOUNDARY",
                             "message": f"{room['display_name']} extends {round(outside_area,1)} sqft outside the floor boundary."})
 
-        for obs in obstacles:
+        for obs in hard_obstacles:
             inter = poly.intersection(obs).area
             if inter > 0.5:
                 errors.append({"room_id": room["room_id"], "issue": "OBSTACLE_COLLISION",
                                 "message": f"{room['display_name']} overlaps a confirmed structural obstacle by {round(inter,1)} sqft."})
+
+        for obs in column_obstacles:
+            inter = poly.intersection(obs).area
+            if inter > 0.5:
+                warnings.append({"room_id": room["room_id"], "issue": "ENCLOSES_COLUMN",
+                                  "message": f"{room['display_name']} encloses a confirmed structural column ({round(inter,1)} sqft) — allowed, but verify furniture/seat layout around it."})
 
     ids = list(room_polys.keys())
     for i in range(len(ids)):
@@ -622,12 +752,14 @@ def validate_rooms(boundary_points_ft, confirmed_obstacle_point_lists, rooms: li
     return {"valid": len(errors) == 0, "errors": errors, "warnings": warnings}
 
 
-def generate_candidates(boundary_points_ft, confirmed_obstacle_point_lists, requirements: dict) -> list:
-    usable_poly = compute_usable_area(boundary_points_ft, confirmed_obstacle_point_lists)
+def generate_candidates(boundary_points_ft, confirmed_obstacles, requirements: dict) -> list:
+    """confirmed_obstacles: list of {"points_ft":..., "classification":...}
+    dicts (cad_extraction.py already attaches classification to every
+    obstacle) — or bare point-lists for backward compatibility."""
+    usable_poly = compute_usable_area(boundary_points_ft, confirmed_obstacles)
     if usable_poly.is_empty or usable_poly.area <= 0:
         return []
-    obstacle_count = len(confirmed_obstacle_point_lists or [])
     return [
-        generate_candidate(usable_poly, boundary_points_ft, "MAX_SEATS_PER_SCREEN", requirements, obstacle_count),
-        generate_candidate(usable_poly, boundary_points_ft, "MAX_SCREEN_COUNT", requirements, obstacle_count)
+        generate_candidate(usable_poly, boundary_points_ft, "MAX_SEATS_PER_SCREEN", requirements, confirmed_obstacles),
+        generate_candidate(usable_poly, boundary_points_ft, "MAX_SCREEN_COUNT", requirements, confirmed_obstacles)
     ]

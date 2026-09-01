@@ -22,6 +22,7 @@ from reportlab.lib.pagesizes import A2, portrait
 from reportlab.lib.units import inch, mm
 from reportlab.lib.colors import HexColor, black, white, red
 from reportlab.pdfgen import canvas as pdfcanvas
+from shapely.geometry import Polygon
 
 PAGE_SIZE = portrait(A2)
 MARGIN = 14 * mm
@@ -441,8 +442,7 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
     path.close()
     c.drawPath(path, stroke=1, fill=1)
 
-    for obs in obstacles or []:
-        pts = obs.get("points_ft") if isinstance(obs, dict) else obs
+    def draw_obstacle_shape(pts):
         c.setFillColor(HexColor("#555555"))
         c.setStrokeColor(black)
         c.setLineWidth(0.5)
@@ -454,6 +454,10 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
             path.lineTo(x, y)
         path.close()
         c.drawPath(path, stroke=1, fill=1)
+
+    for obs in obstacles or []:
+        pts = obs.get("points_ft") if isinstance(obs, dict) else obs
+        draw_obstacle_shape(pts)
 
     for room in rooms:
         pts = room["geometry_points_ft"]
@@ -511,6 +515,30 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
         else:
             c.setFont("Helvetica", name_size * 0.7)
             c.drawCentredString(lx, name_bottom_y - name_size * 1.1, f"{room['area_sqft']:,.0f} SQ.FT")
+
+    # A confirmed obstacle (typically a structural column) can legitimately
+    # fall inside a room now (layout_engine.py's two-tier placement allows a
+    # room to enclose a COLUMN, never any other obstacle type) — redraw any
+    # obstacle whose real footprint intersects a placed room's footprint on
+    # top of the room's opaque fill drawn above, so it stays visible the way
+    # a real architectural drawing shows a column through a room rather than
+    # hiding it underneath.
+    room_polys_ft = []
+    for room in rooms:
+        try:
+            room_polys_ft.append(Polygon(room["geometry_points_ft"]))
+        except Exception:
+            continue
+    for obs in obstacles or []:
+        pts = obs.get("points_ft") if isinstance(obs, dict) else obs
+        try:
+            obs_poly = Polygon(pts)
+        except Exception:
+            continue
+        if not obs_poly.is_valid or obs_poly.area <= 0:
+            continue
+        if any(obs_poly.intersects(rp) for rp in room_polys_ft):
+            draw_obstacle_shape(pts)
 
     # Overall dimension line under the drawing — real bounding-box size of the
     # confirmed region (in whichever axis now runs horizontal on the page,
