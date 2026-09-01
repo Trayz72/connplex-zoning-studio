@@ -59,3 +59,7 @@ def viability_rules(property_type: str) -> list:
 
 def franchise_tier(tier_id: str):
     return next((t for t in load()["franchise_tiers"] if t["id"] == tier_id), None)
+
+
+def franchise_tiers() -> list:
+    return load()["franchise_tiers"]

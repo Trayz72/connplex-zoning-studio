@@ -15,6 +15,11 @@ import { RoomDimensionEditor } from '../components/workspace/RoomDimensionEditor
 
 type Step = 'LOADING' | 'UPLOAD' | 'GEOMETRY_REVIEW' | 'REQUIREMENTS' | 'RUN' | 'EDIT';
 
+const STEP_LABEL: Record<Step, string> = {
+  LOADING: 'Loading', UPLOAD: 'Upload', GEOMETRY_REVIEW: 'Geometry Review',
+  REQUIREMENTS: 'Requirements', RUN: 'Run', EDIT: 'Edit'
+};
+
 const ROOM_TYPE_TEMPLATES: { type: string; label: string; w: number; h: number }[] = [
   { type: 'FOYER', label: 'Foyer', w: 20, h: 15 },
   { type: 'FNB', label: 'F&B / Concession', w: 12, h: 10 },
@@ -24,7 +29,7 @@ const ROOM_TYPE_TEMPLATES: { type: string; label: string; w: number; h: number }
 ];
 
 const FEAS_COLOR: Record<string, string> = {
-  FEASIBLE: '#3fb950', CONDITIONALLY_FEASIBLE: '#d29922', NOT_FEASIBLE: '#f85149', INSUFFICIENT_DATA: '#8b949e'
+  FEASIBLE: 'var(--success)', CONDITIONALLY_FEASIBLE: 'var(--warning)', NOT_FEASIBLE: 'var(--danger)', INSUFFICIENT_DATA: 'var(--text-tertiary)'
 };
 
 export const ZoningWorkspace: React.FC = () => {
@@ -207,7 +212,7 @@ export const ZoningWorkspace: React.FC = () => {
   const selectedRoom = layout?.rooms.find(r => r.room_id === selectedRoomId) || null;
 
   if (step === 'LOADING') {
-    return <div style={{ padding: '3rem', textAlign: 'center', color: '#8b949e' }}>Loading workspace…</div>;
+    return <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>Loading workspace…</div>;
   }
 
   // The intake page already disables "Go to Zoning Canvas" until every
@@ -223,19 +228,22 @@ export const ZoningWorkspace: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d1117', color: '#f0f6fc', overflow: 'hidden' }}>
-      <header style={{ height: '52px', background: '#161b22', borderBottom: '1px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)', overflow: 'hidden' }}>
+      <header style={{ height: '52px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Link to="/projects" style={{ fontSize: '1rem', fontWeight: 700, color: '#f0f6fc', textDecoration: 'none' }}>🏢 Connplex Zoning Studio</Link>
-          <span style={{ fontSize: '0.8rem', color: '#8b949e' }}>{project?.property_name || 'Project'}</span>
+          <Link to="/projects" style={{ fontSize: 'var(--text-lg)', fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <span className="brand-mark">CZ</span>
+            Connplex Zoning Studio
+          </Link>
+          <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>{project?.property_name || 'Project'}</span>
         </div>
-        <div style={{ display: 'flex', gap: '4px', fontSize: '0.7rem' }}>
+        <div style={{ display: 'flex', gap: '2px', fontSize: 'var(--text-xs)' }}>
           {(['UPLOAD', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'] as Step[]).map((s, i) => (
             <span key={s} style={{
-              padding: '3px 8px', borderRadius: '4px',
-              background: step === s ? 'rgba(56,139,253,0.2)' : 'transparent',
-              color: step === s ? '#58a6ff' : '#8b949e'
-            }}>{i + 1}. {s.replace('_', ' ')}</span>
+              padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontWeight: step === s ? 600 : 400,
+              background: step === s ? 'var(--bg-raised)' : 'transparent',
+              color: step === s ? 'var(--text-primary)' : 'var(--text-tertiary)'
+            }}>{i + 1}. {STEP_LABEL[s]}</span>
           ))}
         </div>
       </header>
@@ -257,29 +265,29 @@ export const ZoningWorkspace: React.FC = () => {
           <div style={{ display: 'flex', height: '100%' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '8px', gap: '8px' }}>
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.72rem', color: '#8b949e' }}>Add zone:</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)' }}>Add zone:</span>
                 {ROOM_TYPE_TEMPLATES.map(t => (
                   <button key={t.type} className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={() => addZone(t)}>+ {t.label}</button>
                 ))}
-                {selectedRoomId && <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px', color: '#f85149' }} onClick={deleteSelected}>✕ Delete Selected</button>}
-                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', color: '#8b949e', marginLeft: 'auto', cursor: 'pointer' }}>
+                {selectedRoomId && <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px', color: 'var(--danger)' }} onClick={deleteSelected}>Delete Selected</button>}
+                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', color: 'var(--text-tertiary)', marginLeft: 'auto', cursor: 'pointer' }}>
                   <input type="checkbox" checked={showCadLinework} onChange={(e) => setShowCadLinework(e.target.checked)} />
                   CAD linework
                 </label>
-                <label style={{ fontSize: '0.7rem', color: '#8b949e' }}>
-                  Snap: <select value={snapFt} onChange={(e) => setSnapFt(parseFloat(e.target.value))} style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: '4px', padding: '2px' }}>
+                <label style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>
+                  Snap: <select value={snapFt} onChange={(e) => setSnapFt(parseFloat(e.target.value))} style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '2px' }}>
                     <option value={0}>Off</option>
                     <option value={0.5}>0.5 ft</option>
                     <option value={1}>1 ft</option>
                     <option value={2}>2 ft</option>
                   </select>
                 </label>
-                {saving && <span style={{ fontSize: '0.7rem', color: '#2f81f7' }}>Saving…</span>}
+                {saving && <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Saving…</span>}
               </div>
 
               {validationErrors.length > 0 && (
-                <div style={{ background: 'rgba(248,81,73,0.12)', border: '1px solid #f85149', borderRadius: '6px', padding: '8px 10px', fontSize: '0.72rem', color: '#ff7b72' }}>
-                  {validationErrors.map((e, i) => <div key={i}>✕ {e.message}</div>)}
+                <div style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', borderRadius: '6px', padding: '8px 10px', fontSize: '0.72rem', color: 'var(--danger)' }}>
+                  {validationErrors.map((e, i) => <div key={i}>{e.message}</div>)}
                 </div>
               )}
 
@@ -297,10 +305,10 @@ export const ZoningWorkspace: React.FC = () => {
               />
             </div>
 
-            <div style={{ width: '360px', borderLeft: '1px solid #30363d', padding: '12px', overflowY: 'auto' }}>
+            <div style={{ width: '360px', borderLeft: '1px solid var(--border-color)', padding: '12px', overflowY: 'auto' }}>
               {alternateCandidates.length > 1 && (
-                <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '8px' }}>Layout Strategy</div>
+                <div className="panel" style={{ marginBottom: '16px' }}>
+                  <div className="panel-label" style={{ marginBottom: '8px' }}>Layout Strategy</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {alternateCandidates.map(c => (
                       <button
@@ -310,36 +318,36 @@ export const ZoningWorkspace: React.FC = () => {
                         style={{ fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left' }}
                         onClick={() => c.candidate_id !== layout.source_candidate_id && switchStrategy(c.candidate_id)}
                       >
-                        {c.candidate_id === layout.source_candidate_id ? '✓ ' : ''}{c.strategy_label} — {c.screen_count} screens, {c.total_seats} seats
+                        {c.strategy_label} — {c.screen_count} screens, {c.total_seats} seats
                       </button>
                     ))}
                   </div>
-                  <div style={{ fontSize: '0.66rem', color: '#8b949e', marginTop: '6px' }}>
+                  <div style={{ fontSize: '0.66rem', color: 'var(--text-tertiary)', marginTop: '6px' }}>
                     Switching discards manual edits made on the current layout and starts from that strategy's generated rooms.
                   </div>
                 </div>
               )}
 
-              <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '8px' }}>
+              <div className="panel" style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }} className="panel-label">
                   <span>Feasibility</span>
                   <span style={{ color: FEAS_COLOR[layout.feasibility.feasibility_result] }}>{layout.feasibility.feasibility_result.replace(/_/g, ' ')}</span>
                 </div>
                 {layout.feasibility.rule_results.map(rr => (
-                  <div key={rr.rule_id} style={{ fontSize: '0.7rem', color: rr.result === 'FAIL' ? '#ff7b72' : rr.result === 'PASS' ? '#8b949e' : '#8b949e', padding: '2px 0' }}>
-                    {rr.result === 'PASS' ? '✓' : rr.result === 'FAIL' ? '✕' : '?'} {rr.message}
+                  <div key={rr.rule_id} style={{ fontSize: '0.7rem', color: rr.result === 'FAIL' ? 'var(--danger)' : 'var(--text-secondary)', padding: '2px 0' }}>
+                    {rr.message}
                   </div>
                 ))}
               </div>
 
               {(layout.warnings.length > 0 || layout.rooms.some(r => r.obstacle_note || r.seat_estimate?.note)) && (
-                <div style={{ background: '#161b22', border: '1px solid #d29922', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#d29922', textTransform: 'uppercase', marginBottom: '8px' }}>⚠ Warnings &amp; Notes</div>
+                <div className="panel" style={{ borderColor: 'rgba(201,154,58,0.35)', marginBottom: '16px' }}>
+                  <div className="panel-label" style={{ color: 'var(--warning)', marginBottom: '8px' }}>Warnings &amp; Notes</div>
                   {layout.warnings.map((w, i) => (
-                    <div key={`w${i}`} style={{ fontSize: '0.7rem', color: '#e3b341', padding: '3px 0', borderBottom: '1px solid #21262d' }}>{w}</div>
+                    <div key={`w${i}`} style={{ fontSize: '0.7rem', color: 'var(--warning)', padding: '5px 0', borderBottom: '1px solid var(--border-color)' }}>{w}</div>
                   ))}
                   {layout.rooms.filter(r => r.obstacle_note || r.seat_estimate?.note).map(r => (
-                    <div key={r.room_id} style={{ fontSize: '0.7rem', color: '#e3b341', padding: '3px 0', borderBottom: '1px solid #21262d' }}>
+                    <div key={r.room_id} style={{ fontSize: '0.7rem', color: 'var(--warning)', padding: '5px 0', borderBottom: '1px solid var(--border-color)' }}>
                       <strong>{r.display_name}:</strong> {r.obstacle_note || r.seat_estimate?.note}
                     </div>
                   ))}
@@ -347,22 +355,22 @@ export const ZoningWorkspace: React.FC = () => {
               )}
 
               {selectedRoom && selectedRoom.room_type.startsWith('AUDITORIUM') && seatTypes.length > 0 && (
-                <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
+                <div className="panel" style={{ marginBottom: '16px' }}>
                   <SeatConfigPanel room={selectedRoom} seatTypes={seatTypes} onApply={applySeatConfig} applying={applyingSeatConfig} embedded />
                   <RoomDimensionEditor room={selectedRoom} onApply={applyDimensions} applying={applyingDimensions} />
                 </div>
               )}
               {selectedRoom && !selectedRoom.room_type.startsWith('AUDITORIUM') && (
-                <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '8px' }}>{selectedRoom.display_name}</div>
-                  <div style={{ fontSize: '0.78rem', color: '#f0f6fc' }}>{selectedRoom.area_sqft} sqft ({selectedRoom.width_ft} × {selectedRoom.depth_ft} ft)</div>
+                <div className="panel" style={{ marginBottom: '16px' }}>
+                  <div className="panel-label" style={{ marginBottom: '8px' }}>{selectedRoom.display_name}</div>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--text-primary)' }} className="font-mono">{selectedRoom.area_sqft} sqft ({selectedRoom.width_ft} × {selectedRoom.depth_ft} ft)</div>
                   <RoomDimensionEditor room={selectedRoom} onApply={applyDimensions} applying={applyingDimensions} />
                 </div>
               )}
 
-              <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '8px' }}>Area &amp; Seat Chart</div>
-                <table style={{ width: '100%', fontSize: '0.66rem', borderCollapse: 'collapse' }}>
+              <div className="panel" style={{ marginBottom: '16px' }}>
+                <div className="panel-label" style={{ marginBottom: '8px' }}>Area &amp; Seat Chart</div>
+                <table className="font-mono" style={{ width: '100%', fontSize: '0.66rem', borderCollapse: 'collapse' }}>
                   <tbody>
                     {layout.area_seat_chart.screen_rows.map(r => (
                       <tr key={r.location}><td>{r.location}</td><td style={{ textAlign: 'right' }}>{r.area_sqft} sqft</td><td style={{ textAlign: 'right' }}>{r.total_seats} seats</td></tr>
@@ -374,7 +382,7 @@ export const ZoningWorkspace: React.FC = () => {
                     </tr>
                     <tr><td>{layout.area_seat_chart.foyer_row.location.split(' (')[0]}</td><td style={{ textAlign: 'right' }}>{layout.area_seat_chart.foyer_row.area_sqft}</td><td /></tr>
                     <tr><td>{layout.area_seat_chart.exit_passage_row.location}</td><td style={{ textAlign: 'right' }}>{layout.area_seat_chart.exit_passage_row.area_sqft}</td><td /></tr>
-                    <tr style={{ fontWeight: 800, color: '#3fb950' }}>
+                    <tr style={{ fontWeight: 700, color: 'var(--success)' }}>
                       <td>{layout.area_seat_chart.grand_total_row.location}</td>
                       <td style={{ textAlign: 'right' }}>{layout.area_seat_chart.grand_total_row.area_sqft}</td>
                       <td style={{ textAlign: 'right' }}>{layout.area_seat_chart.grand_total_row.total_seats}</td>

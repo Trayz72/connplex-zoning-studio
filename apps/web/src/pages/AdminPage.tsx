@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getUsers, setUserAdmin, deleteUser, AdminUser } from '../api';
 import { useAuth } from '../AuthContext';
+import { BlockedIcon, TrashIcon } from '../components/Icons';
 
 export const AdminPage: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -72,7 +73,7 @@ export const AdminPage: React.FC = () => {
             Rules &amp; Config
           </Link>
           <Link to="/projects" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
-            ← All Projects
+            All Projects
           </Link>
         </div>
       </header>
@@ -91,7 +92,7 @@ export const AdminPage: React.FC = () => {
 
         {forbidden ? (
           <div className="empty-state">
-            <div className="empty-state-icon" aria-hidden="true">⛔</div>
+            <div className="empty-state-icon" aria-hidden="true"><BlockedIcon /></div>
             <p style={{ color: 'var(--text-secondary)' }}>
               Your account doesn't have admin access. Ask an existing admin to promote you from this same page.
             </p>
@@ -132,7 +133,7 @@ export const AdminPage: React.FC = () => {
                       <td>
                         {confirmingDeleteId === u.id ? (
                           <div style={{ display: 'flex', gap: '0.4rem', justifyContent: 'flex-end', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.72rem', color: '#ff7b72' }}>Delete this account?</span>
+                            <span style={{ fontSize: '0.72rem', color: 'var(--danger)' }}>Delete this account?</span>
                             <button
                               className="btn btn-danger"
                               style={{ fontSize: '0.72rem', padding: '0.3rem 0.6rem' }}
@@ -167,7 +168,7 @@ export const AdminPage: React.FC = () => {
                               disabled={busyId === u.id || u.id === currentUser?.id}
                               onClick={() => setConfirmingDeleteId(u.id)}
                             >
-                              🗑
+                              <TrashIcon />
                             </button>
                           </div>
                         )}

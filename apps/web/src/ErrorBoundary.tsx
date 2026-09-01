@@ -1,4 +1,5 @@
 import React from 'react';
+import { WarningIcon } from './components/Icons';
 
 interface State {
   error: Error | null;
@@ -27,14 +28,14 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           minHeight: '100vh', padding: '2rem', textAlign: 'center', gap: '1rem'
         }}>
-          <div style={{ fontSize: '2rem' }}>⚠️</div>
-          <h1 style={{ fontSize: '1.3rem', fontWeight: 700 }}>Something went wrong</h1>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '480px', fontSize: '0.9rem' }}>
+          <WarningIcon size={28} className="text-tertiary" />
+          <h1 style={{ fontSize: 'var(--text-xl)', fontWeight: 600 }}>Something went wrong</h1>
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '480px', fontSize: 'var(--text-base)' }}>
             This page hit an unexpected error and can't continue. Your project data on the
             server is unaffected — reloading usually resolves it.
           </p>
           <pre style={{
-            maxWidth: '600px', overflow: 'auto', fontSize: '0.72rem', color: '#ff7b72',
+            maxWidth: '600px', overflow: 'auto', fontSize: 'var(--text-sm)', color: 'var(--danger)',
             background: 'var(--bg-secondary)', border: '1px solid var(--border-color)',
             borderRadius: '6px', padding: '0.75rem', textAlign: 'left'
           }}>

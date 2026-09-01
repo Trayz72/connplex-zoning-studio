@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getRulesConfig, saveRulesCategory, RulesRegistry, RulesCategory, RULES_CATEGORIES } from '../api';
+import { BlockedIcon, TrashIcon } from '../components/Icons';
 
 const CATEGORY_LABEL: Record<RulesCategory, string> = {
   seat_types: 'Seat Types',
@@ -25,7 +26,7 @@ const SUMMARY_FIELDS: Record<RulesCategory, string[]> = {
 };
 
 const APPROVAL_COLOR: Record<string, string> = {
-  SOURCE_BACKED: '#3fb950', DECIDED: '#3fb950', ENGINEERING_ASSUMPTION: '#d29922', PROPOSED: '#8b949e'
+  SOURCE_BACKED: 'var(--success)', DECIDED: 'var(--success)', ENGINEERING_ASSUMPTION: 'var(--warning)', PROPOSED: 'var(--text-tertiary)'
 };
 
 function newBlankRecord(category: RulesCategory): any {
@@ -130,7 +131,7 @@ export const AdminRulesPage: React.FC = () => {
         </Link>
         <div className="nav-links">
           <Link to="/admin" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
-            ← User Management
+            User Management
           </Link>
           <Link to="/projects" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
             All Projects
@@ -156,7 +157,7 @@ export const AdminRulesPage: React.FC = () => {
 
         {forbidden ? (
           <div className="empty-state">
-            <div className="empty-state-icon" aria-hidden="true">⛔</div>
+            <div className="empty-state-icon" aria-hidden="true"><BlockedIcon /></div>
             <p style={{ color: 'var(--text-secondary)' }}>Your account doesn't have admin access.</p>
           </div>
         ) : loading ? (
@@ -199,7 +200,7 @@ export const AdminRulesPage: React.FC = () => {
                           ))}
                           <td>
                             {item.approval_status && (
-                              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: APPROVAL_COLOR[item.approval_status] || '#8b949e' }}>
+                              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: APPROVAL_COLOR[item.approval_status] || 'var(--text-secondary)' }}>
                                 {item.approval_status}
                               </span>
                             )}
@@ -209,23 +210,23 @@ export const AdminRulesPage: React.FC = () => {
                               <button className="btn btn-secondary" style={{ fontSize: '0.72rem', padding: '0.3rem 0.6rem' }} onClick={() => expand(i)}>
                                 Edit
                               </button>
-                              <button className="btn btn-icon-danger" title="Remove" onClick={() => removeRow(i)}>🗑</button>
+                              <button className="btn btn-icon-danger" title="Remove" onClick={() => removeRow(i)}><TrashIcon /></button>
                             </div>
                           </td>
                         </tr>
                         {expandedIndex === i && (
                           <tr>
-                            <td colSpan={SUMMARY_FIELDS[category].length + 3} style={{ background: '#0d1117' }}>
+                            <td colSpan={SUMMARY_FIELDS[category].length + 3} style={{ background: 'var(--bg-primary)' }}>
                               <textarea
                                 value={draftJson}
                                 onChange={(e) => setDraftJson(e.target.value)}
                                 spellCheck={false}
                                 style={{
                                   width: '100%', minHeight: '180px', fontFamily: 'monospace', fontSize: '0.78rem',
-                                  background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: '6px', padding: '8px'
+                                  background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', padding: '8px'
                                 }}
                               />
-                              {jsonError && <div style={{ color: '#ff7b72', fontSize: '0.75rem', marginTop: '4px' }}>{jsonError}</div>}
+                              {jsonError && <div style={{ color: 'var(--danger)', fontSize: '0.75rem', marginTop: '4px' }}>{jsonError}</div>}
                               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '6px' }}>
                                 <button className="btn btn-primary" style={{ fontSize: '0.75rem' }} onClick={applyDraft}>Apply to record</button>
                                 <button className="btn btn-secondary" style={{ fontSize: '0.75rem' }} onClick={() => setExpandedIndex(null)}>Cancel</button>
