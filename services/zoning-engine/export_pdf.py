@@ -6,14 +6,14 @@ top to bottom — General Notes, Notes, Legends, the Area & Seat Chart, a
 Revisions log, a Drawing Issued log with FOR APPROVAL/FOR GFC checkboxes, a Key
 Plan box, the project info block, the DRG NO/TITLE/SCALE/DRAWN BY/CHECKED
 BY/DATE title block, and the CONNPLEX SMART THEATRES company block with
-address and a drawn approximation of their logo.
+address and their real logo artwork.
 
 This structure and every static label/legend/notes string below were taken
 directly from a real Connplex reference drawing (Keshav Landmark, Vadodara,
-DRG ZL-01-R1) supplied by the user, not invented. The one thing this cannot
-reproduce is Connplex's exact vector logo artwork (no asset file available to
-this session) — the logo block below is a drawn approximation using their
-real brand colors (yellow/black) and wordmark, not a traced copy.
+DRG ZL-01-R1) supplied by the user, not invented. The logo is the real brand
+mark too — extracted directly from a real, later Connplex production drawing
+(1159-The Crossroads, Valsad, DRG "Net Usage Area @ 2nd Floor", 21.07.2026)
+via `pdfimages`, not redrawn or approximated (see `assets/connplex_logo.jpg`).
 """
 import os
 from datetime import datetime
@@ -21,8 +21,12 @@ from datetime import datetime
 from reportlab.lib.pagesizes import A2, portrait
 from reportlab.lib.units import inch, mm
 from reportlab.lib.colors import HexColor, black, white, red
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas as pdfcanvas
 from shapely.geometry import Polygon
+
+LOGO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "connplex_logo.jpg")
+_logo_reader = None
 
 PAGE_SIZE = portrait(A2)
 MARGIN = 14 * mm
@@ -125,20 +129,15 @@ def _room_color(room_type):
 
 
 def _draw_logo(c, x, y, w, h):
-    """Drawn approximation of the Connplex badge: yellow rounded rect + black
-    wordmark + a dark strip with 'CINEMAS' — real brand colors, not traced art."""
-    c.saveState()
-    c.setFillColor(HexColor("#f5c518"))
-    c.roundRect(x, y, w, h, 6, stroke=0, fill=1)
-    c.setFillColor(black)
-    c.setFont("Helvetica-Bold", h * 0.42)
-    c.drawCentredString(x + w / 2, y + h * 0.52, "CONNPLEX")
-    c.setFillColor(black)
-    c.rect(x, y, w, h * 0.28, stroke=0, fill=1)
-    c.setFillColor(white)
-    c.setFont("Helvetica-Bold", h * 0.16)
-    c.drawCentredString(x + w / 2, y + h * 0.09, "C  I  N  E  M  A  S")
-    c.restoreState()
+    """Real Connplex badge artwork (see LOGO_PATH), drawn at its true aspect
+    ratio and centered in the (w, h) box rather than stretched to fill it."""
+    global _logo_reader
+    if _logo_reader is None:
+        _logo_reader = ImageReader(LOGO_PATH)
+    img_w, img_h = _logo_reader.getSize()
+    scale = min(w / img_w, h / img_h)
+    draw_w, draw_h = img_w * scale, img_h * scale
+    c.drawImage(_logo_reader, x + (w - draw_w) / 2, y + (h - draw_h) / 2, draw_w, draw_h, mask="auto")
 
 
 def _box(c, x, y, w, h, label=None, label_size=6.5):
