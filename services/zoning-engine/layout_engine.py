@@ -41,18 +41,13 @@ AISLE_CLEARANCE_FT = 3.5   # matches CENTRAL_AISLE_MIN_FT — used generically a
 OBSTACLE_BUFFER_FT = 0.5
 MAX_SCAN_CELLS = 40000     # see _grid_step_for_bbox — real crash found via real testing, not a hypothetical
 
-# No SOP-stated circulation percentage exists for this pipeline (see the
-# rules registry — nothing under "circulation" other than qualitative notes),
-# so this is an explicit ENGINEERING_ASSUMPTION ceiling used only to decide
-# how much of the leftover usable area (after auditoriums) should go to
-# growing the SOP-required support zones vs. staying genuine circulation —
-# not a claim that real Connplex floors target this number. Found necessary
-# via real testing: without any such reserve, a plain 23,400 sqft rectangle
-# left 57% of the floor as unlabeled "circulation" because the formulaic
-# zone targets below were sized against auditorium area, not against how
-# much floor was actually left over.
-TARGET_CIRCULATION_RATIO = 0.18
-SUPPORT_ZONE_MAX_SCALE = 1.8   # cap on how far a zone can grow past its formulaic target, so leftover space can't balloon one room unrealistically
+# TARGET_CIRCULATION_RATIO/SUPPORT_ZONE_MAX_SCALE moved into
+# rules_registry_v1.json (SUPPORT_ZONE_CIRCULATION_RESERVE_RATIO /
+# SUPPORT_ZONE_MAX_GROWTH_FACTOR planning_norms) so they're versioned and
+# carry an honest ENGINEERING_ASSUMPTION/REQUIRES_APPROVAL status like every
+# other business number here, per Product Principle #2 ("config over code")
+# — read via rules_registry.planning_norm() at the two call sites below
+# instead of being bare module constants.
 PERIMETER_TOUCH_TOLERANCE_FT = 2.0  # how close a placement must sit to the boundary's own edge to count as "at the perimeter" below
 
 
@@ -366,8 +361,9 @@ def _place_support_zones(usable_poly, fallback_poly, column_polys, placed_polys,
 
     # Scale zone targets up to use real leftover space instead of letting it
     # silently vanish into "circulation" — never shrinks a target below its
-    # formulaic value, and capped at SUPPORT_ZONE_MAX_SCALE (see its comment
-    # above) so no single zone balloons past what's plausible.
+    # formulaic value, and capped at SUPPORT_ZONE_MAX_GROWTH_FACTOR (versioned
+    # in rules_registry_v1.json) so no single zone balloons past what's
+    # plausible.
     # fallback_poly (columns not subtracted), not usable_poly (strict) — a
     # column is now legitimately buildable-over, so the "how much floor is
     # really left for support zones" accounting should include it too,
@@ -375,9 +371,11 @@ def _place_support_zones(usable_poly, fallback_poly, column_polys, placed_polys,
     remaining_area = max(fallback_poly.area - total_auditorium_area, 0.0)
     base_targets_sum = sum(t for _, _, t, _, _ in targets)
     if base_targets_sum > 0:
-        reserved_circulation = fallback_poly.area * TARGET_CIRCULATION_RATIO
+        circulation_reserve_ratio = rules_registry.planning_norm("SUPPORT_ZONE_CIRCULATION_RESERVE_RATIO")
+        max_growth_factor = rules_registry.planning_norm("SUPPORT_ZONE_MAX_GROWTH_FACTOR")
+        reserved_circulation = fallback_poly.area * circulation_reserve_ratio
         scalable_budget = max(remaining_area - reserved_circulation, 0.0)
-        scale = min(max(scalable_budget / base_targets_sum, 1.0), SUPPORT_ZONE_MAX_SCALE)
+        scale = min(max(scalable_budget / base_targets_sum, 1.0), max_growth_factor)
         if scale > 1.01:
             targets = [(rt, dn, t * scale, ma, note) for rt, dn, t, ma, note in targets]
 

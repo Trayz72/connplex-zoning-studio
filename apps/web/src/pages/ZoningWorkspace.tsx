@@ -332,6 +332,20 @@ export const ZoningWorkspace: React.FC = () => {
                 ))}
               </div>
 
+              {(layout.warnings.length > 0 || layout.rooms.some(r => r.obstacle_note || r.seat_estimate?.note)) && (
+                <div style={{ background: '#161b22', border: '1px solid #d29922', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#d29922', textTransform: 'uppercase', marginBottom: '8px' }}>⚠ Warnings &amp; Notes</div>
+                  {layout.warnings.map((w, i) => (
+                    <div key={`w${i}`} style={{ fontSize: '0.7rem', color: '#e3b341', padding: '3px 0', borderBottom: '1px solid #21262d' }}>{w}</div>
+                  ))}
+                  {layout.rooms.filter(r => r.obstacle_note || r.seat_estimate?.note).map(r => (
+                    <div key={r.room_id} style={{ fontSize: '0.7rem', color: '#e3b341', padding: '3px 0', borderBottom: '1px solid #21262d' }}>
+                      <strong>{r.display_name}:</strong> {r.obstacle_note || r.seat_estimate?.note}
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {selectedRoom && selectedRoom.room_type.startsWith('AUDITORIUM') && seatTypes.length > 0 && (
                 <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' }}>
                   <SeatConfigPanel room={selectedRoom} seatTypes={seatTypes} onApply={applySeatConfig} applying={applyingSeatConfig} embedded />

@@ -948,8 +948,11 @@ larger.
    DWG→DXF (import) and DXF→DWG (export) at prototype scale; may reduce urgency,
    but production terms/support still need sign-off for scale/reliability
    guarantees.
-2. Franchise tier naming: "Express" (brochure) vs. "Smart" (ROI sheet) —
-   unresolved, encoded in the registry with an explicit `naming_conflict_note`.
+2. ~~Franchise tier naming: "Express" (brochure) vs. "Smart" (ROI sheet)~~ —
+   **resolved 2026-09-01**: "Express" is the canonical client-facing name,
+   "Smart" kept as a known alias in the registry's `aka` field. Not a
+   Connplex-confirmed decision — the project owner made this call directly;
+   flag it to Connplex if their own usage later disagrees.
 3. Whether 55–60 seats/screen (SOP) and 60 seats/screen (Feasibility Manual)
    should both gate, or be reconciled into one number — registry keeps them
    separate per CLAUDE.md governance; a Connplex decision could collapse this.

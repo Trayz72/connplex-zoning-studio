@@ -216,6 +216,10 @@ export interface EditableLayout {
   obstacles: Obstacle[];
   rooms: LiveRoom[];
   circulation_area_sqft: number;
+  // Algorithm-level notes from when this layout was generated (unmarked
+  // entrance, undersized auditorium presets, low utilization w/ real cause,
+  // etc.) — carried forward as-is across manual edits, not recomputed.
+  warnings: string[];
   revision: string;
   updated_at: string;
   feasibility: Feasibility;
