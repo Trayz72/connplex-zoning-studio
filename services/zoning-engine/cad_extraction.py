@@ -24,9 +24,11 @@ import uuid
 
 import ezdxf
 import ezdxf.recover
+import ezdxf.path
 from collections import Counter
 from ezdxf.lldxf.const import DXFStructureError
-from shapely.geometry import Polygon, LineString
+import shapely
+from shapely.geometry import Polygon, LineString, MultiLineString
 from shapely.validation import make_valid
 from shapely.ops import polygonize
 
@@ -48,6 +50,19 @@ MIN_BOUNDARY_AREA_SQFT = 150.0     # below this, a closed shape is furniture/fix
 # inside it.
 MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT = 500000.0
 MAX_OBSTACLE_AREA_RATIO = 0.10     # an "obstacle" larger than 10% of its boundary's area is probably itself a room, not a column
+# ezdxf.path.Path.flattening(distance, segments) — segments is a per-curve
+# minimum that dominates in practice, so this stays reasonable across the
+# wildly different drawing-unit scales real files show up in (mm, m, or
+# unspecified raw units); distance is a secondary refinement only.
+CURVE_FLATTEN_DISTANCE = 0.01
+CURVE_FLATTEN_MIN_SEGMENTS = 8
+# Real wall junctions that are visually closed but off by a fraction of an
+# inch are common enough in real client DXFs that not tolerating them at all
+# left genuine floor boundaries completely unrecoverable — see
+# _reconstruct_polygons_from_lines's own docstring for the real case this
+# was found against. 0.3ft (~3.6in) is loose enough to close that kind of
+# real gap without merging two walls that are genuinely meant to be separate.
+WALL_SNAP_TOLERANCE_FT = 0.3
 MIN_OBSTACLE_AREA_SQFT = 0.3       # ignore microscopic closed shapes (hatch fragments, tick marks)
 CONTAINMENT_THRESHOLD = 0.6        # fraction of an obstacle's area that must fall inside a boundary to count as "in" it
 
@@ -113,18 +128,28 @@ def _get_units(doc):
 
 
 def _closed_points(e):
-    """Return a list of (x, y) if this entity is a closed polyline/circle, else None."""
+    """Return a list of (x, y) if this entity is a closed polyline/circle, else None.
+
+    LWPOLYLINE/POLYLINE go through ezdxf's generic path flattening rather than
+    a bare e.get_points()/vertex walk — a polyline segment with bulge (a
+    rounded corner, common in real architectural drawings) previously got
+    silently chorded into a straight line by connecting only the two
+    endpoints, which is a real, if usually minor, area/shape error. Using the
+    same flattening path as _open_segments below also keeps both functions
+    agreeing on what a curved boundary segment actually looks like."""
     t = e.dxftype()
     try:
         if t == "LWPOLYLINE":
             if not e.closed:
                 return None
-            pts = [(float(p[0]), float(p[1])) for p in e.get_points()]
+            path = ezdxf.path.make_path(e)
+            pts = [(v.x, v.y) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
             return pts if len(pts) >= 3 else None
         if t == "POLYLINE":
             if not e.is_closed:
                 return None
-            pts = [(float(v.dxf.location[0]), float(v.dxf.location[1])) for v in e.vertices]
+            path = ezdxf.path.make_path(e)
+            pts = [(v.x, v.y) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
             return pts if len(pts) >= 3 else None
         if t == "CIRCLE":
             c = e.dxf.center
@@ -158,30 +183,33 @@ def _open_segments(e):
     units. Covers the very common real-world case of a boundary drawn as
     discrete wall LINE segments rather than one closed polyline — the same
     'composite wall segments, no single closed polyline' situation the master
-    context notes even Connplex's own Dhule basement/ground floors hit."""
+    context notes even Connplex's own Dhule basement/ground floors hit.
+
+    ARC/SPLINE/ELLIPSE and bulged LWPOLYLINE/POLYLINE segments go through
+    ezdxf's generic path flattening — found via real testing against actual
+    client DXFs that a floor boundary's wall network is very often not pure
+    LINE/straight-polyline: a single ARC forming one wall corner (327 of them
+    in one real file) previously meant that entity contributed zero segments
+    here, leaving a gap polygonize() cannot close — the reconstruction found
+    nothing at all for that boundary, not just an inaccurate one."""
     t = e.dxftype()
-    try:
-        if t == "LINE":
+    if t == "LINE":
+        try:
             s, end = e.dxf.start, e.dxf.end
             return [((s[0], s[1]), (end[0], end[1]))]
-        if t == "LWPOLYLINE":
-            pts = [(float(p[0]), float(p[1])) for p in e.get_points()]
-            segs = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
-            if e.closed and len(pts) >= 2:
-                segs.append((pts[-1], pts[0]))
-            return segs
-        if t == "POLYLINE":
-            pts = [(float(v.dxf.location[0]), float(v.dxf.location[1])) for v in e.vertices]
-            segs = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
-            if e.is_closed and len(pts) >= 2:
-                segs.append((pts[-1], pts[0]))
-            return segs
-    except Exception:
-        return []
+        except Exception:
+            return []
+    if t in ("LWPOLYLINE", "POLYLINE", "ARC", "SPLINE", "ELLIPSE"):
+        try:
+            path = ezdxf.path.make_path(e)
+            pts = [(v.x, v.y) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
+        except Exception:
+            return []
+        return [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
     return []
 
 
-def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_drawing_units):
+def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_drawing_units, snap_tolerance_drawing_units=0.0):
     """Chain together every LINE/open-polyline segment in the drawing (via
     shapely's polygonize, which finds closed rings in an arbitrary network of
     line segments) to recover boundaries that exist as discrete wall segments
@@ -198,7 +226,18 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
     segment is O(polygons x segments) and was measured to hang on a real 800+
     entity drawing. Fixed with a spatial index (STRtree) for that lookup, and
     by discarding sub-threshold polygons (found: hundreds of tiny ones from
-    hatching/furniture) before doing any attribution work at all."""
+    hatching/furniture) before doing any attribution work at all.
+
+    snap_tolerance_drawing_units: real client DXFs routinely have walls drawn
+    as segments that don't *quite* meet at corners/T-junctions — a few
+    thousandths of a unit off, invisible on screen, but polygonize() requires
+    exact coincidence and silently finds no ring at all across a gap that
+    small. Found via real testing: a genuine floor boundary (a real retail
+    unit, ~1,400 sqft) was completely unrecoverable at zero tolerance and
+    recovered cleanly once nearby endpoints were snapped together first —
+    shapely.set_precision quantizes every coordinate to this grid size before
+    polygonize runs, which is the standard fix for near-but-not-quite-closed
+    line networks. 0 (the default) preserves the exact old behavior."""
     from shapely.strtree import STRtree
 
     segments = []
@@ -214,6 +253,18 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
 
     if len(segments) < 3:
         return []
+
+    if snap_tolerance_drawing_units > 0:
+        snapped = shapely.set_precision(MultiLineString(segments), grid_size=snap_tolerance_drawing_units)
+        snapped_segments, snapped_layers = [], []
+        for seg, layer in zip(snapped.geoms, layer_by_segment):
+            if seg.is_empty or seg.length == 0:
+                continue  # collapsed to a point by snapping — not a real segment any more
+            snapped_segments.append(seg)
+            snapped_layers.append(layer)
+        segments, layer_by_segment = snapped_segments, snapped_layers
+        if len(segments) < 3:
+            return []
 
     candidate_polys = [p for p in polygonize(segments) if p.is_valid and p.area >= min_area_drawing_units]
     if not candidate_polys:
@@ -300,7 +351,8 @@ def extract(input_path: str) -> dict:
     # line segments (LINE/open-polyline entities that together form a closed
     # loop but aren't one explicit closed shape in the source file) ---
     min_area_drawing_units = MIN_OBSTACLE_AREA_SQFT / max(scale ** 2, 1e-9)  # cheap pre-filter, tightened again in feet below
-    for rec in _reconstruct_polygons_from_lines(entities, closed_handles, min_area_drawing_units):
+    snap_tolerance_drawing_units = WALL_SNAP_TOLERANCE_FT / max(scale, 1e-9)
+    for rec in _reconstruct_polygons_from_lines(entities, closed_handles, min_area_drawing_units, snap_tolerance_drawing_units):
         poly = rec["polygon"]
         closed_shapes.append({
             "handle": rec["handle"], "layer": rec["layer"], "dxftype": rec["dxftype"], "source": "reconstructed",
