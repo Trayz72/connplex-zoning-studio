@@ -24,6 +24,7 @@ from reportlab.lib.colors import HexColor, black, white, red
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas as pdfcanvas
 from shapely.geometry import Polygon
+from shapely.ops import unary_union
 
 LOGO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "connplex_logo.jpg")
 _logo_reader = None
@@ -538,6 +539,56 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
             continue
         if any(obs_poly.intersects(rp) for rp in room_polys_ft):
             draw_obstacle_shape(pts)
+
+    # "Net Usage Area" sheets are a real, separate deliverable Connplex
+    # actually produces (confirmed against multiple real client reference
+    # PDFs, e.g. 1159-The Crossroads' "NET USAGE AREA @ 2nd Floor" and
+    # 1158/1073's "..._NET USAGE AREA_..." files) — same floor plan and same
+    # Area & Seat Chart as a Zoning Layout sheet, but with the real net
+    # usable area called out directly on the drawing via a hatched overlay +
+    # label, not just buried in the project-info block. This is a best-effort
+    # match to that convention, not a traced copy — see this file's module
+    # docstring.
+    if "net usage area" in sheet_type.lower() and room_polys_ft:
+        net_union = unary_union(room_polys_ft)
+        net_area_sqft = net_union.area
+        c.saveState()
+        clip_path = c.beginPath()
+        polys = [net_union] if net_union.geom_type == "Polygon" else list(net_union.geoms)
+        for poly in polys:
+            x0, y0 = tx(list(poly.exterior.coords)[0])
+            clip_path.moveTo(x0, y0)
+            for p in list(poly.exterior.coords)[1:]:
+                x, y = tx(p)
+                clip_path.lineTo(x, y)
+            clip_path.close()
+        c.clipPath(clip_path, stroke=0, fill=0)
+        c.setStrokeColor(HexColor("#c0392b"))
+        c.setLineWidth(0.5)
+        hatch_step = 8
+        page_pts_all = [tx(p) for p in boundary_points_ft]
+        hx0 = min(p[0] for p in page_pts_all) - draw_h
+        hx1 = max(p[0] for p in page_pts_all) + draw_h
+        hy0 = min(p[1] for p in page_pts_all)
+        hy1 = max(p[1] for p in page_pts_all)
+        x = hx0
+        while x < hx1:
+            c.line(x, hy0, x + (hy1 - hy0), hy1)
+            x += hatch_step
+        c.restoreState()
+
+        label_x = draw_x + draw_w / 2
+        label_y = draw_y + draw_h * 0.5
+        label = f"NET USAGE AREA = {net_area_sqft:,.0f} SQ.FT"
+        c.setFont("Helvetica-Bold", 13)
+        text_w = c.stringWidth(label, "Helvetica-Bold", 13)
+        c.setFillColor(white)
+        c.rect(label_x - text_w / 2 - 6, label_y - 6, text_w + 12, 18, stroke=0, fill=1)
+        c.setStrokeColor(HexColor("#c0392b"))
+        c.setLineWidth(1)
+        c.rect(label_x - text_w / 2 - 6, label_y - 6, text_w + 12, 18, stroke=1, fill=0)
+        c.setFillColor(HexColor("#c0392b"))
+        c.drawCentredString(label_x, label_y - 1, label)
 
     # Overall dimension line under the drawing — real bounding-box size of the
     # confirmed region (in whichever axis now runs horizontal on the page,
