@@ -432,31 +432,32 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
     MAX_RAW_LINES = 6000
     MAX_RAW_TEXTS = 800
 
-    def extract_raw_geometry(minx, miny, maxx, maxy):
+    def extract_raw_geometry(minx, miny, maxx, maxy, max_lines=MAX_RAW_LINES):
         """The actual underlying CAD drawing near this region — rendered as a
         light backdrop in the editor so the architect can see the real source
         drawing under the generated zoning, the way a real CAD viewer does.
-        Capped per region so a huge real drawing (Vadodara: 2000+ closed shapes
-        alone) doesn't ship an unbounded payload to the browser."""
+        Capped so a huge real drawing (Vadodara: 2000+ closed shapes alone)
+        doesn't ship an unbounded payload to the browser.
+
+        Sampling is evenly strided across every matching segment, not a hard
+        cutoff at the first max_lines in file entity order — found via real
+        testing (a real site plan with a dense hatched/dimensioned corner)
+        that a first-N cutoff can exhaust the whole cap on one small cluster
+        near the start of the entity list, leaving the "backdrop" showing
+        only a tiny fraction of the drawing's real extent instead of the
+        whole thing a user tracing a boundary by hand actually needs to see."""
         pad = max((maxx - minx), (maxy - miny)) * 0.05
         bx0, by0, bx1, by1 = minx - pad, miny - pad, maxx + pad, maxy + pad
-        lines, circles, texts = [], [], []
-        truncated = False
+        all_lines, circles, texts = [], [], []
         for e in entities:
-            if len(lines) >= MAX_RAW_LINES:
-                truncated = True
-                break
             t = e.dxftype()
             try:
                 if t in ("LINE", "LWPOLYLINE", "POLYLINE"):
                     for a, b in _open_segments(e):
                         if not (bx0 <= a[0] <= bx1 and by0 <= a[1] <= by1) and not (bx0 <= b[0] <= bx1 and by0 <= b[1] <= by1):
                             continue
-                        lines.append([[round(a[0] * scale, 3), round(a[1] * scale, 3)],
-                                      [round(b[0] * scale, 3), round(b[1] * scale, 3)]])
-                        if len(lines) >= MAX_RAW_LINES:
-                            truncated = True
-                            break
+                        all_lines.append([[round(a[0] * scale, 3), round(a[1] * scale, 3)],
+                                           [round(b[0] * scale, 3), round(b[1] * scale, 3)]])
                 elif t == "CIRCLE":
                     c, r = e.dxf.center, e.dxf.radius
                     if bx0 <= c[0] <= bx1 and by0 <= c[1] <= by1:
@@ -469,6 +470,13 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
                             texts.append({"text": txt, "position": [round(ins[0] * scale, 3), round(ins[1] * scale, 3)]})
             except Exception:
                 continue
+
+        truncated = len(all_lines) > max_lines
+        if truncated:
+            stride = len(all_lines) / max_lines
+            lines = [all_lines[int(i * stride)] for i in range(max_lines)]
+        else:
+            lines = all_lines
         return {"lines": lines, "circles": circles, "texts": texts, "truncated": truncated}
 
     regions = []
@@ -582,6 +590,29 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
         -r["boundary"]["area_sqft"]
     ))
 
+    # A whole-drawing backdrop, independent of whether region detection found
+    # anything — the manual "draw your own boundary" flow (GeometryReviewStep)
+    # needs real linework to trace over even when region_count is 0, and
+    # extract_raw_geometry() above was previously only ever called scoped to
+    # an already-found region's own bbox, so a zero-region file shipped no
+    # backdrop at all. Reuses the exact same helper/caps, just over the whole
+    # drawing's real extent instead of one region's.
+    # Always computed from every raw segment's endpoints, not just closed
+    # shapes — closed_shapes can genuinely exist but be tiny/irrelevant
+    # (found via real testing: a real site plan's only closed shapes were a
+    # few square inches of Z-axis/north-arrow symbol markers), which made an
+    # earlier "only fall back if closed_shapes is completely empty" version
+    # of this silently use that wrong, tiny extent as the whole drawing's
+    # bbox instead of ever reaching the real fallback.
+    whole_drawing_raw_geometry = None
+    wxs, wys = [], []
+    for e in entities:
+        for a, b in _open_segments(e):
+            wxs.extend([a[0], b[0]])
+            wys.extend([a[1], b[1]])
+    if wxs:
+        whole_drawing_raw_geometry = extract_raw_geometry(min(wxs), min(wys), max(wxs), max(wys), max_lines=MAX_RAW_LINES * 3)
+
     return {
         "schema_version": "1.0",
         "source_filename": os.path.basename(input_path),
@@ -593,5 +624,6 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
         "total_closed_shapes_found": len(closed_shapes),
         "region_count": len(regions),
         "regions": regions,
-        "unclassified_text_count": len(text_labels)
+        "unclassified_text_count": len(text_labels),
+        "raw_geometry": whole_drawing_raw_geometry
     }
