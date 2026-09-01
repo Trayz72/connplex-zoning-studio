@@ -107,6 +107,19 @@ export async function runZoning(projectId: string, regionId: string): Promise<Zo
   }));
 }
 
+/** Asks Claude to propose a layout directly from the real floor geometry,
+ * instead of the deterministic packer — genuinely slower (a real model call,
+ * usually 20-40s) and costs real API usage, so this is only ever triggered by
+ * an explicit user click, never auto-run like the two deterministic
+ * strategies. Returns the same ZoningRunResult shape with the AI candidate
+ * merged into `candidates`, so selecting/editing/exporting it needs no
+ * AI-specific frontend code past this call. */
+export async function runAiZoning(projectId: string, regionId: string): Promise<ZoningRunResult> {
+  return asJson(await fetch(`${BASE}/${projectId}/ai-zoning-runs`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ region_id: regionId })
+  }));
+}
+
 export async function getLatestRun(projectId: string): Promise<ZoningRunResult | null> {
   const res = await fetch(`${BASE}/${projectId}/zoning-runs/latest`);
   if (res.status === 404) return null;

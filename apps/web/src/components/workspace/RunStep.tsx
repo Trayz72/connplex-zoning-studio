@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { runZoning, selectCandidate } from '../../services/zoningEngineApi';
+import { runZoning, runAiZoning, selectCandidate } from '../../services/zoningEngineApi';
 import { ZoningRunResult, LiveCandidate, EditableLayout } from '../../types/live';
-import { ArrowRightIcon, WarningIcon } from '../Icons';
+import { ArrowRightIcon, WarningIcon, RefreshIcon } from '../Icons';
 
 interface RunStepProps {
   projectId: string;
@@ -23,12 +23,45 @@ function bestCandidate(candidates: LiveCandidate[]): LiveCandidate {
   return candidates.reduce((best, c) => (c.total_seats > best.total_seats ? c : best));
 }
 
+const AI_REASONING_PREFIX = 'AI reasoning: ';
+
+/** ai_zoning_engine.py packs Claude's own explanation into warnings[0] as a
+ * plain string (backend has no separate "reasoning" field on the candidate
+ * shape) — split it out so it renders as an explanation, not a warning icon. */
+function aiReasoning(c: LiveCandidate): string | null {
+  const w = c.warnings.find(w => w.startsWith(AI_REASONING_PREFIX));
+  return w ? w.slice(AI_REASONING_PREFIX.length) : null;
+}
+
+function realWarnings(c: LiveCandidate): string[] {
+  return c.warnings.filter(w => !w.startsWith(AI_REASONING_PREFIX));
+}
+
 export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutReady }) => {
   const [run, setRun] = useState<ZoningRunResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selecting, setSelecting] = useState<string | null>(null);
   const [autoFired, setAutoFired] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const startedRef = useRef(false);
+
+  const generateAi = async () => {
+    // Cancel the pending deterministic auto-select — a 30-40s AI call would
+    // otherwise lose the race and the page would already be on step 5 by the
+    // time it resolves, same as pick() does for a manual candidate choice.
+    setAutoFired(true);
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const result = await runAiZoning(projectId, regionId);
+      setRun(result);
+    } catch (e: any) {
+      setAiError(e.message || 'AI-assisted layout generation failed.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const pick = async (candidate: LiveCandidate) => {
     setAutoFired(true);
@@ -85,11 +118,23 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
 
   const best = bestCandidate(run.candidates);
 
+  const hasAiCandidate = run.candidates.some(c => c.strategy === 'AI_ASSISTED');
+
   return (
     <div style={{ padding: '1.5rem', maxWidth: '1100px', margin: '0 auto' }}>
-      <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
-        {run.candidates.length} Candidate Layout{run.candidates.length !== 1 ? 's' : ''}
-      </h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.25rem' }}>
+        <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)' }}>
+          {run.candidates.length} Candidate Layout{run.candidates.length !== 1 ? 's' : ''}
+        </h2>
+        {!hasAiCandidate && (
+          <button className="btn btn-secondary" style={{ fontSize: '0.78rem', flex: '0 0 auto' }} disabled={aiLoading} onClick={generateAi}>
+            {aiLoading ? <><RefreshIcon size={13} /> Generating with Claude… (~30s)</> : <><RefreshIcon size={13} /> Generate AI-Assisted Layout</>}
+          </button>
+        )}
+      </div>
+      {aiError && (
+        <div className="alert-box alert-error" style={{ marginBottom: '1rem' }}>{aiError}</div>
+      )}
       {!autoFired && (
         <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
           Auto-selecting "{best.strategy_label}" ({best.total_seats} seats) shortly — pick a different one below if you'd rather use it.
@@ -111,7 +156,12 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
               borderColor: c.candidate_id === best.candidate_id && !autoFired ? 'var(--border-strong)' : undefined
             }}
           >
-            <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>{c.strategy_label}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>{c.strategy_label}</div>
+              {c.strategy === 'AI_ASSISTED' && (
+                <span className="badge" style={{ fontSize: '0.62rem', padding: '1px 7px', color: 'var(--brand-strong)', border: '1px solid var(--brand-strong)' }}>CLAUDE</span>
+              )}
+            </div>
             <div style={{ fontSize: '0.75rem', color: FEAS_COLOR[c.feasibility.feasibility_result], fontWeight: 600, margin: '6px 0' }}>
               {c.feasibility.feasibility_result.replace(/_/g, ' ')}
             </div>
@@ -127,9 +177,15 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
               ))}
             </div>
 
-            {c.warnings.length > 0 && (
+            {aiReasoning(c) && (
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '10px', fontStyle: 'italic' }}>
+                "{aiReasoning(c)}"
+              </div>
+            )}
+
+            {realWarnings(c).length > 0 && (
               <div style={{ fontSize: '0.68rem', color: 'var(--warning)', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {c.warnings.map((w, i) => (
+                {realWarnings(c).map((w, i) => (
                   <div key={i} style={{ display: 'flex', gap: '5px' }}>
                     <WarningIcon size={12} style={{ flex: '0 0 auto', marginTop: '2px' }} />
                     <span>{w}</span>
