@@ -1,6 +1,67 @@
 # STATUS
 
-Last updated: 2026-08-31 (eleventh session, same day — deployed to Render, fixed a real "Run Auto-Layout" hang on real-world files)
+Last updated: 2026-09-01 (thirteenth session — automated the standard zoning flow end-to-end; kept editing optional)
+
+## Update: standard flow is now upload -> auto-generated, exportable layout, with zero required clicks
+
+Direct response to client feedback: the flow required an architect to
+individually Confirm/Ignore every detected obstacle (443 of them on Dhule's
+largest region), then click through a candidate-picker, before ever seeing a
+layout — real, reported friction, not a hypothetical. The ask: CAD in,
+boundary/columns/walls/obstacles identified correctly, available space
+computed, a real auto-generated layout out, exportable — with manual editing
+available as an option, never required for the standard path.
+
+- **`cad_extraction.py`**: interior wall shapes (closed shapes on a wall/
+  partition-hinted CAD layer that aren't the region's own outer boundary) are
+  now classified `WALL` instead of falling into the generic
+  `UNCLASSIFIED_OBSTACLE` bucket — same evidence-based layer-hint technique
+  already used for COLUMN/DOOR/WINDOW/STAIRCASE/etc. Verified on the real
+  Dhule DWG: 83 shapes on its largest region that were previously
+  unclassified are now correctly identified as WALL.
+- **`GeometryReviewStep.tsx`**: every detected obstacle now pre-confirms
+  (treated as real, avoided) instead of requiring an individual click — the
+  conservative direction, since over-avoiding a shape costs a little usable
+  area while silently ignoring a real one risks a room drawn on top of an
+  actual wall or column. When the boundary itself is clean (no extraction
+  warning), the screen shows what was detected and auto-proceeds after a
+  short pause. A boundary that carries a warning — the same implausible-size/
+  reconstructed-with-no-evidence cases the prior session's hang fix
+  introduced — always stops for a human, in every mode; that gate is never
+  skipped, verified directly against `theater_clean.dxf`'s real 16M+ sqft
+  frame candidates. A "Review Detected Geometry Manually" escape hatch is
+  always available.
+- **`RunStep.tsx`**: auto-runs on mount and auto-selects the higher-seat-
+  count candidate (the same choice the backend's initial-layout write
+  already makes) instead of requiring a "Run Zoning" click and then a "Use
+  This Layout" click.
+- **`ZoningWorkspace.tsx`**: added a "Layout Strategy" switcher in the edit
+  sidebar so the alternate strategy (max seats/screen vs max screen count)
+  stays reachable after landing on the auto-generated layout, rather than
+  being a blocking step beforehand.
+- **`types/live.ts`**: fixed `Obstacle.classification`, which was still
+  typed as only `COLUMN | UNCLASSIFIED_OBSTACLE` — a real, pre-existing gap
+  (the backend has emitted DOOR/WINDOW/STAIRCASE/WASHROOM_FIXTURE/FURNITURE
+  since a prior session) — while adding WALL.
+
+Verified against the real Dhule DWG (7 regions, up to 443 obstacles) and the
+real `theater_clean.dxf` (59 regions, including the implausible sheet-border
+frames from the prior session's hang fix): full upload -> auto geometry
+review -> defaulted requirements -> auto-run -> auto-select -> PDF export ran
+end-to-end with zero required clicks beyond the two ordinary "continue"
+actions, producing 666 seats across 4 auditoriums on Dhule's largest region —
+identical to the historical baseline, confirming no regression. `tsc
+--noEmit` clean. Merged straight to `master` and pushed (this change doesn't
+touch persistence, so it isn't blocked on the pending Postgres migration on
+`dev` — see below).
+
+**What this does not change**: the Requirements step (property type,
+franchise tier, clear height, entrance) is still a real, brief user input —
+those are business decisions, not something a CAD file can supply, and
+leaving them unmarked already uses sensible defaults/skips the rules that
+need them rather than guessing. Manual editing (drag/resize, add/delete
+zones, per-room seat mix) is untouched and still fully available from the
+same EDIT screen the auto-generated layout lands on.
 
 ## Is this deliverable? Can Connplex's architecture team start using it for zoning and seat counts?
 
