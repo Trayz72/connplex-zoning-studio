@@ -15,6 +15,11 @@ interface EditableCanvasProps {
   snapToGridFt: number;
   rawGeometry?: RawGeometry | null;
   showCadLinework?: boolean;
+  /** When true, clicking the canvas traces a boundary polygon instead of
+   * selecting/dragging rooms — for "draw your own boundary" when auto-
+   * detection found the wrong region, or none at all. */
+  drawMode?: boolean;
+  onDrawComplete?: (points: number[][]) => void;
 }
 
 // Deliberately no per-room-type color coding — every room renders as a
@@ -57,7 +62,7 @@ const HANDLE_DEFS: { id: HandleId; cursor: string; fx: number; fy: number }[] = 
 
 export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   boundaryPointsFt, obstacles, rooms, selectedRoomId, onSelectRoom, onLiveChange, onCommit, snapToGridFt,
-  rawGeometry, showCadLinework = true
+  rawGeometry, showCadLinework = true, drawMode = false, onDrawComplete
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragMode>(null);
@@ -67,16 +72,26 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   const [collision, setCollision] = useState(false);
   const [hoveredHandle, setHoveredHandle] = useState<string | null>(null);
   const [hoveredRoomId, setHoveredRoomId] = useState<string | null>(null);
+  const [drawPoints, setDrawPoints] = useState<number[][]>([]);
   const moved = useRef(false);
 
   useEffect(() => { setLiveRooms(rooms); }, [rooms]);
+  useEffect(() => { setDrawPoints([]); }, [drawMode]);
 
   const bbox = useMemo(() => {
-    const allPts = [...boundaryPointsFt, ...obstacles.flatMap(o => o.points_ft)];
+    // Deliberately excludes drawPoints — the user is tracing a boundary on
+    // top of the already-visible backdrop (existing boundary/obstacles/raw
+    // CAD linework), so the viewBox must stay anchored to that and never
+    // reflow as points are added. Letting drawPoints influence it was a real
+    // bug: each new point could shift the viewBox under the user's cursor,
+    // making every click after the first land somewhere other than where
+    // they visually aimed.
+    const rawPts = rawGeometry ? rawGeometry.lines.flat() : [];
+    const allPts = [...boundaryPointsFt, ...obstacles.flatMap(o => o.points_ft), ...(boundaryPointsFt.length ? [] : rawPts)];
     const b = polygonBounds(allPts.length ? allPts : [[0, 0], [100, 100]]);
     const pad = Math.max((b.maxX - b.minX), (b.maxY - b.minY)) * 0.06 + 3;
     return { minX: b.minX - pad, minY: b.minY - pad, width: (b.maxX - b.minX) + 2 * pad, height: (b.maxY - b.minY) + 2 * pad };
-  }, [boundaryPointsFt, obstacles]);
+  }, [boundaryPointsFt, obstacles, rawGeometry]);
 
   const viewBoxWidth = bbox.width / zoom;
   const viewBox = `${bbox.minX} ${bbox.minY} ${viewBoxWidth} ${bbox.height / zoom}`;
@@ -196,6 +211,40 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
     moved.current = false;
   };
 
+  const CLOSE_HIT_FT_MULT = HANDLE_HIT_SCREEN_PX; // reuse the same generous click-target sizing as room handles
+
+  const handleBackgroundClick = (e: React.PointerEvent) => {
+    if (!drawMode) {
+      onSelectRoom(null);
+      return;
+    }
+    const { x, y } = screenToUser(e.clientX, e.clientY);
+    if (drawPoints.length >= 3) {
+      const [fx, fy] = drawPoints[0];
+      const closeHitFt = ftPerHandlePx(CLOSE_HIT_FT_MULT);
+      if (Math.hypot(x - fx, y - fy) <= closeHitFt) {
+        onDrawComplete?.(drawPoints);
+        setDrawPoints([]);
+        return;
+      }
+    }
+    setDrawPoints(prev => [...prev, [Math.round(x * 100) / 100, Math.round(y * 100) / 100]]);
+  };
+
+  useEffect(() => {
+    if (!drawMode) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDrawPoints([]);
+      if (e.key === 'Enter' && drawPoints.length >= 3) {
+        onDrawComplete?.(drawPoints);
+        setDrawPoints([]);
+      }
+      if (e.key === 'Backspace') setDrawPoints(prev => prev.slice(0, -1));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [drawMode, drawPoints, onDrawComplete]);
+
   const draggedRoom = drag ? liveRooms.find(r => r.room_id === drag.roomId) : null;
   const gridLines = useMemo(() => {
     if (!snapToGridFt || snapToGridFt <= 0) return null;
@@ -229,16 +278,25 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
             {draggedRoom.width_ft.toFixed(1)} × {draggedRoom.depth_ft.toFixed(1)} ft ({draggedRoom.area_sqft.toFixed(0)} sqft)
           </span>
         )}
+        {drawMode && (
+          <span style={{ background: 'var(--brand-strong)', color: 'var(--brand-ink)', fontSize: '0.72rem', fontWeight: 600, padding: '3px 8px', borderRadius: 'var(--radius-sm)' }}>
+            {drawPoints.length === 0
+              ? 'Click to place the first boundary point'
+              : `${drawPoints.length} point${drawPoints.length !== 1 ? 's' : ''} — click near the first point (or press Enter) to close · Backspace to undo · Esc to clear`}
+          </span>
+        )}
       </div>
       <svg
         ref={svgRef}
         viewBox={viewBox}
-        style={{ flex: 1, width: '100%', touchAction: 'none', cursor: drag ? 'grabbing' : 'default' }}
+        style={{ flex: 1, width: '100%', touchAction: 'none', cursor: drawMode ? 'crosshair' : drag ? 'grabbing' : 'default' }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerDown={() => onSelectRoom(null)}
+        onPointerDown={handleBackgroundClick}
       >
-        <polygon points={boundaryPointsFt.map(p => p.join(',')).join(' ')} fill="var(--bg-secondary)" stroke="var(--text-primary)" strokeWidth={0.15} />
+        {boundaryPointsFt.length > 0 && (
+          <polygon points={boundaryPointsFt.map(p => p.join(',')).join(' ')} fill="var(--bg-secondary)" stroke="var(--text-primary)" strokeWidth={0.15} />
+        )}
         {gridLines}
 
         {showCadLinework && rawGeometry && (
@@ -268,6 +326,27 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
             strokeWidth={0.1}
           />
         ))}
+
+        {drawMode && drawPoints.length > 0 && (
+          <g pointerEvents="none">
+            {drawPoints.length > 1 && (
+              <polyline
+                points={drawPoints.map(p => p.join(',')).join(' ')}
+                fill="none" stroke="var(--brand-strong)" strokeWidth={ftPerHandlePx(2)}
+              />
+            )}
+            {drawPoints.length >= 3 && (
+              <line
+                x1={drawPoints[drawPoints.length - 1][0]} y1={drawPoints[drawPoints.length - 1][1]}
+                x2={drawPoints[0][0]} y2={drawPoints[0][1]}
+                stroke="var(--brand-strong)" strokeWidth={ftPerHandlePx(2)} strokeDasharray={`${ftPerHandlePx(4)} ${ftPerHandlePx(4)}`}
+              />
+            )}
+            {drawPoints.map((p, i) => (
+              <circle key={i} cx={p[0]} cy={p[1]} r={ftPerHandlePx(i === 0 ? 7 : 5)} fill={i === 0 ? 'var(--brand-strong)' : 'var(--bg-primary)'} stroke="var(--brand-strong)" strokeWidth={ftPerHandlePx(1.5)} />
+            ))}
+          </g>
+        )}
 
         {liveRooms.map(room => {
           const isSelected = room.room_id === selectedRoomId;

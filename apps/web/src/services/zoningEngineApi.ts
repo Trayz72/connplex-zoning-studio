@@ -83,6 +83,17 @@ export async function getGeometry(projectId: string): Promise<GeometryResult> {
   return asJson(await fetch(`${BASE}/${projectId}/geometry`));
 }
 
+/** Re-runs extraction on the file already uploaded via uploadCad, but with
+ * Claude first picking which CAD layer(s) actually hold the wall/floor
+ * geometry — for files where the default pass finds nothing (real,
+ * dimension/hatch/furniture-heavy client drawings routinely bury the real
+ * boundary among unrelated layers). A real, slower (~15-30s) Claude call,
+ * not a retry of the same deterministic pass — only ever call this after a
+ * normal upload, never instead of one. */
+export async function aiScanCad(projectId: string): Promise<GeometryResult> {
+  return asJson(await fetch(`${BASE}/${projectId}/cad/ai-scan`, { method: 'POST' }));
+}
+
 export async function updateGeometry(projectId: string, regions: GeometryRegion[]): Promise<GeometryResult> {
   return asJson(await fetch(`${BASE}/${projectId}/geometry`, {
     method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ regions })

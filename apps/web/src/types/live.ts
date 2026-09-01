@@ -70,6 +70,11 @@ export interface GeometryResult {
   unclassified_text_count: number;
   uploaded_filename?: string;
   uploaded_at?: string;
+  // The whole drawing's own linework, independent of whether any region was
+  // auto-detected — lets "draw your own boundary" show real CAD backdrop
+  // even when region_count is 0. Falls back to per-region raw_geometry when
+  // absent (older stored geometry.json from before this field existed).
+  raw_geometry?: RawGeometry | null;
 }
 
 export interface Requirements {

@@ -27,14 +27,54 @@ function preConfirmObstacles(region: GeometryRegion): GeometryRegion {
   };
 }
 
+function polygonAreaSqft(points: number[][]): number {
+  // Shoelace formula — points_ft is already in real feet, same convention
+  // every other area_sqft in this app uses.
+  let sum = 0;
+  for (let i = 0; i < points.length; i++) {
+    const [x1, y1] = points[i];
+    const [x2, y2] = points[(i + 1) % points.length];
+    sum += x1 * y2 - x2 * y1;
+  }
+  return Math.round(Math.abs(sum) / 2 * 100) / 100;
+}
+
+function boundingBox(points: number[][]) {
+  const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+  return { min_x: Math.min(...xs), min_y: Math.min(...ys), max_x: Math.max(...xs), max_y: Math.max(...ys) };
+}
+
 export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry, onConfirmed, onStartOver }) => {
   const [regions, setRegions] = useState<GeometryRegion[]>(() => geometry.regions.map(preConfirmObstacles));
   const [activeRegionId, setActiveRegionId] = useState<string>(geometry.regions[0]?.region_id || '');
   const [showCadLinework, setShowCadLinework] = useState(true);
   const [manualOverride, setManualOverride] = useState(false);
   const [autoFired, setAutoFired] = useState(false);
+  const [drawingBoundary, setDrawingBoundary] = useState(regions.length === 0);
 
   const activeRegion = regions.find(r => r.region_id === activeRegionId);
+  // The whole-drawing backdrop (present even when nothing was auto-detected)
+  // falls back to whatever the currently-active detected region already had,
+  // for older stored geometry from before this field existed.
+  const backdropRawGeometry = geometry.raw_geometry ?? activeRegion?.raw_geometry ?? null;
+
+  const handleManualBoundary = (points: number[][]) => {
+    const newRegion: GeometryRegion = {
+      region_id: `manual-${Date.now().toString(36)}`,
+      boundary: {
+        source_handle: 'manual', layer: 'manual', source: 'explicit',
+        area_sqft: polygonAreaSqft(points), points_ft: points,
+        bounding_box_ft: boundingBox(points), confidence: 'high', note: null, status: 'PROPOSED',
+      },
+      obstacles: [],
+      text_labels: [],
+      raw_geometry: backdropRawGeometry ?? undefined,
+    };
+    setRegions(prev => [...prev, newRegion]);
+    setActiveRegionId(newRegion.region_id);
+    setDrawingBoundary(false);
+    setManualOverride(true); // a hand-drawn boundary always goes to the manual review screen, never auto-advances
+  };
 
   // A boundary with no `note` is one the extractor itself has no reason to
   // doubt (a plausible size, and either an explicit closed polyline or a
@@ -44,7 +84,26 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
   // wall-layer evidence behind it — always stops here for a human, in every
   // mode; that gate is never skipped.
   const boundaryIsClean = !!activeRegion && !activeRegion.boundary.note;
-  const autoMode = boundaryIsClean && !manualOverride;
+  // A hand-drawn boundary is never auto-advanced, full stop — checked
+  // directly off the region id rather than through manualOverride, because
+  // the effect below resets manualOverride on every activeRegionId change
+  // (including the one handleManualBoundary itself triggers), which was
+  // silently cancelling out setManualOverride(true) and letting a boundary
+  // the user just hand-drew auto-confirm 1.6s later with no chance to
+  // review it — found via a real click-through, not by inspection.
+  const isHandDrawn = activeRegionId.startsWith('manual-');
+  // Real bug found via a real upload (a file with no $INSUNITS set at all):
+  // every area/distance the extractor reports is computed against an
+  // assumed 1 drawing-unit = 1 ft scale when the real unit is unknown —
+  // geometry.units.needs_user_confirmation is exactly the flag that says
+  // so, but nothing here ever checked it, so a file like that could sail
+  // through the "clean, no note" auto-advance path and get its (probably
+  // wildly wrong-scale) boundary silently confirmed within 1.6s, before a
+  // user could even look at what was detected. That reads as "the CAD file
+  // isn't rendering" from the outside — it renders, but you're never shown
+  // it before the app moves on.
+  const unitsUnconfirmed = geometry.units.needs_user_confirmation;
+  const autoMode = boundaryIsClean && !manualOverride && !isHandDrawn && !unitsUnconfirmed;
 
   useEffect(() => {
     setManualOverride(false);
@@ -82,15 +141,52 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
   };
 
   if (!activeRegion) {
+    // No auto-detected region — not a dead end: the real CAD linework is
+    // still there (geometry.raw_geometry covers the whole drawing precisely
+    // for this case), so trace the boundary by hand directly over it instead
+    // of forcing a re-upload.
     return (
-      <div style={{ padding: '3rem', textAlign: 'center' }}>
-        <div style={{ color: 'var(--danger)', marginBottom: '1.25rem' }}>
-          No candidate floor-plan regions were found in this file (no closed polyline above the minimum boundary
-          area was detected). Try a cleaner export, or a file with an explicit closed wall/boundary polyline.
+      <div style={{ display: 'flex', height: '100%', gap: '12px', padding: '12px' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+              No boundary was auto-detected in this file — trace it by hand over the real drawing below.
+            </span>
+            <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={onStartOver}>
+              <ArrowLeftIcon size={14} /> Upload a Different File
+            </button>
+          </div>
+          <EditableCanvas
+            boundaryPointsFt={[]}
+            obstacles={[]}
+            rooms={[]}
+            selectedRoomId={null}
+            onSelectRoom={() => {}}
+            onLiveChange={() => {}}
+            onCommit={() => {}}
+            snapToGridFt={0}
+            rawGeometry={backdropRawGeometry}
+            showCadLinework
+            drawMode
+            onDrawComplete={handleManualBoundary}
+          />
         </div>
-        <button className="btn btn-primary" onClick={onStartOver}>
-          <ArrowLeftIcon size={14} /> Upload a Different File
-        </button>
+        <div style={{ width: '360px' }}>
+          <div className="panel" style={{ padding: '16px' }}>
+            <div className="panel-label" style={{ marginBottom: '8px' }}>Draw the Floor Boundary</div>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              Click points along the real wall outline shown in the drawing, in order, tracing the boundary you want
+              to zone. Click back near your first point (or press Enter) once you have at least 3 points to close
+              it — Backspace undoes the last point, Escape clears and starts over.
+            </p>
+            {!backdropRawGeometry && (
+              <div className="alert-box" style={{ marginTop: '10px', fontSize: '0.72rem' }}>
+                This file has no recoverable linework at all to trace over — a re-export or a different file is the
+                only option here.
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
@@ -104,7 +200,13 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
   }
 
   const regionSwitcher = regions.length > 1 && (
-    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
+    // maxHeight + its own scroll, and flex: '0 0 auto' so this never grows
+    // to push the canvas below it out of the flex column entirely — a real
+    // file with many candidate regions (a noisy/unscaled drawing can easily
+    // propose 50+) was found to collapse the canvas to 0 height, because an
+    // unbounded wrapping row of that many buttons has no natural limit on
+    // how tall it grows inside a `height: 100%` flex chain.
+    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', flex: '0 0 auto', maxHeight: '110px', overflowY: 'auto', padding: '2px' }}>
       {regions.map(r => (
         <button
           key={r.region_id}
@@ -193,26 +295,46 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
               </span>
             )}
           </label>
-          <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={onStartOver}>
-            <RefreshIcon size={13} /> Replace CAD File
-          </button>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={() => setDrawingBoundary(v => !v)}>
+              {drawingBoundary ? 'Cancel Drawing' : 'Draw Boundary Manually'}
+            </button>
+            <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={onStartOver}>
+              <RefreshIcon size={13} /> Replace CAD File
+            </button>
+          </div>
         </div>
+        {drawingBoundary && (
+          <div style={{ fontSize: '0.72rem', color: 'var(--brand-strong)' }}>
+            Click points tracing the boundary you want instead — Enter or click near the first point to close, Esc to cancel.
+          </div>
+        )}
         {regionSwitcher}
         <EditableCanvas
-          boundaryPointsFt={activeRegion.boundary.points_ft}
-          obstacles={activeRegion.obstacles}
+          boundaryPointsFt={drawingBoundary ? [] : activeRegion.boundary.points_ft}
+          obstacles={drawingBoundary ? [] : activeRegion.obstacles}
           rooms={[]}
           selectedRoomId={null}
           onSelectRoom={() => {}}
           onLiveChange={() => {}}
           onCommit={() => {}}
           snapToGridFt={0}
-          rawGeometry={activeRegion.raw_geometry}
+          rawGeometry={drawingBoundary ? backdropRawGeometry : activeRegion.raw_geometry}
           showCadLinework={showCadLinework}
+          drawMode={drawingBoundary}
+          onDrawComplete={handleManualBoundary}
         />
       </div>
 
       <div style={{ width: '360px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
+        {unitsUnconfirmed && (
+          <div className="alert-box alert-error" style={{ fontSize: '0.75rem', lineHeight: 1.6 }}>
+            <strong>This file doesn't specify real-world units</strong> ($INSUNITS is unset). Every area/distance
+            below is computed assuming 1 drawing unit = 1 ft, which is very likely wrong — treat the numbers as
+            unreliable until you've checked them against a known real dimension in the file (e.g. a labeled room
+            size), and correct the file's units at the source (re-save/re-export with units set) if they're off.
+          </div>
+        )}
         {boundaryIsClean && (
           <div className="panel" style={{
             fontSize: '0.72rem', color: 'var(--text-tertiary)', padding: '8px 10px'

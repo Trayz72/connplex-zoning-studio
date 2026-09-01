@@ -24,9 +24,11 @@ import uuid
 
 import ezdxf
 import ezdxf.recover
+import ezdxf.path
 from collections import Counter
 from ezdxf.lldxf.const import DXFStructureError
-from shapely.geometry import Polygon, LineString
+import shapely
+from shapely.geometry import Polygon, LineString, MultiLineString
 from shapely.validation import make_valid
 from shapely.ops import polygonize
 
@@ -48,6 +50,19 @@ MIN_BOUNDARY_AREA_SQFT = 150.0     # below this, a closed shape is furniture/fix
 # inside it.
 MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT = 500000.0
 MAX_OBSTACLE_AREA_RATIO = 0.10     # an "obstacle" larger than 10% of its boundary's area is probably itself a room, not a column
+# ezdxf.path.Path.flattening(distance, segments) — segments is a per-curve
+# minimum that dominates in practice, so this stays reasonable across the
+# wildly different drawing-unit scales real files show up in (mm, m, or
+# unspecified raw units); distance is a secondary refinement only.
+CURVE_FLATTEN_DISTANCE = 0.01
+CURVE_FLATTEN_MIN_SEGMENTS = 8
+# Real wall junctions that are visually closed but off by a fraction of an
+# inch are common enough in real client DXFs that not tolerating them at all
+# left genuine floor boundaries completely unrecoverable — see
+# _reconstruct_polygons_from_lines's own docstring for the real case this
+# was found against. 0.3ft (~3.6in) is loose enough to close that kind of
+# real gap without merging two walls that are genuinely meant to be separate.
+WALL_SNAP_TOLERANCE_FT = 0.3
 MIN_OBSTACLE_AREA_SQFT = 0.3       # ignore microscopic closed shapes (hatch fragments, tick marks)
 CONTAINMENT_THRESHOLD = 0.6        # fraction of an obstacle's area that must fall inside a boundary to count as "in" it
 
@@ -113,18 +128,28 @@ def _get_units(doc):
 
 
 def _closed_points(e):
-    """Return a list of (x, y) if this entity is a closed polyline/circle, else None."""
+    """Return a list of (x, y) if this entity is a closed polyline/circle, else None.
+
+    LWPOLYLINE/POLYLINE go through ezdxf's generic path flattening rather than
+    a bare e.get_points()/vertex walk — a polyline segment with bulge (a
+    rounded corner, common in real architectural drawings) previously got
+    silently chorded into a straight line by connecting only the two
+    endpoints, which is a real, if usually minor, area/shape error. Using the
+    same flattening path as _open_segments below also keeps both functions
+    agreeing on what a curved boundary segment actually looks like."""
     t = e.dxftype()
     try:
         if t == "LWPOLYLINE":
             if not e.closed:
                 return None
-            pts = [(float(p[0]), float(p[1])) for p in e.get_points()]
+            path = ezdxf.path.make_path(e)
+            pts = [(v.x, v.y) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
             return pts if len(pts) >= 3 else None
         if t == "POLYLINE":
             if not e.is_closed:
                 return None
-            pts = [(float(v.dxf.location[0]), float(v.dxf.location[1])) for v in e.vertices]
+            path = ezdxf.path.make_path(e)
+            pts = [(v.x, v.y) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
             return pts if len(pts) >= 3 else None
         if t == "CIRCLE":
             c = e.dxf.center
@@ -158,30 +183,33 @@ def _open_segments(e):
     units. Covers the very common real-world case of a boundary drawn as
     discrete wall LINE segments rather than one closed polyline — the same
     'composite wall segments, no single closed polyline' situation the master
-    context notes even Connplex's own Dhule basement/ground floors hit."""
+    context notes even Connplex's own Dhule basement/ground floors hit.
+
+    ARC/SPLINE/ELLIPSE and bulged LWPOLYLINE/POLYLINE segments go through
+    ezdxf's generic path flattening — found via real testing against actual
+    client DXFs that a floor boundary's wall network is very often not pure
+    LINE/straight-polyline: a single ARC forming one wall corner (327 of them
+    in one real file) previously meant that entity contributed zero segments
+    here, leaving a gap polygonize() cannot close — the reconstruction found
+    nothing at all for that boundary, not just an inaccurate one."""
     t = e.dxftype()
-    try:
-        if t == "LINE":
+    if t == "LINE":
+        try:
             s, end = e.dxf.start, e.dxf.end
             return [((s[0], s[1]), (end[0], end[1]))]
-        if t == "LWPOLYLINE":
-            pts = [(float(p[0]), float(p[1])) for p in e.get_points()]
-            segs = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
-            if e.closed and len(pts) >= 2:
-                segs.append((pts[-1], pts[0]))
-            return segs
-        if t == "POLYLINE":
-            pts = [(float(v.dxf.location[0]), float(v.dxf.location[1])) for v in e.vertices]
-            segs = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
-            if e.is_closed and len(pts) >= 2:
-                segs.append((pts[-1], pts[0]))
-            return segs
-    except Exception:
-        return []
+        except Exception:
+            return []
+    if t in ("LWPOLYLINE", "POLYLINE", "ARC", "SPLINE", "ELLIPSE"):
+        try:
+            path = ezdxf.path.make_path(e)
+            pts = [(v.x, v.y) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
+        except Exception:
+            return []
+        return [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
     return []
 
 
-def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_drawing_units):
+def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_drawing_units, snap_tolerance_drawing_units=0.0):
     """Chain together every LINE/open-polyline segment in the drawing (via
     shapely's polygonize, which finds closed rings in an arbitrary network of
     line segments) to recover boundaries that exist as discrete wall segments
@@ -198,7 +226,18 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
     segment is O(polygons x segments) and was measured to hang on a real 800+
     entity drawing. Fixed with a spatial index (STRtree) for that lookup, and
     by discarding sub-threshold polygons (found: hundreds of tiny ones from
-    hatching/furniture) before doing any attribution work at all."""
+    hatching/furniture) before doing any attribution work at all.
+
+    snap_tolerance_drawing_units: real client DXFs routinely have walls drawn
+    as segments that don't *quite* meet at corners/T-junctions — a few
+    thousandths of a unit off, invisible on screen, but polygonize() requires
+    exact coincidence and silently finds no ring at all across a gap that
+    small. Found via real testing: a genuine floor boundary (a real retail
+    unit, ~1,400 sqft) was completely unrecoverable at zero tolerance and
+    recovered cleanly once nearby endpoints were snapped together first —
+    shapely.set_precision quantizes every coordinate to this grid size before
+    polygonize runs, which is the standard fix for near-but-not-quite-closed
+    line networks. 0 (the default) preserves the exact old behavior."""
     from shapely.strtree import STRtree
 
     segments = []
@@ -214,6 +253,18 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
 
     if len(segments) < 3:
         return []
+
+    if snap_tolerance_drawing_units > 0:
+        snapped = shapely.set_precision(MultiLineString(segments), grid_size=snap_tolerance_drawing_units)
+        snapped_segments, snapped_layers = [], []
+        for seg, layer in zip(snapped.geoms, layer_by_segment):
+            if seg.is_empty or seg.length == 0:
+                continue  # collapsed to a point by snapping — not a real segment any more
+            snapped_segments.append(seg)
+            snapped_layers.append(layer)
+        segments, layer_by_segment = snapped_segments, snapped_layers
+        if len(segments) < 3:
+            return []
 
     candidate_polys = [p for p in polygonize(segments) if p.is_valid and p.area >= min_area_drawing_units]
     if not candidate_polys:
@@ -236,6 +287,21 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
     return results
 
 
+def resolve_dxf_path(input_path: str):
+    """input_path may be .dwg or .dxf; returns (real_dxf_path, conversion_note).
+    Shared by extract() and ai_cad_scan.py so both agree on how a DWG upload
+    gets converted, instead of ai_cad_scan.py duplicating (and risking
+    drifting from) this logic."""
+    ext = os.path.splitext(input_path)[1].lower()
+    if ext == ".dwg":
+        out_dir = os.path.dirname(input_path)
+        dxf_path = oda_convert(input_path, "dxf", out_dir)
+        return dxf_path, "Converted from DWG to DXF via ODA File Converter."
+    if ext == ".dxf":
+        return input_path, None
+    raise ValueError(f"Unsupported CAD file extension '{ext}'. Only .dwg and .dxf are supported.")
+
+
 def _read_dxf_with_recovery(dxf_path: str):
     """Real-world DXF files are frequently not fully spec-compliant (missing
     subclass markers, out-of-order sections, etc.) — a strict reader failing on
@@ -254,19 +320,19 @@ def _read_dxf_with_recovery(dxf_path: str):
         return doc, note
 
 
-def extract(input_path: str) -> dict:
-    """Main entry point. input_path may be .dwg or .dxf. Returns canonical geometry."""
-    ext = os.path.splitext(input_path)[1].lower()
-    conversion_note = None
+def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -> dict:
+    """Main entry point. input_path may be .dwg or .dxf. Returns canonical geometry.
 
-    if ext == ".dwg":
-        out_dir = os.path.dirname(input_path)
-        dxf_path = oda_convert(input_path, "dxf", out_dir)
-        conversion_note = "Converted from DWG to DXF via ODA File Converter."
-    elif ext == ".dxf":
-        dxf_path = input_path
-    else:
-        raise ValueError(f"Unsupported CAD file extension '{ext}'. Only .dwg and .dxf are supported.")
+    allowed_layers / min_boundary_area_sqft: normally None (unfiltered, the
+    default MIN_BOUNDARY_AREA_SQFT) — real overrides exist only for
+    ai_cad_scan.py's AI-assisted rescan, which restricts extraction to a
+    layer subset Claude identified as the real wall/floor layer(s) when the
+    default full-drawing pass found nothing usable. Dimension/hatch/furniture
+    noise on unrelated layers can fragment or dominate the segment network
+    enough that the real boundary never wins pass 2's candidate selection —
+    this is the deterministic engine's own logic re-run on a cleaner subset,
+    not a different/less-trustworthy extraction path."""
+    dxf_path, conversion_note = resolve_dxf_path(input_path)
 
     doc, recovery_note = _read_dxf_with_recovery(dxf_path)
     msp = doc.modelspace()
@@ -274,6 +340,10 @@ def extract(input_path: str) -> dict:
     scale = units["feet_per_drawing_unit"] or 1.0  # if unspecified, extract in raw units and flag for confirmation
 
     entities = list(msp)
+    if allowed_layers:
+        allowed_set = set(allowed_layers)
+        entities = [e for e in entities if str(e.dxf.layer) in allowed_set]
+    min_boundary_area_sqft = MIN_BOUNDARY_AREA_SQFT if min_boundary_area_sqft is None else min_boundary_area_sqft
 
     # --- Pass 1: find every closed shape and its polygon/area (in drawing units) ---
     closed_shapes = []
@@ -300,7 +370,8 @@ def extract(input_path: str) -> dict:
     # line segments (LINE/open-polyline entities that together form a closed
     # loop but aren't one explicit closed shape in the source file) ---
     min_area_drawing_units = MIN_OBSTACLE_AREA_SQFT / max(scale ** 2, 1e-9)  # cheap pre-filter, tightened again in feet below
-    for rec in _reconstruct_polygons_from_lines(entities, closed_handles, min_area_drawing_units):
+    snap_tolerance_drawing_units = WALL_SNAP_TOLERANCE_FT / max(scale, 1e-9)
+    for rec in _reconstruct_polygons_from_lines(entities, closed_handles, min_area_drawing_units, snap_tolerance_drawing_units):
         poly = rec["polygon"]
         closed_shapes.append({
             "handle": rec["handle"], "layer": rec["layer"], "dxftype": rec["dxftype"], "source": "reconstructed",
@@ -317,7 +388,7 @@ def extract(input_path: str) -> dict:
     # *obstacles* (columns are often drawn as circles) via the pass below,
     # which is unaffected by this filter. ---
     boundary_candidates = sorted(
-        [s for s in closed_shapes if s["area_sqft"] >= MIN_BOUNDARY_AREA_SQFT and s["dxftype"] != "CIRCLE"],
+        [s for s in closed_shapes if s["area_sqft"] >= min_boundary_area_sqft and s["dxftype"] != "CIRCLE"],
         key=lambda s: s["area_sqft"],
         reverse=True
     )
@@ -361,31 +432,32 @@ def extract(input_path: str) -> dict:
     MAX_RAW_LINES = 6000
     MAX_RAW_TEXTS = 800
 
-    def extract_raw_geometry(minx, miny, maxx, maxy):
+    def extract_raw_geometry(minx, miny, maxx, maxy, max_lines=MAX_RAW_LINES):
         """The actual underlying CAD drawing near this region — rendered as a
         light backdrop in the editor so the architect can see the real source
         drawing under the generated zoning, the way a real CAD viewer does.
-        Capped per region so a huge real drawing (Vadodara: 2000+ closed shapes
-        alone) doesn't ship an unbounded payload to the browser."""
+        Capped so a huge real drawing (Vadodara: 2000+ closed shapes alone)
+        doesn't ship an unbounded payload to the browser.
+
+        Sampling is evenly strided across every matching segment, not a hard
+        cutoff at the first max_lines in file entity order — found via real
+        testing (a real site plan with a dense hatched/dimensioned corner)
+        that a first-N cutoff can exhaust the whole cap on one small cluster
+        near the start of the entity list, leaving the "backdrop" showing
+        only a tiny fraction of the drawing's real extent instead of the
+        whole thing a user tracing a boundary by hand actually needs to see."""
         pad = max((maxx - minx), (maxy - miny)) * 0.05
         bx0, by0, bx1, by1 = minx - pad, miny - pad, maxx + pad, maxy + pad
-        lines, circles, texts = [], [], []
-        truncated = False
+        all_lines, circles, texts = [], [], []
         for e in entities:
-            if len(lines) >= MAX_RAW_LINES:
-                truncated = True
-                break
             t = e.dxftype()
             try:
                 if t in ("LINE", "LWPOLYLINE", "POLYLINE"):
                     for a, b in _open_segments(e):
                         if not (bx0 <= a[0] <= bx1 and by0 <= a[1] <= by1) and not (bx0 <= b[0] <= bx1 and by0 <= b[1] <= by1):
                             continue
-                        lines.append([[round(a[0] * scale, 3), round(a[1] * scale, 3)],
-                                      [round(b[0] * scale, 3), round(b[1] * scale, 3)]])
-                        if len(lines) >= MAX_RAW_LINES:
-                            truncated = True
-                            break
+                        all_lines.append([[round(a[0] * scale, 3), round(a[1] * scale, 3)],
+                                           [round(b[0] * scale, 3), round(b[1] * scale, 3)]])
                 elif t == "CIRCLE":
                     c, r = e.dxf.center, e.dxf.radius
                     if bx0 <= c[0] <= bx1 and by0 <= c[1] <= by1:
@@ -398,6 +470,13 @@ def extract(input_path: str) -> dict:
                             texts.append({"text": txt, "position": [round(ins[0] * scale, 3), round(ins[1] * scale, 3)]})
             except Exception:
                 continue
+
+        truncated = len(all_lines) > max_lines
+        if truncated:
+            stride = len(all_lines) / max_lines
+            lines = [all_lines[int(i * stride)] for i in range(max_lines)]
+        else:
+            lines = all_lines
         return {"lines": lines, "circles": circles, "texts": texts, "truncated": truncated}
 
     regions = []
@@ -511,6 +590,29 @@ def extract(input_path: str) -> dict:
         -r["boundary"]["area_sqft"]
     ))
 
+    # A whole-drawing backdrop, independent of whether region detection found
+    # anything — the manual "draw your own boundary" flow (GeometryReviewStep)
+    # needs real linework to trace over even when region_count is 0, and
+    # extract_raw_geometry() above was previously only ever called scoped to
+    # an already-found region's own bbox, so a zero-region file shipped no
+    # backdrop at all. Reuses the exact same helper/caps, just over the whole
+    # drawing's real extent instead of one region's.
+    # Always computed from every raw segment's endpoints, not just closed
+    # shapes — closed_shapes can genuinely exist but be tiny/irrelevant
+    # (found via real testing: a real site plan's only closed shapes were a
+    # few square inches of Z-axis/north-arrow symbol markers), which made an
+    # earlier "only fall back if closed_shapes is completely empty" version
+    # of this silently use that wrong, tiny extent as the whole drawing's
+    # bbox instead of ever reaching the real fallback.
+    whole_drawing_raw_geometry = None
+    wxs, wys = [], []
+    for e in entities:
+        for a, b in _open_segments(e):
+            wxs.extend([a[0], b[0]])
+            wys.extend([a[1], b[1]])
+    if wxs:
+        whole_drawing_raw_geometry = extract_raw_geometry(min(wxs), min(wys), max(wxs), max(wys), max_lines=MAX_RAW_LINES * 3)
+
     return {
         "schema_version": "1.0",
         "source_filename": os.path.basename(input_path),
@@ -522,5 +624,6 @@ def extract(input_path: str) -> dict:
         "total_closed_shapes_found": len(closed_shapes),
         "region_count": len(regions),
         "regions": regions,
-        "unclassified_text_count": len(text_labels)
+        "unclassified_text_count": len(text_labels),
+        "raw_geometry": whole_drawing_raw_geometry
     }
