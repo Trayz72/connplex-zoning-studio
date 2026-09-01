@@ -8,11 +8,19 @@ interface ExportPanelProps {
 }
 
 const FORMAT_LABEL: Record<string, string> = { pdf: 'PDF', dxf: 'DXF', dwg: 'DWG' };
+// Both are real, separately-delivered sheet types Connplex actually produces
+// per project (confirmed against real client reference PDFs) — same floor
+// plan and Area & Seat Chart, but "Net Usage Area" calls out the total net
+// usable area directly on the drawing instead of the room-by-room breakdown
+// emphasis. Previously only "Zoning Layout" was reachable from this panel
+// even though the backend already supported passing either.
+const SHEET_TYPES = ['Zoning Layout', 'Net Usage Area'];
 
 export const ExportPanel: React.FC<ExportPanelProps> = ({ projectId, projectMeta }) => {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [remarks, setRemarks] = useState('');
+  const [sheetType, setSheetType] = useState(SHEET_TYPES[0]);
   const [history, setHistory] = useState<ExportHistoryEntry[]>([]);
 
   const loadHistory = () => {
@@ -45,6 +53,18 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ projectId, projectMeta
       {error && <div className="alert-box alert-error" style={{ marginBottom: '8px', fontSize: '0.75rem' }}>{error}</div>}
 
       <label style={{ display: 'block', fontSize: '0.68rem', color: 'var(--text-tertiary)', marginBottom: '3px' }}>
+        Sheet type (PDF only)
+      </label>
+      <select
+        value={sheetType}
+        onChange={(e) => setSheetType(e.target.value)}
+        className="form-control"
+        style={{ marginBottom: '8px', padding: '5px 8px', fontSize: '0.75rem' }}
+      >
+        {SHEET_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+      </select>
+
+      <label style={{ display: 'block', fontSize: '0.68rem', color: 'var(--text-tertiary)', marginBottom: '3px' }}>
         Remarks for this revision (optional)
       </label>
       <input
@@ -58,8 +78,8 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ projectId, projectMeta
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <button className="btn btn-secondary" style={{ fontSize: '0.78rem', justifyContent: 'flex-start' }} disabled={!!busy}
-          onClick={() => run('pdf', () => exportPdf(projectId, metaWithRemarks))}>
-          <DownloadIcon size={14} /> {busy === 'pdf' ? 'Generating PDF…' : 'Export PDF (Zoning Report)'}
+          onClick={() => run('pdf', () => exportPdf(projectId, metaWithRemarks, sheetType))}>
+          <DownloadIcon size={14} /> {busy === 'pdf' ? 'Generating PDF…' : `Export PDF (${sheetType})`}
         </button>
         <button className="btn btn-secondary" style={{ fontSize: '0.78rem', justifyContent: 'flex-start' }} disabled={!!busy}
           onClick={() => run('dxf', () => exportCad(projectId, metaWithRemarks, 'dxf'))}>
