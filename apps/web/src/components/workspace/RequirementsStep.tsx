@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Requirements } from '../../types/live';
+import React, { useEffect, useState } from 'react';
+import { Requirements, FranchiseTier } from '../../types/live';
+import { getFranchiseTiers } from '../../services/zoningEngineApi';
 
 interface RequirementsStepProps {
   initial: Requirements | null;
@@ -46,18 +47,18 @@ const EntryPointPicker: React.FC<{
     <div>
       <svg
         viewBox={viewBox}
-        style={{ width: '100%', height: '220px', background: '#0d1117', border: '1px solid #30363d', borderRadius: '6px', cursor: 'crosshair' }}
+        style={{ width: '100%', height: '220px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', cursor: 'crosshair' }}
         onClick={handleClick}
       >
         <polygon
           points={boundaryPointsFt.map(p => p.join(',')).join(' ')}
-          fill="#161b22" stroke="#30363d" strokeWidth={w * 0.004}
+          fill="var(--bg-secondary)" stroke="var(--border-strong)" strokeWidth={w * 0.004}
         />
         {value && (
-          <circle cx={value[0]} cy={value[1]} r={w * 0.018} fill="#3fb950" stroke="#0d1117" strokeWidth={w * 0.003} />
+          <circle cx={value[0]} cy={value[1]} r={w * 0.018} fill="var(--brand-strong)" stroke="var(--bg-primary)" strokeWidth={w * 0.003} />
         )}
       </svg>
-      <div style={{ fontSize: '0.72rem', color: '#8b949e', marginTop: '4px', display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '4px', display: 'flex', justifyContent: 'space-between' }}>
         <span>{value ? `Marked at (${value[0]}, ${value[1]}) ft — click again to move it` : 'Click the floor plate to mark the main entrance'}</span>
         {value && <a href="#" onClick={(e) => { e.preventDefault(); onChange(null); }}>Clear</a>}
       </div>
@@ -100,11 +101,19 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({ initial, cle
     support_zone_area_overrides_sqft: {}, clear_height_ft: parseClearHeightToFeet(clearHeightHint),
     entry_point_ft: null
   });
+  // Real registry data, not hardcoded text — the tier dropdown previously had
+  // static area/screen ranges typed directly into the JSX that had drifted
+  // out of sync with rules_registry_v1.json (Express showed as 2,500-7,000
+  // sqft; the registry actually says 5,000-7,000).
+  const [tiers, setTiers] = useState<FranchiseTier[]>([]);
+  useEffect(() => {
+    getFranchiseTiers().then(setTiers).catch(() => {});
+  }, []);
 
   return (
     <div style={{ maxWidth: '560px', margin: '3rem auto', padding: '0 1rem' }}>
-      <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#f0f6fc', marginBottom: '0.5rem' }}>Zoning Requirements</h2>
-      <p style={{ fontSize: '0.85rem', color: '#8b949e', marginBottom: '1.5rem' }}>
+      <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Zoning Requirements</h2>
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
         These drive the auto-layout generator and which viability rules apply — nothing here is hardcoded in the
         engine, it's all read from the versioned rules registry.
       </p>
@@ -123,7 +132,7 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({ initial, cle
           type="number" min={1} max={6} className="form-control" value={req.max_auditoriums}
           onChange={(e) => setReq({ ...req, max_auditoriums: parseInt(e.target.value, 10) || 1 })}
         />
-        <div style={{ fontSize: '0.72rem', color: '#8b949e', marginTop: '4px' }}>
+        <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
           Phase-1 product scope supports 1–4 auditoriums per SOP; the generator will place up to this many if the
           floor plate has room, and stop early (with a note) if it doesn't.
         </div>
@@ -137,7 +146,7 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({ initial, cle
           onChange={(e) => setReq({ ...req, clear_height_ft: e.target.value === '' ? null : parseFloat(e.target.value) })}
           placeholder="e.g. 10"
         />
-        <div style={{ fontSize: '0.72rem', color: '#8b949e', marginTop: '4px' }}>
+        <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
           {clearHeightHint
             ? `Auto-suggested from intake ("${clearHeightHint}") — confirm or correct it; this number, not the free-text intake field, drives the feasibility check.`
             : 'Not captured at intake — enter it directly, or leave blank to keep the clear-height rule unevaluable.'}
@@ -148,9 +157,11 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({ initial, cle
         <label>Franchise Tier (optional — sets the foyer:screen ratio target)</label>
         <select className="form-control" value={req.franchise_tier_id || ''} onChange={(e) => setReq({ ...req, franchise_tier_id: e.target.value || null })}>
           <option value="">None / not yet decided</option>
-          <option value="EXPRESS">Express (2,500–7,000 sqft, 2–4 screens)</option>
-          <option value="SIGNATURE">Signature (6,000–8,000 sqft, 3–4 screens)</option>
-          <option value="LUXURIANCE">Luxuriance (8,000–10,000 sqft, 3–6 screens)</option>
+          {tiers.map(t => (
+            <option key={t.id} value={t.id}>
+              {t.name} ({t.area_min_sqft.toLocaleString()}–{t.area_max_sqft.toLocaleString()} sqft, {t.min_screens}–{t.max_screens} screens)
+            </option>
+          ))}
         </select>
       </div>
 
@@ -162,7 +173,7 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({ initial, cle
             value={req.entry_point_ft}
             onChange={(pt) => setReq({ ...req, entry_point_ft: pt })}
           />
-          <div style={{ fontSize: '0.72rem', color: '#8b949e', marginTop: '4px' }}>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
             Nothing in the uploaded CAD file identifies doors, so this isn't detected automatically. Leave unmarked
             to skip the SOP's entry-sightline placement rules (F&amp;B visible from entry, washrooms hidden from foyer
             sightline) rather than guess at a location.
@@ -171,7 +182,7 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({ initial, cle
       )}
 
       <button className="btn btn-primary" style={{ width: '100%', padding: '0.6rem' }} onClick={() => onSubmit(req)}>
-        Save Requirements &amp; Continue →
+        Save Requirements &amp; Continue
       </button>
     </div>
   );

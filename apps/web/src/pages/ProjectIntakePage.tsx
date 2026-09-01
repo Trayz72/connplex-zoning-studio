@@ -113,11 +113,12 @@ export const ProjectIntakePage: React.FC = () => {
     <div className="app-container">
       <header className="navbar">
         <Link to="/projects" className="brand">
+          <span className="brand-mark">CZ</span>
           Connplex Zoning Studio
         </Link>
         <div className="nav-links">
           <Link to="/projects" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
-            ← All Projects
+            All Projects
           </Link>
         </div>
       </header>

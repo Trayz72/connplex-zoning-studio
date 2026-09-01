@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { exportPdf, exportCad, getExportHistory, ExportHistoryEntry } from '../../services/zoningEngineApi';
+import { DownloadIcon } from '../Icons';
 
 interface ExportPanelProps {
   projectId: string;
@@ -39,11 +40,11 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ projectId, projectMeta
   const metaWithRemarks = { ...projectMeta, remarks };
 
   return (
-    <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: '8px', padding: '14px 16px', marginBottom: '16px' }}>
-      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '8px' }}>Export</div>
+    <div className="panel" style={{ padding: '14px 16px', marginBottom: '16px' }}>
+      <div className="panel-label" style={{ marginBottom: '8px' }}>Export</div>
       {error && <div className="alert-box alert-error" style={{ marginBottom: '8px', fontSize: '0.75rem' }}>{error}</div>}
 
-      <label style={{ display: 'block', fontSize: '0.68rem', color: '#8b949e', marginBottom: '3px' }}>
+      <label style={{ display: 'block', fontSize: '0.68rem', color: 'var(--text-tertiary)', marginBottom: '3px' }}>
         Remarks for this revision (optional)
       </label>
       <input
@@ -51,51 +52,49 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ projectId, projectMeta
         value={remarks}
         onChange={(e) => setRemarks(e.target.value)}
         placeholder="e.g. Revised after client walkthrough"
-        style={{
-          width: '100%', padding: '5px 8px', marginBottom: '8px', background: '#0d1117', border: '1px solid #30363d',
-          color: '#f0f6fc', borderRadius: '4px', fontSize: '0.75rem'
-        }}
+        className="form-control"
+        style={{ marginBottom: '8px', padding: '5px 8px', fontSize: '0.75rem' }}
       />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        <button className="btn btn-secondary" style={{ fontSize: '0.78rem' }} disabled={!!busy}
+        <button className="btn btn-secondary" style={{ fontSize: '0.78rem', justifyContent: 'flex-start' }} disabled={!!busy}
           onClick={() => run('pdf', () => exportPdf(projectId, metaWithRemarks))}>
-          {busy === 'pdf' ? 'Generating PDF…' : '⬇ Export PDF (Zoning Report)'}
+          <DownloadIcon size={14} /> {busy === 'pdf' ? 'Generating PDF…' : 'Export PDF (Zoning Report)'}
         </button>
-        <button className="btn btn-secondary" style={{ fontSize: '0.78rem' }} disabled={!!busy}
+        <button className="btn btn-secondary" style={{ fontSize: '0.78rem', justifyContent: 'flex-start' }} disabled={!!busy}
           onClick={() => run('dxf', () => exportCad(projectId, metaWithRemarks, 'dxf'))}>
-          {busy === 'dxf' ? 'Generating DXF…' : '⬇ Export DXF (editable)'}
+          <DownloadIcon size={14} /> {busy === 'dxf' ? 'Generating DXF…' : 'Export DXF (editable)'}
         </button>
-        <button className="btn btn-secondary" style={{ fontSize: '0.78rem' }} disabled={!!busy}
+        <button className="btn btn-secondary" style={{ fontSize: '0.78rem', justifyContent: 'flex-start' }} disabled={!!busy}
           onClick={() => run('dwg', () => exportCad(projectId, metaWithRemarks, 'dwg'))}>
-          {busy === 'dwg' ? 'Converting to DWG…' : '⬇ Export DWG (AutoCAD)'}
+          <DownloadIcon size={14} /> {busy === 'dwg' ? 'Converting to DWG…' : 'Export DWG (AutoCAD)'}
         </button>
       </div>
-      <div style={{ fontSize: '0.62rem', color: '#8b949e', marginTop: '8px', lineHeight: 1.4 }}>
-        Every export bumps the revision (R0 → R1 → …). PDF/DXF reproduce the required content (title block, floor
+      <div style={{ fontSize: '0.62rem', color: 'var(--text-tertiary)', marginTop: '8px', lineHeight: 1.4 }}>
+        Every export bumps the revision (R0, R1, R2…). PDF/DXF reproduce the required content (title block, floor
         plan, Area &amp; Seat Chart, legend, revisions) using a generic template — not a byte-for-byte copy of
         Connplex's proprietary sheet artwork.
       </div>
 
       {history.length > 0 && (
-        <div style={{ marginTop: '14px', borderTop: '1px solid #21262d', paddingTop: '10px' }}>
-          <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#8b949e', textTransform: 'uppercase', marginBottom: '6px' }}>
+        <div style={{ marginTop: '14px', borderTop: '1px solid var(--border-color)', paddingTop: '10px' }}>
+          <div className="panel-label" style={{ marginBottom: '6px' }}>
             Export History ({history.length})
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '220px', overflowY: 'auto' }}>
             {history.map((h, i) => (
-              <div key={i} style={{ background: '#0d1117', border: '1px solid #21262d', borderRadius: '5px', padding: '6px 8px', fontSize: '0.68rem' }}>
+              <div key={i} style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', padding: '6px 8px', fontSize: '0.68rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                  <span style={{ color: '#58a6ff', fontWeight: 700 }}>{h.revision}</span>
-                  <span style={{ color: '#8b949e' }}>{new Date(h.generated_at).toLocaleString()}</span>
+                  <span className="font-mono" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{h.revision}</span>
+                  <span style={{ color: 'var(--text-tertiary)' }}>{new Date(h.generated_at).toLocaleString()}</span>
                 </div>
-                <div style={{ color: '#e6edf3' }}>
+                <div style={{ color: 'var(--text-primary)' }}>
                   {h.sheet_type} — <span style={{ textTransform: 'uppercase' }}>{FORMAT_LABEL[h.format] || h.format}</span>
                 </div>
-                <div style={{ color: '#8b949e', marginTop: '2px' }}>
+                <div style={{ color: 'var(--text-tertiary)', marginTop: '2px' }}>
                   Drawn by: {h.drawn_by} · Checked by: {h.checked_by}
                 </div>
-                {h.remarks && <div style={{ color: '#d29922', marginTop: '2px', fontStyle: 'italic' }}>"{h.remarks}"</div>}
+                {h.remarks && <div style={{ color: 'var(--warning)', marginTop: '2px', fontStyle: 'italic' }}>"{h.remarks}"</div>}
               </div>
             ))}
           </div>

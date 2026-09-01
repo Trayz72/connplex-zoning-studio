@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { runZoning, selectCandidate } from '../../services/zoningEngineApi';
 import { ZoningRunResult, LiveCandidate, EditableLayout } from '../../types/live';
+import { ArrowRightIcon, WarningIcon } from '../Icons';
 
 interface RunStepProps {
   projectId: string;
@@ -9,7 +10,7 @@ interface RunStepProps {
 }
 
 const FEAS_COLOR: Record<string, string> = {
-  FEASIBLE: '#3fb950', CONDITIONALLY_FEASIBLE: '#d29922', NOT_FEASIBLE: '#f85149', INSUFFICIENT_DATA: '#8b949e'
+  FEASIBLE: 'var(--success)', CONDITIONALLY_FEASIBLE: 'var(--warning)', NOT_FEASIBLE: 'var(--danger)', INSUFFICIENT_DATA: 'var(--text-tertiary)'
 };
 
 const AUTO_SELECT_MS = 1600;
@@ -73,8 +74,8 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
   if (!run) {
     return (
       <div style={{ maxWidth: '520px', margin: '4rem auto', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#f0f6fc', marginBottom: '0.75rem' }}>Generating Zoning Layout</h2>
-        <p style={{ fontSize: '0.85rem', color: '#8b949e' }}>
+        <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>Generating Zoning Layout</h2>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
           Placing auditoriums (largest-fitting preset first) then support zones in whatever usable space remains,
           avoiding every confirmed obstacle…
         </p>
@@ -86,16 +87,16 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
 
   return (
     <div style={{ padding: '1.5rem', maxWidth: '1100px', margin: '0 auto' }}>
-      <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f0f6fc', marginBottom: '0.25rem' }}>
+      <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>
         {run.candidates.length} Candidate Layout{run.candidates.length !== 1 ? 's' : ''}
       </h2>
       {!autoFired && (
-        <p style={{ fontSize: '0.78rem', color: '#58a6ff', marginBottom: '1rem' }}>
+        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
           Auto-selecting "{best.strategy_label}" ({best.total_seats} seats) shortly — pick a different one below if you'd rather use it.
         </p>
       )}
       {run.unresolved_obstacle_count > 0 && (
-        <div className="alert-box" style={{ marginBottom: '1rem', color: '#d29922', border: '1px solid #d29922' }}>
+        <div className="alert-box" style={{ marginBottom: '1rem', color: 'var(--warning)', border: '1px solid var(--warning)' }}>
           Note: {run.unresolved_obstacle_count} detected obstacle(s) were not resolved and were excluded from placement constraints.
         </div>
       )}
@@ -104,35 +105,41 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
         {run.candidates.map(c => (
           <div
             key={c.candidate_id}
+            className="panel"
             style={{
-              background: '#161b22', borderRadius: '8px', padding: '16px',
-              border: c.candidate_id === best.candidate_id && !autoFired ? '1px solid #58a6ff' : '1px solid #30363d'
+              padding: '16px',
+              borderColor: c.candidate_id === best.candidate_id && !autoFired ? 'var(--border-strong)' : undefined
             }}
           >
-            <div style={{ fontSize: '1rem', fontWeight: 700, color: '#f0f6fc' }}>{c.strategy_label}</div>
-            <div style={{ fontSize: '0.75rem', color: FEAS_COLOR[c.feasibility.feasibility_result], fontWeight: 700, margin: '6px 0' }}>
+            <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>{c.strategy_label}</div>
+            <div style={{ fontSize: '0.75rem', color: FEAS_COLOR[c.feasibility.feasibility_result], fontWeight: 600, margin: '6px 0' }}>
               {c.feasibility.feasibility_result.replace(/_/g, ' ')}
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#f0f6fc', marginBottom: '4px' }}>{c.screen_count} screens · {c.total_seats} total seats</div>
-            <div style={{ fontSize: '0.78rem', color: '#8b949e', marginBottom: '10px' }}>{c.seats_per_screen} seats/screen · {c.circulation_area_sqft} sqft circulation</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '4px' }} className="font-mono">{c.screen_count} screens · {c.total_seats} total seats</div>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '10px' }} className="font-mono">{c.seats_per_screen} seats/screen · {c.circulation_area_sqft} sqft circulation</div>
 
-            <div style={{ fontSize: '0.72rem', color: '#8b949e', marginBottom: '10px' }}>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '10px' }}>
               {c.rooms.map(r => (
                 <div key={r.room_id} style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
                   <span>{r.display_name}</span>
-                  <span>{r.area_sqft} sqft{r.seat_estimate ? ` / ${r.seat_estimate.seat_count} seats` : ''}</span>
+                  <span className="font-mono">{r.area_sqft} sqft{r.seat_estimate ? ` / ${r.seat_estimate.seat_count} seats` : ''}</span>
                 </div>
               ))}
             </div>
 
             {c.warnings.length > 0 && (
-              <div style={{ fontSize: '0.68rem', color: '#d29922', marginBottom: '10px' }}>
-                {c.warnings.map((w, i) => <div key={i}>⚠ {w}</div>)}
+              <div style={{ fontSize: '0.68rem', color: 'var(--warning)', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {c.warnings.map((w, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '5px' }}>
+                    <WarningIcon size={12} style={{ flex: '0 0 auto', marginTop: '2px' }} />
+                    <span>{w}</span>
+                  </div>
+                ))}
               </div>
             )}
 
             <button className="btn btn-primary" style={{ width: '100%', fontSize: '0.8rem' }} disabled={!!selecting} onClick={() => pick(c)}>
-              {selecting === c.candidate_id ? 'Selecting…' : 'Use This Layout →'}
+              {selecting === c.candidate_id ? 'Selecting…' : <>Use This Layout <ArrowRightIcon size={14} /></>}
             </button>
           </div>
         ))}

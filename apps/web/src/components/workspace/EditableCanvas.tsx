@@ -22,7 +22,7 @@ interface EditableCanvasProps {
 // A working CAD drawing reads room identity from its label, not an
 // arbitrary color an architect has to memorize; color here was an
 // editing-convenience decoration, not information.
-const ROOM_NEUTRAL = '#8b949e';
+const ROOM_NEUTRAL = 'var(--text-secondary)';
 
 const HANDLE_SCREEN_PX = 9;       // visible handle size, constant on screen regardless of zoom
 const HANDLE_HIT_SCREEN_PX = 26;  // invisible hit-area, much larger than the visible mark — this is the actual fix
@@ -205,27 +205,27 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
     const maxLines = 400; // guard against pathologically small grid + large floor
     let count = 0;
     for (let x = startX; x <= bbox.minX + bbox.width && count < maxLines; x += snapToGridFt, count++) {
-      lines.push(<line key={`gx${x}`} x1={x} y1={bbox.minY} x2={x} y2={bbox.minY + bbox.height} stroke="#1c2128" strokeWidth={0.03} />);
+      lines.push(<line key={`gx${x}`} x1={x} y1={bbox.minY} x2={x} y2={bbox.minY + bbox.height} stroke="var(--border-color)" strokeWidth={0.03} />);
     }
     for (let y = startY; y <= bbox.minY + bbox.height && count < maxLines; y += snapToGridFt, count++) {
-      lines.push(<line key={`gy${y}`} x1={bbox.minX} y1={y} x2={bbox.minX + bbox.width} y2={y} stroke="#1c2128" strokeWidth={0.03} />);
+      lines.push(<line key={`gy${y}`} x1={bbox.minX} y1={y} x2={bbox.minX + bbox.width} y2={y} stroke="var(--border-color)" strokeWidth={0.03} />);
     }
     return lines;
   }, [bbox, snapToGridFt]);
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#0a0d12', border: '1px solid #30363d', borderRadius: '8px', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', overflow: 'hidden', position: 'relative' }}>
       <div style={{ position: 'absolute', zIndex: 10, margin: '10px', display: 'flex', gap: '4px' }}>
-        <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 8px' }} onClick={() => setZoom(z => Math.min(z * 1.25, 8))}>[ + ]</button>
-        <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 8px' }} onClick={() => setZoom(z => Math.max(z / 1.25, 0.5))}>[ − ]</button>
-        <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 8px' }} onClick={() => setZoom(1)}>[ Reset ]</button>
+        <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => setZoom(z => Math.min(z * 1.25, 8))}>+</button>
+        <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => setZoom(z => Math.max(z / 1.25, 0.5))}>−</button>
+        <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => setZoom(1)}>Reset</button>
         {collision && (
-          <span style={{ background: 'rgba(248,81,73,0.2)', border: '1px solid #f85149', color: '#ff7b72', fontSize: '0.72rem', padding: '3px 8px', borderRadius: '4px' }}>
-            ⚠ Overlap / out of bounds — will be rejected on release
+          <span style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', color: 'var(--danger)', fontSize: '0.72rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)' }}>
+            Overlap / out of bounds — will be rejected on release
           </span>
         )}
         {drag && draggedRoom && (
-          <span style={{ background: 'rgba(56,139,253,0.2)', border: '1px solid #388bfd', color: '#79c0ff', fontSize: '0.72rem', padding: '3px 8px', borderRadius: '4px', fontVariantNumeric: 'tabular-nums' }}>
+          <span className="font-mono" style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-primary)', fontSize: '0.72rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)', fontVariantNumeric: 'tabular-nums' }}>
             {draggedRoom.width_ft.toFixed(1)} × {draggedRoom.depth_ft.toFixed(1)} ft ({draggedRoom.area_sqft.toFixed(0)} sqft)
           </span>
         )}
@@ -238,19 +238,19 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
         onPointerUp={handlePointerUp}
         onPointerDown={() => onSelectRoom(null)}
       >
-        <polygon points={boundaryPointsFt.map(p => p.join(',')).join(' ')} fill="#12161c" stroke="#e6edf3" strokeWidth={0.15} />
+        <polygon points={boundaryPointsFt.map(p => p.join(',')).join(' ')} fill="var(--bg-secondary)" stroke="var(--text-primary)" strokeWidth={0.15} />
         {gridLines}
 
         {showCadLinework && rawGeometry && (
           <g opacity={0.35} pointerEvents="none">
             {rawGeometry.lines.map((l, i) => (
-              <line key={`l${i}`} x1={l[0][0]} y1={l[0][1]} x2={l[1][0]} y2={l[1][1]} stroke="#5a6b7d" strokeWidth={0.06} />
+              <line key={`l${i}`} x1={l[0][0]} y1={l[0][1]} x2={l[1][0]} y2={l[1][1]} stroke="var(--text-tertiary)" strokeWidth={0.06} />
             ))}
             {rawGeometry.circles.map((c, i) => (
-              <circle key={`c${i}`} cx={c.center[0]} cy={c.center[1]} r={c.radius} fill="none" stroke="#5a6b7d" strokeWidth={0.06} />
+              <circle key={`c${i}`} cx={c.center[0]} cy={c.center[1]} r={c.radius} fill="none" stroke="var(--text-tertiary)" strokeWidth={0.06} />
             ))}
             {rawGeometry.texts.map((t, i) => (
-              <text key={`t${i}`} x={t.position[0]} y={t.position[1]} fontSize={Math.max(bbox.width * 0.01, 0.8)} fill="#6e7f91" style={{ userSelect: 'none' }}>
+              <text key={`t${i}`} x={t.position[0]} y={t.position[1]} fontSize={Math.max(bbox.width * 0.01, 0.8)} fill="var(--text-tertiary)" style={{ userSelect: 'none' }}>
                 {t.text}
               </text>
             ))}
@@ -261,9 +261,9 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           <polygon
             key={o.id}
             points={o.points_ft.map(p => p.join(',')).join(' ')}
-            fill={o.status === 'CONFIRMED' ? '#f85149' : o.status === 'IGNORED' ? 'transparent' : '#d29922'}
+            fill={o.status === 'CONFIRMED' ? 'var(--danger)' : o.status === 'IGNORED' ? 'transparent' : 'var(--warning)'}
             fillOpacity={o.status === 'IGNORED' ? 0 : 0.55}
-            stroke={o.status === 'IGNORED' ? '#8b949e' : '#f85149'}
+            stroke={o.status === 'IGNORED' ? 'var(--text-tertiary)' : 'var(--danger)'}
             strokeOpacity={o.status === 'IGNORED' ? 0.3 : 0.8}
             strokeWidth={0.1}
           />
@@ -288,7 +288,7 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
               {isSelected && (
                 <polygon
                   points={room.geometry_points_ft.map(p => p.join(',')).join(' ')}
-                  fill="none" stroke="#388bfd" strokeWidth={ftPerHandlePx(4)} strokeOpacity={0.35}
+                  fill="none" stroke="var(--brand-strong)" strokeWidth={ftPerHandlePx(4)} strokeOpacity={0.3}
                 />
               )}
               <polygon
@@ -301,7 +301,7 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
               <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="#ffffff" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.display_name}
               </text>
-              <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2 + fontSize * 1.3} textAnchor="middle" fontSize={fontSize * 0.8} fill="#e6edf3" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+              <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2 + fontSize * 1.3} textAnchor="middle" fontSize={fontSize * 0.8} fill="#d8d8db" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.area_sqft} sqft{room.seat_estimate?.seat_count ? ` / ${room.seat_estimate.seat_count} seats` : ''}
               </text>
 
@@ -323,8 +323,8 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                     {/* Small visible mark, constant screen size regardless of zoom */}
                     <circle
                       cx={hx} cy={hy} r={isHandleHovered ? handleVisR * 1.6 : handleVisR}
-                      fill={isHandleHovered ? '#388bfd' : '#ffffff'}
-                      stroke="#0d1117" strokeWidth={ftPerHandlePx(1.5)}
+                      fill={isHandleHovered ? 'var(--brand-strong)' : '#ffffff'}
+                      stroke="var(--bg-primary)" strokeWidth={ftPerHandlePx(1.5)}
                       style={{ pointerEvents: 'none', transition: 'r 0.08s ease-out' }}
                     />
                   </g>
@@ -334,7 +334,7 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           );
         })}
       </svg>
-      <div style={{ position: 'absolute', bottom: '8px', right: '10px', fontSize: '0.68rem', color: '#8b949e', background: 'rgba(13,17,23,0.7)', padding: '2px 6px', borderRadius: '4px' }}>
+      <div style={{ position: 'absolute', bottom: '8px', right: '10px', fontSize: '0.68rem', color: 'var(--text-tertiary)', background: 'rgba(0,0,0,0.55)', padding: '2px 6px', borderRadius: 'var(--radius-sm)' }}>
         Drag a room to move it · drag a white handle to resize · use the exact-size fields in the sidebar for precise dimensions
       </div>
     </div>

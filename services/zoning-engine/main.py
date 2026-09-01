@@ -25,6 +25,7 @@ from pydantic import BaseModel
 import storage
 import cad_extraction
 import layout_engine
+import rules_registry
 import seat_engine
 import feasibility_engine
 import chart_engine
@@ -495,6 +496,15 @@ def get_seat_types():
     what the architect can choose between when configuring an auditorium's
     seat mix at edit time (spec Sec 20: seat mix is user-configurable)."""
     return {"seat_types": seat_engine.selectable_seat_types()}
+
+
+@app.get("/api/franchise-tiers")
+def get_franchise_tiers():
+    """Real registry data for the Requirements step's tier picker — the
+    frontend previously hardcoded these area/screen ranges as static text,
+    which had drifted out of sync with rules_registry_v1.json (e.g. showing
+    Express as 2,500-7,000 sqft when the registry says 5,000-7,000)."""
+    return {"franchise_tiers": rules_registry.franchise_tiers()}
 
 
 @app.get("/api/health")

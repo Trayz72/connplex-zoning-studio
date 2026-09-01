@@ -1,5 +1,5 @@
 import {
-  GeometryResult, GeometryRegion, Requirements, ZoningRunResult, EditableLayout, ValidationError, SelectableSeatType
+  GeometryResult, GeometryRegion, Requirements, ZoningRunResult, EditableLayout, ValidationError, SelectableSeatType, FranchiseTier
 } from '../types/live';
 
 // VITE_ZONING_API_BASE lets a production build point at a separately-hosted
@@ -13,6 +13,13 @@ export async function getSeatTypes(): Promise<SelectableSeatType[]> {
   if (!res.ok) throw new Error('Failed to load seat types');
   const data = await res.json();
   return data.seat_types;
+}
+
+export async function getFranchiseTiers(): Promise<FranchiseTier[]> {
+  const res = await fetch(`${API_ROOT}/franchise-tiers`);
+  if (!res.ok) throw new Error('Failed to load franchise tiers');
+  const data = await res.json();
+  return data.franchise_tiers;
 }
 
 /** Removes this project's uploaded CAD/geometry/zoning-run/layout/export

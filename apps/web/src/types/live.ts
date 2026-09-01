@@ -116,6 +116,15 @@ export interface SelectableSeatType {
   row_step_ft: number;
 }
 
+export interface FranchiseTier {
+  id: string;
+  name: string;
+  area_min_sqft: number;
+  area_max_sqft: number;
+  min_screens: number;
+  max_screens: number;
+}
+
 export interface SeatConfig {
   primary_seat_type_id: string;
   secondary_seat_type_id: string | null;

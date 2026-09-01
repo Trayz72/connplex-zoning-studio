@@ -24,30 +24,30 @@ export const RoomDimensionEditor: React.FC<RoomDimensionEditorProps> = ({ room, 
   const dirty = x !== room.origin_ft[0] || y !== room.origin_ft[1] || w !== room.width_ft || d !== room.depth_ft;
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '4px 6px', background: '#0d1117', border: '1px solid #30363d',
-    color: '#f0f6fc', borderRadius: '4px', fontSize: '0.75rem'
+    width: '100%', padding: '4px 6px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)',
+    color: 'var(--text-primary)', borderRadius: '4px', fontSize: '0.75rem'
   };
 
   return (
-    <div style={{ borderTop: '1px solid #21262d', paddingTop: '10px', marginTop: '10px' }}>
-      <div style={{ fontSize: '0.68rem', color: '#8b949e', textTransform: 'uppercase', marginBottom: '6px' }}>
+    <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '10px', marginTop: '10px' }}>
+      <div style={{ fontSize: '0.68rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '6px' }}>
         Exact Position &amp; Size (ft)
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '6px' }}>
         <div>
-          <label style={{ fontSize: '0.65rem', color: '#8b949e' }}>X</label>
+          <label style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)' }}>X</label>
           <input type="number" step={0.1} style={inputStyle} value={x} onChange={(e) => setX(parseFloat(e.target.value) || 0)} />
         </div>
         <div>
-          <label style={{ fontSize: '0.65rem', color: '#8b949e' }}>Y</label>
+          <label style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)' }}>Y</label>
           <input type="number" step={0.1} style={inputStyle} value={y} onChange={(e) => setY(parseFloat(e.target.value) || 0)} />
         </div>
         <div>
-          <label style={{ fontSize: '0.65rem', color: '#8b949e' }}>Width</label>
+          <label style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)' }}>Width</label>
           <input type="number" step={0.1} min={0.5} style={inputStyle} value={w} onChange={(e) => setW(parseFloat(e.target.value) || 0.5)} />
         </div>
         <div>
-          <label style={{ fontSize: '0.65rem', color: '#8b949e' }}>Depth</label>
+          <label style={{ fontSize: '0.65rem', color: 'var(--text-tertiary)' }}>Depth</label>
           <input type="number" step={0.1} min={0.5} style={inputStyle} value={d} onChange={(e) => setD(parseFloat(e.target.value) || 0.5)} />
         </div>
       </div>

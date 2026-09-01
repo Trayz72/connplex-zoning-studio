@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { getProjects, getProjectFilterOptions, createProject, deleteProject, logout, Project, ProjectFilterOptions } from '../api';
 import { deleteProjectData } from '../services/zoningEngineApi';
 import { useAuth } from '../AuthContext';
+import { EmptyIcon, TrashIcon } from '../components/Icons';
 
 export const ProjectsPage: React.FC = () => {
   const { user, refresh } = useAuth();
@@ -169,7 +170,7 @@ export const ProjectsPage: React.FC = () => {
           <p style={{ color: 'var(--text-secondary)' }}>Loading projects…</p>
         ) : projects.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon" aria-hidden="true">⬚</div>
+            <div className="empty-state-icon" aria-hidden="true"><EmptyIcon /></div>
             {hasActiveFilters ? (
               <>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>No projects match these filters.</p>
@@ -243,7 +244,7 @@ export const ProjectsPage: React.FC = () => {
                       aria-label="Delete project"
                       onClick={() => setConfirmingDeleteId(project.id)}
                     >
-                      🗑
+                      <TrashIcon />
                     </button>
                   </div>
                 )}
