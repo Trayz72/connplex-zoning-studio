@@ -41,6 +41,20 @@ AISLE_CLEARANCE_FT = 3.5   # matches CENTRAL_AISLE_MIN_FT — used generically a
 OBSTACLE_BUFFER_FT = 0.5
 MAX_SCAN_CELLS = 40000     # see _grid_step_for_bbox — real crash found via real testing, not a hypothetical
 
+# No SOP-stated circulation percentage exists for this pipeline (see the
+# rules registry — nothing under "circulation" other than qualitative notes),
+# so this is an explicit ENGINEERING_ASSUMPTION ceiling used only to decide
+# how much of the leftover usable area (after auditoriums) should go to
+# growing the SOP-required support zones vs. staying genuine circulation —
+# not a claim that real Connplex floors target this number. Found necessary
+# via real testing: without any such reserve, a plain 23,400 sqft rectangle
+# left 57% of the floor as unlabeled "circulation" because the formulaic
+# zone targets below were sized against auditorium area, not against how
+# much floor was actually left over.
+TARGET_CIRCULATION_RATIO = 0.18
+SUPPORT_ZONE_MAX_SCALE = 1.8   # cap on how far a zone can grow past its formulaic target, so leftover space can't balloon one room unrealistically
+PERIMETER_TOUCH_TOLERANCE_FT = 2.0  # how close a placement must sit to the boundary's own edge to count as "at the perimeter" below
+
 
 def _grid_step_for_bbox(bbox):
     """A boundary this scan runs against is normally a real, human-scale
@@ -82,6 +96,19 @@ def poly_from_points(points_ft):
 
 def _rect(x, y, w, h):
     return box(x, y, x + w, y + h)
+
+
+def _exterior_lines(poly):
+    """The real outer-boundary ring(s) of a usable-area polygon, deliberately
+    excluding any interior ring (an obstacle's own hole boundary isn't the
+    building's perimeter). Obstacle subtraction in compute_usable_area can
+    split one boundary into several disjoint pieces (a MultiPolygon), which
+    has no single .exterior — found via real testing against the Dhule
+    reference drawing, whose usable area is genuinely a MultiPolygon."""
+    if poly.geom_type == "Polygon":
+        return poly.exterior
+    from shapely.geometry import MultiLineString
+    return MultiLineString([p.exterior for p in poly.geoms])
 
 
 def compute_usable_area(boundary_points_ft, confirmed_obstacle_point_lists):
@@ -195,8 +222,17 @@ def _place_auditoriums(usable_poly, bbox, presets, max_count, preset_order):
         placement = None
         used_preset = None
         for preset in preset_order(presets):
-            w, h = preset["width_min_ft"], preset["length_min_ft"]
-            result = _scan_place(usable_poly, placed_polys, w, h, bbox)
+            # Try the preset's largest allowed footprint first (falls back to
+            # its own min axis when a max isn't declared for that axis — e.g.
+            # 60_SEAT/90_SEAT only declare a max on one axis) — this is what
+            # actually uses the space a preset is allowed to occupy instead of
+            # always taking its smallest legal footprint, directly increasing
+            # both seats (the locked v1 objective) and area utilization.
+            w_max = preset.get("width_max_ft", preset["width_min_ft"])
+            h_max = preset.get("length_max_ft", preset["length_min_ft"])
+            result = _scan_place(usable_poly, placed_polys, w_max, h_max, bbox)
+            if not result and (w_max, h_max) != (preset["width_min_ft"], preset["length_min_ft"]):
+                result = _scan_place(usable_poly, placed_polys, preset["width_min_ft"], preset["length_min_ft"], bbox)
             if result:
                 placement = result
                 used_preset = preset
@@ -252,6 +288,19 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
             )
         targets.append((room_type, display_name, target, min_area, note))
 
+    # Scale zone targets up to use real leftover space instead of letting it
+    # silently vanish into "circulation" — never shrinks a target below its
+    # formulaic value, and capped at SUPPORT_ZONE_MAX_SCALE (see its comment
+    # above) so no single zone balloons past what's plausible.
+    remaining_area = max(usable_poly.area - total_auditorium_area, 0.0)
+    base_targets_sum = sum(t for _, _, t, _, _ in targets)
+    if base_targets_sum > 0:
+        reserved_circulation = usable_poly.area * TARGET_CIRCULATION_RATIO
+        scalable_budget = max(remaining_area - reserved_circulation, 0.0)
+        scale = min(max(scalable_budget / base_targets_sum, 1.0), SUPPORT_ZONE_MAX_SCALE)
+        if scale > 1.01:
+            targets = [(rt, dn, t * scale, ma, note) for rt, dn, t, ma, note in targets]
+
     # Real entry point marked by the architect (spec M6 / SOP §4.4-§9): "Foyer
     # (at main entry level)", "F&B: visible from entry", "Washrooms: ... not
     # directly visible from foyer". Nothing in CAD extraction detects doors,
@@ -261,9 +310,10 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
     foyer_rect = None
     if entry_point is None:
         warnings.append(
-            "No main entrance was marked, so Foyer/F&B/Washroom placement used generic "
-            "first-fit packing only — the SOP's entry-facing/sightline rules (§4.4/§9) "
-            "were not applied. Mark the entrance in Requirements to enable them."
+            "No main entrance was marked, so Foyer/Box Office were placed using a generic "
+            "perimeter preference and F&B/Washroom used plain first-fit packing — the SOP's "
+            "entry-facing/sightline rules (§4.4/§9) were not applied. Mark the entrance in "
+            "Requirements to enable them."
         )
 
     for room_type, display_name, target_area, min_area, note in targets:
@@ -286,8 +336,10 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
 
         score_fn = prefer_fn = None
         if entry_point is not None:
-            if room_type == "FOYER":
-                # "Foyer (at main entry level)" — closest available position to the entrance.
+            if room_type in ("FOYER", "BOX_OFFICE"):
+                # "Foyer (at main entry level)" — closest available position to the
+                # entrance. Box office/ticketing next to the entrance is the same
+                # standard cinema-layout convention, not previously entry-aware here.
                 score_fn = lambda c: (_rect(*c).centroid.x - entry_point[0]) ** 2 + (_rect(*c).centroid.y - entry_point[1]) ** 2
             elif room_type == "FNB":
                 # "F&B: visible from entry" — the foyer itself is deliberately excluded from
@@ -311,12 +363,28 @@ def _place_support_zones(usable_poly, placed_polys, bbox, total_auditorium_area,
                     foyer_centroid = (foyer_rect.centroid.x, foyer_rect.centroid.y)
                     blockers = [p for p in placed_polys if p is not foyer_rect]
                     prefer_fn = lambda c: not _has_sightline(usable_poly, blockers, foyer_centroid, _rect(*c))
+        elif room_type in ("FOYER", "BOX_OFFICE"):
+            # No entrance marked: fall back to a generic-but-real geometric
+            # heuristic instead of arbitrary first-fit — prefer a placement
+            # touching the boundary's own perimeter, since a foyer/box-office
+            # is essentially always at the building's frontage in real cinema
+            # design (see _exterior_lines for why this isn't a bare
+            # usable_poly.exterior). Falls back to the best available fit if
+            # nothing touches the perimeter, same soft-constraint semantics
+            # as the entry-aware rules above.
+            perimeter = _exterior_lines(usable_poly)
+            prefer_fn = lambda c: _rect(*c).distance(perimeter) < PERIMETER_TOUCH_TOLERANCE_FT
 
         if score_fn or prefer_fn:
             best, satisfied = _scan_place_best(usable_poly, placed_polys, w, h, bbox, score_fn=score_fn, prefer_fn=prefer_fn)
             placement = best
             if placement and prefer_fn and not satisfied:
-                rule_desc = "a sightline from the entry" if room_type == "FNB" else "no direct sightline from the foyer"
+                if room_type == "FNB":
+                    rule_desc = "a sightline from the entry"
+                elif room_type == "WASHROOM":
+                    rule_desc = "no direct sightline from the foyer"
+                else:
+                    rule_desc = "a position touching the building's perimeter/frontage"
                 warnings.append(f"{display_name} placed, but no available position gave it {rule_desc} — used the best fit available instead.")
         else:
             placement = _scan_place(usable_poly, placed_polys, w, h, bbox)
@@ -383,13 +451,39 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
         requirements or {}
     )
 
-    all_placed_polys = aud_polys + [box(*_rect(z["origin_ft"][0], z["origin_ft"][1], z["width_ft"], z["depth_ft"]).bounds) for z in support_zones]
-    allocated_area = sum(p.area for p in all_placed_polys)
+    # aud_polys is the same list object passed into _place_support_zones as its
+    # placed_polys param, which appends each support zone's rect to it in place
+    # (needed internally so later zones see earlier ones for clearance checks) —
+    # by this point it already holds every auditorium AND every support zone.
+    # A previous version of this line re-added the support zones a second time
+    # via a fresh list comprehension, silently double-counting their area and
+    # under-reporting circulation_area_sqft (the number shown to the architect
+    # and used in the exported Area & Seat Chart's "EXIT PASSAGE" row) — found
+    # via real testing while verifying the utilization fixes above.
+    allocated_area = sum(p.area for p in aud_polys)
     circulation_area = max(usable_poly.area - allocated_area, 0.0)
 
     total_seats = sum(a["seat_estimate"]["seat_count"] for a in auditoriums)
     screen_count = len(auditoriums)
     seats_per_screen = round(total_seats / screen_count, 2) if screen_count else 0
+
+    utilization_warnings = []
+    if usable_poly.area > 0:
+        circulation_ratio = circulation_area / usable_poly.area
+        # Real leftover space is expected (real aisles/back-of-house gaps/odd
+        # corners a rectangle-packer can't reach) — this is a health check,
+        # not a hard limit: never blocks a run, just makes an unusually large
+        # unused chunk visible instead of silently calling it "circulation"
+        # with no explanation. 30% has no SOP source; it's set from what a
+        # well-packed real floor plate looks like after the fixes above.
+        if circulation_ratio > 0.30:
+            utilization_warnings.append(
+                f"{round(circulation_ratio * 100)}% of the usable area ({round(circulation_area):,} sqft) ended up "
+                f"unallocated — likely leftover pockets too small or oddly shaped for any remaining room to fit, "
+                f"or the {max_auditoriums}-auditorium limit in Requirements leaving more floor than that many "
+                f"screens plus support zones need. Consider raising Max Auditoriums, or check the floor plan for "
+                f"irregular leftover regions."
+            )
 
     return {
         "candidate_id": f"generic-{strategy.lower()}-{uuid.uuid4().hex[:8]}",
@@ -402,7 +496,7 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
         "total_seats": total_seats,
         "screen_count": screen_count,
         "seats_per_screen": seats_per_screen,
-        "warnings": aud_warnings + support_warnings
+        "warnings": aud_warnings + support_warnings + utilization_warnings
     }
 
 
