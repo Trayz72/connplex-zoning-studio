@@ -5,6 +5,10 @@ __pycache__/
 .DS_Store
 *.log
 
+# Local secrets — never commit API keys
+.env
+*/.env
+
 # Vendored third-party binary (253MB) — install separately, see STATUS.md
 services/cad-interop/oda/
 

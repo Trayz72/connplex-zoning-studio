@@ -5,3 +5,5 @@ ezdxf==1.4.4
 shapely==2.1.2
 reportlab==5.0.1
 pydantic>=2
+anthropic>=1.2.0
+python-dotenv>=1.0

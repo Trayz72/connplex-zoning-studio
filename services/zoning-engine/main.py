@@ -31,6 +31,7 @@ import feasibility_engine
 import chart_engine
 import export_dxf
 import export_pdf
+import ai_zoning_engine
 
 app = FastAPI(title="Connplex Zoning Engine")
 # No cookies flow through this service (it has no auth of its own — see the
@@ -248,6 +249,62 @@ def get_latest_run(project_id: str):
     run = storage.read_json(storage.latest_run_path(project_id))
     if not run:
         raise HTTPException(404, "No zoning run has been executed for this project yet.")
+    return run
+
+
+# ---------- AI-assisted zoning (Claude proposes the layout directly) ----------
+
+@app.post("/api/projects/{project_id}/ai-zoning-runs")
+def run_ai_zoning(project_id: str, body: ZoningRunIn):
+    """Same inputs/shape contract as /zoning-runs, but the candidate comes from
+    ai_zoning_engine (Claude reasoning over the real floor geometry) instead of
+    the deterministic packer. The resulting candidate is appended to the same
+    latest-run record so the existing select-candidate/layout/export endpoints
+    work on it completely unchanged."""
+    geometry = storage.read_json(storage.geometry_path(project_id))
+    if not geometry:
+        raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
+    requirements = storage.read_json(storage.requirements_path(project_id))
+    if not requirements:
+        raise HTTPException(400, "Project requirements must be submitted before running zoning.")
+
+    region = next((r for r in geometry["regions"] if r["region_id"] == body.region_id), None)
+    if not region:
+        raise HTTPException(404, f"Region '{body.region_id}' not found in this project's extracted geometry.")
+    if region["boundary"]["status"] != "CONFIRMED":
+        raise HTTPException(400, "The floor boundary must be CONFIRMED (not left PROPOSED) before a zoning run — "
+                                  "uncertain CAD detection must not silently become authoritative.")
+
+    confirmed_obstacle_records = [o for o in region["obstacles"] if o["status"] == "CONFIRMED"]
+
+    try:
+        candidate = ai_zoning_engine.generate_ai_candidate(region["boundary"]["points_ft"], confirmed_obstacle_records, requirements)
+    except ai_zoning_engine.AiZoningError as e:
+        raise HTTPException(502, str(e))
+
+    measurements = _build_measurements(requirements, confirmed_obstacle_records, candidate["boundary_area_sqft"],
+                                        candidate["total_seats"], candidate["screen_count"])
+    candidate["feasibility"] = feasibility_engine.evaluate(requirements.get("property_type", "EXISTING_BUILDING"), measurements)
+    candidate["area_seat_chart"] = chart_engine.build_chart(candidate)
+    for room in candidate["rooms"]:
+        if room["room_type"].startswith("AUDITORIUM"):
+            room["preset_fit"] = seat_engine.best_fit_preset(room["area_sqft"])
+
+    run = storage.read_json(storage.latest_run_path(project_id))
+    if not run or run.get("region_id") != body.region_id:
+        run = {
+            "run_id": uuid.uuid4().hex[:12],
+            "region_id": body.region_id,
+            "requirements": requirements,
+            "unresolved_obstacle_count": len([o for o in region["obstacles"] if o["status"] == "PROPOSED"]),
+            "candidates": [],
+            "created_at": storage.now_iso(),
+        }
+    # Replace a previous AI candidate rather than accumulating one per click —
+    # only the deterministic candidates are meant to persist as a fixed pair.
+    run["candidates"] = [c for c in run["candidates"] if c["strategy"] != "AI_ASSISTED"] + [candidate]
+    storage.write_json(storage.run_path(project_id, run["run_id"]), run)
+    storage.write_json(storage.latest_run_path(project_id), run)
     return run
 
 
