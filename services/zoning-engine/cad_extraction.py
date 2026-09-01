@@ -287,6 +287,21 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
     return results
 
 
+def resolve_dxf_path(input_path: str):
+    """input_path may be .dwg or .dxf; returns (real_dxf_path, conversion_note).
+    Shared by extract() and ai_cad_scan.py so both agree on how a DWG upload
+    gets converted, instead of ai_cad_scan.py duplicating (and risking
+    drifting from) this logic."""
+    ext = os.path.splitext(input_path)[1].lower()
+    if ext == ".dwg":
+        out_dir = os.path.dirname(input_path)
+        dxf_path = oda_convert(input_path, "dxf", out_dir)
+        return dxf_path, "Converted from DWG to DXF via ODA File Converter."
+    if ext == ".dxf":
+        return input_path, None
+    raise ValueError(f"Unsupported CAD file extension '{ext}'. Only .dwg and .dxf are supported.")
+
+
 def _read_dxf_with_recovery(dxf_path: str):
     """Real-world DXF files are frequently not fully spec-compliant (missing
     subclass markers, out-of-order sections, etc.) — a strict reader failing on
@@ -305,19 +320,19 @@ def _read_dxf_with_recovery(dxf_path: str):
         return doc, note
 
 
-def extract(input_path: str) -> dict:
-    """Main entry point. input_path may be .dwg or .dxf. Returns canonical geometry."""
-    ext = os.path.splitext(input_path)[1].lower()
-    conversion_note = None
+def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -> dict:
+    """Main entry point. input_path may be .dwg or .dxf. Returns canonical geometry.
 
-    if ext == ".dwg":
-        out_dir = os.path.dirname(input_path)
-        dxf_path = oda_convert(input_path, "dxf", out_dir)
-        conversion_note = "Converted from DWG to DXF via ODA File Converter."
-    elif ext == ".dxf":
-        dxf_path = input_path
-    else:
-        raise ValueError(f"Unsupported CAD file extension '{ext}'. Only .dwg and .dxf are supported.")
+    allowed_layers / min_boundary_area_sqft: normally None (unfiltered, the
+    default MIN_BOUNDARY_AREA_SQFT) — real overrides exist only for
+    ai_cad_scan.py's AI-assisted rescan, which restricts extraction to a
+    layer subset Claude identified as the real wall/floor layer(s) when the
+    default full-drawing pass found nothing usable. Dimension/hatch/furniture
+    noise on unrelated layers can fragment or dominate the segment network
+    enough that the real boundary never wins pass 2's candidate selection —
+    this is the deterministic engine's own logic re-run on a cleaner subset,
+    not a different/less-trustworthy extraction path."""
+    dxf_path, conversion_note = resolve_dxf_path(input_path)
 
     doc, recovery_note = _read_dxf_with_recovery(dxf_path)
     msp = doc.modelspace()
@@ -325,6 +340,10 @@ def extract(input_path: str) -> dict:
     scale = units["feet_per_drawing_unit"] or 1.0  # if unspecified, extract in raw units and flag for confirmation
 
     entities = list(msp)
+    if allowed_layers:
+        allowed_set = set(allowed_layers)
+        entities = [e for e in entities if str(e.dxf.layer) in allowed_set]
+    min_boundary_area_sqft = MIN_BOUNDARY_AREA_SQFT if min_boundary_area_sqft is None else min_boundary_area_sqft
 
     # --- Pass 1: find every closed shape and its polygon/area (in drawing units) ---
     closed_shapes = []
@@ -369,7 +388,7 @@ def extract(input_path: str) -> dict:
     # *obstacles* (columns are often drawn as circles) via the pass below,
     # which is unaffected by this filter. ---
     boundary_candidates = sorted(
-        [s for s in closed_shapes if s["area_sqft"] >= MIN_BOUNDARY_AREA_SQFT and s["dxftype"] != "CIRCLE"],
+        [s for s in closed_shapes if s["area_sqft"] >= min_boundary_area_sqft and s["dxftype"] != "CIRCLE"],
         key=lambda s: s["area_sqft"],
         reverse=True
     )

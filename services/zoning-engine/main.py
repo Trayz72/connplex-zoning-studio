@@ -32,6 +32,7 @@ import chart_engine
 import export_dxf
 import export_pdf
 import ai_zoning_engine
+import ai_cad_scan
 
 app = FastAPI(title="Connplex Zoning Engine")
 # No cookies flow through this service (it has no auth of its own — see the
@@ -131,6 +132,39 @@ async def upload_cad(project_id: str, file: UploadFile = File(...)):
         raise HTTPException(422, f"Could not extract geometry from this file: {e}")
 
     geometry["uploaded_filename"] = file.filename
+    geometry["uploaded_at"] = storage.now_iso()
+    storage.write_json(storage.geometry_path(project_id), geometry)
+    return geometry
+
+
+@app.post("/api/projects/{project_id}/cad/ai-scan")
+def ai_scan_cad(project_id: str):
+    """Re-runs extraction on the already-uploaded file, but with Claude first
+    picking which CAD layer(s) actually hold the wall/floor-boundary geometry
+    — a dedicated alternative to the default full-drawing pass, for files
+    where dimension/hatch/furniture layer noise buries the real boundary
+    (confirmed against real client files where this recovers geometry the
+    default pass found none of). Never fabricates geometry: only re-runs the
+    same deterministic extractor cad_extraction.extract() already uses,
+    scoped to Claude's chosen layers."""
+    saved_path = None
+    for ext in (".dwg", ".dxf"):
+        candidate = storage.path_in(project_id, f"original{ext}")
+        if os.path.isfile(candidate):
+            saved_path = candidate
+            break
+    if not saved_path:
+        raise HTTPException(404, "No CAD file has been uploaded for this project yet.")
+
+    try:
+        geometry = ai_cad_scan.ai_rescan(saved_path)
+    except ai_cad_scan.AiCadScanError as e:
+        raise HTTPException(502, str(e))
+    except Exception as e:
+        raise HTTPException(422, f"AI CAD scan failed: {e}")
+
+    existing = storage.read_json(storage.geometry_path(project_id)) or {}
+    geometry["uploaded_filename"] = existing.get("uploaded_filename", os.path.basename(saved_path))
     geometry["uploaded_at"] = storage.now_iso()
     storage.write_json(storage.geometry_path(project_id), geometry)
     return geometry

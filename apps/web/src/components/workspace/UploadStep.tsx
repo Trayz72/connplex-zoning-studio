@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { uploadCad } from '../../services/zoningEngineApi';
+import { uploadCad, aiScanCad } from '../../services/zoningEngineApi';
 import { GeometryResult } from '../../types/live';
-import { UploadIcon } from '../Icons';
+import { UploadIcon, RefreshIcon, WarningIcon } from '../Icons';
 
 interface UploadStepProps {
   projectId: string;
@@ -11,9 +11,11 @@ interface UploadStepProps {
 export const UploadStep: React.FC<UploadStepProps> = ({ projectId, onUploaded }) => {
   const [dragActive, setDragActive] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
-  const [status, setStatus] = useState<'IDLE' | 'UPLOADING' | 'EXTRACTING' | 'ERROR'>('IDLE');
+  const [status, setStatus] = useState<'IDLE' | 'UPLOADING' | 'EXTRACTING' | 'ERROR' | 'NO_REGIONS'>('IDLE');
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [aiScanning, setAiScanning] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   const process = async (file: File) => {
     const ext = file.name.toLowerCase().split('.').pop();
@@ -25,16 +27,43 @@ export const UploadStep: React.FC<UploadStepProps> = ({ projectId, onUploaded })
     setFileName(file.name);
     setStatus('UPLOADING');
     setError(null);
+    setAiError(null);
     setProgress(0);
     try {
       const geometry = await uploadCad(projectId, file, (pct) => {
         setProgress(pct);
         if (pct >= 100) setStatus('EXTRACTING');
       });
-      onUploaded(geometry);
+      if (geometry.region_count === 0) {
+        // Don't auto-advance into a Geometry Review step with nothing to
+        // review — offer the AI scan right here instead, since this is
+        // exactly the situation it exists for.
+        setStatus('NO_REGIONS');
+      } else {
+        onUploaded(geometry);
+      }
     } catch (e: any) {
       setStatus('ERROR');
       setError(e.message || 'Upload failed.');
+    }
+  };
+
+  const runAiScan = async () => {
+    setAiScanning(true);
+    setAiError(null);
+    try {
+      const geometry = await aiScanCad(projectId);
+      if (geometry.region_count === 0) {
+        setAiError(
+          (geometry.conversion_note || 'The AI scan tried alternative layers but still found no usable floor boundary in this file.')
+        );
+      } else {
+        onUploaded(geometry);
+      }
+    } catch (e: any) {
+      setAiError(e.message || 'AI CAD scan failed.');
+    } finally {
+      setAiScanning(false);
     }
   };
 
@@ -72,6 +101,27 @@ export const UploadStep: React.FC<UploadStepProps> = ({ projectId, onUploaded })
             </label>
             {error && <div className="alert-box alert-error" style={{ marginTop: '1rem' }}>{error}</div>}
           </>
+        ) : status === 'NO_REGIONS' ? (
+          <div>
+            <WarningIcon size={22} className="text-tertiary" />
+            <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-primary)', margin: '0.75rem 0 0.4rem' }}>{fileName}</div>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1.1rem', maxWidth: '440px', marginLeft: 'auto', marginRight: 'auto' }}>
+              The standard scan found no usable floor boundary in this file — common on real drawings where the
+              wall/floor geometry is buried among dimension, hatch, or furniture layers. Try the AI scan: it looks
+              at the file's actual layers and picks which one(s) are most likely the real boundary, then re-runs
+              extraction against just those.
+            </p>
+            <button className="btn btn-primary" style={{ padding: '0.5rem 1.5rem', marginBottom: '0.75rem' }} disabled={aiScanning} onClick={runAiScan}>
+              {aiScanning ? <><RefreshIcon size={14} /> Scanning with AI… (~15-30s)</> : <><RefreshIcon size={14} /> Scan with AI</>}
+            </button>
+            <div>
+              <label className="btn btn-secondary" style={{ cursor: 'pointer', padding: '0.4rem 1.2rem', fontSize: '0.8rem' }}>
+                Try a Different File
+                <input type="file" accept=".dwg,.dxf" style={{ display: 'none' }} onChange={(e) => e.target.files?.[0] && process(e.target.files[0])} />
+              </label>
+            </div>
+            {aiError && <div className="alert-box alert-error" style={{ marginTop: '1rem', textAlign: 'left' }}>{aiError}</div>}
+          </div>
         ) : (
           <div>
             <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-primary)', marginBottom: '1rem' }}>{fileName}</div>
