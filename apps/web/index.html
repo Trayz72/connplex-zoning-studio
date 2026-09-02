@@ -9,6 +9,19 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <script>
+      // Applied before React mounts so there's no flash of the wrong theme
+      // on load. Kept as a tiny inline script (not a module import) for
+      // exactly that reason -- it has to run before any CSS paints.
+      (function () {
+        try {
+          var stored = localStorage.getItem('cz-theme');
+          if (stored === 'light' || stored === 'dark') {
+            document.documentElement.setAttribute('data-theme', stored);
+          }
+        } catch (e) {}
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

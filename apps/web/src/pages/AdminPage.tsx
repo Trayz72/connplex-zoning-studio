@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getUsers, setUserAdmin, deleteUser, AdminUser } from '../api';
 import { useAuth } from '../AuthContext';
 import { BlockedIcon, TrashIcon } from '../components/Icons';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const AdminPage: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -69,6 +70,7 @@ export const AdminPage: React.FC = () => {
           Connplex Zoning Studio
         </Link>
         <div className="nav-links">
+          <ThemeToggle />
           <Link to="/admin/rules" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
             Rules &amp; Config
           </Link>

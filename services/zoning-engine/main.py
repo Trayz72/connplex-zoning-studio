@@ -15,7 +15,7 @@ calls both. See CLAUDE.md for the module-boundary rationale.
 import os
 import uuid
 from datetime import datetime, timezone
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -67,8 +67,18 @@ class RequirementsIn(BaseModel):
     # Architect-marked main entrance, real user input (nothing in CAD
     # extraction detects doors) — feeds the SOP's entry-sightline placement
     # rules (spec M6) when present; those rules are skipped, not guessed
-    # at, when this is None.
+    # at, when this is None. Now captured at boundary-selection time
+    # (BoundaryStudio), not just at this step — still stored here since it's
+    # a real business input alongside the others, not CAD-derived geometry.
     entry_point_ft: Optional[Tuple[float, float]] = None
+    # Architect-marked fire/emergency exit point(s), zero or more, same
+    # honest "ask, don't guess" reasoning as entry_point_ft — feeds
+    # layout_engine's entry-to-exit placement direction and its explicit
+    # cross-movement check (spec SOP Sec 2.8: "no cross-movement between
+    # entry/exit flows"). Optional: a floor's exits are frequently not yet
+    # decided at zoning-design time, and the generator still produces a
+    # real layout without them (falls back to entry-only orientation).
+    exit_points_ft: Optional[List[Tuple[float, float]]] = None
 
 
 class GeometryUpdateIn(BaseModel):

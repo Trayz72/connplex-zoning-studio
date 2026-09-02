@@ -29,11 +29,27 @@ def evaluate_rule(rule: dict, measurements: dict) -> dict:
         passed = None
 
     threshold_display = rule.get("threshold", f"{rule.get('threshold_min')}-{rule.get('threshold_max')}")
+    unit_suffix = f" {rule['unit']}" if rule.get("unit") else ""
+    # Every message_template in the registry is authored describing the FAIL
+    # condition only ("Clear height below 10'-0" minimum — NOT VIABLE."), never
+    # a pass case — confirmed by reading every entry in rules_registry_v1.json.
+    # Using it unconditionally (the previous behavior) meant a rule that
+    # genuinely PASSED still displayed that failure-sounding sentence,
+    # distinguished from a real failure only by a subtle text-color
+    # difference in the frontend — found on a real project where clear
+    # height measured 12ft against a 10ft minimum (a clear PASS) but the
+    # feasibility panel read "Clear height below 10'-0" minimum — NOT
+    # VIABLE." verbatim. A passed rule now always gets an honest, neutral
+    # message built from the actual measured value instead.
+    if passed:
+        message = f"{metric} = {measured}{unit_suffix} meets the {threshold_display}{unit_suffix} requirement."
+    else:
+        message = rule.get("message_template") or f"{metric} = {measured} vs threshold {threshold_display}"
     return {
         "rule_id": rule["rule_id"], "result": "PASS" if passed else "FAIL", "severity": rule["severity"],
         "metric": metric, "measured_value": measured, "threshold": threshold_display, "unit": rule.get("unit"),
         "source": rule["source"], "source_section": rule.get("source_section"),
-        "message": rule.get("message_template") or f"{metric} = {measured} vs threshold {threshold_display}"
+        "message": message
     }
 
 

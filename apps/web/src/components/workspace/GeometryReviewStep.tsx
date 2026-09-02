@@ -391,10 +391,18 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
       <div style={{ width: '360px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
         {unitsUnconfirmed && (
           <div className="alert-box alert-error" style={{ fontSize: '0.75rem', lineHeight: 1.6 }}>
-            <strong>This file doesn't specify real-world units</strong> ($INSUNITS is unset). Every area/distance
-            below is computed assuming 1 drawing unit = 1 ft, which is very likely wrong — treat the numbers as
-            unreliable until you've checked them against a known real dimension in the file (e.g. a labeled room
-            size), and correct the file's units at the source (re-save/re-export with units set) if they're off.
+            <strong>This file doesn't specify real-world units</strong> ($INSUNITS is unset).{' '}
+            {geometry.units.suggested_unit ? (
+              <>Every area/distance below is computed assuming <strong>1 drawing unit = 1 {geometry.units.suggested_unit.toLowerCase()}</strong>{' '}
+              ({geometry.units.suggested_unit_reason || 'a guess based on this file\'s header, not a confirmed value'}) —
+              treat the numbers as unreliable</>
+            ) : (
+              <>There's no header evidence to even guess from, so every area/distance below is unscaled — treat the
+              numbers as unreliable</>
+            )}{' '}
+            until you've checked them against a known real dimension in the file (e.g. a labeled room size), and
+            correct the file's units at the source (re-save/re-export with units set) if they're off. Go back to
+            "Select Boundary" to confirm the real unit before trusting this review.
           </div>
         )}
         {boundaryIsClean && (

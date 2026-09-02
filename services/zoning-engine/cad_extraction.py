@@ -112,6 +112,28 @@ UNIT_NAME_TO_FEET = {
 COLUMN_LAYER_HINTS = ["column", "col", "grid", "struct"]
 BOUNDARY_LAYER_HINTS = ["wall", "boundary", "outline"]
 
+# Layer names that are near-universal AutoCAD sheet/drafting artifacts —
+# a paper-space viewport border, a plot/print margin, a drawing-sheet
+# format frame, a title block, or an area-calculation/dimension-helper
+# shape drawn as a closed polyline directly in modelspace — never real
+# building geometry, no matter how large. Found via a real file
+# (theater_clean.dxf): a single VIEWPORT-layer sheet frame (117,059 sqft)
+# and six duplicate MARGIN-layer sheet-margin rectangles (47,050 sqft
+# each) out-ranked the file's real, wall-reconstructed ~7,116 sqft
+# auditorium boundary purely on raw area, with no warning at all — none
+# of those six were even distinct rooms, just the same margin rectangle
+# repeated once per drawing sheet. "F.S.I."/"BUILT UP"/"title block" are
+# the same non-physical-layer evidence ai_obstacle_classify.py already
+# uses (there, as a live AI judgment call for obstacles *inside* an
+# already-confirmed boundary); applied here as a plain substring check —
+# these are universal CAD-sheet conventions, not a business/regulatory
+# fact, so a static list is the right tool, not a reason to invent an
+# architectural rule.
+NON_PHYSICAL_LAYER_HINTS = [
+    "viewport", "margin", "format", "title block", "titleblock",
+    "plot", "f.s.i", "fsi", "built up", "builtup", "dim",
+]
+
 # Standard AutoCAD architectural layer-naming conventions (A-DOOR, A-GLAZ,
 # A-FURN, etc. per the AIA CAD Layer Guidelines most real firms follow) — this
 # reads real metadata already present in the file, the same evidence-based
@@ -957,6 +979,8 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
     for i, (e, tf) in enumerate(entities):
         if id(e) in annotation_ids:
             continue  # a dimension/leader can't be a real wall or column — see _resolve_entities
+        if _layer_hint_score(str(e.dxf.layer), NON_PHYSICAL_LAYER_HINTS):
+            continue  # a sheet frame/margin/title-block/area-callout is never real geometry — see NON_PHYSICAL_LAYER_HINTS
         t = e.dxftype()
         h = _handle_of(e, i)
         if t == "HATCH":

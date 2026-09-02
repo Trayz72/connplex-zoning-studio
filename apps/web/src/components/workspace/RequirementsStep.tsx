@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Requirements, FranchiseTier } from '../../types/live';
 import { getFranchiseTiers } from '../../services/zoningEngineApi';
+import { EntryExitPicker } from './EntryExitPicker';
 
 interface RequirementsStepProps {
   initial: Requirements | null;
@@ -10,61 +11,15 @@ interface RequirementsStepProps {
   /** The confirmed boundary, for the entry-point picker below — real
    * geometry, not a placeholder shape. */
   boundaryPointsFt?: number[][] | null;
+  /** Marked in BoundaryStudio's entry/exit sub-step, right after the
+   * boundary was chosen — used only to seed this step's local state when
+   * `initial` itself is null (a brand-new Requirements object); once
+   * `initial` exists (e.g. returning to this step after already saving
+   * once), its own entry_point_ft/exit_points_ft take precedence. */
+  initialEntryPointFt?: [number, number] | null;
+  initialExitPointsFt?: [number, number][] | null;
   onSubmit: (req: Requirements) => void;
 }
-
-/** Click-to-mark the main entrance on the real confirmed boundary outline.
- * Nothing in CAD extraction detects doors, so this is the one honest way to
- * get this data point: ask the person who actually knows where the
- * entrance is, rather than guess (e.g. "assume it's the boundary's
- * longest edge" or some other plausible-sounding but unverified rule the
- * project's own anti-hallucination principle rules out). */
-const EntryPointPicker: React.FC<{
-  boundaryPointsFt: number[][];
-  value: [number, number] | null;
-  onChange: (pt: [number, number] | null) => void;
-}> = ({ boundaryPointsFt, value, onChange }) => {
-  const xs = boundaryPointsFt.map(p => p[0]);
-  const ys = boundaryPointsFt.map(p => p[1]);
-  const minX = Math.min(...xs), maxX = Math.max(...xs);
-  const minY = Math.min(...ys), maxY = Math.max(...ys);
-  const w = maxX - minX || 1, h = maxY - minY || 1;
-  const pad = Math.max(w, h) * 0.06;
-  const viewBox = `${minX - pad} ${minY - pad} ${w + pad * 2} ${h + pad * 2}`;
-
-  const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
-    const svg = e.currentTarget;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const ctm = svg.getScreenCTM();
-    if (!ctm) return;
-    const local = pt.matrixTransform(ctm.inverse());
-    onChange([Math.round(local.x * 10) / 10, Math.round(local.y * 10) / 10]);
-  };
-
-  return (
-    <div>
-      <svg
-        viewBox={viewBox}
-        style={{ width: '100%', height: '220px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', cursor: 'crosshair' }}
-        onClick={handleClick}
-      >
-        <polygon
-          points={boundaryPointsFt.map(p => p.join(',')).join(' ')}
-          fill="var(--bg-secondary)" stroke="var(--border-strong)" strokeWidth={w * 0.004}
-        />
-        {value && (
-          <circle cx={value[0]} cy={value[1]} r={w * 0.018} fill="var(--brand-strong)" stroke="var(--bg-primary)" strokeWidth={w * 0.003} />
-        )}
-      </svg>
-      <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '4px', display: 'flex', justifyContent: 'space-between' }}>
-        <span>{value ? `Marked at (${value[0]}, ${value[1]}) ft — click again to move it` : 'Click the floor plate to mark the main entrance'}</span>
-        {value && <a href="#" onClick={(e) => { e.preventDefault(); onChange(null); }}>Clear</a>}
-      </div>
-    </div>
-  );
-};
 
 /** Best-effort parse of a free-text clear-height field into feet. Never
  * silently trusted — always shown as an editable, confirmable number, not
@@ -95,11 +50,13 @@ function parseClearHeightToFeet(text: string | null | undefined): number | null 
   return num; // ft, ', or a bare number — feet is the common default in these documents
 }
 
-export const RequirementsStep: React.FC<RequirementsStepProps> = ({ initial, clearHeightHint, boundaryPointsFt, onSubmit }) => {
+export const RequirementsStep: React.FC<RequirementsStepProps> = ({
+  initial, clearHeightHint, boundaryPointsFt, initialEntryPointFt, initialExitPointsFt, onSubmit
+}) => {
   const [req, setReq] = useState<Requirements>(initial || {
     property_type: 'EXISTING_BUILDING', max_auditoriums: 4, franchise_tier_id: null,
     support_zone_area_overrides_sqft: {}, clear_height_ft: parseClearHeightToFeet(clearHeightHint),
-    entry_point_ft: null
+    entry_point_ft: initialEntryPointFt ?? null, exit_points_ft: initialExitPointsFt ?? null
   });
   // Real registry data, not hardcoded text — the tier dropdown previously had
   // static area/screen ranges typed directly into the JSX that had drifted
@@ -167,16 +124,20 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({ initial, cle
 
       {boundaryPointsFt && boundaryPointsFt.length >= 3 && (
         <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-          <label>Main Entrance (optional — enables entry-facing placement of Foyer/F&amp;B/Washrooms)</label>
-          <EntryPointPicker
+          <label>Entrance &amp; Exits (optional — enables entry-aware placement and the SOP's no-cross-movement check)</label>
+          <EntryExitPicker
             boundaryPointsFt={boundaryPointsFt}
-            value={req.entry_point_ft}
-            onChange={(pt) => setReq({ ...req, entry_point_ft: pt })}
+            entryValue={req.entry_point_ft}
+            onEntryChange={(pt) => setReq({ ...req, entry_point_ft: pt })}
+            exitValues={req.exit_points_ft || []}
+            onExitChange={(pts) => setReq({ ...req, exit_points_ft: pts.length ? pts : null })}
+            height={220}
           />
           <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
-            Nothing in the uploaded CAD file identifies doors, so this isn't detected automatically. Leave unmarked
-            to skip the SOP's entry-sightline placement rules (F&amp;B visible from entry, washrooms hidden from foyer
-            sightline) rather than guess at a location.
+            Nothing in the uploaded CAD file identifies doors, so these aren't detected automatically. Usually
+            already marked in "Select Boundary" — adjust here if you need to. Leave unmarked to skip the SOP's
+            entry-sightline placement rules (F&amp;B visible from entry, washrooms hidden from foyer sightline) and
+            the entry/exit separation check rather than guess at a location.
           </div>
         </div>
       )}

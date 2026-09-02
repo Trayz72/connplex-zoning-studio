@@ -4,6 +4,7 @@ import { getProjects, getProjectFilterOptions, createProject, deleteProject, log
 import { deleteProjectData } from '../services/zoningEngineApi';
 import { useAuth } from '../AuthContext';
 import { EmptyIcon, TrashIcon } from '../components/Icons';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const ProjectsPage: React.FC = () => {
   const { user, refresh } = useAuth();
@@ -111,6 +112,7 @@ export const ProjectsPage: React.FC = () => {
               </Link>
             </>
           )}
+          <ThemeToggle />
           <button onClick={handleLogout} className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
             Log Out
           </button>

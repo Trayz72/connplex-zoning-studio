@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getRulesConfig, saveRulesCategory, RulesRegistry, RulesCategory, RULES_CATEGORIES } from '../api';
 import { BlockedIcon, TrashIcon } from '../components/Icons';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 const CATEGORY_LABEL: Record<RulesCategory, string> = {
   seat_types: 'Seat Types',
@@ -130,6 +131,7 @@ export const AdminRulesPage: React.FC = () => {
           Connplex Zoning Studio
         </Link>
         <div className="nav-links">
+          <ThemeToggle />
           <Link to="/admin" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
             User Management
           </Link>

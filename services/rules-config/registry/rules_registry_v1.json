@@ -228,7 +228,8 @@
     { "id": "FOYER_REQUIRED_FUNCTIONS", "value": ["Box office", "Waiting", "F&B", "Washrooms", "Electrical room", "Server room", "Store room"], "description": "Foyer at main entry level must include these functions.", "source": "SOP", "source_section": "§4.4/§9", "approval_status": "SOURCE_BACKED" },
     { "id": "WASHROOM_ADJACENCY_RULE", "value": "near plumbing shaft; not directly visible from foyer; easily accessible", "description": "Qualitative adjacency rule, not yet machine-checkable without a sightline model.", "source": "SOP", "approval_status": "SOURCE_BACKED_QUALITATIVE" },
     { "id": "FNB_ADJACENCY_RULE", "value": "visible from entry; adequate circulation; plumbing lines available", "source": "SOP", "approval_status": "SOURCE_BACKED_QUALITATIVE" },
-    { "id": "SEPARATE_ENTRY_EXIT_FLOW", "value": "no cross-movement between entry/exit flows; separate entry & exit flow per auditorium; direct fire-exit access from circulation", "source": "SOP", "approval_status": "SOURCE_BACKED_QUALITATIVE" }
+    { "id": "SEPARATE_ENTRY_EXIT_FLOW", "value": "no cross-movement between entry/exit flows; separate entry & exit flow per auditorium; direct fire-exit access from circulation", "source": "SOP", "approval_status": "SOURCE_BACKED_QUALITATIVE" },
+    { "id": "MIN_ENTRY_EXIT_SEPARATION_FT", "value": 15, "unit": "ft", "description": "Measurable proxy threshold for SEPARATE_ENTRY_EXIT_FLOW's qualitative 'no cross-movement between entry/exit flows' rule: the straight-line distance below which a marked exit point is flagged as not clearly separated from the main entrance. The SOP states the qualitative rule but no specific distance; this is v1's own line-of-sight substitute for real circulation-path routing (which this engine does not model), so a warning, never a hard block, and revisable once real adjacency/path data exists.", "source": "ENGINEERING_ASSUMPTION", "approval_status": "REQUIRES_APPROVAL" }
   ],
 
   "viability_rules": [

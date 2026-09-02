@@ -374,13 +374,13 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                 points={room.geometry_points_ft.map(p => p.join(',')).join(' ')}
                 fill={ROOM_NEUTRAL}
                 fillOpacity={isSelected ? 0.32 : isHovered ? 0.24 : 0.16}
-                stroke={isSelected ? '#ffffff' : ROOM_NEUTRAL}
+                stroke={isSelected ? 'var(--text-primary)' : ROOM_NEUTRAL}
                 strokeWidth={isSelected ? ftPerHandlePx(1.5) : ftPerHandlePx(1)}
               />
-              <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="#ffffff" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+              <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="var(--text-primary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.display_name}
               </text>
-              <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2 + fontSize * 1.3} textAnchor="middle" fontSize={fontSize * 0.8} fill="#d8d8db" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+              <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2 + fontSize * 1.3} textAnchor="middle" fontSize={fontSize * 0.8} fill="var(--text-secondary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.area_sqft} sqft{room.seat_estimate?.seat_count ? ` / ${room.seat_estimate.seat_count} seats` : ''}
               </text>
 
@@ -402,7 +402,7 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                     {/* Small visible mark, constant screen size regardless of zoom */}
                     <circle
                       cx={hx} cy={hy} r={isHandleHovered ? handleVisR * 1.6 : handleVisR}
-                      fill={isHandleHovered ? 'var(--brand-strong)' : '#ffffff'}
+                      fill={isHandleHovered ? 'var(--brand-strong)' : 'var(--text-primary)'}
                       stroke="var(--bg-primary)" strokeWidth={ftPerHandlePx(1.5)}
                       style={{ pointerEvents: 'none', transition: 'r 0.08s ease-out' }}
                     />

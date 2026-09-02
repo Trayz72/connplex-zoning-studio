@@ -51,6 +51,47 @@
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
+/* Light theme — every component below already reads colors exclusively
+   through these variables (no hardcoded hex anywhere in components/pages),
+   so this block is the entire theme: no per-component light-mode CSS
+   needed. Toggled via [data-theme="light"] on <html> (see theme.ts) rather
+   than prefers-color-scheme, since this is an explicit user choice, not a
+   system-following one — added specifically because the dark canvas made
+   reading an uploaded CAD drawing's linework hard to see for real work. */
+:root[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f4f4f2;
+  --bg-card: #ffffff;
+  --bg-raised: #ececea;
+  --border-color: #e0dfda;
+  --border-strong: #c9c7c0;
+  --text-primary: #17171a;
+  --text-secondary: #55545a;
+  --text-tertiary: #83828a;
+
+  --brand: #a5780a;
+  --brand-strong: #c4930e;
+  --brand-ink: #171204;
+
+  /* Primary-action fill flips dark-on-light here (instead of light-on-dark)
+     to keep the same "neutral high-contrast button" effect the dark theme
+     uses brand color sparingly for — not a literal color inversion. */
+  --accent: #17171a;
+  --accent-ink: #ffffff;
+  --accent-hover: #35353a;
+
+  --success: #2f7d50;
+  --success-bg: rgba(47, 125, 80, 0.1);
+  --warning: #9c6f1e;
+  --warning-bg: rgba(156, 111, 30, 0.1);
+  --danger: #b8453b;
+  --danger-bg: rgba(184, 69, 59, 0.1);
+
+  --shadow-sm: 0 1px 2px rgba(20, 19, 15, 0.08);
+  --shadow-md: 0 4px 16px rgba(20, 19, 15, 0.1);
+  --shadow-lg: 0 12px 32px rgba(20, 19, 15, 0.14);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

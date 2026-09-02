@@ -144,8 +144,17 @@ export interface Requirements {
    * extraction detects doors/entrances today, so this is real user input,
    * not a derived value. Used only to place Foyer/F&B/Washroom zones per
    * the SOP's entry-sightline rules (spec M6); when null, that placement
-   * logic is skipped rather than guessing where the entrance is. */
+   * logic is skipped rather than guessing where the entrance is. Now
+   * captured at boundary-selection time (BoundaryStudio's EntryExitPicker),
+   * not this step — still lives here since it's a real business input
+   * alongside the rest of Requirements, not CAD-derived geometry. */
   entry_point_ft: [number, number] | null;
+  /** Zero or more marked fire/emergency exit points, same coordinate space
+   * and same "architect-marked, never guessed" reasoning as entry_point_ft.
+   * Feeds layout_engine's entry-to-exit placement direction and its
+   * explicit cross-movement warning (SOP §4.4/§9: "no cross-movement
+   * between entry/exit flows"). */
+  exit_points_ft: [number, number][] | null;
 }
 
 export interface SeatEstimate {

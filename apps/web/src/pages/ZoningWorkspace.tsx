@@ -13,6 +13,7 @@ import { EditableCanvas } from '../components/workspace/EditableCanvas';
 import { ExportPanel } from '../components/workspace/ExportPanel';
 import { SeatConfigPanel } from '../components/workspace/SeatConfigPanel';
 import { RoomDimensionEditor } from '../components/workspace/RoomDimensionEditor';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 type Step = 'LOADING' | 'UPLOAD' | 'BOUNDARY_STUDIO' | 'GEOMETRY_REVIEW' | 'REQUIREMENTS' | 'RUN' | 'EDIT';
 
@@ -41,6 +42,14 @@ export const ZoningWorkspace: React.FC = () => {
   const [regionId, setRegionId] = useState<string>('');
   const [reviewRegionId, setReviewRegionId] = useState<string | undefined>(undefined);
   const [requirements, setRequirements] = useState<Requirements | null>(null);
+  // Marked at boundary-selection time (BoundaryStudio's entry/exit
+  // sub-step), before a real Requirements object necessarily exists yet —
+  // held here and merged into RequirementsStep's own default state rather
+  // than forced into a premature Requirements object, since building one
+  // correctly also needs the intake clear-height hint RequirementsStep
+  // already owns (see its own default-state construction).
+  const [entryPointFt, setEntryPointFt] = useState<[number, number] | null>(null);
+  const [exitPointsFt, setExitPointsFt] = useState<[number, number][] | null>(null);
   const [layout, setLayout] = useState<EditableLayout | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
@@ -116,9 +125,14 @@ export const ZoningWorkspace: React.FC = () => {
     setStep('UPLOAD');
   };
 
-  const handleBoundaryChosen = (geo: GeometryResult, chosenRegionId: string) => {
+  const handleBoundaryChosen = (
+    geo: GeometryResult, chosenRegionId: string,
+    entryPt?: [number, number] | null, exitPts?: [number, number][]
+  ) => {
     setGeometry(geo);
     setReviewRegionId(chosenRegionId);
+    if (entryPt !== undefined) setEntryPointFt(entryPt);
+    if (exitPts !== undefined) setExitPointsFt(exitPts.length ? exitPts : null);
     setStep('GEOMETRY_REVIEW');
   };
 
@@ -246,14 +260,17 @@ export const ZoningWorkspace: React.FC = () => {
           </Link>
           <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>{project?.property_name || 'Project'}</span>
         </div>
-        <div style={{ display: 'flex', gap: '2px', fontSize: 'var(--text-xs)' }}>
-          {(['UPLOAD', 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'] as Step[]).map((s, i) => (
-            <span key={s} style={{
-              padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontWeight: step === s ? 600 : 400,
-              background: step === s ? 'var(--bg-raised)' : 'transparent',
-              color: step === s ? 'var(--text-primary)' : 'var(--text-tertiary)'
-            }}>{i + 1}. {STEP_LABEL[s]}</span>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '2px', fontSize: 'var(--text-xs)' }}>
+            {(['UPLOAD', 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'] as Step[]).map((s, i) => (
+              <span key={s} style={{
+                padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontWeight: step === s ? 600 : 400,
+                background: step === s ? 'var(--bg-raised)' : 'transparent',
+                color: step === s ? 'var(--text-primary)' : 'var(--text-tertiary)'
+              }}>{i + 1}. {STEP_LABEL[s]}</span>
+            ))}
+          </div>
+          <ThemeToggle />
         </div>
       </header>
 
@@ -276,6 +293,8 @@ export const ZoningWorkspace: React.FC = () => {
             initial={requirements}
             clearHeightHint={project?.beam_bottom_clear_height}
             boundaryPointsFt={geometry?.regions.find(r => r.region_id === regionId)?.boundary.points_ft}
+            initialEntryPointFt={entryPointFt}
+            initialExitPointsFt={exitPointsFt}
             onSubmit={handleRequirementsSubmit}
           />
         )}

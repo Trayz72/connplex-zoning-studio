@@ -32,6 +32,7 @@ import uuid
 from shapely.geometry import Polygon, box
 from shapely.ops import unary_union
 from shapely.affinity import rotate as shapely_rotate
+from shapely.affinity import scale as shapely_scale
 
 import rules_registry
 import seat_engine
@@ -133,6 +134,67 @@ def compute_usable_area(boundary_points_ft, confirmed_obstacles, exclude_classif
     obstacle_union = unary_union(polys)
     usable = boundary.difference(obstacle_union)
     return usable if not usable.is_empty else boundary
+
+
+def _entry_exit_scan_flip(bbox, entry_point, exit_points_ft):
+    """Which axes to mirror the usable area across before running the
+    auditorium placement scan (see _place_auditoriums), so screens are
+    filled starting from the entrance side of the floor plate and
+    proceeding toward the exit side, instead of the scan's fixed
+    bottom-left starting corner (which has no relationship to the real
+    entrance). This is a real, geometric reading of the SOP's "entry ->
+    foyer -> auditorium" sequencing (spec Sec 2.8) applied to placement
+    *order* — not full circulation-path routing, which this rectangle
+    packer was never going to do honestly.
+
+    With both an entry and at least one exit marked, the flip direction is
+    the real vector from the entrance to the exits' centroid. With only an
+    entry marked, the target is the point reflected through the floor
+    plate's own center — i.e. "start near the door, work toward the far
+    side" — so entry alone still has a real effect instead of none, which
+    was the case before this function existed (only the support-zone pass
+    used entry_point at all; auditorium placement ignored it completely).
+
+    Returns (flip_x, flip_y): booleans, independent per axis."""
+    if entry_point is None:
+        return False, False
+    minx, miny, maxx, maxy = bbox
+    cx, cy = (minx + maxx) / 2.0, (miny + maxy) / 2.0
+    if exit_points_ft:
+        target_x = sum(p[0] for p in exit_points_ft) / len(exit_points_ft)
+        target_y = sum(p[1] for p in exit_points_ft) / len(exit_points_ft)
+    else:
+        target_x, target_y = 2 * cx - entry_point[0], 2 * cy - entry_point[1]
+    flip_x = entry_point[0] > target_x
+    flip_y = entry_point[1] > target_y
+    return flip_x, flip_y
+
+
+def _mirror_for_scan(poly, bbox, flip_x, flip_y):
+    """Mirrors `poly` about the bbox's own center along whichever axes
+    flip_x/flip_y select. Mirroring about the bbox's own center (rather
+    than an arbitrary origin) keeps the mirrored polygon's bounding box
+    numerically identical to the original bbox, so callers can keep using
+    the same bbox for the scan without recomputing it."""
+    if not flip_x and not flip_y:
+        return poly
+    minx, miny, maxx, maxy = bbox
+    cx, cy = (minx + maxx) / 2.0, (miny + maxy) / 2.0
+    return shapely_scale(poly, xfact=-1 if flip_x else 1, yfact=-1 if flip_y else 1, origin=(cx, cy))
+
+
+def _unmirror_rect(x, y, w, h, bbox, flip_x, flip_y):
+    """Inverse of _mirror_for_scan for a single axis-aligned (x, y, w, h)
+    placement result — a closed-form corner remap (mirroring flips which
+    corner is the rect's "bottom-left"), cheaper and exactly as correct as
+    running the affine transform on the box and re-reading its bounds."""
+    if not flip_x and not flip_y:
+        return x, y
+    minx, miny, maxx, maxy = bbox
+    cx, cy = (minx + maxx) / 2.0, (miny + maxy) / 2.0
+    rx = (2 * cx - x - w) if flip_x else x
+    ry = (2 * cy - y - h) if flip_y else y
+    return rx, ry
 
 
 def _scan_place(usable_poly, placed_polys, w, h, bbox, allow_rotate=True):
@@ -268,11 +330,25 @@ def _enclosed_obstacle_area(rect, column_polys):
     return sum(rect.intersection(cp).area for cp in column_polys)
 
 
-def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, max_count, preset_order):
+def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, max_count, preset_order,
+                        entry_point=None, exit_points_ft=None):
     placed = []
-    placed_polys = []
+    placed_polys = []           # real-space, returned to the caller
     warnings = []
     undersized_count = 0  # how many auditoriums couldn't get this strategy's most-preferred preset tier — real evidence for the utilization warning below, not a guess
+
+    # See _entry_exit_scan_flip's own docstring: this is what makes screen
+    # placement actually start near the entrance and proceed toward the
+    # exit side instead of an arbitrary fixed corner. Mirrored once here,
+    # not per-auditorium — the scan itself runs entirely in mirrored space
+    # (scan_placed_polys below), and every result is mapped back to real
+    # coordinates via _unmirror_rect before it's used for anything else
+    # (seat estimation, the returned room record, collision-checking
+    # against support zones placed afterward in _place_support_zones).
+    flip_x, flip_y = _entry_exit_scan_flip(bbox, entry_point, exit_points_ft)
+    scan_usable = _mirror_for_scan(usable_poly, bbox, flip_x, flip_y)
+    scan_fallback = _mirror_for_scan(fallback_poly, bbox, flip_x, flip_y)
+    scan_placed_polys = []      # mirrored-space, used only for the scan's own collision checks
 
     for _ in range(max_count):
         placement = None
@@ -287,9 +363,9 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
             # both seats (the locked v1 objective) and area utilization.
             w_max = preset.get("width_max_ft", preset["width_min_ft"])
             h_max = preset.get("length_max_ft", preset["length_min_ft"])
-            result, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, w_max, h_max, bbox)
+            result, used_fallback = _scan_place_with_fallback(scan_usable, scan_fallback, scan_placed_polys, w_max, h_max, bbox)
             if not result and (w_max, h_max) != (preset["width_min_ft"], preset["length_min_ft"]):
-                result, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, preset["width_min_ft"], preset["length_min_ft"], bbox)
+                result, used_fallback = _scan_place_with_fallback(scan_usable, scan_fallback, scan_placed_polys, preset["width_min_ft"], preset["length_min_ft"], bbox)
             if result:
                 placement = result
                 used_preset = preset
@@ -301,7 +377,9 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
         if used_preset is not ordered_presets[0]:
             undersized_count += 1
 
-        x, y, w, h = placement
+        sx, sy, w, h = placement
+        scan_placed_polys.append(_rect(sx, sy, w, h))
+        x, y = _unmirror_rect(sx, sy, w, h, bbox, flip_x, flip_y)
         rect = _rect(x, y, w, h)
         placed_polys.append(rect)
         # used_fallback means no column-free placement existed for this
@@ -385,6 +463,7 @@ def _place_support_zones(usable_poly, fallback_poly, column_polys, placed_polys,
     # so this is only applied when the architect actually marked one —
     # skipped, with an honest note, rather than guessed at, otherwise.
     entry_point = requirements.get("entry_point_ft") if requirements else None
+    exit_points_ft = requirements.get("exit_points_ft") if requirements else None
     foyer_rect = None
     if entry_point is None:
         warnings.append(
@@ -393,6 +472,29 @@ def _place_support_zones(usable_poly, fallback_poly, column_polys, placed_polys,
             "entry-facing/sightline rules (§4.4/§9) were not applied. Mark the entrance in "
             "Requirements to enable them."
         )
+
+    # SOP planning norm SEPARATE_ENTRY_EXIT_FLOW ("no cross-movement between
+    # entry/exit flows") is qualitative and this engine does no real
+    # circulation-path routing, so it can't be checked exactly — but a
+    # marked exit sitting right on top of the entrance is a real, honest
+    # proxy signal that the two flows clearly aren't separated, worth
+    # surfacing rather than silently ignoring just because it can't be
+    # checked precisely. MIN_ENTRY_EXIT_SEPARATION_FT is this engine's own
+    # straight-line substitute threshold (ENGINEERING_ASSUMPTION, not an
+    # SOP-stated distance) — a warning, never a hard block, same as every
+    # other soft constraint in this function.
+    if entry_point is not None and exit_points_ft:
+        min_sep = rules_registry.planning_norm("MIN_ENTRY_EXIT_SEPARATION_FT") or 15.0
+        too_close = [
+            i for i, ep in enumerate(exit_points_ft, start=1)
+            if math.hypot(ep[0] - entry_point[0], ep[1] - entry_point[1]) < min_sep
+        ]
+        if too_close:
+            warnings.append(
+                f"Exit point(s) {', '.join(str(i) for i in too_close)} are within {min_sep:.0f} ft of the marked "
+                f"main entrance — the SOP requires separate entry/exit flow with no cross-movement (§4.4/§9); "
+                f"consider marking a more clearly separated exit."
+            )
 
     for room_type, display_name, target_area, min_area, note in targets:
         if target_area <= 0:
@@ -441,6 +543,18 @@ def _place_support_zones(usable_poly, fallback_poly, column_polys, placed_polys,
                     foyer_centroid = (foyer_rect.centroid.x, foyer_rect.centroid.y)
                     blockers = [p for p in placed_polys if p is not foyer_rect]
                     prefer_fn = lambda c: not _has_sightline(usable_poly, blockers, foyer_centroid, _rect(*c))
+            elif room_type == "BOH":
+                # Back-of-house (electrical/server/store) is staff-only —
+                # never part of the patron entry/exit flow at all, so unlike
+                # Foyer/F&B/Box Office it should sit as FAR as possible from
+                # both the entrance and every marked exit, the same "keep
+                # it out of the public circulation path" call a real
+                # architect makes, not just wherever first-fit lands it.
+                ref_points = [entry_point] + list(exit_points_ft or [])
+                score_fn = lambda c: -min(
+                    (_rect(*c).centroid.x - rx) ** 2 + (_rect(*c).centroid.y - ry) ** 2
+                    for rx, ry in ref_points
+                )
         elif room_type in ("FOYER", "BOX_OFFICE"):
             # No entrance marked: fall back to a generic-but-real geometric
             # heuristic instead of arbitrary first-fit — prefer a placement
@@ -552,8 +666,13 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
         order = lambda p: list(reversed(p))  # smallest-first
 
     max_auditoriums = requirements.get("max_auditoriums", 4) if requirements else 4
+    entry_point = requirements.get("entry_point_ft") if requirements else None
+    exit_points_ft = requirements.get("exit_points_ft") if requirements else None
 
-    auditoriums, aud_polys, aud_warnings, undersized_count = _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, max_auditoriums, order)
+    auditoriums, aud_polys, aud_warnings, undersized_count = _place_auditoriums(
+        usable_poly, fallback_poly, column_polys, bbox, presets, max_auditoriums, order,
+        entry_point=entry_point, exit_points_ft=exit_points_ft
+    )
     total_aud_area = sum(a["area_sqft"] for a in auditoriums)
 
     support_zones, support_warnings = _place_support_zones(

@@ -2,13 +2,30 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GeometryResult, RawClosedShape, RawSegment, FullRawGeometry } from '../../types/live';
 import * as engine from '../../services/zoningEngineApi';
 import { ArrowRightIcon, RefreshIcon, WarningIcon } from '../Icons';
+import { EntryExitPicker } from './EntryExitPicker';
 
 interface BoundaryStudioProps {
   projectId: string;
   geometry: GeometryResult;
   onGeometryUpdated: (geometry: GeometryResult) => void;
-  onBoundaryChosen: (geometry: GeometryResult, regionId: string) => void;
+  /** entryPointFt/exitPointsFt are optional: undefined means "not touched
+   * on this screen" (ZoningWorkspace keeps whatever it already had), so a
+   * caller that hasn't reached the entry/exit sub-step yet (there isn't
+   * one — see PendingChoice below, every path through this component now
+   * goes through it) never accidentally clears previously-marked points. */
+  onBoundaryChosen: (geometry: GeometryResult, regionId: string, entryPointFt?: [number, number] | null, exitPointsFt?: [number, number][]) => void;
   onStartOver: () => void;
+}
+
+/** A boundary the architect has picked (auto-detected, shape-clicked,
+ * wall-traced, or hand-drawn) but not yet finalized — see the render branch
+ * below this replaces every direct onBoundaryChosen call with, so entry/exit
+ * marking always happens right after a boundary is chosen and before
+ * advancing to Geometry Review, regardless of which of the four selection
+ * paths got there. */
+interface PendingChoice {
+  geometry: GeometryResult;
+  regionId: string;
 }
 
 type Tool = 'browse' | 'shape' | 'walls' | 'draw';
@@ -155,6 +172,9 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   const [unitsDismissed, setUnitsDismissed] = useState(false);
   const [manualOverride, setManualOverride] = useState(false);
   const [autoFired, setAutoFired] = useState(false);
+  const [pendingChoice, setPendingChoice] = useState<PendingChoice | null>(null);
+  const [pendingEntry, setPendingEntry] = useState<[number, number] | null>(null);
+  const [pendingExits, setPendingExits] = useState<[number, number][]>([]);
 
   const panStart = useRef<{ x: number; y: number; originX: number; originY: number } | null>(null);
   const movedRef = useRef(false);
@@ -168,16 +188,26 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   // guess" a human would pick first. A boundary carrying a `note` (implausible
   // size, or reconstructed with no wall-layer evidence) never auto-advances —
   // same gate, same reasoning as Geometry Review's own auto mode.
+  //
+  // Ambiguous units are an equally hard stop, checked independently of the
+  // boundary's own note: a file with unspecified $INSUNITS can easily produce
+  // a boundary that *looks* clean (a single, plausible explicit closed
+  // polyline) at completely the wrong real-world scale — found on a real file
+  // where this screen auto-advanced straight past the units-confirmation UI,
+  // leaving the architect on Geometry Review with only a read-only warning
+  // and no way to actually fix it (this component owns the real fix control,
+  // the dropdown a few lines below).
   const bestRegion = geometry.regions[0];
   const boundaryIsClean = !!bestRegion && !bestRegion.boundary.note;
-  const autoMode = boundaryIsClean && !manualOverride;
+  const unitsConfirmed = !geometry.units.needs_user_confirmation || unitsDismissed;
+  const autoMode = boundaryIsClean && unitsConfirmed && !manualOverride;
   const AUTO_ADVANCE_MS = 1800;
 
   useEffect(() => {
     if (!autoMode || autoFired) return;
     const t = setTimeout(() => {
       setAutoFired(true);
-      onBoundaryChosen(geometry, bestRegion.region_id);
+      setPendingChoice({ geometry, regionId: bestRegion.region_id });
     }, AUTO_ADVANCE_MS);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -346,7 +376,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     try {
       const updated = await engine.createManualRegion(projectId, preview.points, preview.mode, preview.sourceHandle);
       const newRegion = updated.regions[updated.regions.length - 1];
-      onBoundaryChosen(updated, newRegion.region_id);
+      setPendingChoice({ geometry: updated, regionId: newRegion.region_id });
     } catch (e: any) {
       setTraceError(e.message || 'Could not create a region from this boundary.');
     } finally {
@@ -380,6 +410,73 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     return (
       <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
         No raw geometry is available for this upload.
+      </div>
+    );
+  }
+
+  // Every boundary-selection path (auto-detect, click-a-shape, trace-walls,
+  // freehand-draw, or picking a candidate region) lands here before actually
+  // advancing — the one honest place to ask "where's the entrance, and any
+  // exits" against the real, now-committed boundary outline, instead of
+  // asking again later on a smaller diagram in Requirements once the actual
+  // shape being asked about is already several steps back. Both stay
+  // optional (nothing here forces an answer — see EntryExitPicker's own
+  // docstring), so this never blocks progress the way a hard-required field
+  // would.
+  if (pendingChoice) {
+    const chosenRegion = pendingChoice.geometry.regions.find(r => r.region_id === pendingChoice.regionId);
+    const boundaryPts = chosenRegion?.boundary.points_ft || [];
+    return (
+      <div style={{ display: 'flex', height: '100%', gap: '12px', padding: '12px' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="panel" style={{ padding: '16px' }}>
+            <div className="panel-label" style={{ marginBottom: '4px' }}>Boundary Chosen</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-primary)' }} className="font-mono">
+              {chosenRegion?.boundary.area_sqft.toLocaleString()} sqft
+            </div>
+          </div>
+          <div style={{ flex: 1, position: 'relative', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', overflow: 'hidden', padding: '12px' }}>
+            {boundaryPts.length >= 3 && (
+              <EntryExitPicker
+                boundaryPointsFt={boundaryPts}
+                entryValue={pendingEntry}
+                onEntryChange={setPendingEntry}
+                exitValues={pendingExits}
+                onExitChange={setPendingExits}
+                height={480}
+              />
+            )}
+          </div>
+        </div>
+        <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="panel" style={{ padding: '16px' }}>
+            <div className="panel-label" style={{ marginBottom: '10px' }}>Mark Entrance &amp; Exits</div>
+            <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
+              Nothing in the CAD file identifies doors, so this is the one honest way to get this data — mark the
+              main entrance and any exits directly on the confirmed boundary. Both are optional: the generator
+              still produces a real layout without them (see the warnings on the Edit screen if skipped), but
+              marking them enables entry-facing placement of the Foyer/F&amp;B/Washrooms and the SOP's "no
+              cross-movement between entry/exit flows" check (§4.4/§9).
+            </div>
+            <button
+              className="btn btn-primary" style={{ width: '100%', fontSize: '0.8rem' }}
+              onClick={() => {
+                const geo = pendingChoice.geometry, regionId = pendingChoice.regionId;
+                const entry = pendingEntry, exits = pendingExits;
+                setPendingChoice(null);
+                onBoundaryChosen(geo, regionId, entry, exits);
+              }}
+            >
+              Continue to Geometry Review <ArrowRightIcon size={14} />
+            </button>
+            <button
+              className="btn btn-secondary" style={{ width: '100%', fontSize: '0.74rem', marginTop: '8px' }}
+              onClick={() => setPendingChoice(null)}
+            >
+              Back to Boundary Selection
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -419,7 +516,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               Continuing to obstacle review automatically…
             </div>
             <button className="btn btn-primary" style={{ width: '100%', fontSize: '0.8rem', marginBottom: '8px' }}
-              onClick={() => { setAutoFired(true); onBoundaryChosen(geometry, bestRegion.region_id); }}>
+              onClick={() => { setAutoFired(true); setPendingChoice({ geometry, regionId: bestRegion.region_id }); }}>
               Continue Now <ArrowRightIcon size={14} />
             </button>
             <button className="btn btn-secondary" style={{ width: '100%', fontSize: '0.75rem' }} onClick={() => setManualOverride(true)}>
@@ -558,7 +655,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                   key={r.region_id}
                   className="btn btn-secondary"
                   style={{ fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}
-                  onClick={() => onBoundaryChosen(geometry, r.region_id)}
+                  onClick={() => setPendingChoice({ geometry, regionId: r.region_id })}
                 >
                   <span>Region {i + 1} — {r.boundary.area_sqft.toLocaleString()} sqft</span>
                   <ArrowRightIcon size={13} />

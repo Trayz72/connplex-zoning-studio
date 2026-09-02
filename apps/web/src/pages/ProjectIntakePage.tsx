@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getProject, updateProject, Project } from '../api';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const ProjectIntakePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -117,6 +118,7 @@ export const ProjectIntakePage: React.FC = () => {
           Connplex Zoning Studio
         </Link>
         <div className="nav-links">
+          <ThemeToggle />
           <Link to="/projects" className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
             All Projects
           </Link>
