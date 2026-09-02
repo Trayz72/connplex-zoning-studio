@@ -100,6 +100,10 @@ export async function updateGeometry(projectId: string, regions: GeometryRegion[
   }));
 }
 
+export async function aiClassifyGeometry(projectId: string): Promise<GeometryResult> {
+  return asJson(await fetch(`${BASE}/${projectId}/geometry/ai-classify`, { method: 'POST' }));
+}
+
 export async function confirmUnits(projectId: string, unit: string): Promise<GeometryResult> {
   return asJson(await fetch(`${BASE}/${projectId}/cad/units`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unit })

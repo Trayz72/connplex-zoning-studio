@@ -268,8 +268,8 @@ export const ZoningWorkspace: React.FC = () => {
             onStartOver={handleStartOver}
           />
         )}
-        {step === 'GEOMETRY_REVIEW' && geometry && (
-          <GeometryReviewStep geometry={geometry} onConfirmed={handleGeometryConfirmed} onStartOver={handleStartOver} initialRegionId={reviewRegionId} />
+        {step === 'GEOMETRY_REVIEW' && geometry && id && (
+          <GeometryReviewStep projectId={id} geometry={geometry} onConfirmed={handleGeometryConfirmed} onStartOver={handleStartOver} initialRegionId={reviewRegionId} />
         )}
         {step === 'REQUIREMENTS' && (
           <RequirementsStep

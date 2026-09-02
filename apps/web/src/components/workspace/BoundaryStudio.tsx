@@ -190,6 +190,10 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   }, [raw]);
 
   const spatialIndex = useMemo(() => (raw ? buildSpatialIndex(raw, bbox) : null), [raw, bbox]);
+  const annotationLineCount = useMemo(
+    () => raw ? raw.lines.reduce((n, ln) => n + (ln.category === 'annotation' ? 1 : 0), 0) : 0,
+    [raw]
+  );
 
   const viewBoxWidth = bbox.width / zoom;
   const viewBoxHeight = bbox.height / zoom;
@@ -242,6 +246,11 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     const candidates = queryNearby(spatialIndex.segmentCells, p, spatialIndex);
     let best: { id: number; dist: number } | null = null;
     for (const ln of candidates) {
+      // A dimension extension line or leader callout is never a real wall —
+      // the backend already excludes these from its own wall-reconstruction
+      // pass (see cad_extraction.py's annotation_ids), so tracing a boundary
+      // through one here would trace something that was never structural.
+      if (ln.category === 'annotation') continue;
       const d = distPointToSegment(p, ln.a, ln.b);
       if (d <= tol && (!best || d < best.dist)) best = { id: ln.id, dist: d };
     }
@@ -383,7 +392,11 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
             <svg viewBox={viewBox} style={{ width: '100%', height: '100%' }}>
               <g opacity={0.5}>
                 {raw.lines.map(ln => (
-                  <line key={ln.id} x1={ln.a[0]} y1={ln.a[1]} x2={ln.b[0]} y2={ln.b[1]} stroke="var(--text-tertiary)" strokeWidth={toleranceFt() * 0.04} />
+                  <line
+                    key={ln.id} x1={ln.a[0]} y1={ln.a[1]} x2={ln.b[0]} y2={ln.b[1]}
+                    stroke="var(--text-tertiary)" strokeWidth={toleranceFt() * 0.04}
+                    strokeOpacity={ln.category === 'annotation' ? 0.35 : 1}
+                  />
                 ))}
               </g>
               <polygon
@@ -467,6 +480,12 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
             <span style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-tertiary)', fontSize: '0.68rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center' }}>
               {raw.lines.length.toLocaleString()} lines · {raw.closed_shapes.length.toLocaleString()} shapes{raw.truncated ? ' (truncated)' : ''}
             </span>
+            {annotationLineCount > 0 && (
+              <span style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-tertiary)', fontSize: '0.68rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span style={{ display: 'inline-block', width: '14px', borderTop: '1.5px dashed var(--text-tertiary)', opacity: 0.5 }} />
+                {annotationLineCount.toLocaleString()} dimension/leader lines (dimmed, not selectable as walls)
+              </span>
+            )}
           </div>
 
           <svg
@@ -484,6 +503,8 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                   x1={ln.a[0]} y1={ln.a[1]} x2={ln.b[0]} y2={ln.b[1]}
                   stroke={selectedWallIds.has(ln.id) ? 'var(--brand-strong)' : hoveredSegmentId === ln.id ? 'var(--warning)' : 'var(--text-tertiary)'}
                   strokeWidth={(selectedWallIds.has(ln.id) || hoveredSegmentId === ln.id) ? toleranceFt() * 0.12 : toleranceFt() * 0.04}
+                  strokeOpacity={ln.category === 'annotation' ? 0.35 : 1}
+                  strokeDasharray={ln.category === 'annotation' ? `${toleranceFt() * 0.3} ${toleranceFt() * 0.2}` : undefined}
                 />
               ))}
               {raw.circles.map((c, i) => (

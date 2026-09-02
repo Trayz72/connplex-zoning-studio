@@ -1,6 +1,95 @@
 # STATUS
 
-Last updated: 2026-09-02 (sixteenth session — robustness pass on BoundaryStudio + fully-automated upload-to-export flow)
+Last updated: 2026-09-02 (seventeenth session — complete DXF component scan/categorization + AI-assisted obstacle classification)
+
+## Update: every real DXF entity type is now scanned and categorized, plus an AI classification pass for what layer-name heuristics can't place
+
+The ask: make DXF rendering "perfect" by scanning, identifying, and categorizing
+every component properly, using AI or programmatic means, whichever gets the
+best real result — not just rendering more lines, but making sure nothing is
+silently invisible and that what gets extracted is correctly understood.
+
+### Two entity types were completely invisible — found via a real entity-type audit, not guesswork
+
+Ran a full entity-type census across all three real reference files before writing
+any code: `DIMENSION` (5/112/39 instances) and `LEADER` (2/136/222 instances) were
+present in real, non-trivial numbers and **entirely unhandled** — not rendered, not
+counted, nothing. Root cause: a DIMENSION's visible lines/arrows/text aren't on the
+entity itself, they live in a real, already-world-coordinate anonymous block it
+references via `dxf.geometry` (confirmed directly: that block's own LINE coordinates
+already match the dimension's real position). `_resolve_entities()` now explodes
+that block the same way it explodes INSERT block references; `LEADER`'s own
+`.vertices` needed a simple new segment case.
+
+**Categorized, not just rendered**: every entity sourced from a DIMENSION's block, or
+a LEADER itself, is tagged as `annotation` (vs. `geometry`) in a new `annotation_ids`
+set threaded through extraction. This matters beyond rendering — a dimension
+extension line or leader callout chaining into the wall-reconstruction network
+could only manufacture a false boundary candidate, never find a real one, so both
+`closed_shapes` candidacy and `_reconstruct_polygons_from_lines`'s segment pool now
+exclude annotation-sourced entities entirely. `full_raw_geometry.lines` carries a
+`category` field so the distinction survives to the frontend: `BoundaryStudio` now
+renders annotation lines dimmed and dashed, with a "N dimension/leader lines
+(dimmed, not selectable as walls)" legend chip, and excludes them from wall-trace
+hit-testing to match what the backend already excludes from reconstruction.
+
+### A documented, deliberate non-fix: layer visibility state is intentionally ignored
+
+Checked whether any real file has layers saved off/frozen — `theater_clean.dxf`'s
+own `column` layer is. A real CAD viewer opening that file wouldn't show any of its
+170 real columns. Considered respecting visibility state (matching what a viewer
+shows) and rejected it: a structural column is a real physical obstruction
+regardless of an incidental save-state toggle, and hiding it risks a generated
+zoning layout overlapping a column the tool never saw. Documented explicitly in
+`cad_extraction.py`'s module docstring so this isn't mistaken for an oversight later.
+
+### A huge, real classification gap found by measuring, not assuming
+
+Before touching anything, measured how many obstacles land as `UNCLASSIFIED_OBSTACLE`
+across the three real files: 41 / 942 / 6,622 — **up to 36% of all obstacles on one
+real file**. Checked how many *distinct layers* sit behind those numbers: only
+9-17 per file, meaning a handful of layer-level decisions account for thousands of
+shape instances.
+
+1. **Programmatic fix, real evidence**: the distinct-layer breakdown showed a
+   "CHAIRS" layer (5,796 shapes in one file, 296 in another) and a "bike" layer
+   (297 shapes) — completely unambiguous real furniture, just not matching the
+   existing `FURNITURE` layer-hint substrings (`"furn"`, `"equip"`). Added `"chair"`/
+   `"bike"` to the hint list. One two-word code change reclassified 11,150 real
+   shapes across the two files from UNCLASSIFIED_OBSTACLE to FURNITURE (high
+   confidence) — verified by re-running extraction before/after.
+2. **AI-assisted fix for what's left**: the remaining unclassified layers are
+   genuinely ambiguous or reference non-English/abbreviated names no fixed
+   substring list could cover (`"unknown"`, `"SUNK"`, `"4 upvc pip hatch"`,
+   `"$TD_AUDIT_GENERATED_(67B1F)"`) or are clearly non-physical annotation
+   masquerading as closed shapes (`"F.S.I."` — floor space index area calculation,
+   `"BUILT UP"`, `"title block"`). New `ai_obstacle_classify.py` (same pattern as
+   the existing `ai_cad_scan.py`): groups unclassified obstacles by layer, sends
+   Claude real aggregate evidence per layer (shape count, average area, average
+   squarish ratio — never raw geometry, never asked to invent anything), and asks
+   for one of the fixed physical classifications, `NOT_PHYSICAL`, or an honest
+   `UNSURE` (never forced to guess without support). A physical classification
+   becomes a real reclassification at `confidence: "medium"` (never "high" — it's
+   inference, not literal layer-name evidence) with an `ai_note` explaining the
+   reasoning; `NOT_PHYSICAL` pre-sets the obstacle to `IGNORED` (still visible,
+   still reversible with one click); `UNSURE` is left exactly as it was.
+   **Every result still requires the architect's own Confirm/Ignore** — this only
+   changes the *starting guess*, never bypasses the review workflow (spec Sec 11).
+   New `POST /geometry/ai-classify` endpoint; a "Classify N Unclassified with AI"
+   button appears in Geometry Review's obstacle panel whenever any exist. Verified:
+   the backend's layer-stats/apply-merge logic with a mocked Claude response (exact
+   filtering/reclassification/ignore/unsure behavior confirmed correct), the live
+   error path end-to-end via curl (an invalid API key correctly surfaces as a
+   readable 502 message, not a crash — this sandbox's own `.env` key is stale, so
+   the live model call itself couldn't be exercised end-to-end here), and the
+   button's click-through/loading-state behavior in a real running browser.
+
+**Found in passing, not fixed (flagged as a separate task)**: a real concurrent-write
+race in `storage.py` — `write_json()` isn't atomic, so a request reading
+`geometry.json` while another writes it can hit a `JSONDecodeError` on a truncated
+file. Confirmed in a live server log during this session's own rapid testing.
+Needs a write-to-temp-then-`os.replace()` fix; out of scope for this session's ask.
+
 
 ## Update: BoundaryStudio stress-tested against real large files, two real bugs fixed, plus full end-to-end automation
 

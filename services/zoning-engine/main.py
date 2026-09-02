@@ -33,6 +33,7 @@ import export_dxf
 import export_pdf
 import ai_zoning_engine
 import ai_cad_scan
+import ai_obstacle_classify
 
 app = FastAPI(title="Connplex Zoning Engine")
 # No cookies flow through this service (it has no auth of its own — see the
@@ -194,6 +195,31 @@ def get_geometry(project_id: str):
     if not geom:
         raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
     return geom
+
+
+@app.post("/api/projects/{project_id}/geometry/ai-classify")
+def ai_classify_geometry(project_id: str):
+    """Improves classification of already-extracted obstacles that the
+    deterministic layer-name heuristic couldn't confidently place — never
+    invents or moves geometry, only assigns a real classification (or
+    IGNORED, for a layer Claude judges non-physical) to a shape
+    cad_extraction.py already found. See ai_obstacle_classify.py for the
+    real evidence (up to 36% of obstacles unclassified on one real file)
+    this responds to. Every result still requires the architect's own
+    Confirm/Ignore before it can drive a zoning run."""
+    geometry = storage.read_json(storage.geometry_path(project_id))
+    if not geometry:
+        raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
+
+    try:
+        geometry = ai_obstacle_classify.classify_unclassified_obstacles(geometry)
+    except ai_obstacle_classify.AiClassifyError as e:
+        raise HTTPException(502, str(e))
+    except Exception as e:
+        raise HTTPException(422, f"AI obstacle classification failed: {e}")
+
+    storage.write_json(storage.geometry_path(project_id), geometry)
+    return geometry
 
 
 @app.put("/api/projects/{project_id}/geometry")

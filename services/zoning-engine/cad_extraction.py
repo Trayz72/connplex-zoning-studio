@@ -20,6 +20,19 @@ handle, layer, area) so the frontend can present a Confirm/Ignore review step
 before any of this is treated as authoritative — this mirrors the "Potential
 Door, Confidence: 72%, [Confirm][Ignore]" workflow required by the master
 context (Sec 11) instead of silently trusting a heuristic.
+
+Deliberately ignores per-layer visibility state ($LAYER's off/frozen flags):
+confirmed on a real file (theater_clean.dxf) that its own "column" layer is
+saved OFF, meaning a real CAD viewer opening this file wouldn't show any of
+its 170 real columns at all — almost certainly an incidental save-state
+artifact (the drafter toggled it off while working on something else), not
+an intentional "these columns don't exist." A structural column is a real
+physical obstruction regardless of whether a layer happened to be toggled
+off in the file's last save state; silently hiding it here risks a generated
+zoning layout overlapping a real column that the tool never saw. This is why
+every entity is walked and every closed shape is a candidate purely on its
+own geometry/layer-name evidence — layer on/off/frozen state is never
+consulted anywhere in this module.
 """
 import os
 import sys
@@ -71,6 +84,14 @@ MIN_OBSTACLE_AREA_SQFT = 0.3       # ignore microscopic closed shapes (hatch fra
 CONTAINMENT_THRESHOLD = 0.6        # fraction of an obstacle's area that must fall inside a boundary to count as "in" it
 MAX_INSERT_DEPTH = 8               # guards against a pathological/cyclic block-reference chain
 
+# Entities that are pure annotation (dimension lines/arrows, leader callout
+# lines) rather than real drawn geometry — real files carry hundreds of
+# these (see _resolve_entities). Rendered for visual completeness but never
+# allowed to feed boundary/obstacle detection: a dimension extension line or
+# a leader line chaining into the wall-reconstruction network could only
+# manufacture a false boundary, never find a real one.
+ANNOTATION_ENTITY_TYPES = {"DIMENSION", "LEADER", "MLEADER"}
+
 UNIT_TO_FEET = {
     0: None,       # Unspecified — must ask the user
     1: 1.0 / 12.0,  # Inches
@@ -114,7 +135,14 @@ OBSTACLE_LAYER_HINTS = [
     ("WINDOW", ["window", "glaz", "-win", "_win"]),
     ("STAIRCASE", ["stair", "stnc"]),
     ("WASHROOM_FIXTURE", ["sanit", "toilet", "plumb", "fixture"]),
-    ("FURNITURE", ["furn", "equip"]),
+    # "chair"/"bike" added after real evidence: a real file's "CHAIRS" layer
+    # (5,796 real shapes in one file, 296 in another) and "bike" layer (297
+    # shapes, real bike-parking outlines) were both landing as
+    # UNCLASSIFIED_OBSTACLE despite an unambiguous, literal layer name —
+    # found by auditing what layer names actually sit behind unclassified
+    # obstacles across every real file this pipeline has been tested
+    # against, not a guess.
+    ("FURNITURE", ["furn", "equip", "chair", "bike"]),
 ]
 
 
@@ -241,11 +269,31 @@ def _resolve_entities(doc, msp):
     pre-multiplication, so a bug in any one level can't be misattributed to
     another) instead, depth-guarded against a pathological/cyclic reference.
 
-    Returns a list of (entity, transform_fn) pairs — every non-INSERT entity
-    in the drawing, paired with the function that converts its own local
+    Also resolves DIMENSION entities the same way, for the same reason: a
+    DIMENSION's visible lines/arrows/text are not on the entity itself, only
+    on a real, already-world-coordinate anonymous block it references via
+    dxf.geometry — confirmed directly (that block's own LINE coordinates
+    already match the dimension's real position, unlike a normal INSERT
+    block authored at a local origin), so no transform composition is
+    needed there, just resolution into the same frame the DIMENSION was
+    found in. Every entity sourced from a DIMENSION's geometry block, plus
+    every top-level LEADER, is flagged in the returned annotation-id set —
+    real client DXFs carry hundreds of these (112 DIMENSION + 136 LEADER on
+    one real reference file), and before this they were entirely invisible:
+    not rendered, not counted, nothing. They must still be excluded from
+    boundary/obstacle detection (see extract()'s use of this set) — a
+    dimension's extension line or a leader's callout line is annotation,
+    never a real wall, and including it in wall-network reconstruction
+    could only manufacture false boundary candidates, never find a real one.
+
+    Returns (resolved, annotation_ids): resolved is a list of (entity,
+    transform_fn) pairs — every entity in the drawing with directly-
+    drawable geometry, paired with the function that converts its own local
     points into world coordinates (identity for anything already at the top
-    level)."""
+    level, not from a DIMENSION's block); annotation_ids is a set of
+    id(entity) for entities that are annotation, not real geometry."""
     resolved = []
+    annotation_ids = set()
 
     def make_child_transform(local_matrix, outer_fn):
         def fn(p):
@@ -253,9 +301,10 @@ def _resolve_entities(doc, msp):
             return outer_fn((x, y))
         return fn
 
-    def walk(entities, transform_fn, depth):
+    def walk(entities, transform_fn, depth, in_annotation):
         for e in entities:
-            if e.dxftype() == "INSERT":
+            t = e.dxftype()
+            if t == "INSERT":
                 if depth >= MAX_INSERT_DEPTH:
                     continue
                 try:
@@ -265,14 +314,27 @@ def _resolve_entities(doc, msp):
                     continue
                 child_fn = make_child_transform(local_matrix, transform_fn)
                 try:
-                    walk(list(block), child_fn, depth + 1)
+                    walk(list(block), child_fn, depth + 1, in_annotation)
+                except Exception:
+                    continue
+            elif t == "DIMENSION":
+                if depth >= MAX_INSERT_DEPTH:
+                    continue
+                try:
+                    block = doc.blocks.get(e.dxf.geometry)
+                except Exception:
+                    continue
+                try:
+                    walk(list(block), transform_fn, depth + 1, True)
                 except Exception:
                     continue
             else:
                 resolved.append((e, transform_fn))
+                if in_annotation or t in ANNOTATION_ENTITY_TYPES:
+                    annotation_ids.add(id(e))
 
-    walk(list(msp), _identity_tf, 0)
-    return resolved
+    walk(list(msp), _identity_tf, 0, False)
+    return resolved, annotation_ids
 
 
 def _transform_circle(e, tf):
@@ -418,6 +480,12 @@ def _open_segments(e, tf=_identity_tf):
             return [(tf((s[0], s[1])), tf((end[0], end[1])))]
         except Exception:
             return []
+    if t == "LEADER":
+        try:
+            pts = [tf((float(v[0]), float(v[1]))) for v in e.vertices]
+            return [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
+        except Exception:
+            return []
     if t in ("LWPOLYLINE", "POLYLINE", "ARC", "SPLINE", "ELLIPSE"):
         try:
             path = ezdxf.path.make_path(e)
@@ -474,7 +542,7 @@ def _dedupe_closed_shapes(closed_shapes):
     return list(kept.values())
 
 
-def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_drawing_units, snap_tolerance_drawing_units=0.0):
+def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_drawing_units, snap_tolerance_drawing_units=0.0, annotation_ids=frozenset()):
     """Chain together every LINE/open-polyline segment in the drawing (via
     shapely's polygonize, which finds closed rings in an arbitrary network of
     line segments) to recover boundaries that exist as discrete wall segments
@@ -510,6 +578,8 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
     for i, (e, tf) in enumerate(entities):
         if _handle_of(e, i) in already_closed_handles:
             continue  # already a closed shape in its own right; don't double-count its edges
+        if id(e) in annotation_ids:
+            continue  # a dimension extension line or leader is never a real wall segment
         for a, b in _open_segments(e, tf):
             if a == b:
                 continue
@@ -606,7 +676,7 @@ def _stride_sample(items, cap):
     return [items[int(i * stride)] for i in range(cap)], True
 
 
-def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale):
+def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale, annotation_ids=frozenset()):
     """The ENTIRE drawing's raw linework, computed ONCE (up to MAX_FULL_RAW_LINES,
     the highest-fidelity cap of any consumer) and reused to derive every other
     raw-geometry view this module produces — the whole-drawing `raw_geometry`
@@ -618,7 +688,13 @@ def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale):
     at 88% of a 276s worst-case extraction on a real 100-region file
     (Vadodara, 63,607 entities). Filtering this single pre-built, already-in-
     feet list is O(regions x segments) with only cheap float comparisons, not
-    transform math — brings the same file down to a few seconds."""
+    transform math — brings the same file down to a few seconds.
+
+    Every line carries a `category` ("geometry" or "annotation") so a
+    dimension extension line or leader callout — real content, rendered for
+    completeness, but never a real wall — can be told apart from the
+    drawing's actual structure by anything downstream (BoundaryStudio dims
+    them; nothing here treats them as candidate walls, see extract())."""
     lines = []
     circles = []
     truncated = False
@@ -628,8 +704,9 @@ def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale):
             truncated = True
             break
         t = e.dxftype()
+        category = "annotation" if id(e) in annotation_ids else "geometry"
         try:
-            if t in ("LINE", "LWPOLYLINE", "POLYLINE", "ARC", "HATCH", "SPLINE", "ELLIPSE"):
+            if t in ("LINE", "LWPOLYLINE", "POLYLINE", "ARC", "HATCH", "SPLINE", "ELLIPSE", "LEADER"):
                 layer = str(e.dxf.layer)
                 for a, b in _all_segments(e, tf):
                     lines.append({
@@ -637,6 +714,7 @@ def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale):
                         "a": [round(a[0] * scale, 3), round(a[1] * scale, 3)],
                         "b": [round(b[0] * scale, 3), round(b[1] * scale, 3)],
                         "layer": layer,
+                        "category": category,
                     })
                     if len(lines) >= MAX_FULL_RAW_LINES:
                         truncated = True
@@ -867,7 +945,7 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
     # the file 12x too large).
     scale = working_scale(units)
 
-    entities = _resolve_entities(doc, msp)
+    entities, annotation_ids = _resolve_entities(doc, msp)
     if allowed_layers:
         allowed_set = set(allowed_layers)
         entities = [(e, tf) for e, tf in entities if str(e.dxf.layer) in allowed_set]
@@ -877,6 +955,8 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
     closed_shapes = []
     closed_handles = set()
     for i, (e, tf) in enumerate(entities):
+        if id(e) in annotation_ids:
+            continue  # a dimension/leader can't be a real wall or column — see _resolve_entities
         t = e.dxftype()
         h = _handle_of(e, i)
         if t == "HATCH":
@@ -922,7 +1002,7 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
     # loop but aren't one explicit closed shape in the source file) ---
     min_area_drawing_units = MIN_OBSTACLE_AREA_SQFT / max(scale ** 2, 1e-9)  # cheap pre-filter, tightened again in feet below
     snap_tolerance_drawing_units = WALL_SNAP_TOLERANCE_FT / max(scale, 1e-9)
-    for rec in _reconstruct_polygons_from_lines(entities, closed_handles, min_area_drawing_units, snap_tolerance_drawing_units):
+    for rec in _reconstruct_polygons_from_lines(entities, closed_handles, min_area_drawing_units, snap_tolerance_drawing_units, annotation_ids):
         poly = rec["polygon"]
         closed_shapes.append({
             "handle": rec["handle"], "layer": rec["layer"], "dxftype": rec["dxftype"], "source": "reconstructed",
@@ -986,7 +1066,7 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
     # is derived by filtering this instead of re-walking entities. See
     # _build_full_raw_geometry's own docstring for the real performance bug
     # this fixes.
-    full_raw_geometry = _build_full_raw_geometry(entities, closed_shapes, text_labels, scale)
+    full_raw_geometry = _build_full_raw_geometry(entities, closed_shapes, text_labels, scale, annotation_ids)
 
     # Spatial index over every closed shape so each region only tests the
     # handful actually near it, instead of every region testing every shape
