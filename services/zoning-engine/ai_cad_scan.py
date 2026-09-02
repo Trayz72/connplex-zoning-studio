@@ -86,7 +86,7 @@ def _layer_stats(dxf_path: str) -> dict:
                 rec[key] = val if rec[key] is None else cmp(rec[key], val)
                 overall[key] = val if overall[key] is None else cmp(overall[key], val)
 
-    scale = units["feet_per_drawing_unit"] or 1.0
+    scale = cad_extraction.working_scale(units)
     overall_w = (overall["maxx"] - overall["minx"]) if overall["minx"] is not None else 0
     overall_h = (overall["maxy"] - overall["miny"]) if overall["miny"] is not None else 0
 

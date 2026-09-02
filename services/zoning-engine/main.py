@@ -82,6 +82,20 @@ class CandidateSelectIn(BaseModel):
     candidate_id: str
 
 
+class ManualRegionIn(BaseModel):
+    points_ft: list
+    mode: str = "draw"                    # "shape" | "walls" | "draw" — provenance only, for the review note
+    source_shape_handle: Optional[str] = None  # when mode="shape", the all_closed_shapes handle it was picked from
+
+
+class TraceBoundaryIn(BaseModel):
+    segment_ids: list
+
+
+class UnitOverrideIn(BaseModel):
+    unit: str  # one of cad_extraction.UNIT_NAME_TO_FEET's keys: Feet | Inches | Meters | Centimeters | Millimeters
+
+
 class LayoutUpdateIn(BaseModel):
     rooms: list
     boundary_points_ft: list
@@ -192,6 +206,70 @@ def update_geometry(project_id: str, body: GeometryUpdateIn):
     existing["regions"] = body.regions
     storage.write_json(storage.geometry_path(project_id), existing)
     return existing
+
+
+@app.post("/api/projects/{project_id}/cad/units")
+def confirm_units(project_id: str, body: UnitOverrideIn):
+    """An architect correcting a file whose $INSUNITS was unspecified (see
+    cad_extraction._get_units) — re-runs extraction against the original
+    upload at the confirmed scale, without needing to re-upload the file.
+    Every region/full_raw_geometry number this project has depends on scale,
+    so this replaces the whole geometry record rather than patching a field."""
+    if body.unit not in cad_extraction.UNIT_NAME_TO_FEET:
+        raise HTTPException(400, f"Unknown unit '{body.unit}'. Use one of: {list(cad_extraction.UNIT_NAME_TO_FEET)}.")
+    original_path = storage.find_original_upload(project_id)
+    if not original_path:
+        raise HTTPException(404, "No CAD file has been uploaded for this project yet.")
+
+    try:
+        geometry = cad_extraction.extract(original_path, unit_override=body.unit)
+    except Exception as e:
+        raise HTTPException(422, f"Could not re-extract geometry at the confirmed unit: {e}")
+
+    existing = storage.read_json(storage.geometry_path(project_id)) or {}
+    geometry["uploaded_filename"] = existing.get("uploaded_filename")
+    geometry["uploaded_at"] = existing.get("uploaded_at") or storage.now_iso()
+    storage.write_json(storage.geometry_path(project_id), geometry)
+    return geometry
+
+
+@app.post("/api/projects/{project_id}/boundary/trace")
+def trace_boundary(project_id: str, body: TraceBoundaryIn):
+    """Given wall-line segments an architect clicked in the raw CAD view,
+    find the closed loop they form — the 'select lines to assume as walls'
+    boundary-definition path, distinct from clicking an existing closed
+    shape or drawing freehand (see build_manual_region)."""
+    geometry = storage.read_json(storage.geometry_path(project_id))
+    if not geometry or not geometry.get("full_raw_geometry"):
+        raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
+    try:
+        return cad_extraction.trace_boundary_from_segments(geometry["full_raw_geometry"], body.segment_ids)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+
+@app.post("/api/projects/{project_id}/regions/manual")
+def create_manual_region(project_id: str, body: ManualRegionIn):
+    """Add a region from a boundary the architect defined directly (clicked
+    shape / traced walls / freehand draw) rather than one the automatic
+    heuristic proposed. Gets the same real obstacle-containment detection an
+    automatic region does (see build_manual_region) and is appended to this
+    project's regions exactly like an auto-detected one, so the existing
+    Geometry Review step (confirm boundary, confirm/ignore each obstacle)
+    works on it unchanged."""
+    geometry = storage.read_json(storage.geometry_path(project_id))
+    if not geometry or not geometry.get("full_raw_geometry"):
+        raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
+    try:
+        region = cad_extraction.build_manual_region(
+            body.points_ft, body.mode, geometry["full_raw_geometry"], existing_source_handle=body.source_shape_handle
+        )
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+    geometry["regions"].append(region)
+    storage.write_json(storage.geometry_path(project_id), geometry)
+    return geometry
 
 
 # ---------- Requirements ----------

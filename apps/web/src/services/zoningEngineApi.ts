@@ -100,6 +100,27 @@ export async function updateGeometry(projectId: string, regions: GeometryRegion[
   }));
 }
 
+export async function confirmUnits(projectId: string, unit: string): Promise<GeometryResult> {
+  return asJson(await fetch(`${BASE}/${projectId}/cad/units`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ unit })
+  }));
+}
+
+export async function traceBoundary(projectId: string, segmentIds: number[]): Promise<{ points_ft: number[][]; area_sqft: number }> {
+  return asJson(await fetch(`${BASE}/${projectId}/boundary/trace`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ segment_ids: segmentIds })
+  }));
+}
+
+export async function createManualRegion(
+  projectId: string, pointsFt: number[][], mode: 'shape' | 'walls' | 'draw', sourceShapeHandle?: string
+): Promise<GeometryResult> {
+  return asJson(await fetch(`${BASE}/${projectId}/regions/manual`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ points_ft: pointsFt, mode, source_shape_handle: sourceShapeHandle || null })
+  }));
+}
+
 export async function setRequirements(projectId: string, req: Requirements): Promise<Requirements> {
   return asJson(await fetch(`${BASE}/${projectId}/requirements`, {
     method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req)

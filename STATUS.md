@@ -1,6 +1,206 @@
 # STATUS
 
-Last updated: 2026-09-02 (fourteenth session — full-project audit + priority security fixes)
+Last updated: 2026-09-02 (sixteenth session — robustness pass on BoundaryStudio + fully-automated upload-to-export flow)
+
+## Update: BoundaryStudio stress-tested against real large files, two real bugs fixed, plus full end-to-end automation
+
+The user asked for two things: verify BoundaryStudio (added last session) against real files
+and rework it if not robust, and add full automation — upload a CAD file and have
+boundary detection, zoning, seat estimation, and exports happen automatically, with
+the manual tools (boundary selection, layout editing) staying available as opt-in
+side features rather than required steps.
+
+### Verification: 10 files, 2 real bugs found and fixed
+
+Tested against both other real reference files in `docs/reference/` (Dhule — already
+a known-good baseline, matched its previously-documented ~6,874 sqft region exactly —
+and Vadodara, a large real multi-tenant complex), `theater_clean.dxf` again, and 7
+synthetic edge cases built to probe specific gaps (empty file, no closed shapes at
+all, SPLINE/ELLIPSE entities, a self-intersecting bowtie polygon, 500 tiny noise
+shapes, a nested+mirrored+scaled block insert, explicit-meters units). All 10 now
+extract without error.
+
+Two real bugs found, both from the Vadodara file specifically (100 real candidate
+regions, ~21,000 closed shapes, 63,607 entities — the biggest real file this pipeline
+has ever been tested against):
+
+1. **Extraction took 276 seconds — unusable over HTTP.** Profiled (not guessed) with
+   `cProfile`: 88% of that was `extract_raw_geometry`, a per-region closure that
+   re-walked and re-transformed every single entity in the drawing from scratch, once
+   per region — O(regions × entities). Fixed by computing the full-drawing geometry
+   once (`_build_full_raw_geometry`, already needed for `BoundaryStudio` anyway) and
+   having each region's cropped backdrop just filter that pre-built, already-in-feet
+   list by bounding box. Also added an `STRtree` spatial index over every closed shape
+   for the per-region obstacle-containment loop, which was independently
+   O(regions × shapes). Combined: **276s → 7.5s (37x)**, verified by rerunning the
+   exact same file, same output (same region areas, same obstacle counts).
+2. **The frontend went proportionally janky on the same file.** Measured directly
+   (dispatched synthetic `pointermove` events and timed them in the actual running
+   page, not estimated): 16-32ms per hover event in `BoundaryStudio`'s "Select Closed
+   Shape"/"Select Walls" tools, from linear-scanning ~21,000 shapes and ~25,000 line
+   segments on every mouse move. Fixed with a uniform-grid spatial index
+   (`buildSpatialIndex`/`queryNearby` in `BoundaryStudio.tsx`, built once per upload
+   via `useMemo`, ~60×60 cells sized to the drawing's own extent) so hover/click only
+   scans the handful of items near the cursor. Re-measured on the same file, same
+   hover position: **16-32ms → 0.1-0.8ms** (~100x).
+3. **A real UX-breaking bug, not a performance one**: with 100 real candidate regions,
+   `GeometryReviewStep`'s region switcher (a `flex-wrap` row of one button per region)
+   rendered as a 100-button flood that pushed the actual floor-plan view off-screen.
+   Fixed: falls back to a compact `<select>` dropdown above 8 regions; the button row
+   is kept for the common small-count case where it's a nicer one-click switcher.
+4. **SPLINE and ELLIPSE entities were silently invisible** — not tessellated at all,
+   confirmed by grep before this session (only LINE/LWPOLYLINE/POLYLINE/ARC/HATCH were
+   handled), which directly contradicted "render the file without ignoring any lines."
+   Fixed using ezdxf's own `.flattening()` on both, distance-scaled to each entity's
+   own size (a fixed absolute tolerance would be too coarse on a huge drawing or
+   wastefully fine on a tiny one); a full-sweep ELLIPSE or a `closed` SPLINE is now
+   also eligible as a boundary/obstacle candidate, not just a decorative line.
+
+### New: fully-automated upload → boundary → zoning → seats → export flow
+
+Direct response to the ask: "let user just [upload] their cad file and rest of the
+processing will be done automatically... but... give option to user for selecting
+boundaries and also give option to edit zoned layout." `BoundaryStudio` (added last
+session) had no auto-advance of its own, which had silently regressed the
+zero-required-clicks flow the thirteenth session built — every upload now stopped
+and waited for a manual boundary pick even on a clean file.
+
+Fixed by giving `BoundaryStudio` the same auto-advance pattern `GeometryReviewStep`
+already uses one step later: if `regions[0]` (already sorted best-first) has no
+`note` (not implausibly-sized, not a shaky reconstruction), it shows a compact
+"Detected Automatically" panel and auto-advances after 1.8s — "Continue Now" to skip
+the wait, or "Choose a Different Boundary" to drop into the full manual studio
+(shape-click / wall-trace / freehand-draw) instead. A region that does carry a note
+never auto-advances, same gate as before.
+
+**Verified live, the complete chain, one upload, real data (theater_clean.dxf):**
+upload → BoundaryStudio auto-detects and auto-advances (117,059 sqft region) →
+GeometryReviewStep auto-confirms 20 real obstacles and auto-advances → Requirements
+(the one real manual step left — property type/clear height/entrance are business
+inputs, not something a CAD file can supply, per the thirteenth session's own
+documented decision) → RunStep auto-runs and auto-selects a strategy → lands on Edit
+with 4 auditoriums, 780 real computed seats, a real Area & Seat Chart, real
+feasibility results, and working Export PDF/DXF/DWG buttons — zero required clicks
+from upload to a reviewable, exportable layout beyond the one real business decision.
+Manual editing (drag/resize rooms, add/delete zones, per-room seat mix, switch
+layout strategy) remains fully available on the same Edit screen, untouched.
+
+### Reconciled with a parallel same-scope session found at merge time
+
+While this work was in progress, an earlier same-day session (PR #7 — see its own
+entry further down, added retroactively) had already merged to `master` with
+significant overlap: real-file CAD extraction fixes (curved wall segments, wall-
+junction snap tolerance), an AI CAD-scan feature, a hand-drawn-boundary flow inside
+`GeometryReviewStep`/`EditableCanvas`, and its own fixes for the same units-gate and
+region-switcher-flooding bugs found independently above. Discovered only when this
+branch's PR conflicted with the real `master` (this session's local checkout had
+gone stale and never picked up PR #7). Reconciled by combining both rather than
+picking one: `cad_extraction.py`'s curve flattening now uses PR #7's generic
+`ezdxf.path`-based approach (handles bulged polylines too, which this session's
+separate per-type ARC/SPLINE/ELLIPSE tessellators didn't) plus this session's INSERT-
+block resolution, unit heuristic, HATCH support, and the `full_raw_geometry`/
+performance work; `GeometryReviewStep` kept PR #7's inline draw-mode/units-gate and
+took this session's dropdown fix (over PR #7's scrollable-row fix) for the many-
+regions case. Verified by re-running the full 10-file regression suite and a live
+end-to-end browser session against the merged code, not assumed compatible.
+
+## Update: the entire uploaded CAD file now renders before any boundary is chosen, with a real manual boundary-selection tool
+
+The user's report: on upload, the app only ever showed the automatic heuristic's
+already-chosen candidate boundaries — never the actual full drawing — and there
+was no way for an architect to define a boundary themselves when the heuristic's
+guess was wrong or a file needed a human's judgment. Asked for this "with great
+intelligence," using a real reference file (`theater_clean.dxf`, a real multi-
+screen theater complex) as the test case, and to take the time to get it right.
+
+**A new step, `BoundaryStudio` (`apps/web/src/components/workspace/BoundaryStudio.tsx`),
+now runs between Upload and Geometry Review** (`ZoningWorkspace.tsx`'s step
+machine gained `BOUNDARY_STUDIO`). It renders the ENTIRE drawing — every line,
+circle, and closed shape, uncropped — not a per-region crop, with pan (drag) and
+zoom. Three real selection tools, plus the existing auto-detected candidates as
+quick-pick chips for files that don't need manual help at all:
+
+- **Select Closed Shape** — hover highlights the nearest closed outline (or,
+  falling back, the smallest shape containing the cursor when you click inside
+  a room rather than exactly on its line); click to preview it as a boundary.
+- **Select Walls** — click individual wall line segments to select them, then
+  "Trace Boundary" calls a new backend endpoint that runs the same polygon-
+  closing algorithm (shapely `polygonize`) the automatic reconstruction pass
+  already used, but scoped to exactly the segments a human picked. A selection
+  that doesn't close yet gets a specific, actionable error, not a bare failure.
+- **Draw Boundary** — click to place points freehand, click near the first
+  point (or "Finish Shape") to close it.
+
+Any committed boundary — auto-picked, shape-clicked, wall-traced, or hand-drawn
+— becomes a real region with real obstacle detection run against it (a new
+`build_manual_region()` in `cad_extraction.py`, reusing the same containment
+logic the automatic pass uses, not a lesser obstacle-blind path), and lands on
+the existing Geometry Review step exactly like an auto-detected region does —
+zero duplicated confirm/ignore UI.
+
+### Two real, pre-existing correctness bugs found and fixed while building this
+
+Testing against `theater_clean.dxf` (not a synthetic file — a real theater
+complex, 513 top-level DXF entities) surfaced defects that predate this
+session's feature work, not just gaps in the new code:
+
+1. **170 of the file's real columns were completely invisible to extraction —
+   not misclassified, not low-confidence, literally never seen.** They're
+   drawn as `INSERT` block references (a very common real-world CAD pattern
+   for repeated elements), and `cad_extraction.py` never resolved `INSERT`
+   entities at all — confirmed by grep before writing anything. Fixed with a
+   new `_resolve_entities()` that recursively explodes block references
+   (`theater_clean.dxf`'s column blocks are nested two levels deep). This
+   also fixes a **second, more serious bug found while verifying the fix**:
+   ezdxf's own `entity.virtual_entities()` (and `entity.copy().transform()`)
+   silently produces the wrong sign on X for a *mirrored* block insert
+   (negative X-scale — used by this file's title-block frame and one
+   escalator symbol) — verified directly, side by side against manually
+   applying the same insert's own transform matrix to a raw point, which
+   gives the correct real-world coordinate every time. Worked around by
+   computing transforms by hand (function composition through nested
+   inserts) instead of trusting either ezdxf API for coordinates.
+2. **A file with unspecified `$INSUNITS` was silently treated as "1 drawing
+   unit = 1 foot," with no way to override it.** `needs_user_confirmation`
+   was already computed by `_get_units()` but never surfaced anywhere in the
+   frontend — confirmed by grep, zero references outside the backend. For
+   `theater_clean.dxf` specifically this was wrong by ~12x (a real ~2.25ft
+   column read as a ~27ft column). Fixed two ways: (a) `_get_units()` now
+   uses `$MEASUREMENT`/`$LUNITS` as a secondary, evidence-based heuristic
+   (imperial + Architectural format strongly implies 1 unit = 1 inch) instead
+   of an arbitrary 1:1 default, still flagged for confirmation; (b)
+   `BoundaryStudio` shows a real "confirm units" banner with a dropdown and a
+   new `POST /cad/units` endpoint that re-extracts the original upload at the
+   confirmed scale, so this is no longer silently unresolved.
+3. **Every column was double-counted as two obstacle candidates.** The same
+   real file draws each column as both a closed LWPOLYLINE outline and a HATCH
+   fill over the identical footprint — verified directly (170 real columns
+   were producing ~340 obstacle entries). Fixed with `_dedupe_closed_shapes()`
+   (matches on centroid + area, keeps the explicit polyline over its hatch
+   twin).
+
+### Verified, not assumed
+
+Ran `extract()` directly against `theater_clean.dxf` before wiring up any API
+(1663 entities after block-explosion, 599 closed shapes after dedup, 1.2s),
+then the real HTTP endpoints via curl (upload, trace-boundary success and
+failure cases, manual-region creation, unit re-confirmation), then the actual
+browser UI end-to-end: uploaded the real file, saw the entire drawing render
+correctly (a large multi-screen complex + 5 similarly-sized auditoriums,
+matching what the file's name and structure imply), confirmed units, hovered
+and clicked a real room as a closed-shape boundary (47,050 sqft, matching the
+automatic heuristic's own number for the same shape), landed on Geometry
+Review with 93 real detected column obstacles, then separately verified wall
+clicking (segments highlight and toggle) and freehand drawing (points render,
+shape closes, area computes) in the same running app. `tsc --noEmit` clean.
+
+**Honest gaps, stated plainly:** SPLINE and ELLIPSE entities aren't tessellated
+(none encountered in any file tested so far — noted in code rather than
+silently mis-rendered); very large files are capped at 25,000 raw line
+segments for the full-drawing view (truncation is flagged in the UI, not
+silent); hover hit-testing does an O(shapes)/O(segments) scan on every pointer
+move, fine at this file's scale (599 shapes, 5,465 lines) but not benchmarked
+against a much larger real drawing.
 
 ## Update: full audit, three real security bugs fixed
 
@@ -63,6 +263,37 @@ pre-existing items; these are new/reprioritized based on the audit):
   seed data is replaced with real client data without updating `.gitignore`.
 - `ai_zoning_engine.py` hardcodes `MODEL_ID = "claude-opus-5"` with no env
   override — a single point of failure if that model id is ever retired.
+
+## Update: real-file CAD extraction fixes, AI CAD-scan, and hand-drawn boundaries (2026-09-01)
+
+A same-day-prior session (merged as PR #7, missing from this file until now — added
+in retrospect for an accurate record) fixed real bugs found by batch-testing 16 real
+client DXFs (5 found zero usable regions): `_open_segments()` never handled ARC
+entities or bulged LWPOLYLINE/POLYLINE segments, leaving a gap the wall-network
+reconstruction couldn't close on any boundary with even one curved wall corner —
+fixed by routing curved entities through `ezdxf.path.make_path(...).flattening()`.
+Real wall networks also routinely don't close *exactly* at T-junctions — fixed with
+`shapely.set_precision()` endpoint snapping (0.3ft tolerance). Added a dedicated
+"Scan with AI" button (`ai_cad_scan.py`) for files still broken after the
+deterministic fix: Claude picks which CAD layer(s) most plausibly hold the real
+wall/floor geometry from a compact per-layer summary, then that choice is handed
+straight back into the same trusted deterministic extractor — never asked to invent
+geometry itself. Also added a "draw your own boundary directly on the CAD backdrop"
+flow inside `GeometryReviewStep`/`EditableCanvas` (a whole-drawing raw-linework
+backdrop plus a click-to-place-vertices draw mode), and fixed two more real bugs:
+a file with unspecified units silently auto-confirming a wrong-scale boundary before
+the user could see anything, and an unbounded region-switcher (60+ candidates on one
+poorly-scaled file) collapsing the canvas to 0px height.
+
+The sixteenth session above (`BoundaryStudio`) was built independently, in parallel,
+without knowledge of this work — both ended up solving overlapping problems (whole-
+drawing rendering, hand-drawn boundaries, unit-confirmation gating, a flooded region
+switcher) via different implementations. Reconciled by keeping both: `BoundaryStudio`
+runs first (three tools: click-a-shape, click-walls-and-trace, freehand-draw, plus
+full automation) and this session's inline "Draw Boundary Manually" toggle inside
+Geometry Review remains as a second, later escape hatch if an architect wants to
+redraw mid-review instead of going back a whole step. The AI CAD-scan button is
+unique to this session's work — `BoundaryStudio` has no equivalent.
 
 ## Update: standard flow is now upload -> auto-generated, exportable layout, with zero required clicks
 

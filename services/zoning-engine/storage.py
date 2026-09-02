@@ -56,6 +56,19 @@ def save_upload(project_id: str, filename: str, content: bytes) -> str:
     return dest
 
 
+def find_original_upload(project_id: str) -> str:
+    """Locate the originally uploaded CAD file (saved by save_upload as
+    original.dwg/original.dxf) so it can be re-extracted — e.g. once an
+    architect confirms this file's real drawing units, which can't be known
+    until after the first extraction (see the /cad/units endpoint)."""
+    d = project_dir(project_id)
+    for ext in (".dxf", ".dwg"):
+        candidate = os.path.join(d, f"original{ext}")
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
 def geometry_path(project_id: str) -> str:
     return path_in(project_id, "geometry.json")
 

@@ -5,6 +5,7 @@ import * as engine from '../services/zoningEngineApi';
 import { ValidationRejectedError } from '../services/zoningEngineApi';
 import { GeometryResult, GeometryRegion, Requirements, EditableLayout, LiveRoom, LiveCandidate, ValidationError, SelectableSeatType, SeatConfig } from '../types/live';
 import { UploadStep } from '../components/workspace/UploadStep';
+import { BoundaryStudio } from '../components/workspace/BoundaryStudio';
 import { GeometryReviewStep } from '../components/workspace/GeometryReviewStep';
 import { RequirementsStep } from '../components/workspace/RequirementsStep';
 import { RunStep } from '../components/workspace/RunStep';
@@ -13,10 +14,10 @@ import { ExportPanel } from '../components/workspace/ExportPanel';
 import { SeatConfigPanel } from '../components/workspace/SeatConfigPanel';
 import { RoomDimensionEditor } from '../components/workspace/RoomDimensionEditor';
 
-type Step = 'LOADING' | 'UPLOAD' | 'GEOMETRY_REVIEW' | 'REQUIREMENTS' | 'RUN' | 'EDIT';
+type Step = 'LOADING' | 'UPLOAD' | 'BOUNDARY_STUDIO' | 'GEOMETRY_REVIEW' | 'REQUIREMENTS' | 'RUN' | 'EDIT';
 
 const STEP_LABEL: Record<Step, string> = {
-  LOADING: 'Loading', UPLOAD: 'Upload', GEOMETRY_REVIEW: 'Geometry Review',
+  LOADING: 'Loading', UPLOAD: 'Upload', BOUNDARY_STUDIO: 'Select Boundary', GEOMETRY_REVIEW: 'Geometry Review',
   REQUIREMENTS: 'Requirements', RUN: 'Run', EDIT: 'Edit'
 };
 
@@ -38,6 +39,7 @@ export const ZoningWorkspace: React.FC = () => {
   const [step, setStep] = useState<Step>('LOADING');
   const [geometry, setGeometry] = useState<GeometryResult | null>(null);
   const [regionId, setRegionId] = useState<string>('');
+  const [reviewRegionId, setReviewRegionId] = useState<string | undefined>(undefined);
   const [requirements, setRequirements] = useState<Requirements | null>(null);
   const [layout, setLayout] = useState<EditableLayout | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -89,7 +91,7 @@ export const ZoningWorkspace: React.FC = () => {
       setGeometry(geo);
 
       const confirmedRegion = geo.regions.find(r => r.boundary.status === 'CONFIRMED');
-      if (!confirmedRegion) { setStep('GEOMETRY_REVIEW'); return; }
+      if (!confirmedRegion) { setStep('BOUNDARY_STUDIO'); return; }
       setRegionId(confirmedRegion.region_id);
 
       const req = await engine.getRequirements(id).catch(() => null);
@@ -105,12 +107,19 @@ export const ZoningWorkspace: React.FC = () => {
 
   const handleUploaded = (geo: GeometryResult) => {
     setGeometry(geo);
-    setStep('GEOMETRY_REVIEW');
+    setStep('BOUNDARY_STUDIO');
   };
 
   const handleStartOver = () => {
     setGeometry(null);
+    setReviewRegionId(undefined);
     setStep('UPLOAD');
+  };
+
+  const handleBoundaryChosen = (geo: GeometryResult, chosenRegionId: string) => {
+    setGeometry(geo);
+    setReviewRegionId(chosenRegionId);
+    setStep('GEOMETRY_REVIEW');
   };
 
   const handleGeometryConfirmed = async (regions: GeometryRegion[], selectedRegionId: string) => {
@@ -238,7 +247,7 @@ export const ZoningWorkspace: React.FC = () => {
           <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>{project?.property_name || 'Project'}</span>
         </div>
         <div style={{ display: 'flex', gap: '2px', fontSize: 'var(--text-xs)' }}>
-          {(['UPLOAD', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'] as Step[]).map((s, i) => (
+          {(['UPLOAD', 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'] as Step[]).map((s, i) => (
             <span key={s} style={{
               padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontWeight: step === s ? 600 : 400,
               background: step === s ? 'var(--bg-raised)' : 'transparent',
@@ -250,7 +259,18 @@ export const ZoningWorkspace: React.FC = () => {
 
       <div style={{ flex: 1, overflow: 'auto' }}>
         {step === 'UPLOAD' && id && <UploadStep projectId={id} onUploaded={handleUploaded} />}
-        {step === 'GEOMETRY_REVIEW' && geometry && <GeometryReviewStep geometry={geometry} onConfirmed={handleGeometryConfirmed} onStartOver={handleStartOver} />}
+        {step === 'BOUNDARY_STUDIO' && id && geometry && (
+          <BoundaryStudio
+            projectId={id}
+            geometry={geometry}
+            onGeometryUpdated={setGeometry}
+            onBoundaryChosen={handleBoundaryChosen}
+            onStartOver={handleStartOver}
+          />
+        )}
+        {step === 'GEOMETRY_REVIEW' && geometry && (
+          <GeometryReviewStep geometry={geometry} onConfirmed={handleGeometryConfirmed} onStartOver={handleStartOver} initialRegionId={reviewRegionId} />
+        )}
         {step === 'REQUIREMENTS' && (
           <RequirementsStep
             initial={requirements}
