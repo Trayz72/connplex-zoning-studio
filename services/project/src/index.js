@@ -22,7 +22,12 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use(cookieParser());
+// Signed so a client can no longer just set session_user_id=<any-uuid> and
+// be authenticated as that user with zero password check — cookie-parser
+// verifies the HMAC signature and only exposes the value via
+// req.signedCookies when it matches. COOKIE_SECRET must be set in any real
+// deployment; the fallback is fine for local dev only.
+app.use(cookieParser(process.env.COOKIE_SECRET || 'dev-only-insecure-secret'));
 
 // Namespaced under /api/pm so these routes can never collide with a frontend
 // route sharing the same prefix (e.g. /projects/:id/studio) — see api.ts.

@@ -22,7 +22,8 @@ export const SESSION_COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: crossOrigin ? 'none' : 'lax',
   secure: crossOrigin,
-  maxAge: 7 * 24 * 60 * 60 * 1000
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+  signed: true
 };
 
 // clearCookie needs the same sameSite/secure attributes used to set the
