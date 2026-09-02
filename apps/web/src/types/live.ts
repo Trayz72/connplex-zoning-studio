@@ -12,6 +12,11 @@ export interface Obstacle {
   classification: 'COLUMN' | 'WALL' | 'DOOR' | 'WINDOW' | 'STAIRCASE' | 'WASHROOM_FIXTURE' | 'FURNITURE' | 'UNCLASSIFIED_OBSTACLE';
   confidence: 'high' | 'medium' | 'low';
   status: 'PROPOSED' | 'CONFIRMED' | 'IGNORED';
+  /** Set only when AI-assisted classification (see ai_obstacle_classify.py)
+   * refined this obstacle's classification or pre-ignored it as likely
+   * non-physical annotation — always reversible, never a substitute for the
+   * architect's own Confirm/Ignore. */
+  ai_note?: string;
 }
 
 export interface TextLabel {
@@ -66,6 +71,11 @@ export interface RawSegment {
   a: [number, number];
   b: [number, number];
   layer: string;
+  /** "annotation" = a dimension extension line or leader callout — real
+   * content, rendered for completeness, but never a real wall (the backend
+   * already excludes these from boundary/obstacle detection). "geometry" is
+   * everything else. Lets the viewer visually tell drawing from documentation. */
+  category: 'geometry' | 'annotation';
 }
 
 /** Every closed shape found anywhere in the drawing (not just the ones the

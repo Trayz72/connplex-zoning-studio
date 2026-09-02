@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { GeometryResult, GeometryRegion } from '../../types/live';
 import { EditableCanvas } from './EditableCanvas';
+import * as engine from '../../services/zoningEngineApi';
 import { ArrowLeftIcon, ArrowRightIcon, RefreshIcon, WarningIcon, CheckIcon } from '../Icons';
 
 interface GeometryReviewStepProps {
+  projectId: string;
   geometry: GeometryResult;
   onConfirmed: (regions: GeometryRegion[], selectedRegionId: string) => void;
   onStartOver: () => void;
@@ -48,10 +50,46 @@ function boundingBox(points: number[][]) {
   return { min_x: Math.min(...xs), min_y: Math.min(...ys), max_x: Math.max(...xs), max_y: Math.max(...ys) };
 }
 
-export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry, onConfirmed, onStartOver, initialRegionId }) => {
+export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectId, geometry, onConfirmed, onStartOver, initialRegionId }) => {
   const [regions, setRegions] = useState<GeometryRegion[]>(() => geometry.regions.map(preConfirmObstacles));
   const [activeRegionId, setActiveRegionId] = useState<string>(initialRegionId || geometry.regions[0]?.region_id || '');
   const [showCadLinework, setShowCadLinework] = useState(true);
+  const [classifying, setClassifying] = useState(false);
+  const [classifyNote, setClassifyNote] = useState<string | null>(null);
+
+  // The AI-classify endpoint reads/writes the *persisted* geometry.json,
+  // which never sees this screen's local confirm/ignore clicks until
+  // onConfirmed runs — so its response is merged into local state obstacle
+  // by obstacle (matched by stable id), touching only obstacles still
+  // UNCLASSIFIED_OBSTACLE locally, rather than replacing `regions` wholesale
+  // and silently discarding whatever the architect already did on this
+  // screen. An obstacle AI left UNSURE (still UNCLASSIFIED_OBSTACLE in the
+  // response) is left exactly as it was, honestly.
+  const runAiClassify = async () => {
+    setClassifying(true);
+    setClassifyNote(null);
+    try {
+      const updated = await engine.aiClassifyGeometry(projectId);
+      const byId = new Map<string, GeometryRegion['obstacles'][number]>();
+      for (const r of updated.regions) {
+        for (const o of r.obstacles) byId.set(o.id, o);
+      }
+      setRegions(prev => prev.map(r => ({
+        ...r,
+        obstacles: r.obstacles.map(o => {
+          if (o.classification !== 'UNCLASSIFIED_OBSTACLE') return o;
+          const aiResult = byId.get(o.id);
+          if (!aiResult || aiResult.classification === 'UNCLASSIFIED_OBSTACLE') return o;
+          return { ...o, classification: aiResult.classification, confidence: aiResult.confidence, status: aiResult.status, ai_note: aiResult.ai_note };
+        })
+      })));
+      setClassifyNote((updated as any).ai_classification_note || 'AI classification applied.');
+    } catch (e: any) {
+      setClassifyNote(e.message || 'AI classification failed.');
+    } finally {
+      setClassifying(false);
+    }
+  };
   const [manualOverride, setManualOverride] = useState(false);
   const [autoFired, setAutoFired] = useState(false);
   const [drawingBoundary, setDrawingBoundary] = useState(regions.length === 0);
@@ -196,6 +234,7 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
   }
 
   const pendingObstacles = activeRegion.obstacles.filter(o => o.status === 'PROPOSED').length;
+  const unclassifiedCount = activeRegion.obstacles.filter(o => o.classification === 'UNCLASSIFIED_OBSTACLE').length;
   const canProceed = activeRegion.boundary.status === 'CONFIRMED' && pendingObstacles === 0;
 
   const obstacleTally: Record<string, number> = {};
@@ -396,14 +435,27 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
         </div>
 
         <div className="panel" style={{ flex: 1, overflowY: 'auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
             <div className="panel-label">
               Detected Obstacles ({activeRegion.obstacles.length})
             </div>
-            <button className="btn btn-secondary" style={{ fontSize: '0.68rem', padding: '2px 6px' }} onClick={confirmAllHighConfidenceColumns}>
-              Confirm all high-confidence columns
-            </button>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              {unclassifiedCount > 0 && (
+                <button className="btn btn-secondary" style={{ fontSize: '0.68rem', padding: '2px 6px' }} disabled={classifying} onClick={runAiClassify}>
+                  {classifying ? 'Classifying…' : `Classify ${unclassifiedCount} Unclassified with AI`}
+                </button>
+              )}
+              <button className="btn btn-secondary" style={{ fontSize: '0.68rem', padding: '2px 6px' }} onClick={confirmAllHighConfidenceColumns}>
+                Confirm all high-confidence columns
+              </button>
+            </div>
           </div>
+
+          {classifyNote && (
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '8px', padding: '6px 8px', background: 'var(--bg-primary)', borderRadius: 'var(--radius-sm)' }}>
+              {classifyNote}
+            </div>
+          )}
 
           {activeRegion.obstacles.length === 0 && <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>None detected inside this boundary.</div>}
 
@@ -417,6 +469,11 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
                 <div style={{ fontSize: '0.68rem', color: 'var(--text-tertiary)', marginBottom: '6px' }} className="font-mono">
                   {o.area_sqft} sqft · layer "{o.layer}" · handle {o.source_handle}
                 </div>
+                {o.ai_note && (
+                  <div style={{ fontSize: '0.68rem', color: 'var(--brand-strong)', marginBottom: '6px', fontStyle: 'italic' }}>
+                    {o.ai_note}
+                  </div>
+                )}
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button
                     className={o.status === 'CONFIRMED' ? 'btn btn-primary' : 'btn btn-secondary'}

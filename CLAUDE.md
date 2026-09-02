@@ -84,6 +84,16 @@ canonical product spec and source of truth for business rules; treat this file a
      own deterministic pipeline via its `allowed_layers`/`min_boundary_area_sqft`
      params. Always falls back to the plain default result if the AI-guided pass
      doesn't actually find more.
+   - `ai_obstacle_classify.py` — a "Classify N Unclassified with AI" enhancement
+     (button in `GeometryReviewStep`'s obstacle panel, shown whenever any exist)
+     for obstacles `cad_extraction.py`'s layer-name heuristic couldn't confidently
+     place — up to 36% of all obstacles on one real file. Groups unclassified
+     obstacles by layer, sends Claude real aggregate evidence per layer (shape
+     count, average area, squarish ratio — never raw geometry), and asks for a
+     fixed physical classification, `NOT_PHYSICAL` (pre-sets to `IGNORED`, still
+     reversible), or an honest `UNSURE` (left untouched). Every result still
+     requires the architect's own Confirm/Ignore — this only improves the
+     starting guess, never bypasses review (spec Sec 11).
    - `layout_engine.py` — generic auto-layout generator. Subtracts confirmed
      obstacles from the boundary, then a deterministic first-fit rectangle scan
      places auditoriums (largest `AuditoriumPreset` that still fits, tried first —
