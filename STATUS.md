@@ -1,6 +1,68 @@
 # STATUS
 
-Last updated: 2026-09-01 (thirteenth session — automated the standard zoning flow end-to-end; kept editing optional)
+Last updated: 2026-09-02 (fourteenth session — full-project audit + priority security fixes)
+
+## Update: full audit, three real security bugs fixed
+
+Ran a full audit of the codebase (app-breaking bugs, incomplete/stubbed
+features, backlog verification, code quality, test coverage) at the user's
+request, then fixed the findings in priority order: critical bugs first,
+feature completeness second, code quality third.
+
+**Confirmed still accurate**: `tsc --noEmit` clean, no dead legacy-pipeline
+references remain, config-over-code is respected in the live pipeline. **Zero
+automated tests exist anywhere in the repo** (no test files, no CI config) —
+every fix below was verified manually (server boot, `tsc --noEmit`, `python3
+-c "import main"`), not by a regression suite. This is the single largest
+gap in engineering rigor at this point and should be next after this list.
+
+**Critical — fixed this session:**
+
+1. **Session cookie was a forgeable, unsigned plaintext user ID.**
+   `services/project/src/db.js` stores real users, but `cookie-parser` was
+   initialized with no secret (`services/project/src/index.js`), and both
+   `middleware.js`'s `requireAuth` and `auth.js`'s `GET /me` trusted
+   `req.cookies.session_user_id` at face value — a client could set that
+   cookie to any user's UUID and be fully authenticated as them with zero
+   password check. **Fixed**: `cookieParser(process.env.COOKIE_SECRET || …)`
+   now signs the cookie; `SESSION_COOKIE_OPTIONS` sets `signed: true`; both
+   `requireAuth` and `GET /me` now read `req.signedCookies` instead of
+   `req.cookies`, so a tampered/unsigned cookie is rejected outright.
+   `COOKIE_SECRET` must be set in any real deployment (the fallback is
+   dev-only and clearly marked as such).
+2. **Cross-tenant data exposure**: `requireAuth` was already correctly wired
+   onto the whole projects router (a prior session's fix, still in place),
+   but none of the actual queries in `services/project/src/routes/projects.js`
+   filtered by `created_by` — any authenticated user (including a brand-new
+   self-registered one) could list, read, edit, or delete every other
+   client's projects, not just their own. **Fixed**: `GET /`, `GET /:id`,
+   `PATCH /:id`, and `DELETE /:id` all now scope to `created_by = req.user.id`
+   unless the requester is an admin (existing `is_admin` flag), returning 404
+   rather than 403 on someone else's project id so existence isn't leaked.
+3. **`select-candidate` endpoint had a misleading schema**: `main.py`'s
+   `POST /layout/select-candidate` declared its body as `ZoningRunIn` (field
+   `region_id`) but actually consumed that value as a candidate id — a
+   natural `{"candidate_id": …}` payload was silently ignored by Pydantic and
+   produced a confusing 404 instead of a validation error. **Fixed**: added a
+   dedicated `CandidateSelectIn` model with a correctly-named `candidate_id`
+   field; updated the one caller (`apps/web/src/services/zoningEngineApi.ts`)
+   to match.
+
+**Still open, not fixed this session** (see Priority backlog below for the
+pre-existing items; these are new/reprioritized based on the audit):
+
+- No automated test suite or CI at all — highest-priority follow-up now that
+  the critical auth bugs are closed.
+- `services/zoning-engine` has no authentication and defaults to
+  `allow_origins=["*"]` when `FRONTEND_ORIGIN` is unset — fine on the Render
+  deployment (env var is set there) but wide open on any other deployment
+  target. Needs the same kind of explicit lockdown the project service now
+  has, or at minimum a startup warning when the env var is missing.
+- `data.sqlite` (bcrypt-hashed demo/seed users) is committed to git — not a
+  live secret leak today, but a bad habit that will become a real one the day
+  seed data is replaced with real client data without updating `.gitignore`.
+- `ai_zoning_engine.py` hardcodes `MODEL_ID = "claude-opus-5"` with no env
+  override — a single point of failure if that model id is ever retired.
 
 ## Update: standard flow is now upload -> auto-generated, exportable layout, with zero required clicks
 

@@ -87,7 +87,7 @@ router.post('/logout', (req, res) => {
 // request as the first user in the database — see requireAuth in
 // middleware.js for the fix on the API side).
 router.get('/me', (req, res) => {
-  const userId = req.cookies && req.cookies.session_user_id;
+  const userId = req.signedCookies && req.signedCookies.session_user_id;
   if (!userId) {
     return res.status(401).json({ error: 'Not logged in' });
   }

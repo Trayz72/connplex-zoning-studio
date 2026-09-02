@@ -45,6 +45,15 @@ router.get('/', (req, res) => {
   const clauses = [];
   const params = [];
 
+  // Cross-tenant scoping: a non-admin only ever sees their own projects.
+  // Previously every query here was unscoped by user, so any authenticated
+  // account (even a brand-new one) could list/read/edit/delete every other
+  // client's projects.
+  if (!req.user.is_admin) {
+    clauses.push('created_by = ?');
+    params.push(req.user.id);
+  }
+
   if (q && typeof q === 'string' && q.trim()) {
     clauses.push('(property_name LIKE ? OR client_name LIKE ? OR project_code LIKE ?)');
     const like = `%${q.trim()}%`;
@@ -156,7 +165,7 @@ router.post('/', (req, res) => {
 // GET /projects/:id - get one project
 router.get('/:id', (req, res) => {
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(req.params.id);
-  if (!row) {
+  if (!row || (!req.user.is_admin && row.created_by !== req.user.id)) {
     return res.status(404).json({ error: 'Project not found' });
   }
   return res.json(formatProject(row));
@@ -165,7 +174,7 @@ router.get('/:id', (req, res) => {
 // PATCH /projects/:id - update intake fields
 router.patch('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM projects WHERE id = ?').get(req.params.id);
-  if (!existing) {
+  if (!existing || (!req.user.is_admin && existing.created_by !== req.user.id)) {
     return res.status(404).json({ error: 'Project not found' });
   }
 
@@ -222,7 +231,7 @@ router.patch('/:id', (req, res) => {
 // DELETE /projects/:id - permanently remove a project and its intake record
 router.delete('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM projects WHERE id = ?').get(req.params.id);
-  if (!existing) {
+  if (!existing || (!req.user.is_admin && existing.created_by !== req.user.id)) {
     return res.status(404).json({ error: 'Project not found' });
   }
   db.prepare('DELETE FROM floors WHERE project_id = ?').run(req.params.id);

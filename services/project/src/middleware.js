@@ -8,7 +8,7 @@ import { CLEAR_COOKIE_OPTIONS } from './cookieOptions.js';
  * was a real bug, not a documented design choice: fixed here by requiring an
  * actual valid session and rejecting with 401 otherwise. */
 export function requireAuth(req, res, next) {
-  const userId = req.cookies && req.cookies.session_user_id;
+  const userId = req.signedCookies && req.signedCookies.session_user_id;
   if (!userId) {
     return res.status(401).json({ error: 'Not logged in' });
   }

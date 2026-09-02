@@ -78,6 +78,10 @@ class ZoningRunIn(BaseModel):
     region_id: str
 
 
+class CandidateSelectIn(BaseModel):
+    candidate_id: str
+
+
 class LayoutUpdateIn(BaseModel):
     rooms: list
     boundary_points_ft: list
@@ -353,12 +357,11 @@ def get_layout(project_id: str):
 
 
 @app.post("/api/projects/{project_id}/layout/select-candidate")
-def select_candidate(project_id: str, body: ZoningRunIn):
-    """body.region_id is reused here as candidate_id for simplicity of the shared schema."""
+def select_candidate(project_id: str, body: CandidateSelectIn):
     run = storage.read_json(storage.latest_run_path(project_id))
     if not run:
         raise HTTPException(404, "No zoning run exists for this project yet.")
-    candidate = next((c for c in run["candidates"] if c["candidate_id"] == body.region_id), None)
+    candidate = next((c for c in run["candidates"] if c["candidate_id"] == body.candidate_id), None)
     if not candidate:
         raise HTTPException(404, "Candidate not found in the latest zoning run.")
 

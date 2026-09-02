@@ -139,7 +139,7 @@ export async function getLatestRun(projectId: string): Promise<ZoningRunResult |
 
 export async function selectCandidate(projectId: string, candidateId: string): Promise<EditableLayout> {
   return asJson(await fetch(`${BASE}/${projectId}/layout/select-candidate`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ region_id: candidateId })
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidate_id: candidateId })
   }));
 }
 
