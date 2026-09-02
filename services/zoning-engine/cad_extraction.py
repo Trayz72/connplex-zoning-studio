@@ -9,7 +9,11 @@ This module makes no attempt to *identify room types* (that would be hallucinati
 per the project's own anti-hallucination rule) — it only extracts geometry:
 - one or more boundary candidates (closed polylines above a minimum area),
 - obstacle/column candidates contained inside a boundary,
-- raw text label positions (for the architect to read, not for us to interpret).
+- raw text label positions (for the architect to read, not for us to interpret),
+- the ENTIRE drawing's raw linework, uncropped, for two different manual paths:
+  a whole-drawing backdrop to trace a boundary over (`raw_geometry`) and a richer
+  structure with closed-shape/line ids for BoundaryStudio's click-to-select tools
+  (`full_raw_geometry`) — see _build_full_raw_geometry below.
 
 Every detection carries a confidence and the CAD evidence it came from (entity
 handle, layer, area) so the frontend can present a Confirm/Ignore review step
@@ -65,6 +69,7 @@ CURVE_FLATTEN_MIN_SEGMENTS = 8
 WALL_SNAP_TOLERANCE_FT = 0.3
 MIN_OBSTACLE_AREA_SQFT = 0.3       # ignore microscopic closed shapes (hatch fragments, tick marks)
 CONTAINMENT_THRESHOLD = 0.6        # fraction of an obstacle's area that must fall inside a boundary to count as "in" it
+MAX_INSERT_DEPTH = 8               # guards against a pathological/cyclic block-reference chain
 
 UNIT_TO_FEET = {
     0: None,       # Unspecified — must ask the user
@@ -73,6 +78,14 @@ UNIT_TO_FEET = {
     4: 0.00328084,  # Millimeters
     5: 0.0328084,   # Centimeters
     6: 3.28084,     # Meters
+}
+
+UNIT_NAME_TO_FEET = {
+    "Inches": 1.0 / 12.0,
+    "Feet": 1.0,
+    "Millimeters": 0.00328084,
+    "Centimeters": 0.0328084,
+    "Meters": 3.28084,
 }
 
 COLUMN_LAYER_HINTS = ["column", "col", "grid", "struct"]
@@ -116,46 +129,252 @@ def _classify_obstacle_layer(layer_name):
     return "UNCLASSIFIED_OBSTACLE", False
 
 
-def _get_units(doc):
+def _get_units(doc, unit_override=None):
+    """unit_override (one of UNIT_NAME_TO_FEET's keys) lets an architect
+    correct a file whose $INSUNITS is unspecified — see the endpoint that
+    re-runs extract() with this set. When not overridden and $INSUNITS truly
+    is 0, fall back to a real secondary signal instead of blindly assuming
+    feet: $MEASUREMENT (0=imperial, 1=metric) and $LUNITS (linear units
+    *display* format — 4 is "Architectural", which in practice means the
+    drawing was authored with 1 drawing unit = 1 inch). This is still a
+    guess, still marked needs_user_confirmation, but it's a guess backed by
+    real header evidence rather than an arbitrary default — verified against
+    theater_clean.dxf, whose real column width only makes sense (~2.25ft) at
+    the inches assumption, not the old flat 1.0 (which read it as ~27ft)."""
     insunits = doc.header.get("$INSUNITS", 0)
+
+    if unit_override and unit_override in UNIT_NAME_TO_FEET:
+        return {
+            "insunits_code": insunits,
+            "detected_unit": unit_override,
+            "feet_per_drawing_unit": UNIT_NAME_TO_FEET[unit_override],
+            "needs_user_confirmation": False,
+            "suggested_unit": None,
+            "suggested_unit_reason": None,
+            "source": "user_confirmed",
+        }
+
     factor = UNIT_TO_FEET.get(insunits)
+    detected_name = {0: "Unspecified", 1: "Inches", 2: "Feet", 4: "Millimeters", 5: "Centimeters", 6: "Meters"}.get(insunits, "Unknown")
+
+    suggested_unit = None
+    suggested_unit_reason = None
+    if factor is None:
+        measurement = doc.header.get("$MEASUREMENT", 0)
+        lunits = doc.header.get("$LUNITS", 2)
+        if measurement == 0:
+            suggested_unit = "Inches"
+            suggested_unit_reason = (
+                "This file's $INSUNITS is unspecified, but its $MEASUREMENT/$LUNITS "
+                "header (imperial, Architectural display format) matches how most "
+                "real drawings without an explicit unit are actually authored — at "
+                "1 drawing unit = 1 inch. Verify against one real dimension in the "
+                "file before trusting this."
+            )
+        else:
+            suggested_unit = "Millimeters"
+            suggested_unit_reason = (
+                "This file's $INSUNITS is unspecified, but its $MEASUREMENT header "
+                "indicates a metric template — most such files are authored at "
+                "1 drawing unit = 1 millimeter. Verify against one real dimension "
+                "in the file before trusting this."
+            )
+
     return {
         "insunits_code": insunits,
-        "detected_unit": {0: "Unspecified", 1: "Inches", 2: "Feet", 4: "Millimeters", 5: "Centimeters", 6: "Meters"}.get(insunits, "Unknown"),
+        "detected_unit": detected_name,
         "feet_per_drawing_unit": factor,
-        "needs_user_confirmation": factor is None
+        "needs_user_confirmation": factor is None,
+        "suggested_unit": suggested_unit,
+        "suggested_unit_reason": suggested_unit_reason,
+        "source": "file_header" if factor is not None else "heuristic_guess",
     }
 
 
-def _closed_points(e):
-    """Return a list of (x, y) if this entity is a closed polyline/circle, else None.
+def working_scale(units: dict) -> float:
+    """The feet-per-drawing-unit factor extract() actually works at: the real
+    file-header value when known, else the same header-based heuristic
+    _get_units suggests, else a bare 1.0 fallback only when there's no
+    evidence at all to go on. Shared with ai_cad_scan.py's _layer_stats so
+    both agree on scale — that function used to fall back to a bare 1.0
+    directly, which (found via theater_clean.dxf, whose real extent is
+    ~1,514 x 807ft) reported its drawing_bbox_ft roughly 12x too large in the
+    AI-scan prompt on any file with unspecified units, even after extract()
+    itself was fixed to use the better heuristic."""
+    return units["feet_per_drawing_unit"] or UNIT_NAME_TO_FEET.get(units.get("suggested_unit"), 1.0)
 
-    LWPOLYLINE/POLYLINE go through ezdxf's generic path flattening rather than
-    a bare e.get_points()/vertex walk — a polyline segment with bulge (a
-    rounded corner, common in real architectural drawings) previously got
-    silently chorded into a straight line by connecting only the two
-    endpoints, which is a real, if usually minor, area/shape error. Using the
-    same flattening path as _open_segments below also keeps both functions
-    agreeing on what a curved boundary segment actually looks like."""
+
+def _handle_of(e, fallback_idx):
+    """Real top-level entities carry a stable DXF handle; entities produced by
+    exploding a block INSERT (see _resolve_entities) are virtual copies with
+    no handle of their own — fall back to a positional id so every shape still
+    has *something* to show as provenance, without pretending it's a real
+    DXF handle."""
+    h = getattr(e.dxf, "handle", None)
+    return str(h) if h else f"virtual-{fallback_idx}"
+
+
+def _identity_tf(p):
+    return (p[0], p[1])
+
+
+def _resolve_entities(doc, msp):
+    """Recursively resolve INSERT (block reference) entities into (entity,
+    transform) pairs, where transform maps that entity's own block-local 2D
+    coordinates into world (modelspace) coordinates. Real architectural DXFs
+    very commonly draw repeated elements (columns, escalators, furniture
+    symbols) as block inserts rather than raw geometry — ignoring INSERT
+    entirely (this module's previous behavior) made every such element
+    invisible to both extraction and rendering, confirmed on a real file:
+    theater_clean.dxf draws 170 of its columns as INSERT references to a
+    shared column block, none of which were previously seen at all.
+
+    This deliberately does NOT use ezdxf's entity.virtual_entities() (or
+    entity.copy().transform()) to do the transform — both were tested
+    directly against this real file and found to silently produce the wrong
+    sign on X for a *mirrored* insert (negative xscale, used by 2 of this
+    file's 173 INSERTs: its title-block frame and one escalator symbol).
+    Verified independently: multiplying the same INSERT's own matrix44()
+    against a raw block-local point by hand gives the correct, real-world
+    coordinate every time (mirrored or not) — that direct approach is what
+    this function composes recursively (function composition, not matrix
+    pre-multiplication, so a bug in any one level can't be misattributed to
+    another) instead, depth-guarded against a pathological/cyclic reference.
+
+    Returns a list of (entity, transform_fn) pairs — every non-INSERT entity
+    in the drawing, paired with the function that converts its own local
+    points into world coordinates (identity for anything already at the top
+    level)."""
+    resolved = []
+
+    def make_child_transform(local_matrix, outer_fn):
+        def fn(p):
+            x, y, _z = local_matrix.transform((p[0], p[1], 0))
+            return outer_fn((x, y))
+        return fn
+
+    def walk(entities, transform_fn, depth):
+        for e in entities:
+            if e.dxftype() == "INSERT":
+                if depth >= MAX_INSERT_DEPTH:
+                    continue
+                try:
+                    local_matrix = e.matrix44()
+                    block = doc.blocks.get(e.dxf.name)
+                except Exception:
+                    continue
+                child_fn = make_child_transform(local_matrix, transform_fn)
+                try:
+                    walk(list(block), child_fn, depth + 1)
+                except Exception:
+                    continue
+            else:
+                resolved.append((e, transform_fn))
+
+    walk(list(msp), _identity_tf, 0)
+    return resolved
+
+
+def _transform_circle(e, tf):
+    """A CIRCLE under a rotation + uniform scale (the common real case) stays
+    a circle; effective radius is measured from how far the transform moves a
+    point one raw-radius away from center, so mirrored/rotated column blocks
+    still come out the right size. A non-uniform scale would technically turn
+    it into an ellipse, which this module doesn't model — not seen in any
+    file tested so far, and noted here rather than silently mis-rendered as
+    a differently-sized circle without comment."""
+    c = (float(e.dxf.center[0]), float(e.dxf.center[1]))
+    r = e.dxf.radius
+    c2 = tf(c)
+    edge2 = tf((c[0] + r, c[1]))
+    r2 = math.hypot(edge2[0] - c2[0], edge2[1] - c2[1])
+    return c2, r2
+
+
+def _is_full_ellipse(e):
+    try:
+        return abs(abs(e.dxf.end_param - e.dxf.start_param) - 2 * math.pi) < 1e-6
+    except Exception:
+        return False
+
+
+def _hatch_path_points(path, tf=_identity_tf):
+    """A HATCH boundary path is either an explicit polyline (path.vertices,
+    already ordered) or a chain of edges (line/arc segments) — both real,
+    common cases in architectural DXFs (theater_clean.dxf's 23 HATCH entities
+    are all edge-path). Returns an ordered point list approximating the path,
+    tessellating any arc edges; anything else (elliptical/spline edges, not
+    present in any file tested so far) is skipped rather than guessed at."""
+    try:
+        if getattr(path, "vertices", None):
+            return [tf((float(v[0]), float(v[1]))) for v in path.vertices]
+    except Exception:
+        pass
+
+    pts = []
+    try:
+        for edge in getattr(path, "edges", []):
+            et = type(edge).__name__
+            if et == "LineEdge":
+                pts.append(tf((float(edge.start[0]), float(edge.start[1]))))
+            elif et == "ArcEdge":
+                cx, cy = float(edge.center[0]), float(edge.center[1])
+                r = float(edge.radius)
+                a0, a1 = math.radians(edge.start_angle), math.radians(edge.end_angle)
+                if not getattr(edge, "is_counter_clockwise", True):
+                    a0, a1 = a1, a0
+                if a1 <= a0:
+                    a1 += 2 * math.pi
+                for i in range(8):
+                    a = a0 + (a1 - a0) * i / 8
+                    pts.append(tf((cx + r * math.cos(a), cy + r * math.sin(a))))
+    except Exception:
+        return []
+    return pts
+
+
+def _closed_points(e, tf=_identity_tf):
+    """Return a list of (x, y) if this entity is a closed polyline/circle/
+    closed spline/full ellipse, else None.
+
+    LWPOLYLINE/POLYLINE/SPLINE/ELLIPSE go through ezdxf's generic path
+    flattening (ezdxf.path.make_path(...).flattening(...)) rather than a bare
+    vertex walk — a polyline segment with bulge (a rounded corner, common in
+    real architectural drawings) previously got silently chorded into a
+    straight line by connecting only the two endpoints, a real if usually
+    minor area/shape error. Using the same flattening path _open_segments
+    uses also keeps every function agreeing on what a curved boundary
+    segment actually looks like."""
     t = e.dxftype()
     try:
         if t == "LWPOLYLINE":
             if not e.closed:
                 return None
             path = ezdxf.path.make_path(e)
-            pts = [(v.x, v.y) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
+            pts = [tf((v.x, v.y)) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
             return pts if len(pts) >= 3 else None
         if t == "POLYLINE":
             if not e.is_closed:
                 return None
             path = ezdxf.path.make_path(e)
-            pts = [(v.x, v.y) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
+            pts = [tf((v.x, v.y)) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
             return pts if len(pts) >= 3 else None
         if t == "CIRCLE":
-            c = e.dxf.center
-            r = e.dxf.radius
+            c, r = _transform_circle(e, tf)
             n = 16
             return [(c[0] + r * math.cos(2 * math.pi * i / n), c[1] + r * math.sin(2 * math.pi * i / n)) for i in range(n)]
+        if t == "SPLINE":
+            if not getattr(e, "closed", False):
+                return None
+            path = ezdxf.path.make_path(e)
+            pts = [tf((v.x, v.y)) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
+            return pts if len(pts) >= 3 else None
+        if t == "ELLIPSE":
+            if not _is_full_ellipse(e):
+                return None
+            path = ezdxf.path.make_path(e)
+            pts = [tf((v.x, v.y)) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
+            return pts if len(pts) >= 3 else None
     except Exception:
         return None
     return None
@@ -178,7 +397,7 @@ def _layer_hint_score(layer_name, hints):
     return any(h in name for h in hints)
 
 
-def _open_segments(e):
+def _open_segments(e, tf=_identity_tf):
     """Break any line-like entity into individual 2-point segments, in drawing
     units. Covers the very common real-world case of a boundary drawn as
     discrete wall LINE segments rather than one closed polyline — the same
@@ -196,17 +415,63 @@ def _open_segments(e):
     if t == "LINE":
         try:
             s, end = e.dxf.start, e.dxf.end
-            return [((s[0], s[1]), (end[0], end[1]))]
+            return [(tf((s[0], s[1])), tf((end[0], end[1])))]
         except Exception:
             return []
     if t in ("LWPOLYLINE", "POLYLINE", "ARC", "SPLINE", "ELLIPSE"):
         try:
             path = ezdxf.path.make_path(e)
-            pts = [(v.x, v.y) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
+            pts = [tf((v.x, v.y)) for v in path.flattening(CURVE_FLATTEN_DISTANCE, CURVE_FLATTEN_MIN_SEGMENTS)]
         except Exception:
             return []
         return [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
     return []
+
+
+def _all_segments(e, tf=_identity_tf):
+    """Every line-like, curved, or hatch-boundary entity, broken into 2-point
+    segments in drawing units — the single source of truth for every raw-
+    geometry backdrop (per-region, whole-drawing, and BoundaryStudio's richer
+    full_raw_geometry), so they can't drift out of sync with each other."""
+    t = e.dxftype()
+    if t == "HATCH":
+        segs = []
+        try:
+            for path in e.paths:
+                pts = _hatch_path_points(path, tf)
+                if len(pts) < 2:
+                    continue
+                for i in range(len(pts) - 1):
+                    segs.append((pts[i], pts[i + 1]))
+                segs.append((pts[-1], pts[0]))
+        except Exception:
+            return []
+        return segs
+    return _open_segments(e, tf)
+
+
+def _dedupe_closed_shapes(closed_shapes):
+    """A real block-based drawing very commonly draws one physical element
+    (a column, in theater_clean.dxf's case) as BOTH a closed LWPOLYLINE
+    outline and a HATCH fill covering the identical footprint — verified
+    directly: every column block instance in that file emits exactly one of
+    each, over the same 4 points. Without this, every such element would be
+    double-counted as two separate obstacle candidates (confirmed: 170 real
+    columns were producing ~340 obstacle entries before this). Two shapes
+    are treated as duplicates of the same physical element when their area
+    and centroid match closely; when they do, the explicit polyline is kept
+    over its hatch twin (a literal outline is stronger evidence than a fill
+    pattern), and a reconstructed shape is kept over a hatch twin for the
+    same reason."""
+    source_rank = {"explicit": 0, "reconstructed": 1, "hatch": 2}
+    kept = {}
+    for s in closed_shapes:
+        c = s["polygon"].centroid
+        key = (round(c.x, 1), round(c.y, 1), round(s["polygon"].area, 1))
+        existing = kept.get(key)
+        if existing is None or source_rank.get(s["source"], 3) < source_rank.get(existing["source"], 3):
+            kept[key] = s
+    return list(kept.values())
 
 
 def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_drawing_units, snap_tolerance_drawing_units=0.0):
@@ -242,10 +507,10 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
 
     segments = []
     layer_by_segment = []
-    for e in entities:
-        if str(e.dxf.handle) in already_closed_handles:
+    for i, (e, tf) in enumerate(entities):
+        if _handle_of(e, i) in already_closed_handles:
             continue  # already a closed shape in its own right; don't double-count its edges
-        for a, b in _open_segments(e):
+        for a, b in _open_segments(e, tf):
             if a == b:
                 continue
             segments.append(LineString([a, b]))
@@ -320,7 +585,260 @@ def _read_dxf_with_recovery(dxf_path: str):
         return doc, note
 
 
-def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -> dict:
+MAX_FULL_RAW_LINES = 25000       # BoundaryStudio's richer whole-drawing view
+MAX_FULL_RAW_TEXTS = 2000
+MAX_WHOLE_DRAWING_RAW_LINES = 6000 * 3   # the simpler whole-drawing backdrop (draw-boundary-when-no-region fallback)
+MAX_REGION_RAW_LINES = 6000      # one region's own cropped backdrop
+MAX_RAW_TEXTS = 800
+
+
+def _stride_sample(items, cap):
+    """Even-stride sampling instead of a first-N cutoff — found via real
+    testing (a real site plan with a dense hatched/dimensioned corner) that a
+    first-N cutoff can exhaust the whole cap on one small cluster near the
+    start of the entity list, leaving a 'backdrop' that shows only a tiny
+    fraction of the drawing's real extent instead of the whole thing an
+    architect tracing a boundary by hand actually needs to see. Returns
+    (sampled_items, was_truncated)."""
+    if len(items) <= cap:
+        return items, False
+    stride = len(items) / cap
+    return [items[int(i * stride)] for i in range(cap)], True
+
+
+def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale):
+    """The ENTIRE drawing's raw linework, computed ONCE (up to MAX_FULL_RAW_LINES,
+    the highest-fidelity cap of any consumer) and reused to derive every other
+    raw-geometry view this module produces — the whole-drawing `raw_geometry`
+    fallback, and every region's own cropped backdrop — instead of each
+    re-walking and re-transforming every entity from scratch.
+
+    This fixes a real, profiled performance bug: recomputing segments/
+    transforms inside a per-region closure is O(regions x entities), measured
+    at 88% of a 276s worst-case extraction on a real 100-region file
+    (Vadodara, 63,607 entities). Filtering this single pre-built, already-in-
+    feet list is O(regions x segments) with only cheap float comparisons, not
+    transform math — brings the same file down to a few seconds."""
+    lines = []
+    circles = []
+    truncated = False
+
+    for e, tf in all_entities:
+        if len(lines) >= MAX_FULL_RAW_LINES:
+            truncated = True
+            break
+        t = e.dxftype()
+        try:
+            if t in ("LINE", "LWPOLYLINE", "POLYLINE", "ARC", "HATCH", "SPLINE", "ELLIPSE"):
+                layer = str(e.dxf.layer)
+                for a, b in _all_segments(e, tf):
+                    lines.append({
+                        "id": len(lines),
+                        "a": [round(a[0] * scale, 3), round(a[1] * scale, 3)],
+                        "b": [round(b[0] * scale, 3), round(b[1] * scale, 3)],
+                        "layer": layer,
+                    })
+                    if len(lines) >= MAX_FULL_RAW_LINES:
+                        truncated = True
+                        break
+            elif t == "CIRCLE":
+                c, r = _transform_circle(e, tf)
+                circles.append({
+                    "center": [round(c[0] * scale, 3), round(c[1] * scale, 3)],
+                    "radius": round(r * scale, 3),
+                    "layer": str(e.dxf.layer),
+                })
+        except Exception:
+            continue
+
+    all_xs = [p[0] for ln in lines for p in (ln["a"], ln["b"])] + [t["position_ft"][0] for t in text_labels]
+    all_ys = [p[1] for ln in lines for p in (ln["a"], ln["b"])] + [t["position_ft"][1] for t in text_labels]
+    bounds_ft = (
+        {"min_x": min(all_xs), "min_y": min(all_ys), "max_x": max(all_xs), "max_y": max(all_ys)}
+        if all_xs and all_ys else {"min_x": 0, "min_y": 0, "max_x": 100, "max_y": 100}
+    )
+
+    return {
+        "lines": lines,
+        "circles": circles,
+        "texts": text_labels[:MAX_FULL_RAW_TEXTS],
+        "closed_shapes": [
+            {
+                "id": f"shape-{i}",
+                "handle": s["handle"],
+                "layer": s["layer"],
+                "dxftype": s["dxftype"],
+                "source": s.get("source", "explicit"),
+                "area_sqft": round(s["area_sqft"], 3),
+                "points_ft": s["points_ft"],
+            }
+            for i, s in enumerate(closed_shapes)
+        ],
+        "bounds_ft": bounds_ft,
+        "truncated": truncated,
+    }
+
+
+def _simple_raw_geometry(full_raw, max_lines=MAX_WHOLE_DRAWING_RAW_LINES, max_texts=MAX_RAW_TEXTS):
+    """The plain {lines, circles, texts, truncated} shape GeometryReviewStep/
+    EditableCanvas's draw-boundary-by-hand fallback expects, derived from the
+    already-built full_raw_geometry rather than re-walking entities."""
+    lines = [[ln["a"], ln["b"]] for ln in full_raw["lines"]]
+    sampled, stride_truncated = _stride_sample(lines, max_lines)
+    return {
+        "lines": sampled,
+        "circles": [{"center": c["center"], "radius": c["radius"]} for c in full_raw["circles"]],
+        "texts": [{"text": t["text"], "position": t["position_ft"]} for t in full_raw["texts"]][:max_texts],
+        "truncated": stride_truncated or full_raw["truncated"],
+    }
+
+
+def _region_raw_geometry(full_raw, minx_ft, miny_ft, maxx_ft, maxy_ft, max_lines=MAX_REGION_RAW_LINES, max_texts=MAX_RAW_TEXTS):
+    """One region's own cropped CAD backdrop — a bounding-box filter over the
+    already-built full_raw_geometry (see _build_full_raw_geometry), not a
+    fresh entity walk."""
+    pad = max((maxx_ft - minx_ft), (maxy_ft - miny_ft)) * 0.05
+    bx0, by0, bx1, by1 = minx_ft - pad, miny_ft - pad, maxx_ft + pad, maxy_ft + pad
+
+    def in_box(pt):
+        return bx0 <= pt[0] <= bx1 and by0 <= pt[1] <= by1
+
+    matched = [[ln["a"], ln["b"]] for ln in full_raw["lines"] if in_box(ln["a"]) or in_box(ln["b"])]
+    lines, truncated = _stride_sample(matched, max_lines)
+    circles = [{"center": c["center"], "radius": c["radius"]} for c in full_raw["circles"] if in_box(c["center"])]
+    texts = [{"text": t["text"], "position": t["position_ft"]} for t in full_raw["texts"] if in_box(t["position_ft"])][:max_texts]
+    return {"lines": lines, "circles": circles, "texts": texts, "truncated": truncated}
+
+
+def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list) -> dict:
+    """Given a set of line-segment ids the architect clicked (from
+    full_raw_geometry.lines, already in feet) as 'these are the walls of my
+    boundary', find the closed loop they form. Uses the same polygonize
+    technique as the automatic wall-reconstruction pass, but scoped to
+    exactly the segments a human picked instead of guessing across the whole
+    drawing — the deliberate, fast 'select lines to assume as walls' path,
+    distinct from clicking an existing closed shape or drawing freehand.
+
+    Raises ValueError with a specific, actionable message if the selection
+    doesn't close (some real feedback, not a bare 'invalid selection')."""
+    by_id = {ln["id"]: ln for ln in full_raw_geometry["lines"]}
+    lines = []
+    for sid in segment_ids:
+        ln = by_id.get(sid)
+        if ln is None:
+            continue
+        a, b = tuple(ln["a"]), tuple(ln["b"])
+        if a == b:
+            continue
+        lines.append(LineString([a, b]))
+
+    if len(lines) < 3:
+        raise ValueError("Select at least 3 wall segments that form a closed loop.")
+
+    polys = [p for p in polygonize(lines) if p.is_valid and p.area > 0]
+    if not polys:
+        raise ValueError(
+            "These segments don't form a closed loop yet — there's a gap somewhere in the "
+            "selection. Select the missing wall segment(s) to close it, or switch to Draw "
+            "Boundary to finish it by hand."
+        )
+
+    best = max(polys, key=lambda p: p.area)
+    return {
+        "points_ft": [[round(x, 3), round(y, 3)] for x, y in best.exterior.coords][:-1],
+        "area_sqft": round(best.area, 2),
+    }
+
+
+def build_manual_region(points_ft: list, mode: str, full_raw_geometry: dict, existing_source_handle: str = None) -> dict:
+    """Build a region (boundary + contained obstacles + text labels), the same
+    shape extract() produces per auto-detected candidate, from a boundary the
+    architect defined directly — by clicking an existing closed shape, tracing
+    selected wall segments, or drawing freehand. Operates entirely in feet
+    (everything in full_raw_geometry already is), against the same closed-shape/
+    text-label evidence the automatic pass already extracted, so a manually
+    defined region gets the same real obstacle detection an automatic one does
+    — this is not a lesser, obstacle-blind path."""
+    poly = _safe_polygon(points_ft)
+    if not poly:
+        raise ValueError("This boundary isn't a valid closed shape (self-intersecting or zero-area). Adjust the points and try again.")
+
+    b_area = poly.area
+    minx, miny, maxx, maxy = poly.bounds
+
+    obstacles = []
+    for s in full_raw_geometry["closed_shapes"]:
+        if existing_source_handle and s["handle"] == existing_source_handle:
+            continue
+        if s["area_sqft"] < MIN_OBSTACLE_AREA_SQFT or s["area_sqft"] > b_area * MAX_OBSTACLE_AREA_RATIO:
+            continue
+        s_poly = _safe_polygon(s["points_ft"])
+        if not s_poly:
+            continue
+        inter = s_poly.intersection(poly).area
+        if s_poly.area == 0 or inter / s_poly.area < CONTAINMENT_THRESHOLD:
+            continue
+
+        classification, layer_matched = _classify_obstacle_layer(s["layer"])
+        is_squarish = 0.0
+        try:
+            sminx, sminy, smaxx, smaxy = s_poly.bounds
+            w, h = smaxx - sminx, smaxy - sminy
+            is_squarish = min(w, h) / max(w, h) if max(w, h) > 0 else 0
+        except Exception:
+            pass
+
+        if layer_matched:
+            confidence = "high"
+        elif is_squarish > 0.6 and s["area_sqft"] < 20:
+            classification = "COLUMN"
+            confidence = "medium"
+        else:
+            confidence = "low"
+
+        obstacles.append({
+            "id": f"obstacle-{uuid.uuid4().hex[:8]}",
+            "source_handle": s["handle"],
+            "layer": s["layer"],
+            "dxftype": s["dxftype"],
+            "area_sqft": round(s["area_sqft"], 3),
+            "points_ft": s["points_ft"],
+            "classification": classification,
+            "confidence": confidence,
+            "status": "PROPOSED",
+        })
+
+    region_texts = [
+        t for t in full_raw_geometry.get("texts", [])
+        if minx <= t["position_ft"][0] <= maxx and miny <= t["position_ft"][1] <= maxy
+    ]
+
+    mode_note = {
+        "shape": "Selected directly from a closed shape in the source drawing. Verify before confirming.",
+        "walls": "Traced from wall segments you selected. Verify before confirming, especially near the traced corners.",
+        "draw": "Drawn by hand — this boundary has no direct support in the source CAD file. Verify carefully before confirming.",
+    }.get(mode, "Manually defined. Verify before confirming.")
+
+    return {
+        "region_id": f"region-{uuid.uuid4().hex[:8]}",
+        "boundary": {
+            "source_handle": existing_source_handle or f"manual-{uuid.uuid4().hex[:8]}",
+            "layer": "manual",
+            "source": f"manual-{mode}",
+            "area_sqft": round(b_area, 2),
+            "points_ft": [[round(x, 3), round(y, 3)] for x, y in poly.exterior.coords][:-1],
+            "bounding_box_ft": {"min_x": round(minx, 2), "min_y": round(miny, 2), "max_x": round(maxx, 2), "max_y": round(maxy, 2)},
+            "confidence": "medium" if mode in ("shape", "walls") else "low",
+            "note": mode_note,
+            "status": "PROPOSED",
+        },
+        "obstacles": obstacles,
+        "text_labels": region_texts,
+        "raw_geometry": _region_raw_geometry(full_raw_geometry, minx, miny, maxx, maxy),
+    }
+
+
+def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, unit_override: str = None) -> dict:
     """Main entry point. input_path may be .dwg or .dxf. Returns canonical geometry.
 
     allowed_layers / min_boundary_area_sqft: normally None (unfiltered, the
@@ -331,40 +849,73 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
     noise on unrelated layers can fragment or dominate the segment network
     enough that the real boundary never wins pass 2's candidate selection —
     this is the deterministic engine's own logic re-run on a cleaner subset,
-    not a different/less-trustworthy extraction path."""
+    not a different/less-trustworthy extraction path.
+
+    unit_override (see _get_units) re-scales an already-uploaded file whose
+    units were unspecified, per an architect's confirmation, without needing
+    to re-upload."""
     dxf_path, conversion_note = resolve_dxf_path(input_path)
 
     doc, recovery_note = _read_dxf_with_recovery(dxf_path)
     msp = doc.modelspace()
-    units = _get_units(doc)
-    scale = units["feet_per_drawing_unit"] or 1.0  # if unspecified, extract in raw units and flag for confirmation
+    units = _get_units(doc, unit_override=unit_override)
+    # If $INSUNITS is unspecified, use the header-based suggestion (see
+    # _get_units) as the working scale rather than silently treating raw
+    # units as feet — still flagged via needs_user_confirmation either way,
+    # but a real evidence-backed guess beats an arbitrary 1:1 default (found
+    # via theater_clean.dxf: raw-units-as-feet made every real dimension in
+    # the file 12x too large).
+    scale = working_scale(units)
 
-    entities = list(msp)
+    entities = _resolve_entities(doc, msp)
     if allowed_layers:
         allowed_set = set(allowed_layers)
-        entities = [e for e in entities if str(e.dxf.layer) in allowed_set]
+        entities = [(e, tf) for e, tf in entities if str(e.dxf.layer) in allowed_set]
     min_boundary_area_sqft = MIN_BOUNDARY_AREA_SQFT if min_boundary_area_sqft is None else min_boundary_area_sqft
 
     # --- Pass 1: find every closed shape and its polygon/area (in drawing units) ---
     closed_shapes = []
     closed_handles = set()
-    for e in entities:
-        pts = _closed_points(e)
+    for i, (e, tf) in enumerate(entities):
+        t = e.dxftype()
+        h = _handle_of(e, i)
+        if t == "HATCH":
+            try:
+                for path in e.paths:
+                    pts = _hatch_path_points(path, tf)
+                    if len(pts) < 3:
+                        continue
+                    poly = _safe_polygon(pts)
+                    if not poly:
+                        continue
+                    closed_shapes.append({
+                        "handle": h, "layer": str(e.dxf.layer), "dxftype": "HATCH", "source": "hatch",
+                        "polygon": poly, "area_sqft": poly.area * (scale ** 2),
+                        "points_ft": [[round(x * scale, 3), round(y * scale, 3)] for x, y in poly.exterior.coords]
+                    })
+            except Exception:
+                pass
+            continue
+
+        pts = _closed_points(e, tf)
         if not pts:
             continue
         poly = _safe_polygon(pts)
         if not poly:
             continue
         closed_shapes.append({
-            "handle": str(e.dxf.handle),
+            "handle": h,
             "layer": str(e.dxf.layer),
-            "dxftype": e.dxftype(),
+            "dxftype": t,
             "source": "explicit",
             "polygon": poly,
             "area_sqft": poly.area * (scale ** 2),
             "points_ft": [[round(x * scale, 3), round(y * scale, 3)] for x, y in poly.exterior.coords]
         })
-        closed_handles.add(str(e.dxf.handle))
+        closed_handles.add(h)
+
+    closed_shapes = _dedupe_closed_shapes(closed_shapes)
+    closed_handles = {s["handle"] for s in closed_shapes}
 
     # --- Pass 1b: reconstruct additional boundary candidates from discrete wall
     # line segments (LINE/open-polyline entities that together form a closed
@@ -418,66 +969,35 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
 
     # --- Pass 3: text labels (raw, uninterpreted) ---
     text_labels = []
-    for e in entities:
+    for e, tf in entities:
         if e.dxftype() in ("TEXT", "MTEXT"):
             try:
                 txt = e.plain_text().strip() if hasattr(e, "plain_text") else str(getattr(e.dxf, "text", "")).strip()
                 if not txt:
                     continue
                 ins = e.dxf.insert
-                text_labels.append({"text": txt, "position_ft": [round(ins[0] * scale, 3), round(ins[1] * scale, 3)]})
+                pos = tf((float(ins[0]), float(ins[1])))
+                text_labels.append({"text": txt, "position_ft": [round(pos[0] * scale, 3), round(pos[1] * scale, 3)]})
             except Exception:
                 continue
 
-    MAX_RAW_LINES = 6000
-    MAX_RAW_TEXTS = 800
+    # Computed once, in feet, over every entity — every other raw-geometry
+    # view below (the simple whole-drawing backdrop, each region's own crop)
+    # is derived by filtering this instead of re-walking entities. See
+    # _build_full_raw_geometry's own docstring for the real performance bug
+    # this fixes.
+    full_raw_geometry = _build_full_raw_geometry(entities, closed_shapes, text_labels, scale)
 
-    def extract_raw_geometry(minx, miny, maxx, maxy, max_lines=MAX_RAW_LINES):
-        """The actual underlying CAD drawing near this region — rendered as a
-        light backdrop in the editor so the architect can see the real source
-        drawing under the generated zoning, the way a real CAD viewer does.
-        Capped so a huge real drawing (Vadodara: 2000+ closed shapes alone)
-        doesn't ship an unbounded payload to the browser.
-
-        Sampling is evenly strided across every matching segment, not a hard
-        cutoff at the first max_lines in file entity order — found via real
-        testing (a real site plan with a dense hatched/dimensioned corner)
-        that a first-N cutoff can exhaust the whole cap on one small cluster
-        near the start of the entity list, leaving the "backdrop" showing
-        only a tiny fraction of the drawing's real extent instead of the
-        whole thing a user tracing a boundary by hand actually needs to see."""
-        pad = max((maxx - minx), (maxy - miny)) * 0.05
-        bx0, by0, bx1, by1 = minx - pad, miny - pad, maxx + pad, maxy + pad
-        all_lines, circles, texts = [], [], []
-        for e in entities:
-            t = e.dxftype()
-            try:
-                if t in ("LINE", "LWPOLYLINE", "POLYLINE"):
-                    for a, b in _open_segments(e):
-                        if not (bx0 <= a[0] <= bx1 and by0 <= a[1] <= by1) and not (bx0 <= b[0] <= bx1 and by0 <= b[1] <= by1):
-                            continue
-                        all_lines.append([[round(a[0] * scale, 3), round(a[1] * scale, 3)],
-                                           [round(b[0] * scale, 3), round(b[1] * scale, 3)]])
-                elif t == "CIRCLE":
-                    c, r = e.dxf.center, e.dxf.radius
-                    if bx0 <= c[0] <= bx1 and by0 <= c[1] <= by1:
-                        circles.append({"center": [round(c[0] * scale, 3), round(c[1] * scale, 3)], "radius": round(r * scale, 3)})
-                elif t in ("TEXT", "MTEXT") and len(texts) < MAX_RAW_TEXTS:
-                    ins = e.dxf.insert
-                    if bx0 <= ins[0] <= bx1 and by0 <= ins[1] <= by1:
-                        txt = e.plain_text().strip() if hasattr(e, "plain_text") else str(getattr(e.dxf, "text", "")).strip()
-                        if txt:
-                            texts.append({"text": txt, "position": [round(ins[0] * scale, 3), round(ins[1] * scale, 3)]})
-            except Exception:
-                continue
-
-        truncated = len(all_lines) > max_lines
-        if truncated:
-            stride = len(all_lines) / max_lines
-            lines = [all_lines[int(i * stride)] for i in range(max_lines)]
-        else:
-            lines = all_lines
-        return {"lines": lines, "circles": circles, "texts": texts, "truncated": truncated}
+    # Spatial index over every closed shape so each region only tests the
+    # handful actually near it, instead of every region testing every shape
+    # in the drawing. A real large multi-tenant file (Vadodara: 100 regions,
+    # ~21,000 closed shapes) made the naive O(regions x shapes) version of
+    # this loop a measurable chunk of a 276s worst-case extraction — most of
+    # those region/shape pairs are nowhere near each other and can be ruled
+    # out by a bounding-box query instead of a real shapely intersection.
+    from shapely.strtree import STRtree
+    shape_polys = [s["polygon"] for s in closed_shapes]
+    shape_tree = STRtree(shape_polys) if shape_polys else None
 
     regions = []
     for boundary in chosen_boundaries:
@@ -486,7 +1006,9 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
         minx, miny, maxx, maxy = b_poly.bounds
 
         obstacles = []
-        for s in closed_shapes:
+        nearby_idx = shape_tree.query(b_poly) if shape_tree is not None else []
+        for idx in nearby_idx:
+            s = closed_shapes[idx]
             if s["handle"] == boundary["handle"]:
                 continue
             if s["area_sqft"] < MIN_OBSTACLE_AREA_SQFT or s["area_sqft"] > b_area * MAX_OBSTACLE_AREA_RATIO:
@@ -528,8 +1050,6 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
                 "status": "PROPOSED"  # frontend must move this to CONFIRMED or IGNORED before a zoning run
             })
 
-        region_texts = [t for t in text_labels if minx * scale <= t["position_ft"][0] <= maxx * scale
-                         or True]  # position_ft already scaled above; keep simple bbox-in-feet filter below
         region_texts = [t for t in text_labels
                          if (minx * scale) <= t["position_ft"][0] <= (maxx * scale)
                          and (miny * scale) <= t["position_ft"][1] <= (maxy * scale)]
@@ -577,7 +1097,7 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
             },
             "obstacles": obstacles,
             "text_labels": region_texts,
-            "raw_geometry": extract_raw_geometry(minx, miny, maxx, maxy)
+            "raw_geometry": _region_raw_geometry(full_raw_geometry, minx * scale, miny * scale, maxx * scale, maxy * scale)
         })
 
     # Plausible-sized regions first (largest among them first, same as before),
@@ -590,31 +1110,8 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
         -r["boundary"]["area_sqft"]
     ))
 
-    # A whole-drawing backdrop, independent of whether region detection found
-    # anything — the manual "draw your own boundary" flow (GeometryReviewStep)
-    # needs real linework to trace over even when region_count is 0, and
-    # extract_raw_geometry() above was previously only ever called scoped to
-    # an already-found region's own bbox, so a zero-region file shipped no
-    # backdrop at all. Reuses the exact same helper/caps, just over the whole
-    # drawing's real extent instead of one region's.
-    # Always computed from every raw segment's endpoints, not just closed
-    # shapes — closed_shapes can genuinely exist but be tiny/irrelevant
-    # (found via real testing: a real site plan's only closed shapes were a
-    # few square inches of Z-axis/north-arrow symbol markers), which made an
-    # earlier "only fall back if closed_shapes is completely empty" version
-    # of this silently use that wrong, tiny extent as the whole drawing's
-    # bbox instead of ever reaching the real fallback.
-    whole_drawing_raw_geometry = None
-    wxs, wys = [], []
-    for e in entities:
-        for a, b in _open_segments(e):
-            wxs.extend([a[0], b[0]])
-            wys.extend([a[1], b[1]])
-    if wxs:
-        whole_drawing_raw_geometry = extract_raw_geometry(min(wxs), min(wys), max(wxs), max(wys), max_lines=MAX_RAW_LINES * 3)
-
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "source_filename": os.path.basename(input_path),
         "conversion_note": conversion_note,
         "recovery_note": recovery_note,
@@ -625,5 +1122,6 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None) -
         "region_count": len(regions),
         "regions": regions,
         "unclassified_text_count": len(text_labels),
-        "raw_geometry": whole_drawing_raw_geometry
+        "raw_geometry": _simple_raw_geometry(full_raw_geometry),
+        "full_raw_geometry": full_raw_geometry,
     }

@@ -7,6 +7,10 @@ interface GeometryReviewStepProps {
   geometry: GeometryResult;
   onConfirmed: (regions: GeometryRegion[], selectedRegionId: string) => void;
   onStartOver: () => void;
+  /** Which region to land on — set when arriving from BoundaryStudio (either
+   * an auto-detected region picked directly, or one just created manually).
+   * Falls back to the first region when not given. */
+  initialRegionId?: string;
 }
 
 const CONF_COLOR: Record<string, string> = { high: 'var(--success)', medium: 'var(--warning)', low: 'var(--danger)' };
@@ -44,9 +48,9 @@ function boundingBox(points: number[][]) {
   return { min_x: Math.min(...xs), min_y: Math.min(...ys), max_x: Math.max(...xs), max_y: Math.max(...ys) };
 }
 
-export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry, onConfirmed, onStartOver }) => {
+export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry, onConfirmed, onStartOver, initialRegionId }) => {
   const [regions, setRegions] = useState<GeometryRegion[]>(() => geometry.regions.map(preConfirmObstacles));
-  const [activeRegionId, setActiveRegionId] = useState<string>(geometry.regions[0]?.region_id || '');
+  const [activeRegionId, setActiveRegionId] = useState<string>(initialRegionId || geometry.regions[0]?.region_id || '');
   const [showCadLinework, setShowCadLinework] = useState(true);
   const [manualOverride, setManualOverride] = useState(false);
   const [autoFired, setAutoFired] = useState(false);
@@ -199,25 +203,44 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ geometry
     obstacleTally[o.classification] = (obstacleTally[o.classification] || 0) + 1;
   }
 
+  // A real large multi-tenant file can legitimately produce dozens of
+  // candidate regions (a real Vadodara-scale file: 100) — an unbounded
+  // flex-wrap button row at that count floods the whole screen and crowds
+  // out the floor plan itself (an earlier fix capped its height instead,
+  // but a 100-item scrollable button list is still far more tedious to
+  // search than a native dropdown). The button row is kept for the common
+  // small-count case since it's a nicer, one-click switcher when there are
+  // only a few.
   const regionSwitcher = regions.length > 1 && (
-    // maxHeight + its own scroll, and flex: '0 0 auto' so this never grows
-    // to push the canvas below it out of the flex column entirely — a real
-    // file with many candidate regions (a noisy/unscaled drawing can easily
-    // propose 50+) was found to collapse the canvas to 0 height, because an
-    // unbounded wrapping row of that many buttons has no natural limit on
-    // how tall it grows inside a `height: 100%` flex chain.
-    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', flex: '0 0 auto', maxHeight: '110px', overflowY: 'auto', padding: '2px' }}>
-      {regions.map(r => (
-        <button
-          key={r.region_id}
-          onClick={() => setActiveRegionId(r.region_id)}
-          className={r.region_id === activeRegionId ? 'btn btn-primary' : 'btn btn-secondary'}
-          style={{ fontSize: '0.72rem', padding: '4px 10px' }}
-        >
-          Region {regions.indexOf(r) + 1} · {r.boundary.area_sqft.toLocaleString()} sqft
-        </button>
-      ))}
-    </div>
+    regions.length > 8 ? (
+      <select
+        value={activeRegionId}
+        onChange={(e) => setActiveRegionId(e.target.value)}
+        style={{
+          alignSelf: 'center', flex: '0 0 auto', background: 'var(--bg-raised)', color: 'var(--text-primary)',
+          border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', padding: '5px 10px', fontSize: '0.75rem'
+        }}
+      >
+        {regions.map((r, i) => (
+          <option key={r.region_id} value={r.region_id}>
+            Region {i + 1} · {r.boundary.area_sqft.toLocaleString()} sqft
+          </option>
+        ))}
+      </select>
+    ) : (
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', flex: '0 0 auto' }}>
+        {regions.map(r => (
+          <button
+            key={r.region_id}
+            onClick={() => setActiveRegionId(r.region_id)}
+            className={r.region_id === activeRegionId ? 'btn btn-primary' : 'btn btn-secondary'}
+            style={{ fontSize: '0.72rem', padding: '4px 10px' }}
+          >
+            Region {regions.indexOf(r) + 1} · {r.boundary.area_sqft.toLocaleString()} sqft
+          </button>
+        ))}
+      </div>
+    )
   );
 
   if (autoMode) {

@@ -57,16 +57,62 @@ export interface GeometryRegion {
   raw_geometry?: RawGeometry;
 }
 
+/** One line segment from the entire drawing, in feet — the raw material for
+ * the "select lines to assume as walls" boundary-definition tool. `id` is
+ * stable within one geometry.json (positional), used to reference specific
+ * segments when tracing a boundary from a selection of them. */
+export interface RawSegment {
+  id: number;
+  a: [number, number];
+  b: [number, number];
+  layer: string;
+}
+
+/** Every closed shape found anywhere in the drawing (not just the ones the
+ * automatic heuristic chose as boundary candidates) — the raw material for
+ * the "click a closed shape" boundary-definition tool. */
+export interface RawClosedShape {
+  id: string;
+  handle: string;
+  layer: string;
+  dxftype: string;
+  source: string;
+  area_sqft: number;
+  points_ft: number[][];
+}
+
+/** The ENTIRE drawing, uncropped — distinct from each region's own cropped
+ * `raw_geometry` (which only covers that region's bounding box). Feeds the
+ * boundary-selection tool that runs before any region even exists. */
+export interface FullRawGeometry {
+  lines: RawSegment[];
+  circles: { center: [number, number]; radius: number; layer: string }[];
+  texts: { text: string; position: [number, number] }[];
+  closed_shapes: RawClosedShape[];
+  bounds_ft: { min_x: number; min_y: number; max_x: number; max_y: number };
+  truncated: boolean;
+}
+
+export interface GeometryUnits {
+  insunits_code: number;
+  detected_unit: string;
+  feet_per_drawing_unit: number | null;
+  needs_user_confirmation: boolean;
+  suggested_unit?: string | null;
+  suggested_unit_reason?: string | null;
+}
+
 export interface GeometryResult {
   schema_version: string;
   source_filename: string;
   conversion_note: string | null;
-  units: { insunits_code: number; detected_unit: string; feet_per_drawing_unit: number | null; needs_user_confirmation: boolean };
+  units: GeometryUnits;
   extraction_method: string;
   total_entities_scanned: number;
   total_closed_shapes_found: number;
   region_count: number;
   regions: GeometryRegion[];
+  full_raw_geometry?: FullRawGeometry;
   unclassified_text_count: number;
   uploaded_filename?: string;
   uploaded_at?: string;

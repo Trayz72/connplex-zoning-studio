@@ -55,7 +55,35 @@ canonical product spec and source of truth for business rules; treat this file a
      smaller closed shape contained in a boundary is an obstacle candidate with a
      confidence score (layer-name hints + shape heuristics). Nothing is auto-trusted:
      every boundary/obstacle has a `status` of `PROPOSED` until the architect
-     confirms or ignores it via the Geometry Review step.
+     confirms or ignores it via the Geometry Review step. `INSERT` (block reference)
+     entities are recursively resolved into their real constituent geometry (real
+     files very commonly draw repeated elements — columns, escalators — as block
+     inserts, not raw geometry) via manually-composed transform matrices, not
+     ezdxf's `virtual_entities()`/`entity.transform()` — both were found to silently
+     produce the wrong sign on X for a *mirrored* insert. The extraction result also
+     carries `full_raw_geometry`: the entire drawing, uncropped (every line, circle,
+     and closed shape, not just the ones chosen as boundary candidates) — this feeds
+     `BoundaryStudio` (`apps/web/.../workspace/BoundaryStudio.tsx`), a step between
+     Upload and Geometry Review where an architect can define a boundary directly
+     (click a closed shape, click wall segments and trace the loop they enclose, or
+     draw one freehand) instead of only ever seeing the automatic heuristic's own
+     candidates. `build_manual_region()` gives a manually-defined boundary the same
+     real obstacle-containment detection an automatic region gets. Curved wall
+     segments (ARC/SPLINE/ELLIPSE, and bulged LWPOLYLINE/POLYLINE corners) are
+     tessellated via ezdxf's generic `ezdxf.path.make_path(...).flattening()`, not a
+     bespoke per-entity-type tessellator, so the same curve-handling code path
+     governs boundary detection, obstacle detection, and rendering; near-but-not-
+     quite-closed wall junctions (common in real client DXFs) are snapped together
+     with `shapely.set_precision()` before reconstruction runs.
+   - `ai_cad_scan.py` — a dedicated "Scan with AI" alternative (`UploadStep.tsx`
+     surfaces it when the default pass finds zero usable regions), for real files
+     where the wall/floor geometry is buried among unrelated layers. Claude never
+     invents geometry — it only picks which CAD layer(s) most plausibly hold the
+     real boundary from a compact per-layer summary (names, entity counts, bbox
+     coverage), and that choice is handed straight back into `cad_extraction.extract()`'s
+     own deterministic pipeline via its `allowed_layers`/`min_boundary_area_sqft`
+     params. Always falls back to the plain default result if the AI-guided pass
+     doesn't actually find more.
    - `layout_engine.py` — generic auto-layout generator. Subtracts confirmed
      obstacles from the boundary, then a deterministic first-fit rectangle scan
      places auditoriums (largest `AuditoriumPreset` that still fits, tried first —
