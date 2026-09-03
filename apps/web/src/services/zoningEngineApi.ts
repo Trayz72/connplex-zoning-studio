@@ -42,12 +42,27 @@ export class ValidationRejectedError extends Error {
   }
 }
 
+/** Thrown by traceBoundary when a wall selection doesn't close — carries
+ * the real dangling-endpoint locations (cad_extraction.py's
+ * BoundaryTraceError) so the caller can mark exactly where the gap is on
+ * the canvas instead of just showing text. */
+export class BoundaryGapError extends Error {
+  gapPointsFt: [number, number][];
+  constructor(message: string, gapPointsFt: [number, number][]) {
+    super(message);
+    this.gapPointsFt = gapPointsFt;
+  }
+}
+
 async function asJson<T>(res: Response): Promise<T> {
   if (!res.ok) {
     let detail: any = null;
     try { detail = await res.json(); } catch { /* ignore */ }
     if (res.status === 422 && detail?.detail?.errors) {
       throw new ValidationRejectedError(detail.detail.message || 'Validation failed', detail.detail.errors);
+    }
+    if (res.status === 422 && detail?.detail?.gap_points_ft) {
+      throw new BoundaryGapError(detail.detail.message || 'Selection does not close.', detail.detail.gap_points_ft);
     }
     const msg = detail?.detail ? (typeof detail.detail === 'string' ? detail.detail : JSON.stringify(detail.detail)) : `Request failed (${res.status})`;
     throw new Error(msg);

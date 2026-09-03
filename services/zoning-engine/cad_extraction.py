@@ -843,6 +843,34 @@ def _region_raw_geometry(full_raw, minx_ft, miny_ft, maxx_ft, maxy_ft, max_lines
     return {"lines": lines, "circles": circles, "texts": texts, "truncated": truncated}
 
 
+class BoundaryTraceError(ValueError):
+    """Raised by trace_boundary_from_segments when the selection doesn't
+    close. Carries the real dangling-endpoint locations (see
+    _find_dangling_endpoints), not just a generic message — found via a
+    real report that "there's a gap somewhere in the selection" gave an
+    architect no way to actually find it in a large, dense drawing."""
+    def __init__(self, message: str, gap_points_ft: list):
+        super().__init__(message)
+        self.gap_points_ft = gap_points_ft
+
+
+def _find_dangling_endpoints(lines: list, tolerance_ft: float) -> list:
+    """Every real (x, y) endpoint of every LineString in `lines`, grouped
+    onto a tolerance-sized grid and tallied. In a fully closed ring, every
+    vertex is shared by exactly two segment-ends; an endpoint that only one
+    selected segment reaches is a real, precise gap location — this is
+    exactly why polygonize() found no ring, made visible instead of left as
+    a bare 'somewhere in here'. Returns each dangling point once, as real
+    (unsnapped) coordinates so it can be drawn exactly where it is."""
+    from collections import defaultdict
+    buckets: dict = defaultdict(list)
+    for ln in lines:
+        for pt in (ln.coords[0], ln.coords[-1]):
+            key = (round(pt[0] / tolerance_ft), round(pt[1] / tolerance_ft))
+            buckets[key].append(pt)
+    return [pts[0] for pts in buckets.values() if len(pts) == 1]
+
+
 def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list, custom_segments: list = None) -> dict:
     """Given a set of line-segment ids the architect clicked (from
     full_raw_geometry.lines, already in feet) as 'these are the walls of my
@@ -859,8 +887,15 @@ def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list, cus
     real user-drawn geometry, not looked up against full_raw_geometry at
     all, so they work regardless of how the original line was segmented.
 
-    Raises ValueError with a specific, actionable message if the selection
-    doesn't close (some real feedback, not a bare 'invalid selection')."""
+    Raises BoundaryTraceError (a ValueError) with a specific, actionable
+    message AND the real dangling-endpoint coordinates if the selection
+    doesn't close — verified against a real case (a genuinely open door
+    threshold with no drawn wall across it) where the gap was a real,
+    precise location, not a floating-point snapping artifact: re-running
+    polygonize with the same WALL_SNAP_TOLERANCE_FT precision the automatic
+    reconstruction pass uses made no difference, confirming this is
+    something a human needs to see and decide about, not something to
+    silently bridge."""
     by_id = {ln["id"]: ln for ln in full_raw_geometry["lines"]}
     lines = []
     for sid in segment_ids:
@@ -882,14 +917,20 @@ def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list, cus
         lines.append(LineString([a, b]))
 
     if len(lines) < 3:
-        raise ValueError("Select at least 3 wall segments that form a closed loop.")
+        raise BoundaryTraceError("Select at least 3 wall segments that form a closed loop.", [])
 
-    polys = [p for p in polygonize(lines) if p.is_valid and p.area > 0]
+    snapped = [shapely.set_precision(ln, grid_size=WALL_SNAP_TOLERANCE_FT) for ln in lines]
+    polys = [p for p in polygonize(snapped) if p.is_valid and p.area > 0]
     if not polys:
-        raise ValueError(
-            "These segments don't form a closed loop yet — there's a gap somewhere in the "
-            "selection. Select the missing wall segment(s) to close it, or switch to Draw "
-            "Boundary to finish it by hand."
+        gaps = _find_dangling_endpoints(lines, WALL_SNAP_TOLERANCE_FT)
+        gap_note = (
+            f"{len(gaps)} open end{'s' if len(gaps) != 1 else ''} marked on the drawing"
+            if gaps else "no specific gap could be pinpointed — the selection may cross itself instead"
+        )
+        raise BoundaryTraceError(
+            f"These segments don't form a closed loop yet — {gap_note}. Select the missing wall "
+            f"segment(s) to close it, or switch to Draw Boundary to finish it by hand.",
+            [[round(x, 3), round(y, 3)] for x, y in gaps]
         )
 
     best = max(polys, key=lambda p: p.area)

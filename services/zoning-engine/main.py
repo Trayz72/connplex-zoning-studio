@@ -288,6 +288,12 @@ def trace_boundary(project_id: str, body: TraceBoundaryIn):
         return cad_extraction.trace_boundary_from_segments(
             geometry["full_raw_geometry"], body.segment_ids, body.custom_segments
         )
+    except cad_extraction.BoundaryTraceError as e:
+        # detail is a dict, not a bare string, so the frontend can draw the
+        # real gap points on the canvas instead of just showing text — see
+        # BoundaryTraceError's own docstring for why this beats a generic
+        # "there's a gap somewhere" message.
+        raise HTTPException(422, {"message": str(e), "gap_points_ft": e.gap_points_ft})
     except ValueError as e:
         raise HTTPException(422, str(e))
 

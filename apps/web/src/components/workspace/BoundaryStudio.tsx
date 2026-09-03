@@ -58,6 +58,15 @@ const IMPLAUSIBLE_REGION_COUNT = 20;
 // on a wall line is treated as a plain click (toggle the whole segment)
 // rather than a deliberate partial-segment selection.
 const PARTIAL_WALL_MIN_DRAG_FT = 0.75;
+// A real drawing can span thousands of feet (this file's own extent is
+// ~1,514 x 807ft) while an individual detail worth clicking precisely — a
+// curve fragment, a tight wall junction — can be under a foot, so the
+// zoom range needs several more orders of magnitude of headroom than a
+// typical map/image viewer. 40x (the previous cap) meant "zoomed all the
+// way in" on a 1,500ft-wide drawing still showed ~37ft across — nowhere
+// near enough to click a single wall precisely.
+const MIN_ZOOM = 0.05;
+const MAX_ZOOM = 4000;
 
 function distPointToSegment(p: [number, number], a: [number, number], b: [number, number]): number {
   const [px, py] = p, [ax, ay] = a, [bx, by] = b;
@@ -255,7 +264,17 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   const svgRef = useRef<SVGSVGElement>(null);
   const [tool, setTool] = useState<Tool>('browse');
   const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
+  // The real (x, y) point, in feet, currently at the center of the
+  // viewport — replaces an earlier top-left-anchored offset ("pan") that
+  // had a real, reported bug: zooming via the +/- buttons shrank the
+  // viewBox toward its own fixed top-left corner instead of the current
+  // view's center, so the target the architect was trying to zoom into
+  // drifted toward the bottom-right on every zoom step, requiring a
+  // re-pan after almost every zoom and making "zoom into a specific spot"
+  // feel broken. Center-anchoring the viewBox (see viewBox's own
+  // computation below) fixes this for free: shrinking a range around its
+  // own center just makes it smaller, it doesn't move.
+  const [center, setCenter] = useState<{ x: number; y: number } | null>(null);
   const [hoveredShapeId, setHoveredShapeId] = useState<string | null>(null);
   // The full set of fragment ids to highlight on hover — just the one
   // nearest segment normally, or every fragment of a curve group when the
@@ -273,6 +292,11 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   const [drawPoints, setDrawPoints] = useState<number[][]>([]);
   const [preview, setPreview] = useState<Preview | null>(null);
   const [traceError, setTraceError] = useState<string | null>(null);
+  // Real dangling-endpoint locations from a failed trace (see
+  // BoundaryGapError) — drawn directly on the canvas so "there's a gap
+  // somewhere" becomes "it's right here", instead of leaving the architect
+  // to hunt through a large, dense drawing for it.
+  const [gapPoints, setGapPoints] = useState<[number, number][]>([]);
   const [tracing, setTracing] = useState(false);
   const [committing, setCommitting] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(geometry.units.suggested_unit || 'Feet');
@@ -285,7 +309,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   const [pendingEntry, setPendingEntry] = useState<[number, number] | null>(null);
   const [pendingExits, setPendingExits] = useState<[number, number][]>([]);
 
-  const panStart = useRef<{ x: number; y: number; originX: number; originY: number } | null>(null);
+  const panStart = useRef<{ x: number; y: number; centerX: number; centerY: number } | null>(null);
   const movedRef = useRef(false);
   const wallDragRef = useRef<{ lineId: number; lineA: [number, number]; lineB: [number, number] } | null>(null);
 
@@ -328,6 +352,16 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     const pad = Math.max(b.max_x - b.min_x, b.max_y - b.min_y) * 0.08 + 2;
     return { minX: b.min_x - pad, minY: b.min_y - pad, width: (b.max_x - b.min_x) + 2 * pad, height: (b.max_y - b.min_y) + 2 * pad };
   }, [raw]);
+
+  // Re-centers on a fresh drawing (a new upload, or CAD-file replacement —
+  // bbox's identity changes only when `raw` itself changes, not on every
+  // render) instead of leaving the view pointed at whatever the previous
+  // file's coordinates happened to be.
+  useEffect(() => {
+    setCenter({ x: bbox.minX + bbox.width / 2, y: bbox.minY + bbox.height / 2 });
+    setZoom(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bbox]);
 
   const spatialIndex = useMemo(() => (raw ? buildSpatialIndex(raw, bbox) : null), [raw, bbox]);
   const annotationLineCount = useMemo(
@@ -387,8 +421,9 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
 
   const viewBoxWidth = bbox.width / zoom;
   const viewBoxHeight = bbox.height / zoom;
-  const originX = bbox.minX + pan.x;
-  const originY = bbox.minY + pan.y;
+  const viewCenter = center || { x: bbox.minX + bbox.width / 2, y: bbox.minY + bbox.height / 2 };
+  const originX = viewCenter.x - viewBoxWidth / 2;
+  const originY = viewCenter.y - viewBoxHeight / 2;
   const viewBox = `${originX} ${originY} ${viewBoxWidth} ${viewBoxHeight}`;
 
   const screenToUser = useCallback((clientX: number, clientY: number): [number, number] => {
@@ -402,6 +437,65 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     const userPt = pt.matrixTransform(ctm.inverse());
     return [userPt.x, userPt.y];
   }, []);
+
+  // Zooms by `factor`, keeping whatever real point is currently under
+  // (clientX, clientY) visually fixed on screen — the standard "zoom to
+  // cursor" behavior every map/CAD/vector tool has, and the fix for
+  // "zooming in and out isn't good enough, can't get to a specific part":
+  // the +/- buttons (called with the viewport's own center, see their
+  // onClick below) and the wheel handler both go through this, so there's
+  // one real implementation of "zoom toward a point" instead of the
+  // buttons silently drifting toward a fixed corner the way the earlier
+  // top-left-anchored viewBox did.
+  const zoomAtScreenPoint = useCallback((clientX: number, clientY: number, factor: number) => {
+    const svg = svgRef.current;
+    const rect = svg?.getBoundingClientRect();
+    if (!rect || rect.width === 0 || rect.height === 0) {
+      setZoom(z => Math.min(Math.max(z * factor, MIN_ZOOM), MAX_ZOOM));
+      return;
+    }
+    const focusUser = screenToUser(clientX, clientY);
+    const screenFracX = (clientX - rect.left) / rect.width;
+    const screenFracY = (clientY - rect.top) / rect.height;
+    setZoom(prevZoom => {
+      const newZoom = Math.min(Math.max(prevZoom * factor, MIN_ZOOM), MAX_ZOOM);
+      const newViewBoxWidth = bbox.width / newZoom;
+      const newViewBoxHeight = bbox.height / newZoom;
+      setCenter({
+        x: focusUser[0] + newViewBoxWidth * (0.5 - screenFracX),
+        y: focusUser[1] + newViewBoxHeight * (0.5 - screenFracY),
+      });
+      return newZoom;
+    });
+  }, [bbox, screenToUser]);
+
+  // Mouse-wheel zoom, centered on the cursor — the single most expected
+  // interaction for any pannable/zoomable canvas, and previously missing
+  // entirely (only the tiny +/- buttons existed, 1.3x per click, with no
+  // way to zoom without moving the mouse to the sidebar and back). A
+  // native, non-passive listener (not React's onWheel prop, which React
+  // attaches passively by default) so preventDefault() reliably stops the
+  // page/pane from scrolling instead of zooming.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const handler = (e: WheelEvent) => {
+      e.preventDefault();
+      const factor = Math.exp(-e.deltaY * 0.0015);
+      zoomAtScreenPoint(e.clientX, e.clientY, factor);
+    };
+    svg.addEventListener('wheel', handler, { passive: false });
+    return () => svg.removeEventListener('wheel', handler);
+    // pendingChoice/autoMode: the ref-bearing <svg> only exists in this
+    // component's final ("main canvas") return branch — pendingChoice and
+    // autoMode are two *separate* early returns above it with no <svg
+    // ref={svgRef}> of their own, so svgRef.current is null (or a stale
+    // node from before a branch switch) the whole time either is truthy.
+    // Without depending on them here, landing back on the main canvas
+    // after either screen left the listener attached to nothing, and wheel
+    // zoom silently did nothing — found by testing the feature against
+    // itself, not assumed to work from the code reading right.
+  }, [zoomAtScreenPoint, pendingChoice, autoMode]);
 
   const toleranceFt = () => {
     const svg = svgRef.current;
@@ -461,6 +555,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
 
   const handleClickAt = (p: [number, number]) => {
     setTraceError(null);
+    setGapPoints([]);
     if (tool === 'shape') {
       const hit = nearestShape(p);
       if (hit) setPreview({ points: hit.shape.points_ft, mode: 'shape', sourceHandle: hit.shape.handle });
@@ -531,7 +626,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
         return; // no panStart — this is a wall drag, not a pan
       }
     }
-    panStart.current = { x: e.clientX, y: e.clientY, originX, originY };
+    panStart.current = { x: e.clientX, y: e.clientY, centerX: viewCenter.x, centerY: viewCenter.y };
   };
 
   const onBgPointerMove = (e: React.PointerEvent) => {
@@ -557,9 +652,9 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     if (!rect || rect.width === 0 || rect.height === 0) return;
     const ftPerPxX = viewBoxWidth / rect.width;
     const ftPerPxY = viewBoxHeight / rect.height;
-    setPan({
-      x: (panStart.current.originX - bbox.minX) - dxPx * ftPerPxX,
-      y: (panStart.current.originY - bbox.minY) - dyPx * ftPerPxY,
+    setCenter({
+      x: panStart.current.centerX - dxPx * ftPerPxX,
+      y: panStart.current.centerY - dyPx * ftPerPxY,
     });
   };
 
@@ -572,6 +667,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
       const dragDistFt = Math.hypot(end[0] - start[0], end[1] - start[1]);
       if (dragDistFt >= PARTIAL_WALL_MIN_DRAG_FT) {
         setPartialWalls(prev => [...prev, { id: `partial-${Date.now()}-${prev.length}`, sourceLineId: lineId, a: start, b: end }]);
+        setGapPoints([]);
       } else {
         // Negligible drag on a wall line — treat it as the plain click it
         // effectively was (toggle the whole segment / remove a partial).
@@ -592,6 +688,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   const runTrace = async () => {
     setTracing(true);
     setTraceError(null);
+    setGapPoints([]);
     try {
       const result = await engine.traceBoundary(
         projectId, Array.from(selectedWallIds), partialWalls.map(pw => [pw.a, pw.b])
@@ -599,6 +696,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
       setPreview({ points: result.points_ft, mode: 'walls' });
     } catch (e: any) {
       setTraceError(e.message || 'Could not trace a closed boundary from these segments.');
+      if (e instanceof engine.BoundaryGapError) setGapPoints(e.gapPointsFt);
     } finally {
       setTracing(false);
     }
@@ -646,6 +744,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     setTool(t);
     setPreview(null);
     setTraceError(null);
+    setGapPoints([]);
     setHoveredShapeId(null);
     setHoveredSegmentIds(new Set());
   };
@@ -839,9 +938,18 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
 
         <div style={{ flex: 1, position: 'relative', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', zIndex: 10, margin: '10px', display: 'flex', gap: '4px' }}>
-            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => setZoom(z => Math.min(z * 1.3, 40))}>+</button>
-            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => setZoom(z => Math.max(z / 1.3, 0.3))}>−</button>
-            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}>Reset</button>
+            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => {
+              const r = svgRef.current?.getBoundingClientRect();
+              if (r) zoomAtScreenPoint(r.left + r.width / 2, r.top + r.height / 2, 1.5);
+            }}>+</button>
+            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => {
+              const r = svgRef.current?.getBoundingClientRect();
+              if (r) zoomAtScreenPoint(r.left + r.width / 2, r.top + r.height / 2, 1 / 1.5);
+            }}>−</button>
+            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => {
+              setZoom(1);
+              setCenter({ x: bbox.minX + bbox.width / 2, y: bbox.minY + bbox.height / 2 });
+            }}>Reset</button>
             <span style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-tertiary)', fontSize: '0.68rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center' }}>
               {raw.lines.length.toLocaleString()} lines · {raw.closed_shapes.length.toLocaleString()} shapes{raw.truncated ? ' (truncated)' : ''}
             </span>
@@ -896,6 +1004,12 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                 stroke="var(--success)" strokeWidth={toleranceFt() * 0.16} strokeLinecap="round"
               />
             )}
+            {tool === 'walls' && gapPoints.map((gp, i) => (
+              <g key={`gap-${i}`}>
+                <circle cx={gp[0]} cy={gp[1]} r={toleranceFt() * 1.4} fill="none" stroke="var(--danger)" strokeWidth={toleranceFt() * 0.12} />
+                <circle cx={gp[0]} cy={gp[1]} r={toleranceFt() * 0.35} fill="var(--danger)" />
+              </g>
+            ))}
 
             {tool === 'shape' && hoveredShapeId && (() => {
               const s = raw.closed_shapes.find(sh => sh.id === hoveredShapeId);
@@ -967,7 +1081,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               </button>
               <button
                 className="btn btn-secondary" style={{ fontSize: '0.74rem' }}
-                onClick={() => { setSelectedWallIds(new Set()); setPartialWalls([]); }}
+                onClick={() => { setSelectedWallIds(new Set()); setPartialWalls([]); setGapPoints([]); setTraceError(null); }}
               >
                 Clear
               </button>
@@ -991,7 +1105,20 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
 
         {traceError && (
           <div style={{ fontSize: '0.72rem', color: 'var(--danger)', background: 'var(--danger-bg)', border: '1px solid rgba(209,109,100,0.4)', borderRadius: 'var(--radius-sm)', padding: '8px 10px' }}>
-            {traceError}
+            <div style={{ marginBottom: gapPoints.length ? '8px' : 0 }}>{traceError}</div>
+            {gapPoints.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {gapPoints.map((gp, i) => (
+                  <button
+                    key={i}
+                    className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }}
+                    onClick={() => { setZoom(60); setCenter({ x: gp[0], y: gp[1] }); }}
+                  >
+                    Zoom to gap {gapPoints.length > 1 ? i + 1 : ''}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
