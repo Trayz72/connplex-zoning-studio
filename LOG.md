@@ -13,6 +13,66 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-02 — Sheet-artifact lines masquerading as walls, precise partial-wall selection, unit-mismatch check
+
+The project owner reported, from real use on their own uploaded
+`theater_clean.dxf`: a "curved wall" that couldn't be selected in Select
+Walls, 500+ candidate regions with impossibly large sqft values, and asked
+for precise partial-wall selection ("just half a wall") plus a way to
+collapse the region list. Root-caused rather than patched symptom-by-symptom.
+
+**Real root cause, one fix for two symptoms**: the file's `MARGIN`-layer
+sheet-margin line — visually the single most prominent diagonal line in the
+whole drawing — was rendered and selectable identically to a real wall
+(nothing distinguished "drafting artifact" from "architecture" for wall
+click-candidacy). Separately, the live project had been unit-confirmed as
+"Feet" instead of the header-suggested "Inches", inflating every area 144x
+and pushing hundreds of small real objects (columns, hatch fills) over the
+boundary-candidate size threshold — reproduced and fixed live via the real
+`/cad/units` endpoint, not guessed at.
+
+- **New "sheet" line category** (`cad_extraction.py`, alongside the
+  existing "annotation" one for dimension/leader lines): any line on a
+  `NON_PHYSICAL_LAYER_HINTS` layer (viewport/margin/format/title-block/
+  plot/F.S.I./built-up/dim) is now dimmed, excluded from wall-network
+  reconstruction, and excluded from wall-click candidacy in
+  `BoundaryStudio`. Verified: region count on the real file dropped from 9
+  to 3, and the top region flipped from a "reconstructed, low confidence"
+  guess to a real "explicit, medium confidence" closed polyline once
+  margin-line contamination was removed from the wall network — clean
+  enough to auto-advance past manual review entirely.
+- **Real unit-mismatch plausibility check**: confirming a unit that
+  produces more than 20 candidate regions (a real single floor plate
+  essentially never does) now shows a warning naming the file's actual
+  suggested unit, with a one-click fix. The existing oversized-single-
+  boundary check didn't catch this at all — that case's largest region was
+  ~463,000 sqft, comfortably under its own 500,000 sqft cutoff.
+- **Partial-wall selection, the precision fix directly asked for**:
+  Shift+drag along a wall in Select Walls now selects just the dragged
+  sub-portion (e.g. half a long wall) instead of only ever the whole
+  pre-computed segment. New `custom_segments` param on
+  `POST /boundary/trace` accepts literal coordinates alongside segment ids.
+  Gated on Shift specifically — an early ungated version hijacked ordinary
+  panning any time a pan gesture happened to start on a wall line (most of
+  the canvas, in a dense drawing), found by testing the feature against
+  itself, not assumed safe.
+- **Region-candidate list now collapses** behind a "Show all N" toggle
+  above 8 candidates (showing the 5 largest by default) instead of
+  flooding the whole sidebar — a real case had 537 buttons.
+
+Verified live end-to-end, all four interaction paths distinctly: plain
+click selects/deselects a whole wall, plain drag pans (including starting
+on a wall line — the regression the Shift-gating fix above was for),
+Shift+drag selects a real partial sub-segment, and clicking a selected
+partial removes it. `POST /boundary/trace` with only `custom_segments` (no
+`segment_ids`) verified independently via curl to close a real polygon.
+`tsc --noEmit` clean; all backend modules import cleanly.
+
+Both this batch and the previous same-day entry below were committed on
+feature branches (`entry-exit-boundary-hardening`,
+`boundary-studio-precision-fixes`), pushed, and fast-forward merged to
+`master` per the project owner's explicit request.
+
 ## 2026-09-02 — Entry/exit-aware auto-layout, captured at boundary-selection time
 
 The project owner asked for full-pipeline testing/assessment, more logical
