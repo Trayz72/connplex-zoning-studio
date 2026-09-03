@@ -13,7 +13,51 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
-## 2026-09-02 — Sheet-artifact lines masquerading as walls, precise partial-wall selection, unit-mismatch check
+## 2026-09-02 — Select a whole curved wall with one click
+
+Direct follow-up to the same day's sheet-artifact fix: the project owner
+reported still being unable to select a curved wall in Select Walls, on the
+same real `theater_clean.dxf`, and asked for deep analysis rather than
+another quick patch.
+
+**Root cause, found by tracing the exact ARC**: its endpoints connect
+exactly (zero gap, verified directly) to the neighboring straight walls —
+never a geometry-closure problem. The real issue is that ezdxf's path-
+flattening breaks one real curved wall into dozens of individually tiny
+straight fragments (this file's 4 real curves flatten into 66/74/64/64
+fragments each), each independently clickable and each too small to
+reliably hit. Selecting one curved wall meant dozens of pixel-precise
+clicks on effectively invisible pieces.
+
+**Fixed at the source**: `cad_extraction.py`'s `full_raw_geometry` now tags
+every fragment of one continuous curved entity (ARC/SPLINE/full-sweep
+ELLIPSE) with a shared `curve_group` id. `BoundaryStudio` groups by it —
+click, hover, or deselect any one fragment and the whole real curve
+responds, with the "Selected Walls" count showing logical units (1 curve =
+1) instead of raw fragment counts. Deliberately scoped to ARC/SPLINE/
+ELLIPSE only, not LWPOLYLINE/POLYLINE — a polyline can legitimately mix
+straight runs with one bulged corner, and grouping the whole entity would
+have undone the same day's earlier Shift+drag partial-wall-selection
+feature.
+
+**Also investigated and answered directly**: "why are there other rendered
+layouts" — confirmed, not assumed, that this file's 5 similar auditorium
+shapes are real distinct hand-drawn rooms, not a duplication bug: all 513
+modelspace entities have unique DXF handles, and no block is inserted a
+suspicious number of times (the one repeated block — a column symbol — is
+inserted 150 times, consistent with this file's documented ~170 real
+columns). Matches this exact file's own prior documented history: a real
+multi-screen theater complex.
+
+Verified live end-to-end via direct pointer-event dispatch at exact
+DOM-derived coordinates (a sub-1px-wide fragment isn't reliably clickable
+through screenshot-based automation either, which is itself more evidence
+for the bug): one click selected all 74/74 fragments of the file's largest
+curve group (confirmed by reading back every fragment's actual rendered
+color, not just the UI count), one click again deselected all 74. `tsc
+--noEmit` clean; backend imports cleanly. Committed on
+`curve-whole-selection-fix`, pushed, fast-forward merged to `master`, and
+pushed per the project owner's standing request to keep master current.
 
 The project owner reported, from real use on their own uploaded
 `theater_clean.dxf`: a "curved wall" that couldn't be selected in Select
