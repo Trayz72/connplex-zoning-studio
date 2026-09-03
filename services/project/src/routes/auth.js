@@ -18,6 +18,26 @@ function normalizeEmail(email) {
   return typeof email === 'string' ? email.trim().toLowerCase() : email;
 }
 
+/** Render's free tier has no persistent disk (see render.yaml) — every
+ * redeploy or 15-minute-idle spin-down wipes services/project's SQLite file
+ * entirely, including db.js's own "first user ever becomes admin"
+ * bootstrap. That bootstrap only runs once, at process start, so it can't
+ * help a user who signs up or logs in later in that same process's
+ * lifetime, and it's silently useless the moment there's more than one
+ * user by the time the DB resets. ADMIN_BOOTSTRAP_EMAILS (comma-separated,
+ * case-insensitive) is a config-driven alternative that runs on every
+ * register/login instead: idempotent, unset by default (no behavior change
+ * for anyone not listed), and self-healing across data wipes — set it once
+ * in Render's dashboard and that account is always promoted back to admin,
+ * no shell access or manual re-seed required. */
+function maybeBootstrapAdmin(user) {
+  const list = (process.env.ADMIN_BOOTSTRAP_EMAILS || '')
+    .split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+  if (!list.includes(user.email) || user.is_admin) return user;
+  db.prepare('UPDATE users SET is_admin = 1 WHERE id = ?').run(user.id);
+  return { ...user, is_admin: true };
+}
+
 // Real account creation — before this, the only way to get a login was the
 // seed.js CLI script, i.e. exactly one shared demo account existed. A real
 // architecture team needs their own accounts (their own audit trail via
@@ -44,7 +64,8 @@ router.post('/register', (req, res) => {
 
   res.cookie('session_user_id', id, SESSION_COOKIE_OPTIONS);
 
-  return res.status(201).json({ user: { id, email, is_admin: false, created_at } });
+  const user = maybeBootstrapAdmin({ id, email, is_admin: false, created_at });
+  return res.status(201).json({ user });
 });
 
 router.post('/login', (req, res) => {
@@ -66,14 +87,10 @@ router.post('/login', (req, res) => {
 
   res.cookie('session_user_id', user.id, SESSION_COOKIE_OPTIONS);
 
-  return res.json({
-    user: {
-      id: user.id,
-      email: user.email,
-      is_admin: Boolean(user.is_admin),
-      created_at: user.created_at
-    }
+  const bootstrapped = maybeBootstrapAdmin({
+    id: user.id, email: user.email, is_admin: Boolean(user.is_admin), created_at: user.created_at
   });
+  return res.json({ user: bootstrapped });
 });
 
 router.post('/logout', (req, res) => {
@@ -96,7 +113,8 @@ router.get('/me', (req, res) => {
     res.clearCookie('session_user_id', CLEAR_COOKIE_OPTIONS);
     return res.status(401).json({ error: 'Not logged in' });
   }
-  return res.json({ user: { ...user, is_admin: Boolean(user.is_admin) } });
+  const bootstrapped = maybeBootstrapAdmin({ ...user, is_admin: Boolean(user.is_admin) });
+  return res.json({ user: bootstrapped });
 });
 
 export default router;
