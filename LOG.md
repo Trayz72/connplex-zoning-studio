@@ -13,6 +13,52 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-02 — Fixed zoom drift, added wheel zoom, added precise gap markers for boundary tracing
+
+Direct follow-up to the same day's curve-selection fix: after finally
+being able to select the curved wall, the trace still failed with "these
+segments don't form a closed loop" and no way to find out where, and the
+project owner separately reported "zooming in and out isn't good enough,
+can't drag to see other parts of the CAD file."
+
+**Root cause of the zoom complaint**: `BoundaryStudio`'s viewBox was
+anchored to a fixed top-left corner, not the current view's center — every
+zoom-in via the +/- buttons shrank the view toward that corner, so
+whatever the architect was trying to zoom into drifted toward the
+bottom-right on nearly every click, needing a re-pan almost every time.
+Rewrote the pan/zoom model around a real view-center point instead of a
+top-left offset — fixes the drift for free (shrinking a range around its
+own center doesn't move it) and enables real cursor-anchored zoom. Added
+mouse-wheel zoom (missing entirely before — only 1.3x button clicks
+existed) and raised the zoom ceiling from 40x to 4000x (this file's real
+extent is ~1,514 x 807ft; 40x still showed ~37ft across at "fully zoomed
+in"). Found and fixed a real bug while building this: the wheel
+listener's own effect had no dependency on which of the component's three
+conditional render branches was active, so it silently attached to a
+stale/null ref and did nothing the first time you landed on the real
+canvas — fixed by depending on the branch-selecting state directly.
+
+**The trace failure was investigated, not assumed fixable**: re-ran the
+exact failed selection with the same snap-tolerance precision the
+automatic wall-reconstruction pass already uses — no difference. This
+specific room's wall network genuinely doesn't close there; a real gap,
+not something to silently paper over. But "there's a gap somewhere" gave
+no way to find it in a large, dense drawing, so
+`trace_boundary_from_segments` now computes the actual dangling-endpoint
+coordinates (any point reached by exactly one selected segment) and
+returns them; `BoundaryStudio` draws them as red markers directly on the
+canvas plus one "Zoom to gap N" button per marker.
+
+Verified live end-to-end, all three fixes together: wheel-zoomed smoothly
+through 6+ steps with the cursor's target point staying visually fixed
+each time; deliberately selected an incomplete set of segments (the
+curve + 3 unconnected nearby walls) and confirmed the real response ("7
+open ends marked on the drawing") with 7 correctly-placed markers, then
+confirmed "Zoom to gap 1" jumped the view exactly onto the true open
+endpoint. `tsc --noEmit` clean; backend imports cleanly. Committed on
+`zoom-pan-and-gap-diagnostics`, pushed, fast-forward merged to `master`,
+pushed.
+
 ## 2026-09-02 — Select a whole curved wall with one click
 
 Direct follow-up to the same day's sheet-artifact fix: the project owner
