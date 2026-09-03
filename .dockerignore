@@ -1,0 +1,17 @@
+# Keeps the Docker build context small and fast — without this, every
+# `docker build` (local or Render's) uploads the whole repo, including
+# things the zoning-engine image never needs: node_modules (apps/web,
+# services/project), the 253MB locally-vendored ODA install (gitignored,
+# irrelevant to the image — the Dockerfile fetches its own copy at build
+# time), git history, and every service's own runtime output.
+.git
+node_modules
+**/node_modules
+services/cad-interop/oda
+services/cad-interop/test
+services/zoning-engine/storage
+services/zoning-engine/__pycache__
+**/__pycache__
+**/*.pyc
+apps/web/dist
+docs/reference

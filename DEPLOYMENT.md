@@ -109,20 +109,42 @@ Two important consequences of doing that, not just a checkbox:
    your plan) — migrating to that is the real fix if this needs to survive
    deploys cleanly and scale, rather than a Render-specific workaround.
 
-### c) The DWG conversion path needs a GUI toolkit on a headless server — untested on Render specifically
+### c) The DWG conversion path needs a GUI toolkit on a headless server — resolved via Docker + Xvfb, built and verified locally
 
-This is the biggest unknown, so it gets its own section — see §4. Short
-version: DWG import/export goes through ODA File Converter, which is a Qt
-GUI application that requires a display server even for silent batch
-conversion. Verified on this dev machine (which has a real X11 session):
-`services/cad-interop/ODAFileConverter` sets `DISPLAY=:0` and it works
-because a real display exists here. **A Render Web Service is headless — no
-X server at all.** This needs a custom Docker image with `Xvfb` (a virtual
-framebuffer) installed and started before the app, plus every X11/Qt
-runtime library ODA File Converter needs. This has not been tested on
-Render specifically in this session — treat it as the top risk item to
-validate first, not something to assume will "just work" because it works
-here.
+Resolved this session — see §4 for the concrete implementation
+(`services/zoning-engine/Dockerfile`). Short version: DWG import/export
+goes through ODA File Converter, a Qt GUI application that requires a
+display server even for silent batch conversion, which a bare Render Web
+Service doesn't have. The fix is a Docker image with `Xvfb` (a virtual
+framebuffer) plus ODA File Converter itself, started before the app.
+
+**Verified, not assumed** — built the real image locally (`docker build`,
+Docker was available on this dev machine) and tested it end-to-end:
+- A real 2.1MB client DWG (Dhule reference file) uploaded through the
+  actual `/api/projects/{id}/cad` HTTP endpoint inside a running container
+  converted correctly and extracted identically to the known-good DXF
+  result (54,586 entities scanned, 7 regions, correct Feet units) — a
+  byte-for-byte match with the equivalent DXF upload tested earlier the
+  same session.
+- The reverse direction (DXF→DWG, the export path) also verified directly
+  inside the same container: a real 1.8MB DXF converted to a valid 327KB
+  DWG, exit code 0.
+- Two real bugs found only by actually running this in a container (not by
+  reading ODA's install docs): the .deb's own declared dependencies cover
+  the main binary but not the Qt "xcb" platform plugin, which is dlopen'd
+  at runtime — missing `libxkbcommon0`/`libfontconfig1` first (binary
+  wouldn't even start), then a second, larger set
+  (`libxkbcommon-x11-0`/`libxcb-icccm4`/`libxcb-image0`/`libxcb-keysyms1`/
+  `libxcb-render-util0`/`libxcb-render0`/`libxcb-shape0`/`libxcb-xkb1`)
+  once the platform-plugin-specific failure ("Could not load the Qt
+  platform plugin 'xcb'") pointed at the real culprit. Both found via
+  `docker exec` + `ldd` against the actual plugin `.so` files, not guessed.
+
+**Not yet verified**: actual behavior on Render's real infrastructure
+(only local `docker build`/`docker run` — see the render.yaml comment on
+this service for the free tier's 512MB RAM caveat), and ODA File
+Converter's own reliability gap is unchanged (`theater.dwg` still fails
+with a real ODA limitation unrelated to any of this, see the table below).
 
 Also lock down before any real deploy (both confirmed live, not
 theoretical):
@@ -176,26 +198,80 @@ process with no external dependency the way DXF parsing does, and it is not
 100% reliable on every possible DWG file (theater.dwg is proof of that, not
 a hypothetical edge case).
 
+**On the spec's *recommended* path (Autodesk Platform Services) instead of
+ODA** — actually checked this session, not assumed: Autodesk's **Model
+Derivative API** (the product most people mean by "APS conversion") cannot
+produce DXF output at all. Checked directly against Autodesk's own
+`GET /formats` reference response: the dictionary of valid *target* formats
+is `dwg, fbx, ifc, iges, obj, step, stl, svf, svf2, thumbnail` — no `dxf`
+key exists, and `dxf` only appears as a *source* format for viewer
+translation (SVF2), never as something you get back out. It is not a
+drop-in replacement for ODA File Converter. Autodesk's **Design Automation
+API for AutoCAD** *can* do a real DWG→DXF conversion (it runs actual
+headless AutoCAD in their cloud), but that's a much heavier integration —
+package an AppBundle, define an Activity, submit WorkItems, and write real
+AutoCAD script/AutoLISP commands — plus a different, pricier billing model.
+Neither is a quick swap for what's built here; going that route is a
+multi-day project of its own, not a config change.
+
 ## 4. What §2c actually requires, concretely
 
-If you go the Docker route on Render for `services/zoning-engine`:
+Built and verified locally this session — `services/zoning-engine/Dockerfile`
+and the corresponding `render.yaml` entry (docker runtime, `dockerContext: .`
+so it can reach `services/cad-interop/convert.py` and
+`services/rules-config/registry/`, both sibling directories the app already
+depends on at runtime). What it does, and what running it locally
+(`docker build` + `docker run` + real HTTP uploads against the container)
+actually surfaced:
 
-1. Base image with the X11/Qt runtime libraries ODA File Converter links
-   against (confirmed via `ldd` on this dev machine — the binary itself has
-   no *missing* library dependencies here because this machine already has
-   a full desktop install; a minimal server base image will be missing most
-   of them and you'll need to add them explicitly).
-2. Install `xvfb`.
-3. Install/copy in the ODA File Converter binary (~253MB — it's gitignored
-   in this repo on purpose, so it has to be fetched or baked into the image
-   as a separate build step, not pulled from `git clone`).
-4. Start `Xvfb` before the app (commonly `xvfb-run -a <start command>`, or
-   a supervisor script that launches Xvfb, exports `DISPLAY` to point at
-   it, then starts uvicorn).
-5. Verify ODA File Converter's license terms permit this exact usage
-   (server-side, unattended, batch conversion as part of a paid product) —
-   this session didn't verify licensing terms and neither should you assume
-   they're fine without checking ODA's own license directly.
+1. **Base image**: `python:3.12-slim` (Debian bookworm, glibc 2.36 — ODA
+   states 2.28+ required).
+2. **ODA File Converter fetched at build time**, not committed — 253MB,
+   gitignored on purpose. Verified directly: the download URL
+   (`opendesign.com/guestfiles/get?filename=...`) 301-redirects straight to
+   a presigned S3 object with no login/EULA click-through in front of it, so
+   a plain `wget` in the Dockerfile works. Pinned to version 27.1, matching
+   what's already vendored for local dev at `services/cad-interop/oda/`.
+   `apt-get install ./oda.deb` (not `dpkg -i`) so apt resolves the
+   package's *own* declared dependencies — but see next point, that's not
+   the whole story.
+3. **`xvfb`**, plus a real, non-obvious library list found only by running
+   this in an actual container: the .deb's declared dependencies cover
+   ODAFileConverter's main binary, but Qt's "xcb" platform plugin
+   (`plugins/platforms/libqxcb.so`) is loaded via `dlopen()` at runtime, so
+   its own missing shared libraries never appear in a build-time `ldd`
+   check against the main binary — they only surface when you actually try
+   to run a conversion, as
+   `qt.qpa.plugin: Could not load the Qt platform plugin "xcb"`. Running
+   `ldd` directly against `libqxcb.so` inside a live container was the only
+   way to get the real list:
+   `libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1
+   libxcb-render-util0 libxcb-render0 libxcb-shape0 libxcb-xkb1`, plus
+   `libxkbcommon0`/`libfontconfig1` needed just for the main binary to
+   start, and the `libxcb-util.so.1`→`.so.0` symlink ODA's own install
+   notes call out for "modern Linux." All of this was confirmed by
+   installing the packages into a *running* container and successfully
+   converting a real client DWG before ever baking the fix into the image.
+4. **Start command** launches Xvfb, polls for its X11 socket to actually
+   exist (fixed-length `sleep` is a real race — Xvfb's startup time
+   varies), then execs uvicorn on Render's `$PORT`.
+5. **Verified end-to-end**: a real 2.1MB client DWG uploaded through the
+   actual `/api/projects/{id}/cad` endpoint inside a running container
+   converted and extracted identically to the known-good DXF result
+   (54,586 entities, 7 regions, correct Feet units). The reverse direction
+   (DXF→DWG, the export path) verified the same way: a real 1.8MB DXF
+   converted to a valid 327KB DWG, exit code 0.
+
+**Still open, deliberately not resolved here**:
+- Real Render infrastructure behavior is untested (local Docker only) —
+  the free plan's 512MB RAM is a real risk for a Qt6 GUI subprocess on top
+  of the FastAPI process itself; if large/complex DWGs OOM or time out in
+  practice, the fix is upgrading the plan, not more code.
+- ODA File Converter's license terms for this exact usage (server-side,
+  unattended, batch conversion as part of a paid product) were not formally
+  verified against ODA's own EULA text this session — the download itself
+  has no click-through gate, which is a real signal but not a substitute
+  for actually reading the license if that matters for your situation.
 
 ## 5. Spec milestones — honest status, not "mostly done"
 

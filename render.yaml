@@ -47,11 +47,25 @@ services:
 
   - type: web
     name: connplex-zoning-engine
-    runtime: python
-    rootDir: services/zoning-engine
+    # Docker, not the native Python runtime — DWG upload/export needs ODA
+    # File Converter + Xvfb (a virtual display), neither of which the native
+    # runtime's buildCommand can install. See services/zoning-engine/
+    # Dockerfile for the full reasoning and DEPLOYMENT.md §2c/§4 for the
+    # background. No rootDir: the build context has to be the repo root (not
+    # this service's own directory) because the Dockerfile COPYs in
+    # services/cad-interop/convert.py and services/rules-config/registry/ too
+    # — cad_extraction.py and export_dxf.py both reach across to those
+    # sibling directories at runtime, same as they do in local dev.
+    runtime: docker
+    dockerfilePath: services/zoning-engine/Dockerfile
+    dockerContext: .
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: FRONTEND_ORIGIN
         value: https://connplex-web.onrender.com
+      # Free plan is 512MB RAM. Xvfb + a Qt6 GUI conversion adds real
+      # overhead on top of the FastAPI process itself — verified locally via
+      # `docker build`/`docker run` only, not against Render's actual
+      # free-tier memory ceiling. If large/complex DWG conversions OOM or
+      # time out in practice, the fix is upgrading this service's plan, not
+      # more code.
