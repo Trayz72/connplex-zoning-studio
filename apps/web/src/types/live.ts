@@ -80,6 +80,15 @@ export interface RawSegment {
    * reconstruction. "geometry" is everything else. Lets the viewer visually
    * tell drawing from documentation/sheet noise. */
   category: 'geometry' | 'annotation' | 'sheet';
+  /** Shared id for every fragment ezdxf's flattening broke one continuous
+   * curved entity (ARC/SPLINE/full-sweep ELLIPSE) into — a real 90-degree
+   * ARC on a real file flattened into 66 individually-tiny straight
+   * fragments, making pixel-precise clicking on each one to select a
+   * curved wall genuinely impractical. Null for LINE/LWPOLYLINE/POLYLINE
+   * fragments, which stay individually selectable (see BoundaryStudio's
+   * Shift+drag partial-select). BoundaryStudio selects/hovers every
+   * fragment sharing a curve_group together as one unit. */
+  curve_group: string | null;
 }
 
 /** Every closed shape found anywhere in the drawing (not just the ones the

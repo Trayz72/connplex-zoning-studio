@@ -257,7 +257,10 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [hoveredShapeId, setHoveredShapeId] = useState<string | null>(null);
-  const [hoveredSegmentId, setHoveredSegmentId] = useState<number | null>(null);
+  // The full set of fragment ids to highlight on hover — just the one
+  // nearest segment normally, or every fragment of a curve group when the
+  // nearest segment belongs to one (see groupIdsFor/curveGroupMembers).
+  const [hoveredSegmentIds, setHoveredSegmentIds] = useState<Set<number>>(new Set());
   const [selectedWallIds, setSelectedWallIds] = useState<Set<number>>(new Set());
   // A wall drawn as one long LINE entity often has only part of its length
   // actually on the boundary being defined -- click-and-drag along a wall
@@ -341,6 +344,46 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     () => raw ? raw.lines.reduce((n, ln) => n + (ln.category === 'sheet' ? 1 : 0), 0) : 0,
     [raw]
   );
+  // Maps every fragment id belonging to a flattened curve (ARC/SPLINE/full
+  // ELLIPSE — see cad_extraction.py's curve_group) to every other fragment
+  // id of that same real curve, so clicking or hovering any one fragment
+  // can act on the whole curve — a real 90-degree ARC on a real file
+  // flattens into 66 individually tiny fragments, making per-fragment
+  // clicking genuinely impractical, not just inconvenient.
+  const curveGroupMembers = useMemo(() => {
+    const map = new Map<string, number[]>();
+    if (!raw) return map;
+    for (const ln of raw.lines) {
+      if (!ln.curve_group) continue;
+      const arr = map.get(ln.curve_group);
+      if (arr) arr.push(ln.id); else map.set(ln.curve_group, [ln.id]);
+    }
+    return map;
+  }, [raw]);
+  // "Selected Walls" count as a human would count them — one curve (however
+  // many tiny fragments it flattened into) is one wall, not 66.
+  const selectedUnitCount = useMemo(() => {
+    if (!raw) return selectedWallIds.size;
+    const seenGroups = new Set<string>();
+    let count = 0;
+    for (const id of selectedWallIds) {
+      const group = raw.lines[id]?.curve_group;
+      if (group) {
+        if (seenGroups.has(group)) continue;
+        seenGroups.add(group);
+      }
+      count++;
+    }
+    return count;
+  }, [raw, selectedWallIds]);
+  const groupIdsFor = useCallback((segmentId: number): number[] => {
+    // full_raw_geometry.lines is built with id === its own array index
+    // (cad_extraction.py appends with "id": len(lines)), so this is a
+    // direct O(1) lookup, not a scan.
+    const ln = raw?.lines[segmentId];
+    if (!ln?.curve_group) return [segmentId];
+    return curveGroupMembers.get(ln.curve_group) || [segmentId];
+  }, [raw, curveGroupMembers]);
 
   const viewBoxWidth = bbox.width / zoom;
   const viewBoxHeight = bbox.height / zoom;
@@ -411,7 +454,8 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     if (tool === 'shape') {
       setHoveredShapeId(nearestShape(p)?.shape.id || null);
     } else if (tool === 'walls') {
-      setHoveredSegmentId(nearestSegment(p)?.id ?? null);
+      const hit = nearestSegment(p);
+      setHoveredSegmentIds(hit ? new Set(groupIdsFor(hit.id)) : new Set());
     }
   };
 
@@ -432,9 +476,17 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
       }
       const hit = nearestSegment(p);
       if (hit) {
+        // A curved entity's fragments are toggled as one unit (see
+        // groupIdsFor) — clicking any one fragment of a real 90-degree ARC
+        // that flattened into 66 tiny pieces selects/deselects the whole
+        // real curve, not just the one fragment under the cursor.
+        const groupIds = groupIdsFor(hit.id);
+        const alreadySelected = selectedWallIds.has(hit.id);
         setSelectedWallIds(prev => {
           const next = new Set(prev);
-          if (next.has(hit.id)) next.delete(hit.id); else next.add(hit.id);
+          for (const id of groupIds) {
+            if (alreadySelected) next.delete(id); else next.add(id);
+          }
           return next;
         });
       }
@@ -595,7 +647,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     setPreview(null);
     setTraceError(null);
     setHoveredShapeId(null);
-    setHoveredSegmentId(null);
+    setHoveredSegmentIds(new Set());
   };
 
   if (!raw) {
@@ -820,8 +872,8 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                 <line
                   key={ln.id}
                   x1={ln.a[0]} y1={ln.a[1]} x2={ln.b[0]} y2={ln.b[1]}
-                  stroke={selectedWallIds.has(ln.id) ? 'var(--brand-strong)' : hoveredSegmentId === ln.id ? 'var(--warning)' : 'var(--text-tertiary)'}
-                  strokeWidth={(selectedWallIds.has(ln.id) || hoveredSegmentId === ln.id) ? toleranceFt() * 0.12 : toleranceFt() * 0.04}
+                  stroke={selectedWallIds.has(ln.id) ? 'var(--brand-strong)' : hoveredSegmentIds.has(ln.id) ? 'var(--warning)' : 'var(--text-tertiary)'}
+                  strokeWidth={(selectedWallIds.has(ln.id) || hoveredSegmentIds.has(ln.id)) ? toleranceFt() * 0.12 : toleranceFt() * 0.04}
                   strokeOpacity={ln.category === 'annotation' || ln.category === 'sheet' ? 0.35 : 1}
                   strokeDasharray={ln.category === 'annotation' || ln.category === 'sheet' ? `${toleranceFt() * 0.3} ${toleranceFt() * 0.2}` : undefined}
                 />
@@ -892,12 +944,13 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
         {tool === 'walls' && (
           <div className="panel">
             <div className="panel-label" style={{ marginBottom: '8px' }}>
-              Selected Walls ({selectedWallIds.size + partialWalls.length})
+              Selected Walls ({selectedUnitCount + partialWalls.length})
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginBottom: '10px' }}>
-              Click a wall line to select the whole thing. Hold Shift and drag along a wall to select just part of
-              it (e.g. half a long wall) — shown in green while dragging, gold once released. Click a selected
-              partial again to remove it. Then trace the boundary they enclose.
+              Click a wall line to select the whole thing — a curved wall selects as one real curve, however many
+              tiny fragments it's drawn from. Hold Shift and drag along a wall to select just part of it (e.g. half
+              a long wall) — shown in green while dragging, gold once released. Click a selected partial again to
+              remove it. Then trace the boundary they enclose.
             </div>
             {partialWalls.length > 0 && (
               <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginBottom: '10px' }}>

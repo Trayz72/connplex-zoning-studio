@@ -726,12 +726,28 @@ def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale, an
       wall and was the single most confusing thing on screen — visually
       the most prominent line in the whole drawing, but not architecture at
       all, and (before this fix) fully selectable as a "wall" in the Select
-      Walls tool right alongside genuine walls."""
+      Walls tool right alongside genuine walls.
+
+    Every line also carries a `curve_group` (null, or a shared id) so a
+    single curved DXF entity — ARC, SPLINE, a full-sweep ELLIPSE — that
+    ezdxf's path-flattening breaks into many tiny straight fragments (a
+    real 90-degree ARC on a real file flattened into 66 of them) can be
+    selected as the one real curve it is with a single click, instead of
+    requiring dozens of pixel-precise clicks on invisible fragments — found
+    to be genuinely impractical, not just inconvenient, when a real
+    architect tried to trace a boundary through a rounded wall corner.
+    Deliberately scoped to entities that are inherently *one* continuous
+    curve end to end: LWPOLYLINE/POLYLINE are left ungrouped (segment-level,
+    unchanged) because one polyline can legitimately mix straight runs with
+    a bulged corner, and grouping the whole entity would take away the
+    already-real, separately-requested ability to select just one straight
+    sub-portion of a wall (see BoundaryStudio's Shift+drag partial-select)."""
     lines = []
     circles = []
     truncated = False
+    CURVE_GROUP_TYPES = ("ARC", "SPLINE", "ELLIPSE")
 
-    for e, tf in all_entities:
+    for entity_idx, (e, tf) in enumerate(all_entities):
         if len(lines) >= MAX_FULL_RAW_LINES:
             truncated = True
             break
@@ -742,6 +758,7 @@ def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale, an
             category = "sheet"
         else:
             category = "geometry"
+        curve_group = f"curve-{_handle_of(e, entity_idx)}" if t in CURVE_GROUP_TYPES else None
         try:
             if t in ("LINE", "LWPOLYLINE", "POLYLINE", "ARC", "HATCH", "SPLINE", "ELLIPSE", "LEADER"):
                 layer = str(e.dxf.layer)
@@ -752,6 +769,7 @@ def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale, an
                         "b": [round(b[0] * scale, 3), round(b[1] * scale, 3)],
                         "layer": layer,
                         "category": category,
+                        "curve_group": curve_group,
                     })
                     if len(lines) >= MAX_FULL_RAW_LINES:
                         truncated = True
