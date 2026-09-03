@@ -297,6 +297,17 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   // somewhere" becomes "it's right here", instead of leaving the architect
   // to hunt through a large, dense drawing for it.
   const [gapPoints, setGapPoints] = useState<[number, number][]>([]);
+  // Dangling endpoints paired into probable gaps with real distances (see
+  // GapPair/gap_pairs_ft) — lets the trace-error panel offer a real
+  // "close this gap" button per gap instead of leaving the architect to
+  // manually hunt down and select the missing wall segment by hand.
+  const [gapPairs, setGapPairs] = useState<engine.GapPair[]>([]);
+  // Gaps the architect has explicitly clicked "close" on — a synthetic
+  // straight connector, not real drawn geometry, so kept in its own array
+  // (rendered in a visually distinct style, see the SVG below) rather than
+  // merged into partialWalls, which are always real wall sub-segments.
+  // Combined with partialWalls only at the traceBoundary call itself.
+  const [closedGaps, setClosedGaps] = useState<engine.GapPair[]>([]);
   const [tracing, setTracing] = useState(false);
   const [committing, setCommitting] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(geometry.units.suggested_unit || 'Feet');
@@ -689,14 +700,47 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     setTracing(true);
     setTraceError(null);
     setGapPoints([]);
+    setGapPairs([]);
     try {
       const result = await engine.traceBoundary(
-        projectId, Array.from(selectedWallIds), partialWalls.map(pw => [pw.a, pw.b])
+        projectId, Array.from(selectedWallIds),
+        [...partialWalls.map(pw => [pw.a, pw.b] as [number, number][]), ...closedGaps.map(g => [g.a, g.b] as [number, number][])]
       );
       setPreview({ points: result.points_ft, mode: 'walls' });
     } catch (e: any) {
       setTraceError(e.message || 'Could not trace a closed boundary from these segments.');
-      if (e instanceof engine.BoundaryGapError) setGapPoints(e.gapPointsFt);
+      if (e instanceof engine.BoundaryGapError) {
+        setGapPoints(e.gapPointsFt);
+        // A gap already closed on a previous pass may still show up in a
+        // fresh gap list if closing it revealed another real gap further
+        // along — only offer "close" on ones not already bridged.
+        setGapPairs(e.gapPairsFt.filter(p => !closedGaps.some(cg => cg.a[0] === p.a[0] && cg.a[1] === p.a[1] && cg.b[0] === p.b[0] && cg.b[1] === p.b[1])));
+      }
+    } finally {
+      setTracing(false);
+    }
+  };
+
+  const closeGap = async (pair: engine.GapPair) => {
+    const updatedClosedGaps = [...closedGaps, pair];
+    setClosedGaps(updatedClosedGaps);
+    setGapPairs(prev => prev.filter(p => p !== pair));
+    setTracing(true);
+    setTraceError(null);
+    setGapPoints([]);
+    try {
+      const result = await engine.traceBoundary(
+        projectId, Array.from(selectedWallIds),
+        [...partialWalls.map(pw => [pw.a, pw.b] as [number, number][]), ...updatedClosedGaps.map(g => [g.a, g.b] as [number, number][])]
+      );
+      setPreview({ points: result.points_ft, mode: 'walls' });
+      setGapPairs([]);
+    } catch (e: any) {
+      setTraceError(e.message || 'Could not trace a closed boundary from these segments.');
+      if (e instanceof engine.BoundaryGapError) {
+        setGapPoints(e.gapPointsFt);
+        setGapPairs(e.gapPairsFt.filter(p => !updatedClosedGaps.some(cg => cg.a[0] === p.a[0] && cg.a[1] === p.a[1] && cg.b[0] === p.b[0] && cg.b[1] === p.b[1])));
+      }
     } finally {
       setTracing(false);
     }
@@ -706,7 +750,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     if (!preview) return;
     setCommitting(true);
     try {
-      const updated = await engine.createManualRegion(projectId, preview.points, preview.mode, preview.sourceHandle);
+      const updated = await engine.createManualRegion(projectId, preview.points, preview.mode, preview.sourceHandle, closedGaps.length);
       const newRegion = updated.regions[updated.regions.length - 1];
       setPendingChoice({ geometry: updated, regionId: newRegion.region_id });
     } catch (e: any) {
@@ -1010,6 +1054,20 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                 <circle cx={gp[0]} cy={gp[1]} r={toleranceFt() * 0.35} fill="var(--danger)" />
               </g>
             ))}
+            {/* Dashed and a different color from both real selected walls
+                (gold) and partial-wall drags (green/gold) on purpose — this
+                line was never actually drawn in the source file, it's a
+                straight-line assumption the architect explicitly confirmed
+                to bridge a real gap. Stays visually distinct through to the
+                boundary preview so it's never mistaken for real geometry. */}
+            {tool === 'walls' && closedGaps.map((g, i) => (
+              <line
+                key={`closedgap-${i}`}
+                x1={g.a[0]} y1={g.a[1]} x2={g.b[0]} y2={g.b[1]}
+                stroke="var(--warning)" strokeWidth={toleranceFt() * 0.16} strokeLinecap="round"
+                strokeDasharray={`${toleranceFt() * 0.5} ${toleranceFt() * 0.3}`}
+              />
+            ))}
 
             {tool === 'shape' && hoveredShapeId && (() => {
               const s = raw.closed_shapes.find(sh => sh.id === hoveredShapeId);
@@ -1071,6 +1129,20 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                 {partialWalls.length} partial segment{partialWalls.length === 1 ? '' : 's'} selected.
               </div>
             )}
+            {closedGaps.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.7rem', color: 'var(--warning)', marginBottom: '10px' }}>
+                <span>
+                  {closedGaps.length} gap{closedGaps.length === 1 ? '' : 's'} bridged with a straight line, not real
+                  drawn geometry — verify against the file before confirming.
+                </span>
+                <button
+                  className="btn btn-secondary" style={{ fontSize: '0.68rem', padding: '2px 6px', flexShrink: 0 }}
+                  onClick={() => setClosedGaps([])}
+                >
+                  Undo all
+                </button>
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '6px' }}>
               <button
                 className="btn btn-primary" style={{ fontSize: '0.74rem', flex: 1 }}
@@ -1081,7 +1153,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               </button>
               <button
                 className="btn btn-secondary" style={{ fontSize: '0.74rem' }}
-                onClick={() => { setSelectedWallIds(new Set()); setPartialWalls([]); setGapPoints([]); setTraceError(null); }}
+                onClick={() => { setSelectedWallIds(new Set()); setPartialWalls([]); setGapPoints([]); setGapPairs([]); setClosedGaps([]); setTraceError(null); }}
               >
                 Clear
               </button>
@@ -1107,7 +1179,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
           <div style={{ fontSize: '0.72rem', color: 'var(--danger)', background: 'var(--danger-bg)', border: '1px solid rgba(209,109,100,0.4)', borderRadius: 'var(--radius-sm)', padding: '8px 10px' }}>
             <div style={{ marginBottom: gapPoints.length ? '8px' : 0 }}>{traceError}</div>
             {gapPoints.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: gapPairs.length ? '8px' : 0 }}>
                 {gapPoints.map((gp, i) => (
                   <button
                     key={i}
@@ -1115,6 +1187,25 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                     onClick={() => { setZoom(60); setCenter({ x: gp[0], y: gp[1] }); }}
                   >
                     Zoom to gap {gapPoints.length > 1 ? i + 1 : ''}
+                  </button>
+                ))}
+              </div>
+            )}
+            {gapPairs.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {/* Each pair's own real distance is shown right on the button —
+                    a 0.4ft gap and a 6ft gap look identical as two red dots on
+                    the canvas, but only one of them is safe to bridge with a
+                    single click; showing the number lets the architect judge
+                    that instead of this UI silently deciding for them. */}
+                {gapPairs.map((p, i) => (
+                  <button
+                    key={i}
+                    className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '4px 8px', textAlign: 'left' }}
+                    disabled={tracing}
+                    onClick={() => closeGap(p)}
+                  >
+                    Close this gap ({p.distance_ft.toLocaleString(undefined, { maximumFractionDigits: 2 })} ft) — assumes a straight wall, verify before confirming
                   </button>
                 ))}
               </div>

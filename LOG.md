@@ -13,6 +13,49 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-03 — One-click gap closing for boundary tracing, opt-in and never silent
+
+Direct response to "there's a button to auto fill those gaps and close the
+shape, but it doesn't intelligently close them yet" against the trace-gap
+diagnostics from an earlier session. Added a real "close this gap" action,
+but deliberately not a fully-automatic one: `WALL_SNAP_TOLERANCE_FT`
+already rules out floating-point artifacts before a gap is ever shown, so
+by the time one reaches the architect it's a real, deliberate absence —
+sometimes a drafting slip worth one click to bridge, sometimes a real
+doorway with no wall drawn across it, and this codebase's "never invent
+architectural facts" principle means the difference has to stay a human
+decision, not something silently auto-applied.
+
+Backend: `_pair_dangling_endpoints` (nearest-neighbor matching of the
+existing dangling-endpoint list) turns the flat list of gap markers into
+real pairs with actual distances, carried on `BoundaryTraceError` and the
+422 response as `gap_pairs_ft`. Frontend: a "Close this gap (X.X ft)"
+button per pair — the real distance is shown so the architect judges each
+one, not this UI — that adds a straight synthetic connector and
+immediately re-traces. The connector renders in its own dashed,
+distinctly-colored style on the canvas (never mistaken for a real selected
+wall), and the count of bridged gaps carries through to the boundary's
+review note (`build_manual_region`'s `closed_gap_count`) so Geometry
+Review — which otherwise auto-advances a "clean" boundary in 1.6s — still
+stops for a human on one that required an assumption. "Undo all" clears
+every bridge back to real geometry only.
+
+Verified live: selected 4 real wall segments from a real client file that
+don't close, got 3 real gap markers with a paired "Close this gap
+(3.15 ft)" button, clicked it, watched the trace immediately succeed with
+the note "1 gap bridged with a straight line, not real drawn geometry —
+verify against the file before confirming" surfaced in the UI.
+
+**Also found and fixed in passing, unrelated to the above**: the exact
+same stray write from an earlier session's log entry recurred —
+`60_SEAT.min_area_sqft` had silently changed 1350→1500 again, bundled with
+an unrelated full-file reformat, discovered only because `git status`
+showed the registry as modified when nothing in this session's own work
+touched it. Reverted via `git checkout`, same as last time. Root cause is
+still unconfirmed — `services/project` has no request logging, so there's
+still no way to see who/what is writing this — worth actually adding that
+logging if it happens a third time.
+
 ## 2026-09-03 — Real human-designed cinema DWG comparison → added a missing small-auditorium preset
 
 Given a real, already-executed Connplex zoning deliverable (`IINFINITY FF

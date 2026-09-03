@@ -42,15 +42,23 @@ export class ValidationRejectedError extends Error {
   }
 }
 
+export interface GapPair { a: [number, number]; b: [number, number]; distance_ft: number; }
+
 /** Thrown by traceBoundary when a wall selection doesn't close — carries
  * the real dangling-endpoint locations (cad_extraction.py's
  * BoundaryTraceError) so the caller can mark exactly where the gap is on
- * the canvas instead of just showing text. */
+ * the canvas instead of just showing text. gapPairsFt additionally pairs
+ * those endpoints into probable gaps with real distances, so the caller can
+ * offer a one-click "close this gap" action per pair — never computed or
+ * applied here, this class just carries what the backend already decided
+ * not to auto-apply (see BoundaryTraceError's own docstring). */
 export class BoundaryGapError extends Error {
   gapPointsFt: [number, number][];
-  constructor(message: string, gapPointsFt: [number, number][]) {
+  gapPairsFt: GapPair[];
+  constructor(message: string, gapPointsFt: [number, number][], gapPairsFt: GapPair[] = []) {
     super(message);
     this.gapPointsFt = gapPointsFt;
+    this.gapPairsFt = gapPairsFt;
   }
 }
 
@@ -62,7 +70,7 @@ async function asJson<T>(res: Response): Promise<T> {
       throw new ValidationRejectedError(detail.detail.message || 'Validation failed', detail.detail.errors);
     }
     if (res.status === 422 && detail?.detail?.gap_points_ft) {
-      throw new BoundaryGapError(detail.detail.message || 'Selection does not close.', detail.detail.gap_points_ft);
+      throw new BoundaryGapError(detail.detail.message || 'Selection does not close.', detail.detail.gap_points_ft, detail.detail.gap_pairs_ft || []);
     }
     const msg = detail?.detail ? (typeof detail.detail === 'string' ? detail.detail : JSON.stringify(detail.detail)) : `Request failed (${res.status})`;
     throw new Error(msg);
@@ -135,11 +143,11 @@ export async function traceBoundary(
 }
 
 export async function createManualRegion(
-  projectId: string, pointsFt: number[][], mode: 'shape' | 'walls' | 'draw', sourceShapeHandle?: string
+  projectId: string, pointsFt: number[][], mode: 'shape' | 'walls' | 'draw', sourceShapeHandle?: string, closedGapCount = 0
 ): Promise<GeometryResult> {
   return asJson(await fetch(`${BASE}/${projectId}/regions/manual`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ points_ft: pointsFt, mode, source_shape_handle: sourceShapeHandle || null })
+    body: JSON.stringify({ points_ft: pointsFt, mode, source_shape_handle: sourceShapeHandle || null, closed_gap_count: closedGapCount })
   }));
 }
 

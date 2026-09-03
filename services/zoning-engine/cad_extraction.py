@@ -849,9 +849,21 @@ class BoundaryTraceError(ValueError):
     _find_dangling_endpoints), not just a generic message — found via a
     real report that "there's a gap somewhere in the selection" gave an
     architect no way to actually find it in a large, dense drawing."""
-    def __init__(self, message: str, gap_points_ft: list):
+    def __init__(self, message: str, gap_points_ft: list, gap_pairs_ft: list = None):
         super().__init__(message)
         self.gap_points_ft = gap_points_ft
+        # Each dangling point paired with its nearest other dangling point —
+        # the two real ends of one probable gap — plus how far apart they
+        # actually are, so the frontend can offer a real "close this gap"
+        # action instead of just marking where the problem is. Deliberately
+        # never auto-applied here or anywhere in this function: a 0.4ft gap
+        # is almost always a drafting slip worth one click to bridge, but a
+        # 6ft gap is very plausibly a real doorway with no wall drawn across
+        # it — closing that one would silently draw a wall where none
+        # exists, exactly what this project's "never invent architectural
+        # facts" principle rules out. The distance is surfaced so a human
+        # judges each one, not this function.
+        self.gap_pairs_ft = gap_pairs_ft or []
 
 
 def _find_dangling_endpoints(lines: list, tolerance_ft: float) -> list:
@@ -869,6 +881,32 @@ def _find_dangling_endpoints(lines: list, tolerance_ft: float) -> list:
             key = (round(pt[0] / tolerance_ft), round(pt[1] / tolerance_ft))
             buckets[key].append(pt)
     return [pts[0] for pts in buckets.values() if len(pts) == 1]
+
+
+def _pair_dangling_endpoints(gaps: list) -> list:
+    """Greedy nearest-neighbor matching of dangling endpoints into probable
+    gap pairs: repeatedly take the closest remaining pair, remove both,
+    repeat. A real broken wall produces exactly two dangling ends close to
+    each other, so this is the right match almost always when gaps are
+    reasonably separated; it can mismatch on a genuinely tangled selection,
+    but that's already flagged by low confidence in the caller (multiple
+    gaps close together) and a human reviews every pair's real distance
+    before anything is closed regardless."""
+    remaining = list(gaps)
+    pairs = []
+    while len(remaining) >= 2:
+        best = None
+        for i in range(len(remaining)):
+            for j in range(i + 1, len(remaining)):
+                d = math.hypot(remaining[i][0] - remaining[j][0], remaining[i][1] - remaining[j][1])
+                if best is None or d < best[0]:
+                    best = (d, i, j)
+        d, i, j = best
+        a, b = remaining[i], remaining[j]
+        pairs.append({"a": [round(a[0], 3), round(a[1], 3)], "b": [round(b[0], 3), round(b[1], 3)], "distance_ft": round(d, 2)})
+        for idx in sorted((i, j), reverse=True):
+            remaining.pop(idx)
+    return pairs
 
 
 def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list, custom_segments: list = None) -> dict:
@@ -930,7 +968,8 @@ def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list, cus
         raise BoundaryTraceError(
             f"These segments don't form a closed loop yet — {gap_note}. Select the missing wall "
             f"segment(s) to close it, or switch to Draw Boundary to finish it by hand.",
-            [[round(x, 3), round(y, 3)] for x, y in gaps]
+            [[round(x, 3), round(y, 3)] for x, y in gaps],
+            _pair_dangling_endpoints(gaps)
         )
 
     best = max(polys, key=lambda p: p.area)
@@ -940,7 +979,7 @@ def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list, cus
     }
 
 
-def build_manual_region(points_ft: list, mode: str, full_raw_geometry: dict, existing_source_handle: str = None) -> dict:
+def build_manual_region(points_ft: list, mode: str, full_raw_geometry: dict, existing_source_handle: str = None, closed_gap_count: int = 0) -> dict:
     """Build a region (boundary + contained obstacles + text labels), the same
     shape extract() produces per auto-detected candidate, from a boundary the
     architect defined directly — by clicking an existing closed shape, tracing
@@ -1008,6 +1047,15 @@ def build_manual_region(points_ft: list, mode: str, full_raw_geometry: dict, exi
         "walls": "Traced from wall segments you selected. Verify before confirming, especially near the traced corners.",
         "draw": "Drawn by hand — this boundary has no direct support in the source CAD file. Verify carefully before confirming.",
     }.get(mode, "Manually defined. Verify before confirming.")
+    if closed_gap_count:
+        # Real gaps, not floating-point artifacts (WALL_SNAP_TOLERANCE_FT
+        # already ruled those out before a gap ever reaches the architect) —
+        # an explicit per-gap click bridged them with a straight line, but
+        # that's still an assumption, not a wall the drawing actually shows.
+        # Surfaced here too, not just on the boundary-selection screen, so a
+        # reviewer landing straight on Geometry Review still sees it.
+        s = "s" if closed_gap_count != 1 else ""
+        mode_note += f" {closed_gap_count} gap{s} in the selection were bridged with an assumed straight line, not real drawn geometry — check those points specifically."
 
     return {
         "region_id": f"region-{uuid.uuid4().hex[:8]}",

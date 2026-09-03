@@ -97,6 +97,11 @@ class ManualRegionIn(BaseModel):
     points_ft: list
     mode: str = "draw"                    # "shape" | "walls" | "draw" — provenance only, for the review note
     source_shape_handle: Optional[str] = None  # when mode="shape", the all_closed_shapes handle it was picked from
+    # How many of this boundary's real gaps (see BoundaryTraceError) were
+    # bridged with an architect-confirmed straight-line assumption rather
+    # than an actual selected wall — carried through only so build_manual_region
+    # can say so in the review note; never affects the geometry itself.
+    closed_gap_count: int = 0
 
 
 class TraceBoundaryIn(BaseModel):
@@ -292,8 +297,11 @@ def trace_boundary(project_id: str, body: TraceBoundaryIn):
         # detail is a dict, not a bare string, so the frontend can draw the
         # real gap points on the canvas instead of just showing text — see
         # BoundaryTraceError's own docstring for why this beats a generic
-        # "there's a gap somewhere" message.
-        raise HTTPException(422, {"message": str(e), "gap_points_ft": e.gap_points_ft})
+        # "there's a gap somewhere" message. gap_pairs_ft additionally lets
+        # it offer a real "close this gap" action per pair, with the actual
+        # distance shown — never auto-applied server-side, see that
+        # function's own docstring for why.
+        raise HTTPException(422, {"message": str(e), "gap_points_ft": e.gap_points_ft, "gap_pairs_ft": e.gap_pairs_ft})
     except ValueError as e:
         raise HTTPException(422, str(e))
 
@@ -312,7 +320,8 @@ def create_manual_region(project_id: str, body: ManualRegionIn):
         raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
     try:
         region = cad_extraction.build_manual_region(
-            body.points_ft, body.mode, geometry["full_raw_geometry"], existing_source_handle=body.source_shape_handle
+            body.points_ft, body.mode, geometry["full_raw_geometry"],
+            existing_source_handle=body.source_shape_handle, closed_gap_count=body.closed_gap_count
         )
     except ValueError as e:
         raise HTTPException(422, str(e))
