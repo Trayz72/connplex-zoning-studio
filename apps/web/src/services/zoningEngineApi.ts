@@ -110,9 +110,12 @@ export async function confirmUnits(projectId: string, unit: string): Promise<Geo
   }));
 }
 
-export async function traceBoundary(projectId: string, segmentIds: number[]): Promise<{ points_ft: number[][]; area_sqft: number }> {
+export async function traceBoundary(
+  projectId: string, segmentIds: number[], customSegments: [number, number][][] = []
+): Promise<{ points_ft: number[][]; area_sqft: number }> {
   return asJson(await fetch(`${BASE}/${projectId}/boundary/trace`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ segment_ids: segmentIds })
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ segment_ids: segmentIds, custom_segments: customSegments })
   }));
 }
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { GeometryResult, RawClosedShape, RawSegment, FullRawGeometry } from '../../types/live';
+import { GeometryResult, GeometryRegion, RawClosedShape, RawSegment, FullRawGeometry } from '../../types/live';
 import * as engine from '../../services/zoningEngineApi';
 import { ArrowRightIcon, RefreshIcon, WarningIcon } from '../Icons';
 import { EntryExitPicker } from './EntryExitPicker';
@@ -30,7 +30,34 @@ interface PendingChoice {
 
 type Tool = 'browse' | 'shape' | 'walls' | 'draw';
 
+/** A sub-portion of a single wall line, dragged out by hand instead of
+ * picking the whole pre-computed segment — see the drag interaction in
+ * onBgPointerDown/Move/Up and PARTIAL_WALL_MIN_DRAG_FT below. */
+interface PartialWall {
+  id: string;
+  sourceLineId: number;
+  a: [number, number];
+  b: [number, number];
+}
+
 const UNIT_OPTIONS = ['Feet', 'Inches', 'Meters', 'Centimeters', 'Millimeters'];
+// A real single floor plate essentially never legitimately produces more
+// than a handful of candidate boundary regions -- found via a real case
+// where confirming a file at "Feet" instead of the (correctly) suggested
+// "Inches" scaled every dimension 12x (area 144x), pushing hundreds of
+// small real objects (columns, hatch fills) over the boundary-candidate
+// area threshold and producing 537 bogus "regions". The existing oversized-
+// single-boundary check (backend MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT) didn't
+// catch this at all -- that case's largest region was ~463,000 sqft,
+// comfortably under its 500,000 sqft cutoff, even though the dataset was
+// obviously wrong. This is a distinct, real signal: too MANY regions, not
+// one too-large region.
+const IMPLAUSIBLE_REGION_COUNT = 20;
+// Below this drag distance (in feet, real-world scale — not screen pixels,
+// so it behaves the same at any zoom level), a pointerdown-drag-pointerup
+// on a wall line is treated as a plain click (toggle the whole segment)
+// rather than a deliberate partial-segment selection.
+const PARTIAL_WALL_MIN_DRAG_FT = 0.75;
 
 function distPointToSegment(p: [number, number], a: [number, number], b: [number, number]): number {
   const [px, py] = p, [ax, ay] = a, [bx, by] = b;
@@ -40,6 +67,18 @@ function distPointToSegment(p: [number, number], a: [number, number], b: [number
   t = Math.max(0, Math.min(1, t));
   const cx = ax + t * dx, cy = ay + t * dy;
   return Math.hypot(px - cx, py - cy);
+}
+
+/** Closest point to `p` on the segment a-b, clamped to the segment's own
+ * extent (not the infinite line) — used to turn a drag gesture into a real
+ * sub-portion of a specific wall for partial-segment selection. */
+function projectPointOnSegment(p: [number, number], a: [number, number], b: [number, number]): [number, number] {
+  const [px, py] = p, [ax, ay] = a, [bx, by] = b;
+  const dx = bx - ax, dy = by - ay;
+  const lenSq = dx * dx + dy * dy;
+  let t = lenSq > 0 ? ((px - ax) * dx + (py - ay) * dy) / lenSq : 0;
+  t = Math.max(0, Math.min(1, t));
+  return [ax + t * dx, ay + t * dy];
 }
 
 function distPointToPolygonBoundary(p: [number, number], points: number[][]): number {
@@ -153,6 +192,64 @@ function queryNearby<T>(map: Map<string, T[]>, p: [number, number], index: Spati
 
 type Preview = { points: number[][]; mode: 'shape' | 'walls' | 'draw'; sourceHandle?: string };
 
+// Above this many candidates, listing every one as its own button (a real
+// case produced 537 of them — a botched unit choice inflating hundreds of
+// small real objects into boundary-sized candidates, see
+// IMPLAUSIBLE_REGION_COUNT above) floods the whole sidebar and pushes the
+// actual floor-plan view off-screen. Below it, the plain always-visible
+// list is a nicer one-click switcher than hiding a handful of candidates
+// behind an extra click.
+const REGION_LIST_COMPACT_THRESHOLD = 8;
+
+const RegionCandidateButton: React.FC<{ region: GeometryRegion; index: number; onChoose: (regionId: string) => void }> = ({ region, index, onChoose }) => (
+  <button
+    className="btn btn-secondary"
+    style={{ fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left', display: 'flex', justifyContent: 'space-between', width: '100%' }}
+    onClick={() => onChoose(region.region_id)}
+  >
+    <span>Region {index + 1} — {region.boundary.area_sqft.toLocaleString()} sqft</span>
+    <ArrowRightIcon size={13} />
+  </button>
+);
+
+/** The auto-detected-candidates sidebar list — a plain list of buttons
+ * below REGION_LIST_COMPACT_THRESHOLD (the common, real case), collapsed
+ * behind a "Show all" toggle above it so an unusually large candidate set
+ * doesn't push the actual floor-plan view off-screen. */
+const RegionCandidateList: React.FC<{ geometry: GeometryResult; onChoose: (regionId: string) => void }> = ({ geometry, onChoose }) => {
+  const [expanded, setExpanded] = useState(false);
+  const regions = geometry.regions;
+
+  if (regions.length <= REGION_LIST_COMPACT_THRESHOLD) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        {regions.map((r, i) => <RegionCandidateButton key={r.region_id} region={r} index={i} onChoose={onChoose} />)}
+      </div>
+    );
+  }
+
+  const visibleCount = 5;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginBottom: '2px' }}>
+        {regions.length} candidates found — unusually many for a real floor plate. Showing the {visibleCount} largest.
+      </div>
+      {regions.slice(0, visibleCount).map((r, i) => <RegionCandidateButton key={r.region_id} region={r} index={i} onChoose={onChoose} />)}
+      {!expanded ? (
+        <button className="btn btn-secondary" style={{ fontSize: '0.72rem', padding: '6px 8px' }} onClick={() => setExpanded(true)}>
+          Show all {regions.length} candidates
+        </button>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '280px', overflowY: 'auto', paddingRight: '2px' }}>
+          {regions.slice(visibleCount).map((r, i) => (
+            <RegionCandidateButton key={r.region_id} region={r} index={i + visibleCount} onChoose={onChoose} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geometry, onGeometryUpdated, onBoundaryChosen, onStartOver }) => {
   const raw = geometry.full_raw_geometry;
   const svgRef = useRef<SVGSVGElement>(null);
@@ -162,6 +259,14 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   const [hoveredShapeId, setHoveredShapeId] = useState<string | null>(null);
   const [hoveredSegmentId, setHoveredSegmentId] = useState<number | null>(null);
   const [selectedWallIds, setSelectedWallIds] = useState<Set<number>>(new Set());
+  // A wall drawn as one long LINE entity often has only part of its length
+  // actually on the boundary being defined -- click-and-drag along a wall
+  // (see onBgPointerDown/Move/Up) selects just that sub-portion instead of
+  // the whole pre-computed segment, added here rather than into
+  // selectedWallIds since it isn't one of full_raw_geometry's segments at
+  // all (see the backend's custom_segments param).
+  const [partialWalls, setPartialWalls] = useState<PartialWall[]>([]);
+  const [dragPreview, setDragPreview] = useState<{ lineId: number; a: [number, number]; b: [number, number] } | null>(null);
   const [drawPoints, setDrawPoints] = useState<number[][]>([]);
   const [preview, setPreview] = useState<Preview | null>(null);
   const [traceError, setTraceError] = useState<string | null>(null);
@@ -173,11 +278,13 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   const [manualOverride, setManualOverride] = useState(false);
   const [autoFired, setAutoFired] = useState(false);
   const [pendingChoice, setPendingChoice] = useState<PendingChoice | null>(null);
+  const [unitMismatchWarning, setUnitMismatchWarning] = useState<string | null>(null);
   const [pendingEntry, setPendingEntry] = useState<[number, number] | null>(null);
   const [pendingExits, setPendingExits] = useState<[number, number][]>([]);
 
   const panStart = useRef<{ x: number; y: number; originX: number; originY: number } | null>(null);
   const movedRef = useRef(false);
+  const wallDragRef = useRef<{ lineId: number; lineA: [number, number]; lineB: [number, number] } | null>(null);
 
   // Full end-to-end automation, matching the same "auto-advance on a clean
   // detection" pattern GeometryReviewStep already uses one step later: the
@@ -222,6 +329,16 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   const spatialIndex = useMemo(() => (raw ? buildSpatialIndex(raw, bbox) : null), [raw, bbox]);
   const annotationLineCount = useMemo(
     () => raw ? raw.lines.reduce((n, ln) => n + (ln.category === 'annotation' ? 1 : 0), 0) : 0,
+    [raw]
+  );
+  // "sheet" lines (viewport frames, plot margins, title blocks, area-callout
+  // hatching) are real content — worth rendering so the drawing looks
+  // complete — but not real architecture. Found via a real file where a
+  // prominent, long diagonal MARGIN-layer line was the single most visually
+  // confusing thing on screen: indistinguishable from a real wall, and
+  // (before this) fully selectable as one in the Select Walls tool.
+  const sheetLineCount = useMemo(
+    () => raw ? raw.lines.reduce((n, ln) => n + (ln.category === 'sheet' ? 1 : 0), 0) : 0,
     [raw]
   );
 
@@ -276,11 +393,13 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     const candidates = queryNearby(spatialIndex.segmentCells, p, spatialIndex);
     let best: { id: number; dist: number } | null = null;
     for (const ln of candidates) {
-      // A dimension extension line or leader callout is never a real wall —
-      // the backend already excludes these from its own wall-reconstruction
-      // pass (see cad_extraction.py's annotation_ids), so tracing a boundary
-      // through one here would trace something that was never structural.
-      if (ln.category === 'annotation') continue;
+      // A dimension/leader line or a sheet-artifact line (viewport frame,
+      // margin, title block) is never a real wall — the backend already
+      // excludes both from its own wall-reconstruction pass (see
+      // cad_extraction.py's annotation_ids / NON_PHYSICAL_LAYER_HINTS), so
+      // tracing a boundary through one here would trace something that was
+      // never structural.
+      if (ln.category === 'annotation' || ln.category === 'sheet') continue;
       const d = distPointToSegment(p, ln.a, ln.b);
       if (d <= tol && (!best || d < best.dist)) best = { id: ln.id, dist: d };
     }
@@ -302,6 +421,15 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
       const hit = nearestShape(p);
       if (hit) setPreview({ points: hit.shape.points_ft, mode: 'shape', sourceHandle: hit.shape.handle });
     } else if (tool === 'walls') {
+      const tol = toleranceFt();
+      // A plain click that lands on an already-selected partial segment
+      // removes it — the drag interaction (onBgPointerDown/Move/Up) is what
+      // creates one, so a plain click here can only mean "undo that".
+      const hitPartial = partialWalls.find(pw => distPointToSegment(p, pw.a, pw.b) <= tol);
+      if (hitPartial) {
+        setPartialWalls(prev => prev.filter(pw => pw.id !== hitPartial.id));
+        return;
+      }
       const hit = nearestSegment(p);
       if (hit) {
         setSelectedWallIds(prev => {
@@ -325,11 +453,45 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
 
   const onBgPointerDown = (e: React.PointerEvent) => {
     (e.target as Element).setPointerCapture(e.pointerId);
-    panStart.current = { x: e.clientX, y: e.clientY, originX, originY };
     movedRef.current = false;
+
+    // Shift+drag right on a wall line, in Select Walls mode, means "select
+    // part of this wall" (see onBgPointerMove/Up below). Gated on Shift
+    // specifically so a *plain* drag always pans, with zero behavior change
+    // from before this feature existed — found via testing that an
+    // ungated version hijacked ordinary panning any time a pan gesture
+    // happened to start on top of a wall line, which in a dense CAD
+    // drawing is most of the canvas.
+    if (tool === 'walls' && e.shiftKey) {
+      const p = screenToUser(e.clientX, e.clientY);
+      const hit = nearestSegment(p);
+      const line = hit ? raw?.lines.find(l => l.id === hit.id) : null;
+      if (line) {
+        wallDragRef.current = { lineId: line.id, lineA: line.a, lineB: line.b };
+        // The actual pointer-down position projected onto the line, not the
+        // line's own fixed endpoint — using line.a here (an earlier version
+        // of this code did) made the "drag distance" computed on pointerup
+        // the distance from the line's *end* to wherever the click landed,
+        // which is often large even for a perfectly stationary click on a
+        // long wall, incorrectly registering plain clicks as partial-drags.
+        const downProjected = projectPointOnSegment(p, line.a, line.b);
+        setDragPreview({ lineId: line.id, a: downProjected, b: downProjected });
+        return; // no panStart — this is a wall drag, not a pan
+      }
+    }
+    panStart.current = { x: e.clientX, y: e.clientY, originX, originY };
   };
 
   const onBgPointerMove = (e: React.PointerEvent) => {
+    if (wallDragRef.current) {
+      const p = screenToUser(e.clientX, e.clientY);
+      const { lineA, lineB } = wallDragRef.current;
+      const projected = projectPointOnSegment(p, lineA, lineB);
+      const start = dragPreview?.a || lineA;
+      if (Math.hypot(projected[0] - start[0], projected[1] - start[1]) > 0.05) movedRef.current = true;
+      setDragPreview(prev => (prev ? { ...prev, b: projected } : prev));
+      return;
+    }
     if (!panStart.current) {
       updateHover(e);
       return;
@@ -350,6 +512,24 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
   };
 
   const onBgPointerUp = (e: React.PointerEvent) => {
+    if (wallDragRef.current) {
+      const p = screenToUser(e.clientX, e.clientY);
+      const { lineId, lineA, lineB } = wallDragRef.current;
+      const start = dragPreview?.a || lineA;
+      const end = projectPointOnSegment(p, lineA, lineB);
+      const dragDistFt = Math.hypot(end[0] - start[0], end[1] - start[1]);
+      if (dragDistFt >= PARTIAL_WALL_MIN_DRAG_FT) {
+        setPartialWalls(prev => [...prev, { id: `partial-${Date.now()}-${prev.length}`, sourceLineId: lineId, a: start, b: end }]);
+      } else {
+        // Negligible drag on a wall line — treat it as the plain click it
+        // effectively was (toggle the whole segment / remove a partial).
+        handleClickAt(p);
+      }
+      wallDragRef.current = null;
+      setDragPreview(null);
+      movedRef.current = false;
+      return;
+    }
     if (!movedRef.current) {
       handleClickAt(screenToUser(e.clientX, e.clientY));
     }
@@ -361,7 +541,9 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     setTracing(true);
     setTraceError(null);
     try {
-      const result = await engine.traceBoundary(projectId, Array.from(selectedWallIds));
+      const result = await engine.traceBoundary(
+        projectId, Array.from(selectedWallIds), partialWalls.map(pw => [pw.a, pw.b])
+      );
       setPreview({ points: result.points_ft, mode: 'walls' });
     } catch (e: any) {
       setTraceError(e.message || 'Could not trace a closed boundary from these segments.');
@@ -384,12 +566,22 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
     }
   };
 
-  const confirmUnit = async () => {
+  const confirmUnit = async (unitOverride?: string) => {
+    const unit = unitOverride || selectedUnit;
     setConfirmingUnit(true);
+    setUnitMismatchWarning(null);
     try {
-      const updated = await engine.confirmUnits(projectId, selectedUnit);
+      const updated = await engine.confirmUnits(projectId, unit);
       onGeometryUpdated(updated);
       setUnitsDismissed(true);
+      const suggested = geometry.units.suggested_unit;
+      if (suggested && unit !== suggested && updated.regions.length > IMPLAUSIBLE_REGION_COUNT) {
+        setUnitMismatchWarning(
+          `Confirming as ${unit} produced ${updated.regions.length} candidate regions — real floor plates essentially `
+          + `never produce that many. This file's header evidence actually suggested ${suggested}; that's very `
+          + `likely the real unit.`
+        );
+      }
     } catch {
       // Best-effort — geometry keeps its current (heuristic-default) scale if this fails.
     } finally {
@@ -492,7 +684,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                   <line
                     key={ln.id} x1={ln.a[0]} y1={ln.a[1]} x2={ln.b[0]} y2={ln.b[1]}
                     stroke="var(--text-tertiary)" strokeWidth={toleranceFt() * 0.04}
-                    strokeOpacity={ln.category === 'annotation' ? 0.35 : 1}
+                    strokeOpacity={ln.category === 'annotation' || ln.category === 'sheet' ? 0.35 : 1}
                   />
                 ))}
               </g>
@@ -548,12 +740,36 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               onChange={(e) => setSelectedUnit(e.target.value)}
               style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '3px 6px', fontSize: '0.74rem' }}
             >
-              {UNIT_OPTIONS.map(u => <option key={u} value={u}>{u}</option>)}
+              {UNIT_OPTIONS.map(u => (
+                <option key={u} value={u}>{u}{u === geometry.units.suggested_unit ? ' (suggested)' : ''}</option>
+              ))}
             </select>
-            <button className="btn btn-primary" style={{ fontSize: '0.72rem', padding: '4px 10px', whiteSpace: 'nowrap' }} disabled={confirmingUnit} onClick={confirmUnit}>
+            <button className="btn btn-primary" style={{ fontSize: '0.72rem', padding: '4px 10px', whiteSpace: 'nowrap' }} disabled={confirmingUnit} onClick={() => confirmUnit()}>
               {confirmingUnit ? 'Applying…' : 'Confirm Unit'}
             </button>
             <button className="btn btn-secondary" style={{ fontSize: '0.72rem', padding: '4px 8px' }} onClick={() => setUnitsDismissed(true)}>Dismiss</button>
+          </div>
+        )}
+
+        {unitMismatchWarning && (
+          <div className="panel" style={{
+            display: 'flex', gap: '10px', alignItems: 'flex-start', padding: '10px 12px',
+            border: '1px solid rgba(209,109,100,0.5)', background: 'var(--bg-secondary)'
+          }}>
+            <WarningIcon size={15} className="text-danger" style={{ flex: '0 0 auto', marginTop: '2px' }} />
+            <div style={{ flex: 1, fontSize: '0.74rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              {unitMismatchWarning}
+            </div>
+            <button
+              className="btn btn-primary" style={{ fontSize: '0.72rem', padding: '4px 10px', whiteSpace: 'nowrap' }}
+              disabled={confirmingUnit}
+              onClick={() => { setSelectedUnit(geometry.units.suggested_unit!); confirmUnit(geometry.units.suggested_unit!); }}
+            >
+              Use {geometry.units.suggested_unit} instead
+            </button>
+            <button className="btn btn-secondary" style={{ fontSize: '0.72rem', padding: '4px 8px', whiteSpace: 'nowrap' }} onClick={() => setUnitMismatchWarning(null)}>
+              Keep {selectedUnit}, this is correct
+            </button>
           </div>
         )}
 
@@ -583,6 +799,12 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                 {annotationLineCount.toLocaleString()} dimension/leader lines (dimmed, not selectable as walls)
               </span>
             )}
+            {sheetLineCount > 0 && (
+              <span style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-tertiary)', fontSize: '0.68rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span style={{ display: 'inline-block', width: '14px', borderTop: '1.5px dashed var(--text-tertiary)', opacity: 0.5 }} />
+                {sheetLineCount.toLocaleString()} sheet frame/margin/title-block lines (dimmed, not selectable as walls)
+              </span>
+            )}
           </div>
 
           <svg
@@ -600,14 +822,28 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                   x1={ln.a[0]} y1={ln.a[1]} x2={ln.b[0]} y2={ln.b[1]}
                   stroke={selectedWallIds.has(ln.id) ? 'var(--brand-strong)' : hoveredSegmentId === ln.id ? 'var(--warning)' : 'var(--text-tertiary)'}
                   strokeWidth={(selectedWallIds.has(ln.id) || hoveredSegmentId === ln.id) ? toleranceFt() * 0.12 : toleranceFt() * 0.04}
-                  strokeOpacity={ln.category === 'annotation' ? 0.35 : 1}
-                  strokeDasharray={ln.category === 'annotation' ? `${toleranceFt() * 0.3} ${toleranceFt() * 0.2}` : undefined}
+                  strokeOpacity={ln.category === 'annotation' || ln.category === 'sheet' ? 0.35 : 1}
+                  strokeDasharray={ln.category === 'annotation' || ln.category === 'sheet' ? `${toleranceFt() * 0.3} ${toleranceFt() * 0.2}` : undefined}
                 />
               ))}
               {raw.circles.map((c, i) => (
                 <circle key={`c${i}`} cx={c.center[0]} cy={c.center[1]} r={c.radius} fill="none" stroke="var(--text-tertiary)" strokeWidth={toleranceFt() * 0.04} />
               ))}
             </g>
+
+            {tool === 'walls' && partialWalls.map(pw => (
+              <line
+                key={pw.id}
+                x1={pw.a[0]} y1={pw.a[1]} x2={pw.b[0]} y2={pw.b[1]}
+                stroke="var(--brand-strong)" strokeWidth={toleranceFt() * 0.16} strokeLinecap="round"
+              />
+            ))}
+            {tool === 'walls' && dragPreview && (
+              <line
+                x1={dragPreview.a[0]} y1={dragPreview.a[1]} x2={dragPreview.b[0]} y2={dragPreview.b[1]}
+                stroke="var(--success)" strokeWidth={toleranceFt() * 0.16} strokeLinecap="round"
+              />
+            )}
 
             {tool === 'shape' && hoveredShapeId && (() => {
               const s = raw.closed_shapes.find(sh => sh.id === hoveredShapeId);
@@ -635,7 +871,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
 
         <div style={{ fontSize: '0.68rem', color: 'var(--text-tertiary)', textAlign: 'center' }}>
           Drag empty space to pan · {tool === 'shape' && 'click a closed outline (or inside a room) to select it as the boundary'}
-          {tool === 'walls' && 'click individual wall lines to select them, then trace a boundary from the selection'}
+          {tool === 'walls' && 'click a wall line to select it (Shift+drag to select just part of one), then trace a boundary from the selection'}
           {tool === 'draw' && 'click to place points, click near your first point to close the shape'}
           {tool === 'browse' && 'pick a tool above, or use one of the auto-detected candidates on the right'}
         </div>
@@ -649,33 +885,39 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               No candidate boundary was found automatically — use one of the tools on the left to define one manually.
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {geometry.regions.map((r, i) => (
-                <button
-                  key={r.region_id}
-                  className="btn btn-secondary"
-                  style={{ fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left', display: 'flex', justifyContent: 'space-between' }}
-                  onClick={() => setPendingChoice({ geometry, regionId: r.region_id })}
-                >
-                  <span>Region {i + 1} — {r.boundary.area_sqft.toLocaleString()} sqft</span>
-                  <ArrowRightIcon size={13} />
-                </button>
-              ))}
-            </div>
+            <RegionCandidateList geometry={geometry} onChoose={(regionId) => setPendingChoice({ geometry, regionId })} />
           )}
         </div>
 
         {tool === 'walls' && (
           <div className="panel">
-            <div className="panel-label" style={{ marginBottom: '8px' }}>Selected Walls ({selectedWallIds.size})</div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginBottom: '10px' }}>
-              Click wall lines in the drawing to select them, then trace the boundary they enclose.
+            <div className="panel-label" style={{ marginBottom: '8px' }}>
+              Selected Walls ({selectedWallIds.size + partialWalls.length})
             </div>
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginBottom: '10px' }}>
+              Click a wall line to select the whole thing. Hold Shift and drag along a wall to select just part of
+              it (e.g. half a long wall) — shown in green while dragging, gold once released. Click a selected
+              partial again to remove it. Then trace the boundary they enclose.
+            </div>
+            {partialWalls.length > 0 && (
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginBottom: '10px' }}>
+                {partialWalls.length} partial segment{partialWalls.length === 1 ? '' : 's'} selected.
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '6px' }}>
-              <button className="btn btn-primary" style={{ fontSize: '0.74rem', flex: 1 }} disabled={selectedWallIds.size < 3 || tracing} onClick={runTrace}>
+              <button
+                className="btn btn-primary" style={{ fontSize: '0.74rem', flex: 1 }}
+                disabled={selectedWallIds.size + partialWalls.length < 3 || tracing}
+                onClick={runTrace}
+              >
                 {tracing ? 'Tracing…' : 'Trace Boundary'}
               </button>
-              <button className="btn btn-secondary" style={{ fontSize: '0.74rem' }} onClick={() => setSelectedWallIds(new Set())}>Clear</button>
+              <button
+                className="btn btn-secondary" style={{ fontSize: '0.74rem' }}
+                onClick={() => { setSelectedWallIds(new Set()); setPartialWalls([]); }}
+              >
+                Clear
+              </button>
             </div>
           </div>
         )}

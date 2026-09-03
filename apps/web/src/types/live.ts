@@ -71,11 +71,15 @@ export interface RawSegment {
   a: [number, number];
   b: [number, number];
   layer: string;
-  /** "annotation" = a dimension extension line or leader callout — real
-   * content, rendered for completeness, but never a real wall (the backend
-   * already excludes these from boundary/obstacle detection). "geometry" is
-   * everything else. Lets the viewer visually tell drawing from documentation. */
-  category: 'geometry' | 'annotation';
+  /** "annotation" = a dimension extension line or leader callout. "sheet" =
+   * a line on a drafting-sheet-artifact layer (viewport frame, plot margin,
+   * title block, area-calculation callout — never real architecture, see
+   * cad_extraction.py's NON_PHYSICAL_LAYER_HINTS). Both are real content,
+   * rendered for completeness, but never a real wall — the backend already
+   * excludes both from boundary/obstacle detection and wall-network
+   * reconstruction. "geometry" is everything else. Lets the viewer visually
+   * tell drawing from documentation/sheet noise. */
+  category: 'geometry' | 'annotation' | 'sheet';
 }
 
 /** Every closed shape found anywhere in the drawing (not just the ones the

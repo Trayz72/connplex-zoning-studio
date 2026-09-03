@@ -101,6 +101,12 @@ class ManualRegionIn(BaseModel):
 
 class TraceBoundaryIn(BaseModel):
     segment_ids: list
+    # A sub-portion of a single full_raw_geometry line the architect dragged
+    # out directly (e.g. half of a long wall, when only part of it is
+    # actually the boundary they want) rather than picking the whole
+    # segment. Literal coordinates, not an id reference, since the point
+    # is precisely that it's *not* one of the pre-computed whole segments.
+    custom_segments: list = []
 
 
 class UnitOverrideIn(BaseModel):
@@ -279,7 +285,9 @@ def trace_boundary(project_id: str, body: TraceBoundaryIn):
     if not geometry or not geometry.get("full_raw_geometry"):
         raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
     try:
-        return cad_extraction.trace_boundary_from_segments(geometry["full_raw_geometry"], body.segment_ids)
+        return cad_extraction.trace_boundary_from_segments(
+            geometry["full_raw_geometry"], body.segment_ids, body.custom_segments
+        )
     except ValueError as e:
         raise HTTPException(422, str(e))
 

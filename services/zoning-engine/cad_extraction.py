@@ -602,6 +602,8 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
             continue  # already a closed shape in its own right; don't double-count its edges
         if id(e) in annotation_ids:
             continue  # a dimension extension line or leader is never a real wall segment
+        if _layer_hint_score(str(e.dxf.layer), NON_PHYSICAL_LAYER_HINTS):
+            continue  # a sheet frame/margin/title-block line is never a real wall segment either
         for a, b in _open_segments(e, tf):
             if a == b:
                 continue
@@ -712,11 +714,19 @@ def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale, an
     feet list is O(regions x segments) with only cheap float comparisons, not
     transform math — brings the same file down to a few seconds.
 
-    Every line carries a `category` ("geometry" or "annotation") so a
-    dimension extension line or leader callout — real content, rendered for
-    completeness, but never a real wall — can be told apart from the
-    drawing's actual structure by anything downstream (BoundaryStudio dims
-    them; nothing here treats them as candidate walls, see extract())."""
+    Every line carries a `category` ("geometry", "annotation", or "sheet") so
+    real drawing content can be told apart from things that were never real
+    wall/floor geometry, by anything downstream (BoundaryStudio dims and
+    excludes both from wall-click candidacy, see extract()):
+    - "annotation": a dimension extension line or leader callout.
+    - "sheet": a line on a drafting-sheet-artifact layer (viewport frame,
+      plot margin, title block, area-calculation callout — see
+      NON_PHYSICAL_LAYER_HINTS). Found via a real file where a prominent,
+      long diagonal MARGIN-layer line was rendered identically to a real
+      wall and was the single most confusing thing on screen — visually
+      the most prominent line in the whole drawing, but not architecture at
+      all, and (before this fix) fully selectable as a "wall" in the Select
+      Walls tool right alongside genuine walls."""
     lines = []
     circles = []
     truncated = False
@@ -726,7 +736,12 @@ def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale, an
             truncated = True
             break
         t = e.dxftype()
-        category = "annotation" if id(e) in annotation_ids else "geometry"
+        if id(e) in annotation_ids:
+            category = "annotation"
+        elif _layer_hint_score(str(e.dxf.layer) if e.dxf.hasattr("layer") else "", NON_PHYSICAL_LAYER_HINTS):
+            category = "sheet"
+        else:
+            category = "geometry"
         try:
             if t in ("LINE", "LWPOLYLINE", "POLYLINE", "ARC", "HATCH", "SPLINE", "ELLIPSE", "LEADER"):
                 layer = str(e.dxf.layer)
@@ -810,7 +825,7 @@ def _region_raw_geometry(full_raw, minx_ft, miny_ft, maxx_ft, maxy_ft, max_lines
     return {"lines": lines, "circles": circles, "texts": texts, "truncated": truncated}
 
 
-def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list) -> dict:
+def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list, custom_segments: list = None) -> dict:
     """Given a set of line-segment ids the architect clicked (from
     full_raw_geometry.lines, already in feet) as 'these are the walls of my
     boundary', find the closed loop they form. Uses the same polygonize
@@ -818,6 +833,13 @@ def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list) -> 
     exactly the segments a human picked instead of guessing across the whole
     drawing — the deliberate, fast 'select lines to assume as walls' path,
     distinct from clicking an existing closed shape or drawing freehand.
+
+    custom_segments: literal [[x1,y1],[x2,y2]] coordinate pairs (already in
+    feet) for a sub-portion of a wall the architect dragged out directly
+    instead of picking the whole pre-computed segment — e.g. only half of a
+    long wall is actually part of the boundary they're defining. These are
+    real user-drawn geometry, not looked up against full_raw_geometry at
+    all, so they work regardless of how the original line was segmented.
 
     Raises ValueError with a specific, actionable message if the selection
     doesn't close (some real feedback, not a bare 'invalid selection')."""
@@ -828,6 +850,15 @@ def trace_boundary_from_segments(full_raw_geometry: dict, segment_ids: list) -> 
         if ln is None:
             continue
         a, b = tuple(ln["a"]), tuple(ln["b"])
+        if a == b:
+            continue
+        lines.append(LineString([a, b]))
+
+    for seg in (custom_segments or []):
+        try:
+            a, b = tuple(seg[0]), tuple(seg[1])
+        except (IndexError, TypeError):
+            continue
         if a == b:
             continue
         lines.append(LineString([a, b]))
