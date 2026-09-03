@@ -609,6 +609,53 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
     c.drawCentredString((x0 + x1) / 2, dim_y + 4, _fmt_ft_in(horiz_ft))
 
 
+_FEAS_COLOR = {
+    "FEASIBLE": HexColor("#1e8e3e"), "CONDITIONALLY_FEASIBLE": HexColor("#b8860b"),
+    "NOT_FEASIBLE": HexColor("#c0392b"), "INSUFFICIENT_DATA": HexColor("#666666")
+}
+
+
+def _draw_feasibility_block(c, x, y_top, w, feasibility):
+    """A NOT_FEASIBLE layout (e.g. a structural column grid the packer can't
+    actually route around) was previously only visible in the web app's edit
+    screen — render_pdf accepted a `feasibility` argument but never drew it,
+    so an exported PDF/DXF/DWG carried zero indication a layout had failed a
+    hard viability rule. Found by exporting a real run that read NOT FEASIBLE
+    on-screen and checking the PDF for any trace of that — there was none.
+    Only failing/undetermined rules are listed; a clean PASS isn't news."""
+    failing = [r for r in feasibility.get("rule_results", []) if r["result"] != "PASS"]
+    lines_per_rule = []
+    c.setFont("Helvetica", 6)
+    for r in failing:
+        lines_per_rule.append(_wrap_text(c, f"- {r['message']}", "Helvetica", 6, w - 8))
+
+    header_h = LABEL_CLEARANCE + 8
+    body_lines = sum(len(l) for l in lines_per_rule)
+    h = header_h + 8 + body_lines * 7.2 + (4 if not failing else 0)
+    _box(c, x, y_top - h, w, h, "FEASIBILITY :-")
+
+    result = feasibility.get("feasibility_result", "INSUFFICIENT_DATA")
+    color = _FEAS_COLOR.get(result, black)
+    ty = y_top - LABEL_CLEARANCE - 8
+    c.setFillColor(color)
+    c.setFont("Helvetica-Bold", 7.5)
+    c.drawString(x + 4, ty, result.replace("_", " "))
+    ty -= 9.5
+
+    c.setFillColor(black)
+    for lines in lines_per_rule:
+        for line in lines:
+            c.setFont("Helvetica", 6)
+            c.drawString(x + 4, ty, line)
+            ty -= 7.2
+
+    if not failing:
+        c.setFont("Helvetica", 6)
+        c.drawString(x + 4, ty, "All evaluable viability rules passed.")
+
+    return y_top - h
+
+
 def render_pdf(project_meta: dict, boundary_points_ft, rooms, chart: dict, feasibility: dict, out_path: str,
                 sheet_type="Zoning Layout", obstacles=None, region_meta=None):
     region_meta = region_meta or {}
@@ -630,6 +677,7 @@ def render_pdf(project_meta: dict, boundary_points_ft, rooms, chart: dict, feasi
     y = _draw_notes(c, sidebar_x, y, SIDEBAR_W)
     y = _draw_legends(c, sidebar_x, y, SIDEBAR_W)
     y = _draw_area_seat_chart(c, sidebar_x, y, SIDEBAR_W, chart)
+    y = _draw_feasibility_block(c, sidebar_x, y, SIDEBAR_W, feasibility)
 
     revisions_top = plan_y + 210 * mm
     y2 = _draw_revisions(c, sidebar_x, revisions_top, SIDEBAR_W)

@@ -420,7 +420,17 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
             {activeRegion.boundary.area_sqft.toLocaleString()} sqft — layer "{activeRegion.boundary.layer}"
           </div>
           <div style={{ fontSize: '0.72rem', color: CONF_COLOR[activeRegion.boundary.confidence], marginBottom: '10px' }}>
-            Confidence: {activeRegion.boundary.confidence.toUpperCase()} (largest un-nested closed polyline{activeRegion.boundary.layer.toLowerCase().includes('wall') ? ', on a wall-hinted layer' : ''})
+            {/* "largest un-nested closed polyline" describes how the automatic
+             * heuristic picks a candidate — real, but nonsensical for a region
+             * the architect defined by hand, where confidence instead reflects
+             * how it was drawn (see mode_note in cad_extraction.py's
+             * build_manual_region). Found by actually hand-drawing a boundary
+             * and reading this line: it claimed heuristic provenance for a
+             * shape that had none. */}
+            Confidence: {activeRegion.boundary.confidence.toUpperCase()}{' '}
+            {activeRegion.boundary.source?.startsWith('manual')
+              ? '(manually defined — see note below)'
+              : `(largest un-nested closed polyline${activeRegion.boundary.layer.toLowerCase().includes('wall') ? ', on a wall-hinted layer' : ''})`}
           </div>
           {activeRegion.boundary.note && (
             <div style={{

@@ -27,7 +27,14 @@ export interface TextLabel {
 export interface Boundary {
   source_handle: string;
   layer: string;
-  source: 'explicit' | 'reconstructed';
+  // 'manual-shape' | 'manual-walls' | 'manual-draw' too — a boundary the
+  // architect defined directly (build_manual_region in cad_extraction.py),
+  // not just what the automatic pass produced. Was typed as only the two
+  // automatic values, which happened to still compile everywhere manual
+  // boundaries actually flow through (TS widens a literal-union mismatch to
+  // an error only where the narrower type is read against, not just passed
+  // around) but was quietly wrong.
+  source: 'explicit' | 'reconstructed' | 'manual-shape' | 'manual-walls' | 'manual-draw';
   area_sqft: number;
   points_ft: number[][];
   bounding_box_ft: { min_x: number; min_y: number; max_x: number; max_y: number };

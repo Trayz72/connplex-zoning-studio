@@ -13,6 +13,73 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-03 — QA pass against a real messy floor plan + admin test account
+
+Created a fixed-credential admin account (`admin@connplex.com`) for admin-side
+testing, and QA'd the full pipeline end-to-end as an architect would, using
+one of the real client DWG/DXF files already in this repo's own
+`services/cad-interop/test/` fixtures (Maruti Nandan Business Hub, Dhule —
+54,586 entities, 37 layers, 9,406 raw lines, doors/windows/columns/stairs/
+parking, not a synthetic test file) rather than a clean demo drawing.
+
+Verified working end-to-end on that real file: extraction (7 plausible
+candidate regions, correct Feet detection with no unit ambiguity), the
+region-choice UI (`Choose a Different Boundary`), manual boundary drawing
+(`Draw Boundary` tool), the Geometry Review obstacle confirm/ignore
+controls (previously never actually exercised in this project's testing —
+it auto-advances past itself in 1.6s on any boundary the extractor doesn't
+flag, so a human only sees it by deliberately catching the "Choose a
+Different Boundary" button in time or hand-drawing a boundary, which never
+auto-advances), entry/exit marking, requirements, auto-layout, and PDF/DXF/
+DWG export.
+
+Found and fixed four real bugs:
+- **PDF export silently dropped feasibility entirely.** `render_pdf()`
+  accepted a `feasibility` argument and never used it anywhere in the
+  file — a layout that read "NOT FEASIBLE" on-screen (this real file's
+  1033-column structural grid fails the 20ft/30ft column-spacing minimums)
+  exported to a professional PDF with zero trace of that failure. Added a
+  `FEASIBILITY` block to the sheet listing the overall result and every
+  failing/unevaluable rule.
+- **Area & Seat Chart's "FOYER" row reads as a contradiction next to its
+  own warning.** The chart's `FOYER` line is a rollup of all support zones
+  (Box Office + Washrooms + F&B + BOH), not a literal Foyer room — but the
+  sidebar table strips the explanatory suffix to fit, so seeing "FOYER
+  2,466 sqft" right under "Could not place Foyer" reads as the app
+  contradicting itself. Added the full label back as a hover tooltip.
+- **A hand-drawn boundary's confidence caption falsely claimed heuristic
+  provenance.** Geometry Review always appended "(largest un-nested closed
+  polyline...)" to the confidence line regardless of `boundary.source` —
+  correct for an auto-detected region, false for one the architect just
+  drew by hand. Now branches on `source` and points at the real
+  hand-drawn-boundary warning already shown just below it.
+- **`Boundary.source`'s TS type didn't include the manual-boundary values
+  the backend actually sends** (`manual-shape`/`manual-walls`/
+  `manual-draw` from `build_manual_region`) — was typed as only
+  `'explicit' | 'reconstructed'`. Widened to match reality.
+
+Also chased down and ruled out two apparent bugs as false alarms: a
+`ReferenceError: pan is not defined` + `RangeError: Maximum call stack
+size exceeded` pair in the console turned out to be stale Vite HMR state
+from a dev server that had been running for hours through earlier large
+refactors (confirmed via `grep` — no real reference remained in source;
+fixed by a clean dev-server restart, not a code change), and a
+triple-`n`-looking "Connnplex" in one zoomed screenshot was a font-
+rendering artifact, not a real typo (source reads "Connplex" everywhere).
+
+Flagging two things found but not changed, since both are product
+judgment calls rather than clear defects: (1) a very elongated floor plate
+(this file's main region is 762 x 164ft, a 4.6:1 aspect ratio) wastes most
+of the page on the fixed-portrait-A2 PDF sheet even after the existing
+rotate-to-fit logic picks the better of its two orientations — the sheet
+format itself has no good answer for that aspect ratio; (2) Geometry
+Review's 1.6s auto-advance is deliberate and documented (see its own
+comments), but on a real 1,033-obstacle region it means literally nobody
+ever sees the obstacle list before it's confirmed — worth a product
+decision on whether high obstacle counts should be one more auto-advance
+gate alongside the existing "boundary has a note" / "units unconfirmed"
+ones.
+
 ## 2026-09-02 — Fixed zoom drift, added wheel zoom, added precise gap markers for boundary tracing
 
 Direct follow-up to the same day's curve-selection fix: after finally

@@ -419,7 +419,7 @@ export const ZoningWorkspace: React.FC = () => {
                       <td style={{ textAlign: 'right' }}>{layout.area_seat_chart.total_screen_row.area_sqft}</td>
                       <td style={{ textAlign: 'right' }}>{layout.area_seat_chart.total_screen_row.total_seats}</td>
                     </tr>
-                    <tr><td>{layout.area_seat_chart.foyer_row.location.split(' (')[0]}</td><td style={{ textAlign: 'right' }}>{layout.area_seat_chart.foyer_row.area_sqft}</td><td /></tr>
+                    <tr><td title={layout.area_seat_chart.foyer_row.location}>{layout.area_seat_chart.foyer_row.location.split(' (')[0]}</td><td style={{ textAlign: 'right' }}>{layout.area_seat_chart.foyer_row.area_sqft}</td><td /></tr>
                     <tr><td>{layout.area_seat_chart.exit_passage_row.location}</td><td style={{ textAlign: 'right' }}>{layout.area_seat_chart.exit_passage_row.area_sqft}</td><td /></tr>
                     <tr style={{ fontWeight: 700, color: 'var(--success)' }}>
                       <td>{layout.area_seat_chart.grand_total_row.location}</td>
