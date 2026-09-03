@@ -13,6 +13,56 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-03 — Real human-designed cinema DWG comparison → added a missing small-auditorium preset
+
+Given a real, already-executed Connplex zoning deliverable (`IINFINITY FF
+(1).dwg`, a 3.5MB client file, uploaded and converted through the new
+Docker/ODA DWG pipeline as its first real independent test) plus a
+screenshot of the human architect's actual finished 4-screen layout for it
+— asked to compare the tool's own auto-layout output against real work, not
+a demo file, and improve the tool from what that comparison showed.
+
+**Validation, not just comparison**: our extracted "NET USAGE AREA"
+(8,580.8 sqft) matched the human's own on-drawing label ("NET USAGE AREA
+8,537 SQ FT") to within 0.5% — real confirmation that unit detection
+(Millimeters, correctly read from this file's header) and area computation
+are right on a genuinely complex real file (47,184 entities, 4,245 closed
+shapes), independent of every earlier test file.
+
+**A real scope boundary surfaced**: none of the 18 auto-detected candidate
+regions covered the human's actual built cinema — only small, individual
+room-sized boxes (screens, entry) did, because the human had already
+subdivided the floor with real interior walls, leaving no single unbroken
+outer polyline for the "biggest closed shape" heuristic to find. Confirmed
+this is architecturally correct behavior for what it's given, not a bug:
+the tool's automatic detection is built for "empty shell, about to be
+zoned" files, not "already-built, review this" ones — worth knowing, not
+worth changing without deciding it's actually in scope.
+
+**The real, fixable gap**: reconstructed the human's actual per-screen room
+polygons directly from the file's geometry (matched each "Screen N" text
+label to its enclosing wall polygon) and found real dimensions — Screen 1:
+959.3 sqft/24.7×38.9ft/34 seats (Premium Recliner), Screen 2: 1273.4
+sqft/64 seats, Screen 3: 1086.2 sqft/64 seats, Screen 4: 928.2 sqft/34
+seats (17 Duo Lounger units). Running our own auto-layout against the
+matching real empty zone elsewhere in the same file (8,580.8 sqft, 18 real
+columns) could only fit 2–3 screens (202–262 total seats) at any strategy —
+because the registry's smallest auditorium preset (`60_SEAT`, 1,350 sqft /
+30ft min width) is larger than 3 of the human's 4 real screens. The
+generator was never actually broken; it structurally couldn't reach a
+format tier that real Connplex designs use.
+
+Added a new `35_SEAT` preset to `rules_registry_v1.json` — config, not
+code — sourced explicitly as `real_client_file` (not `SOP`, since it's
+measured off an executed drawing, not the standards document) and marked
+`REQUIRES_APPROVAL` rather than `SOURCE_BACKED`, same provenance discipline
+every other entry in the registry already follows. Re-ran the same zoning
+run afterward: "Maximize Screen Count" now produces 4 screens (was 3 max),
+matching the human's real screen count exactly. Total seats (156 vs. the
+human's 196) still differ — the preset system uses one fixed target size
+per tier rather than the human's per-screen variation — but the structural
+ceiling that made 4 screens impossible is gone.
+
 ## 2026-09-03 — QA pass against a real messy floor plan + admin test account
 
 Created a fixed-credential admin account (`admin@connplex.com`) for admin-side

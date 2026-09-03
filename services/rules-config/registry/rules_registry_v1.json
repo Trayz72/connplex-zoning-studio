@@ -116,6 +116,20 @@
 
   "auditorium_presets": [
     {
+      "id": "35_SEAT",
+      "name": "35-seat premium auditorium",
+      "target_seats": 35,
+      "width_min_ft": 24,
+      "length_min_ft": 35,
+      "length_max_ft": 40,
+      "clear_height_min_ft": 10,
+      "seating_mix": ["PREMIUM_RECLINER", "DUO_LOUNGER"],
+      "min_area_sqft": 900,
+      "source": "real_client_file",
+      "source_section": "Derived from an actual executed Connplex zoning deliverable (client file 'IINFINITY FF (1).dwg', not the SOP document): Screen 1 measured 959.3 sqft / 24.7x38.9ft seating 34 (Premium Recliner), Screen 4 measured 928.2 sqft / 26.4x35.2ft seating 34 across 17 Duo Lounger units. Added because the registry's smallest existing preset (60_SEAT, 1350 sqft / 30ft min width) is larger than either of these two real, already-built screens — the auto-layout generator could not have reproduced this real design without a smaller tier. Numbers are direct measurements from that file, not invented, but the preset itself (its exact width/length bounds and which seat types belong in it) hasn't been reviewed against the SOP the way the other three have.",
+      "approval_status": "REQUIRES_APPROVAL"
+    },
+    {
       "id": "60_SEAT",
       "name": "60-seat auditorium",
       "target_seats": 60,
