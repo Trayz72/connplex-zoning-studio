@@ -42,6 +42,7 @@ from shapely.affinity import scale as shapely_scale
 
 import rules_registry
 import seat_engine
+from placement import free_rectangles, backtracking, solver
 
 GRID_STEP_FT = 2.0
 AISLE_CLEARANCE_FT = 3.5   # matches CENTRAL_AISLE_MIN_FT — used generically as the minimum gap between placed zones
@@ -441,104 +442,64 @@ def _column_enclosure_ok(scan_result, bbox, flip_x, flip_y, column_polys, max_ra
     return (_enclosed_obstacle_area(rect, column_polys) / rect.area) <= max_ratio
 
 
-def _default_seat_config(preset):
-    """Real seat type + a front-lounger row when the matched preset's own
-    seating_mix calls for one — not a hardcoded module-level default. Every
-    preset already declares its own seating_mix (35_SEAT: PREMIUM_RECLINER
-    + DUO_LOUNGER; 60/90/125_SEAT: SLIDER_SOFA + FRONT_LOUNGER), but until
-    now every placed auditorium silently got SLIDER_SOFA regardless of
-    preset — wrong even for a premium-tier screen, and missing the
-    front-lounger row every real Connplex reference file this project has
-    (Swati Trinity, Keshav Landmark, Maruti Nandan) uses as standard
-    practice. Returns (primary_seat_type_id, secondary_seat_type_id_or_None,
-    front_row_count_or_None) — primary is the *front* band when a front row
-    is used (see seat_engine.estimate_seats's own front-row convention), so
-    a real front-lounger mix comes back as (FRONT_LOUNGER, bulk_type, 1)."""
-    mix = preset.get("seating_mix") or []
-    selectable = {s["id"] for s in seat_engine.selectable_seat_types()}
-    bulk_candidates = [t for t in mix if t in selectable and t != "FRONT_LOUNGER"]
-    bulk_type = bulk_candidates[0] if bulk_candidates else seat_engine.DEFAULT_SEAT_TYPE_ID
-    if "FRONT_LOUNGER" in mix and "FRONT_LOUNGER" in selectable:
-        return "FRONT_LOUNGER", bulk_type, 1
-    return bulk_type, None, None
-
-
-def _best_seat_estimate(preset, w, h, enclosed_obstacle_area_sqft, screen_width_ft):
-    """The real "maximize total seat count" objective (this module's own
-    locked v1 goal, per its top docstring) applies to seat *type* choice
-    too, not just room placement — a front-lounger row isn't always a
-    win. Real, measured case that would otherwise regress: a room with a
-    large screen_width_ft (a big first-row setback) can be so depth-
-    starved that swapping one row from the narrower-stepped bulk type to
-    the wider-stepped FRONT_LOUNGER (5.67ft vs SLIDER_SOFA's 4.25ft) costs
-    an entire row and nets *fewer* total seats, even though the same mix
-    is a real net gain in a normal, non-depth-starved room. Computes both
-    options when a front-lounger row applies at all and keeps whichever
-    genuinely seats more — ties go to the front-row mix (the real,
-    human-observed default), never silently accepting fewer seats for its
-    own sake. Returns (seat_config_dict, seat_estimate_dict)."""
-    primary, secondary, front_rows = _default_seat_config(preset) if preset else (seat_engine.DEFAULT_SEAT_TYPE_ID, None, None)
-    mixed_estimate = seat_engine.estimate_seats(
-        w, h, primary_seat_type_id=primary, secondary_seat_type_id=secondary, front_row_count=front_rows,
-        enclosed_obstacle_area_sqft=enclosed_obstacle_area_sqft, screen_width_ft=screen_width_ft
-    )
-    if front_rows is None:
-        seat_config = {"primary_seat_type_id": primary, "secondary_seat_type_id": None, "primary_ratio_pct": 100, "front_row_count": None}
-        return seat_config, mixed_estimate
-
-    bulk_only_estimate = seat_engine.estimate_seats(
-        w, h, primary_seat_type_id=secondary,
-        enclosed_obstacle_area_sqft=enclosed_obstacle_area_sqft, screen_width_ft=screen_width_ft
-    )
-    if bulk_only_estimate["seat_count"] > mixed_estimate["seat_count"]:
-        seat_config = {"primary_seat_type_id": secondary, "secondary_seat_type_id": None, "primary_ratio_pct": 100, "front_row_count": None}
-        return seat_config, bulk_only_estimate
-
-    seat_config = {"primary_seat_type_id": primary, "secondary_seat_type_id": secondary, "primary_ratio_pct": 100, "front_row_count": front_rows}
-    return seat_config, mixed_estimate
+# Real seat-config selection lives in seat_engine.py (default_seat_config /
+# best_seat_estimate) — moved there so placement/solver.py can reuse the
+# exact same logic without importing layout_engine.py back (which imports
+# placement.solver, and a cycle isn't worth the alternative of duplicating
+# this). Re-exported here under their old private names since this
+# module's own tests and every existing call site already use them this
+# way — a real rename, not a new indirection layer.
+_default_seat_config = seat_engine.default_seat_config
+_best_seat_estimate = seat_engine.best_seat_estimate
 
 
 def _find_largest_fitting_custom_screen(usable_poly, fallback_poly, placed_polys, placed_types, bbox,
-                                         min_area_sqft, target_aspect=1.5, grid_lines_x=None, grid_lines_y=None,
-                                         decay=0.9, max_steps=40):
+                                         min_area_sqft, max_dim_ft=80.0):
     """When no registered auditorium preset fits anywhere, don't give up
     while real usable area still remains — a real, directly measured defect
     this exists to fix: on a real uploaded file, the engine placed 2
     undersized screens and then stopped with 5,194 of 6,979 sqft of usable
     area (74%) completely untouched, because none of the four fixed preset
     footprints happened to fit what was left, even though plenty of real
-    area did. A bounded geometric-decay search: start from a generous size
-    bounded by the floor plate's own extent, shrink both dimensions
-    together (preserving a real auditorium-like aspect ratio — the four
-    configured presets themselves range 1.25-1.67, so 1.5 is representative
-    — never degenerating into a useless sliver) until something fits or the
-    area drops below min_area_sqft (the smallest *configured* preset's own
-    floor — never invents a screen smaller than the SOP's own smallest real
-    tier). Still an axis-aligned rectangle — real non-rectangular,
-    boundary-hugging room shapes (what a human actually draws on an
-    irregular floor plate) are a separate, much larger effort, not
-    attempted here (see docs/prompts/component_placement_and_circulation_spec.md).
+    area did.
+
+    Uses placement.free_rectangles' real maximal-rectangle detection
+    instead of guessing toward a size — the true largest empty rectangle
+    at whatever's actually left (usable_poly, obstacles already excluded,
+    minus whatever's already been placed_polys this run), not a shrink
+    sequence hoping to land on something that fits. Each dimension is
+    capped at max_dim_ft (a real auditorium is never a 150ft sliver — a
+    maximal rectangle can legitimately be a long thin leftover strip;
+    using only a sane sub-rectangle of it, anchored at its own corner,
+    keeps the result a plausible room instead of a technically-valid but
+    absurd shape) but never invents a screen smaller than min_area_sqft
+    (the smallest *configured* preset's own floor). Tries the strict
+    usable_poly first, then the column-tolerant fallback_poly — same
+    two-tier convention every other placement in this module uses. Still
+    an axis-aligned rectangle — real non-rectangular, boundary-hugging
+    room shapes (what a human actually draws on an irregular floor plate)
+    are a separate, much larger effort (see Module D: pre-drawn room
+    detection, which sidesteps this for a real file that already has one).
     Returns the same (result, used_fallback) shape _scan_place_with_fallback
     does, or (None, False)."""
-    minx, miny, maxx, maxy = bbox
-    start_span = max(maxx - minx, maxy - miny) * 0.9
-    if start_span <= 0:
-        return None, False
-    w = math.sqrt((start_span * start_span) / target_aspect)
-    h = w * target_aspect
-    w = min(w, maxx - minx)
-    h = min(h, maxy - miny)
-    for _ in range(max_steps):
-        if w * h < min_area_sqft:
-            break
-        result, used_fallback = _scan_place_with_fallback(
-            usable_poly, fallback_poly, placed_polys, placed_types, "AUDITORIUM", w, h, bbox,
-            grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y
-        )
-        if result:
-            return result, used_fallback
-        w *= decay
-        h *= decay
+    placed_union = unary_union(placed_polys) if placed_polys else None
+
+    for poly, used_fallback in ((usable_poly, False), (fallback_poly, True)):
+        if poly is None or (used_fallback and poly is usable_poly):
+            continue
+        remaining = poly.difference(placed_union) if placed_union is not None else poly
+        if remaining.is_empty:
+            continue
+        for x, y, w, h in free_rectangles.free_rectangles_ft(remaining, bbox, cell_ft=1.0, max_candidates=40):
+            cw, ch = min(w, max_dim_ft), min(h, max_dim_ft)
+            if cw * ch < min_area_sqft:
+                continue
+            cand = _rect(x, y, cw, ch)
+            if not remaining.contains(cand.buffer(-0.01)):
+                continue
+            if not _fits_with_clearance(cand, placed_polys, placed_types, "AUDITORIUM"):
+                continue
+            return (x, y, cw, ch), used_fallback
     return None, False
 
 
@@ -592,6 +553,96 @@ def _doors_for_screen_wall(w, h, screen_wall, door_width_ft):
     ]
 
 
+def _build_auditorium_room(x, y, w, h, index, used_preset, used_fallback, column_polys,
+                            screen_width_ft, entry_point, door_width_ft):
+    """Builds one placed-auditorium room dict — shared by _place_auditoriums'
+    preset loop, its backtracking-based custom-fit filler, and
+    place_single_zone's own AUDITORIUM branch, so all three paths stay in
+    sync on exactly what fields a placed auditorium carries. used_preset is
+    None for a custom-fit (non-standard-tier) placement."""
+    rect = _rect(x, y, w, h)
+    enclosed_area = _enclosed_obstacle_area(rect, column_polys) if used_fallback else 0.0
+    seat_config, seat_est = _best_seat_estimate(used_preset, w, h, enclosed_area, screen_width_ft)
+    screen_wall = _screen_wall_for_rect(x, y, w, h, entry_point)
+    room = {
+        "room_id": f"auditorium-{uuid.uuid4().hex[:8]}",
+        "room_type": f"AUDITORIUM_{index}",
+        "display_name": f"Screen {index} (Auditorium)",
+        "preset_id": used_preset["id"] if used_preset else None,
+        "preset_name": used_preset["name"] if used_preset else "Custom-fit screen",
+        "area_sqft": round(w * h, 2),
+        "width_ft": round(w, 2),
+        "depth_ft": round(h, 2),
+        "origin_ft": [round(x, 2), round(y, 2)],
+        "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
+        "seat_estimate": seat_est,
+        "seat_config": seat_config,
+        "screen_wall": screen_wall,
+        "doors": _doors_for_screen_wall(w, h, screen_wall, door_width_ft)
+    }
+    if used_preset is None:
+        room["area_basis_note"] = (
+            "No standard SOP auditorium preset fit the remaining usable area — sized to the largest "
+            "rectangle that does fit, rather than leaving real usable floor area unplaced. Not a "
+            "standard preset tier; review before finalizing."
+        )
+    if seat_est.get("note"):
+        room["obstacle_note"] = seat_est["note"]
+    return room
+
+
+def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, column_polys, bbox,
+                                                    placed_polys, placed_types, remaining_slots,
+                                                    min_area_sqft, aud_column_cap, flip_x, flip_y,
+                                                    max_dim_ft=80.0):
+    """Fills up to remaining_slots more custom-fit auditorium footprints
+    using placement.backtracking's bounded search instead of committing to
+    the single largest free rectangle at each step irrevocably (which is
+    what _find_largest_fitting_custom_screen alone does, and still does for
+    place_single_zone's one-room-at-a-time Add Zone path, where there's no
+    "later slot" to backtrack for). Lets an earlier custom-fit choice be
+    reconsidered — the next-largest free rectangle instead of the largest —
+    when the largest one would leave too little room for a later screen,
+    instead of stopping the instant a plain greedy forward pass gets stuck.
+    Returns a list of (x, y, w, h, used_fallback) tuples in the SAME
+    (mirrored or real) coordinate space usable_poly/placed_polys are
+    already in — the caller is responsible for un-mirroring, same as every
+    other placement result in this module."""
+    base_placed_union = unary_union(placed_polys) if placed_polys else None
+
+    def candidates_for_slot(depth, committed):
+        committed_polys = [_rect(c[0], c[1], c[2], c[3]) for c in committed]
+        all_placed = ([base_placed_union] if base_placed_union is not None else []) + committed_polys
+        placed_union = unary_union(all_placed) if all_placed else None
+        cands = []
+        for poly, used_fb in ((usable_poly, False), (fallback_poly, True)):
+            if poly is None or (used_fb and poly is usable_poly):
+                continue
+            remaining = poly.difference(placed_union) if placed_union is not None else poly
+            if remaining.is_empty:
+                continue
+            for x, y, w, h in free_rectangles.free_rectangles_ft(remaining, bbox, cell_ft=1.0, max_candidates=12):
+                cw, ch = min(w, max_dim_ft), min(h, max_dim_ft)
+                if cw * ch < min_area_sqft:
+                    continue
+                cands.append((x, y, cw, ch, used_fb, remaining))
+        cands.sort(key=lambda c: c[2] * c[3], reverse=True)  # largest real area first, same convention as every other placement here
+        return cands
+
+    def try_candidate(cand):
+        x, y, cw, ch, used_fb, remaining = cand
+        rect = _rect(x, y, cw, ch)
+        if not remaining.contains(rect.buffer(-0.01)):
+            return None
+        if used_fb and not _column_enclosure_ok((x, y, cw, ch), bbox, flip_x, flip_y, column_polys, aud_column_cap):
+            return None
+        return (x, y, cw, ch, used_fb)
+
+    return backtracking.search_with_backtracking(
+        remaining_slots, candidates_for_slot, try_candidate, max_backtrack=2, max_total_attempts=40
+    )
+
+
 def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, max_count, preset_order,
                         entry_point=None, exit_points_ft=None, screen_width_ft=None):
     placed = []
@@ -630,10 +681,18 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
     min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
 
+    # Phase 1: real SOP presets only, largest-fits-first, exactly as before.
+    # The instant a preset fails to fit anywhere, stop this loop — every
+    # later screen would face the same or less usable space, so no later
+    # preset attempt could succeed either. What used to be a single
+    # geometric-decay custom-fit guess tried once per stalled iteration is
+    # now Phase 2 below: a proper backtracking-aware fill for every
+    # remaining slot at once.
+    ordered_presets = preset_order(presets)
+    presets_exhausted = False
     for _ in range(max_count):
         placement = None
         used_preset = None
-        ordered_presets = preset_order(presets)
         for preset in ordered_presets:
             # Try the preset's largest allowed footprint first (falls back to
             # its own min axis when a max isn't declared for that axis — e.g.
@@ -666,37 +725,18 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
                 used_preset = preset
                 break
 
-        used_custom_fit = False
         if not placement:
-            # No registered preset fits anywhere — before giving up, check
-            # whether real usable area still remains that a non-preset
-            # custom footprint could use. See
-            # _find_largest_fitting_custom_screen's own docstring: a real,
-            # directly-measured defect (a real uploaded file left 74% of
-            # its usable area untouched this way) motivated this fallback.
-            custom_result, custom_used_fallback = _find_largest_fitting_custom_screen(
-                scan_usable, scan_fallback, scan_placed_polys, scan_placed_types, bbox,
-                min_preset_area_sqft, grid_lines_x=scan_grid_x, grid_lines_y=scan_grid_y
-            )
-            if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, flip_x, flip_y, column_polys, aud_column_cap):
-                custom_result = None
-            if custom_result:
-                placement = custom_result
-                used_fallback = custom_used_fallback
-                used_custom_fit = True
-            else:
-                warnings.append(f"Could not fit another auditorium after placing {len(placed)} — no remaining preset or custom-fit footprint fits available usable space.")
-                break
+            presets_exhausted = True
+            break
 
-        if used_preset is not None and used_preset is not ordered_presets[0]:
+        if used_preset is not ordered_presets[0]:
             undersized_count += 1
 
         sx, sy, w, h = placement
         scan_placed_polys.append(_rect(sx, sy, w, h))
         scan_placed_types.append("AUDITORIUM")
         x, y = _unmirror_rect(sx, sy, w, h, bbox, flip_x, flip_y)
-        rect = _rect(x, y, w, h)
-        placed_polys.append(rect)
+        placed_polys.append(_rect(x, y, w, h))
         # used_fallback means no column-free placement existed for this
         # preset tier at this step — the winning rect is allowed to cover a
         # confirmed structural column (never any other obstacle type; see
@@ -704,36 +744,32 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
         # architect designing an auditorium around an existing column in a
         # retrofit building. Seat count is discounted honestly, not
         # optimistically ignored — see seat_engine.estimate_seats.
-        enclosed_area = _enclosed_obstacle_area(rect, column_polys) if used_fallback else 0.0
-        seat_config, seat_est = _best_seat_estimate(
-            None if used_custom_fit else used_preset, w, h, enclosed_area, screen_width_ft
+        placed.append(_build_auditorium_room(x, y, w, h, len(placed) + 1, used_preset, used_fallback,
+                                              column_polys, screen_width_ft, entry_point, door_width_ft))
+
+    # Phase 2: no registered preset fits anywhere — before giving up, check
+    # whether real usable area still remains that non-preset custom
+    # footprints could use, with bounded backtracking across however many
+    # slots are left (not just one greedy guess per stalled iteration). See
+    # _fill_remaining_auditoriums_with_backtracking's own docstring: a real,
+    # directly-measured defect (a real uploaded file left 74% of its usable
+    # area untouched this way) motivated both this and the free-rectangle
+    # search it's built on.
+    remaining_slots = max_count - len(placed)
+    if remaining_slots > 0:
+        backtrack_results = _fill_remaining_auditoriums_with_backtracking(
+            scan_usable, scan_fallback, column_polys, bbox, scan_placed_polys, scan_placed_types,
+            remaining_slots, min_preset_area_sqft, aud_column_cap, flip_x, flip_y
         )
-        screen_wall = _screen_wall_for_rect(x, y, w, h, entry_point)
-        room = {
-            "room_id": f"auditorium-{uuid.uuid4().hex[:8]}",
-            "room_type": f"AUDITORIUM_{len(placed) + 1}",
-            "display_name": f"Screen {len(placed) + 1} (Auditorium)",
-            "preset_id": used_preset["id"] if used_preset else None,
-            "preset_name": used_preset["name"] if used_preset else "Custom-fit screen",
-            "area_sqft": round(w * h, 2),
-            "width_ft": round(w, 2),
-            "depth_ft": round(h, 2),
-            "origin_ft": [round(x, 2), round(y, 2)],
-            "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
-            "seat_estimate": seat_est,
-            "seat_config": seat_config,
-            "screen_wall": screen_wall,
-            "doors": _doors_for_screen_wall(w, h, screen_wall, door_width_ft)
-        }
-        if used_custom_fit:
-            room["area_basis_note"] = (
-                "No standard SOP auditorium preset fit the remaining usable area — sized to the largest "
-                "rectangle that does fit, rather than leaving real usable floor area unplaced. Not a "
-                "standard preset tier; review before finalizing."
-            )
-        if seat_est.get("note"):
-            room["obstacle_note"] = seat_est["note"]
-        placed.append(room)
+        for sx, sy, w, h, used_fallback in backtrack_results:
+            scan_placed_polys.append(_rect(sx, sy, w, h))
+            scan_placed_types.append("AUDITORIUM")
+            x, y = _unmirror_rect(sx, sy, w, h, bbox, flip_x, flip_y)
+            placed_polys.append(_rect(x, y, w, h))
+            placed.append(_build_auditorium_room(x, y, w, h, len(placed) + 1, None, used_fallback,
+                                                  column_polys, screen_width_ft, entry_point, door_width_ft))
+        if not backtrack_results and presets_exhausted:
+            warnings.append(f"Could not fit another auditorium after placing {len(placed)} — no remaining preset or custom-fit footprint fits available usable space.")
 
     return placed, placed_polys, warnings, undersized_count
 
@@ -816,7 +852,7 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
             min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
             custom_result, custom_used_fallback = _find_largest_fitting_custom_screen(
                 usable_poly, fallback_poly, placed_polys, placed_types, bbox,
-                min_preset_area_sqft, grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y
+                min_preset_area_sqft
             )
             if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, False, False, column_polys, aud_column_cap):
                 custom_result = None
@@ -1135,6 +1171,88 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
         "screen_count": screen_count,
         "seats_per_screen": seats_per_screen,
         "warnings": aud_warnings + notes
+    }
+
+
+def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: dict, confirmed_obstacles: list = None,
+                                  time_limit_seconds=None) -> dict:
+    """The "Optimize Layout" strategy: poses auditorium placement as a real
+    combinatorial optimization (placement.solver's Maximum Weight
+    Independent Set formulation over a real candidate pool) instead of any
+    greedy heuristic — genuinely finds the best (or best-found-within-a-
+    time-limit) arrangement, not just a good one. Real, measured result on
+    the benchmark file this whole placement-engine upgrade is grounded in
+    (see LOG.md): the greedy auto-layout (even with backtracking) placed 3
+    screens / 145 seats; this found a *provably optimal* 4 screens / 262
+    seats for the same candidate pool, in well under a second.
+
+    Deliberately NOT part of the fast, always-on generate_candidates() pair
+    (MAX_SEATS_PER_SCREEN / MAX_SCREEN_COUNT) — CP-SAT can take real time
+    on a hard instance (see placement.solver.TIME_LIMIT_SECONDS), so this
+    is a separate, explicit, opt-in action (main.py's
+    POST .../zoning-runs/optimize). Returns the exact same candidate-dict
+    shape generate_candidate() does, so every downstream consumer
+    (feasibility, chart, export, the frontend's candidate cards) works
+    with it unchanged."""
+    bbox = poly_from_points(boundary_points_ft).bounds
+    presets = rules_registry.auditorium_presets()
+    confirmed_obstacles = confirmed_obstacles or []
+
+    fallback_poly = compute_usable_area(boundary_points_ft, confirmed_obstacles, exclude_classifications=("COLUMN",)) if confirmed_obstacles else usable_poly
+    column_polys = [poly_from_points(o["points_ft"]) for o in confirmed_obstacles
+                     if isinstance(o, dict) and o.get("classification") == "COLUMN"]
+
+    max_auditoriums = requirements.get("max_auditoriums", 4) if requirements else 4
+    entry_point = requirements.get("entry_point_ft") if requirements else None
+    screen_width_ft = requirements.get("screen_width_ft") if requirements else None
+
+    aud_column_cap = rules_registry.planning_norm("AUDITORIUM_MAX_ENCLOSED_COLUMN_RATIO")
+    if aud_column_cap is None:
+        aud_column_cap = 0.02
+    door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
+
+    solve_kwargs = {}
+    if time_limit_seconds is not None:
+        solve_kwargs["time_limit_seconds"] = time_limit_seconds
+    selected, status = solver.solve(usable_poly, fallback_poly, column_polys, bbox, presets, max_auditoriums,
+                                     aud_column_cap, screen_width_ft, **solve_kwargs)
+
+    auditoriums = []
+    for i, cand in enumerate(selected):
+        room = _build_auditorium_room(cand["x"], cand["y"], cand["w"], cand["h"], i + 1, cand["preset"],
+                                       cand["used_fallback"], column_polys, screen_width_ft, entry_point, door_width_ft)
+        auditoriums.append(room)
+
+    total_aud_area = sum(a["area_sqft"] for a in auditoriums)
+    circulation_area = max(fallback_poly.area - total_aud_area, 0.0)
+    total_seats = sum(a["seat_estimate"]["seat_count"] for a in auditoriums)
+    screen_count = len(auditoriums)
+    seats_per_screen = round(total_seats / screen_count, 2) if screen_count else 0
+
+    if status in ("OPTIMAL", "FEASIBLE"):
+        proof = "proven optimal" if status == "OPTIMAL" else "the best found within the solver's time limit (not proven optimal — a harder instance than usual)"
+        notes = [
+            f"Solved via CP-SAT combinatorial optimization over {len(selected)} selected real placement(s) — "
+            f"{proof}, not a greedy heuristic. {screen_count} screen(s) placed on {round(total_aud_area):,} sqft; "
+            f"{round(circulation_area):,} sqft of usable area remains."
+        ]
+    elif status == "NO_CANDIDATES":
+        notes = ["The optimizer found no real candidate auditorium placement anywhere in the usable area."]
+    else:
+        notes = [f"The optimizer could not find a solution (solver status: {status})."]
+
+    return {
+        "candidate_id": f"optimized-{uuid.uuid4().hex[:8]}",
+        "strategy": "OPTIMIZED",
+        "strategy_label": "Optimized (CP-SAT)",
+        "rooms": auditoriums,
+        "circulation_area_sqft": round(circulation_area, 2),
+        "usable_area_sqft": round(fallback_poly.area, 2),
+        "boundary_area_sqft": round(poly_from_points(boundary_points_ft).area, 2),
+        "total_seats": total_seats,
+        "screen_count": screen_count,
+        "seats_per_screen": seats_per_screen,
+        "warnings": notes
     }
 
 

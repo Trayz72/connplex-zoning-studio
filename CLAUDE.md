@@ -341,9 +341,15 @@ cd services/project && npm start        # demo login: test@connplex.com / passwo
                                          # or use "Create an account" on the login page
 
 # 2. Zoning engine (the real pipeline) — port 8000, routes live under /api/*
-cd services/zoning-engine && python3 -m uvicorn main:app --port 8000
-# (pip install -r requirements.txt first on a fresh machine — fastapi, uvicorn,
-# python-multipart, ezdxf, shapely, reportlab, pydantic; all already present here)
+cd services/zoning-engine && .venv/bin/python3 -m uvicorn main:app --port 8000
+# Runs from a dedicated venv (not global/user site-packages) — this service
+# pulls in ortools (OR-Tools' CP-SAT solver, see placement/solver.py),
+# a large, real dependency deliberately isolated here rather than installed
+# system-wide. On a fresh machine:
+#   python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+# (this environment's system Python blocks a plain `pip install` outright —
+# PEP 668 "externally managed environment" — the venv is the sanctioned way
+# around that, not --break-system-packages against the real system Python).
 
 # 3. Frontend — port 5173, proxies /api/pm to :3001 and /api (everything else) to :8000
 cd apps/web && npm run dev

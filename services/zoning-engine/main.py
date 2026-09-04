@@ -513,6 +513,68 @@ def run_ai_zoning(project_id: str, body: ZoningRunIn):
     return run
 
 
+# ---------- Optimizer (CP-SAT "Optimize Layout") ----------
+
+@app.post("/api/projects/{project_id}/zoning-runs/optimize")
+def run_optimized_zoning(project_id: str, body: ZoningRunIn):
+    """Same inputs/shape contract as /zoning-runs and /ai-zoning-runs, but
+    the candidate comes from placement.solver's CP-SAT combinatorial
+    optimizer (layout_engine.generate_optimized_candidate) instead of the
+    deterministic greedy packer or Claude. Deliberately its own endpoint,
+    not folded into /zoning-runs' own candidate pair — CP-SAT can take real
+    time on a hard instance (placement.solver.TIME_LIMIT_SECONDS), so this
+    is an explicit, opt-in action the architect requests. Appends to the
+    same latest-run record so the existing select-candidate/layout/export
+    endpoints work on it completely unchanged."""
+    geometry = storage.read_json(storage.geometry_path(project_id))
+    if not geometry:
+        raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
+    requirements = storage.read_json(storage.requirements_path(project_id))
+    if not requirements:
+        raise HTTPException(400, "Project requirements must be submitted before running zoning.")
+
+    region = next((r for r in geometry["regions"] if r["region_id"] == body.region_id), None)
+    if not region:
+        raise HTTPException(404, f"Region '{body.region_id}' not found in this project's extracted geometry.")
+    if region["boundary"]["status"] != "CONFIRMED":
+        raise HTTPException(400, "The floor boundary must be CONFIRMED (not left PROPOSED) before a zoning run — "
+                                  "uncertain CAD detection must not silently become authoritative.")
+
+    confirmed_obstacle_records = [o for o in region["obstacles"] if o["status"] == "CONFIRMED"]
+    boundary_points_ft = region["boundary"]["points_ft"]
+    usable_poly = layout_engine.compute_usable_area(boundary_points_ft, confirmed_obstacle_records)
+    if usable_poly.is_empty or usable_poly.area <= 0:
+        raise HTTPException(400, "No usable area remains after confirmed obstacles are subtracted.")
+
+    candidate = layout_engine.generate_optimized_candidate(usable_poly, boundary_points_ft, requirements,
+                                                             confirmed_obstacle_records)
+
+    measurements = _build_measurements(requirements, confirmed_obstacle_records, candidate["boundary_area_sqft"],
+                                        candidate["total_seats"], candidate["screen_count"], candidate["rooms"])
+    candidate["feasibility"] = feasibility_engine.evaluate(requirements.get("property_type", "EXISTING_BUILDING"), measurements)
+    candidate["area_seat_chart"] = chart_engine.build_chart(candidate)
+    for room in candidate["rooms"]:
+        if room["room_type"].startswith("AUDITORIUM"):
+            room["preset_fit"] = seat_engine.best_fit_preset(room["area_sqft"])
+
+    run = storage.read_json(storage.latest_run_path(project_id))
+    if not run or run.get("region_id") != body.region_id:
+        run = {
+            "run_id": uuid.uuid4().hex[:12],
+            "region_id": body.region_id,
+            "requirements": requirements,
+            "unresolved_obstacle_count": len([o for o in region["obstacles"] if o["status"] == "PROPOSED"]),
+            "candidates": [],
+            "created_at": storage.now_iso(),
+        }
+    # Replace a previous optimized candidate rather than accumulating one per
+    # click — same convention as the AI-assisted candidate above.
+    run["candidates"] = [c for c in run["candidates"] if c["strategy"] != "OPTIMIZED"] + [candidate]
+    storage.write_json(storage.run_path(project_id, run["run_id"]), run)
+    storage.write_json(storage.latest_run_path(project_id), run)
+    return run
+
+
 # ---------- Editable layout ----------
 
 @app.get("/api/projects/{project_id}/layout")

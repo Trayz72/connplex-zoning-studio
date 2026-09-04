@@ -7,6 +7,8 @@ reportlab==5.0.1
 pydantic>=2
 anthropic>=1.2.0
 python-dotenv>=1.0
+numpy>=1.26
+ortools>=9.11
 
 # Dev/test only — not needed to run the service itself
 pytest>=8.0
