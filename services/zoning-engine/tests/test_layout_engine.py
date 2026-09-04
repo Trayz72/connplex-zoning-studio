@@ -22,16 +22,21 @@ def test_generate_candidates_returns_two_strategies():
     assert strategies == {"MAX_SEATS_PER_SCREEN", "MAX_SCREEN_COUNT"}
 
 
-def test_auto_layout_places_auditoriums_only():
-    """The screen-first redesign this session: generate_candidate must never
-    auto-place a support zone (FOYER/FNB/WASHROOM/BOX_OFFICE/BOH) — those
-    are only ever added later via place_single_zone."""
+def test_auto_layout_places_real_support_zone_geometry_not_just_a_number():
+    """This round's redesign: generate_candidate now places screens first,
+    then Box Office/F&B/Washroom/BOH with real geometry (not just an
+    aggregate circulation_area_sqft number), then Foyer as the true
+    leftover remainder. PASSAGE stays auto-layout-excluded (Foyer now
+    serves its old connective purpose) — it's still available via manual
+    Add Zone (place_single_zone)."""
     for candidate in layout_engine.generate_candidates(RECT_BOUNDARY, [], {}):
-        assert len(candidate["rooms"]) > 0, "expected at least one auditorium to fit in a 100x60 rect"
+        room_types = {r["room_type"] for r in candidate["rooms"]}
+        assert any(rt.startswith("AUDITORIUM") for rt in room_types), "expected at least one auditorium to fit in a 100x60 rect"
+        for support_type in ("BOX_OFFICE", "FNB", "WASHROOM", "BOH"):
+            assert support_type in room_types, f"expected auto-layout to place a real {support_type}, got room types {room_types}"
+        assert "PASSAGE" not in room_types, "PASSAGE should stay excluded from auto-layout — Foyer is now the connective remainder"
         for room in candidate["rooms"]:
-            assert room["room_type"].startswith("AUDITORIUM"), (
-                f"auto-layout placed a non-auditorium room: {room['room_type']}"
-            )
+            assert len(room["geometry_points_ft"]) >= 3, f"{room['room_type']} has no real placed geometry"
 
 
 def test_adjacent_auditoriums_share_a_wall_not_an_aisle_gap():
@@ -196,13 +201,15 @@ def test_auditorium_rejects_column_enclosure_above_tolerance():
 
 
 def test_auditorium_accepts_small_column_within_tolerance():
-    """The mirror case: a small column, comfortably under the 2% cap,
-    should still be accepted via the column-tolerant fallback tier — the
-    cap must not have been set so aggressively it breaks the existing
-    "an auditorium may enclose a small column" behavior."""
+    """The mirror case: a small column, comfortably under the 2% cap AND
+    within AUDITORIUM_COLUMN_EDGE_TOLERANCE_FT of a wall (near the left
+    wall here), should still be accepted via the column-tolerant fallback
+    tier — the cap/edge rule must not have been set so aggressively it
+    breaks the existing "an auditorium may enclose a small, wall-adjacent
+    column" behavior."""
     boundary = [[0, 0], [24, 0], [24, 35], [0, 35], [0, 0]]
     small_column = {
-        "points_ft": [[11.5, 17], [12.5, 17], [12.5, 18], [11.5, 18]],  # 1 sqft
+        "points_ft": [[0.5, 17], [1.5, 17], [1.5, 18], [0.5, 18]],  # 1 sqft, ~0.5ft from the x=0 wall
         "classification": "COLUMN",
     }
     usable = layout_engine.compute_usable_area(boundary, [small_column])
@@ -213,6 +220,33 @@ def test_auditorium_accepts_small_column_within_tolerance():
     )
     assert room is not None, warning
     assert "obstacle_note" in room
+
+
+def test_auditorium_rejects_interior_column_even_under_area_ratio_cap():
+    """The new, position-aware rule this round adds: a column comfortably
+    under the 2% area-ratio cap (same 1 sqft size as the tolerance test
+    above) but stranded in the room's true interior — more than
+    AUDITORIUM_COLUMN_EDGE_TOLERANCE_FT from every one of the room's own
+    four walls — must be rejected outright, regardless of how small its
+    area share is. This is the literal proof for the user's own
+    requirement: "don't add screen if column doesn't appear on the
+    boundary and appears inside." Before this rule existed, this exact
+    dead-center geometry was accepted (see git history of this test) —
+    area-ratio alone said nothing about a column sitting in the middle of
+    the seating field."""
+    boundary = [[0, 0], [24, 0], [24, 35], [0, 35], [0, 0]]
+    center_column = {
+        "points_ft": [[11.5, 17], [12.5, 17], [12.5, 18], [11.5, 18]],  # 1 sqft, dead center of the 24x35 room
+        "classification": "COLUMN",
+    }
+    usable = layout_engine.compute_usable_area(boundary, [center_column])
+    fallback = layout_engine.compute_usable_area(boundary, [center_column], exclude_classifications=("COLUMN",))
+    column_polys = [layout_engine.poly_from_points(center_column["points_ft"])]
+    room, warning = layout_engine.place_single_zone(
+        usable, fallback, column_polys, [], [], (0, 0, 24, 35), "AUDITORIUM", {}
+    )
+    assert room is None, "a dead-center column must reject the placement even though its area ratio is tiny"
+    assert warning and "No space" in warning
 
 
 # ---------- column-grid-aware placement ----------
@@ -392,8 +426,9 @@ def test_generate_candidate_uses_custom_fit_in_auto_layout_too():
     boundary = [[0, 0], [20, 0], [20, 100], [0, 100], [0, 0]]
     usable = layout_engine.compute_usable_area(boundary, [])
     candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 1}, [])
-    assert len(candidate["rooms"]) == 1
-    assert candidate["rooms"][0]["preset_id"] is None
+    aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+    assert len(aud_rooms) == 1
+    assert aud_rooms[0]["preset_id"] is None
 
 
 def test_custom_fit_uses_real_maximal_rectangle_not_a_geometric_guess():
@@ -429,9 +464,10 @@ def test_multiple_custom_fit_screens_place_in_one_auto_layout_run():
                 [40, 50], [40, 26], [20, 26], [20, 50], [0, 50], [0, 0]]
     usable = layout_engine.compute_usable_area(boundary, [])
     candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 4}, [])
-    custom_fit_rooms = [r for r in candidate["rooms"] if r["preset_id"] is None]
+    aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+    custom_fit_rooms = [r for r in aud_rooms if r["preset_id"] is None]
     assert len(custom_fit_rooms) == 2, (
         f"expected both 1000 sqft blocks to be used as separate custom-fit screens, got "
-        f"{[(r['preset_id'], r['area_sqft']) for r in candidate['rooms']]}"
+        f"{[(r['preset_id'], r['area_sqft']) for r in aud_rooms]}"
     )
     assert all(r["area_sqft"] >= 900 for r in custom_fit_rooms)
