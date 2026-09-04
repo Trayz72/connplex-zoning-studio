@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { runZoning, runAiZoning, selectCandidate } from '../../services/zoningEngineApi';
+import { runZoning, runAiZoning, runOptimizedZoning, selectCandidate } from '../../services/zoningEngineApi';
 import { ZoningRunResult, LiveCandidate, EditableLayout } from '../../types/live';
 import { ArrowRightIcon, WarningIcon, RefreshIcon } from '../Icons';
 
@@ -44,6 +44,8 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
   const [autoFired, setAutoFired] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [optimizeLoading, setOptimizeLoading] = useState(false);
+  const [optimizeError, setOptimizeError] = useState<string | null>(null);
   const startedRef = useRef(false);
 
   const generateAi = async () => {
@@ -60,6 +62,23 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
       setAiError(e.message || 'AI-assisted layout generation failed.');
     } finally {
       setAiLoading(false);
+    }
+  };
+
+  const generateOptimized = async () => {
+    // Same rationale as generateAi's setAutoFired: CP-SAT can take up to
+    // ~20s, which would otherwise lose the race against the deterministic
+    // auto-select.
+    setAutoFired(true);
+    setOptimizeLoading(true);
+    setOptimizeError(null);
+    try {
+      const result = await runOptimizedZoning(projectId, regionId);
+      setRun(result);
+    } catch (e: any) {
+      setOptimizeError(e.message || 'Layout optimization failed.');
+    } finally {
+      setOptimizeLoading(false);
     }
   };
 
@@ -120,6 +139,7 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
   const best = bestCandidate(run.candidates);
 
   const hasAiCandidate = run.candidates.some(c => c.strategy === 'AI_ASSISTED');
+  const hasOptimizedCandidate = run.candidates.some(c => c.strategy === 'OPTIMIZED');
 
   return (
     <div style={{ padding: '1.5rem', maxWidth: '1100px', margin: '0 auto' }}>
@@ -127,14 +147,24 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
         <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)' }}>
           {run.candidates.length} Candidate Layout{run.candidates.length !== 1 ? 's' : ''}
         </h2>
-        {!hasAiCandidate && (
-          <button className="btn btn-secondary" style={{ fontSize: '0.78rem', flex: '0 0 auto' }} disabled={aiLoading} onClick={generateAi}>
-            {aiLoading ? <><RefreshIcon size={13} /> Generating with Claude… (~30s)</> : <><RefreshIcon size={13} /> Generate AI-Assisted Layout</>}
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: '0.5rem', flex: '0 0 auto' }}>
+          {!hasOptimizedCandidate && (
+            <button className="btn btn-secondary" style={{ fontSize: '0.78rem' }} disabled={optimizeLoading} onClick={generateOptimized}>
+              {optimizeLoading ? <><RefreshIcon size={13} /> Optimizing… (up to ~20s)</> : <><RefreshIcon size={13} /> Run Optimizer</>}
+            </button>
+          )}
+          {!hasAiCandidate && (
+            <button className="btn btn-secondary" style={{ fontSize: '0.78rem' }} disabled={aiLoading} onClick={generateAi}>
+              {aiLoading ? <><RefreshIcon size={13} /> Generating with Claude… (~30s)</> : <><RefreshIcon size={13} /> Generate AI-Assisted Layout</>}
+            </button>
+          )}
+        </div>
       </div>
       {aiError && (
         <div className="alert-box alert-error" style={{ marginBottom: '1rem' }}>{aiError}</div>
+      )}
+      {optimizeError && (
+        <div className="alert-box alert-error" style={{ marginBottom: '1rem' }}>{optimizeError}</div>
       )}
       {!autoFired && (
         <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
@@ -161,6 +191,9 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
               <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>{c.strategy_label}</div>
               {c.strategy === 'AI_ASSISTED' && (
                 <span className="badge" style={{ fontSize: '0.62rem', padding: '1px 7px', color: 'var(--brand-strong)', border: '1px solid var(--brand-strong)' }}>CLAUDE</span>
+              )}
+              {c.strategy === 'OPTIMIZED' && (
+                <span className="badge" style={{ fontSize: '0.62rem', padding: '1px 7px', color: 'var(--success)', border: '1px solid var(--success)' }}>CP-SAT</span>
               )}
             </div>
             <div style={{ fontSize: '0.75rem', color: FEAS_COLOR[c.feasibility.feasibility_result], fontWeight: 600, margin: '6px 0' }}>

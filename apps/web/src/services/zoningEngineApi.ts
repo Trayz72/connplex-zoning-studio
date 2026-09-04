@@ -182,6 +182,19 @@ export async function runAiZoning(projectId: string, regionId: string): Promise<
   }));
 }
 
+/** Poses auditorium placement as a real combinatorial optimization
+ * (OR-Tools CP-SAT over a real candidate pool of maximal free rectangles)
+ * instead of any greedy heuristic — genuinely slower (can take up to
+ * placement/solver.py's TIME_LIMIT_SECONDS, ~20s) so this is only ever
+ * triggered by an explicit user click, same convention as runAiZoning.
+ * Returns the same ZoningRunResult shape with the OPTIMIZED candidate
+ * merged into `candidates`. */
+export async function runOptimizedZoning(projectId: string, regionId: string): Promise<ZoningRunResult> {
+  return asJson(await fetch(`${BASE}/${projectId}/zoning-runs/optimize`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ region_id: regionId })
+  }));
+}
+
 export async function getLatestRun(projectId: string): Promise<ZoningRunResult | null> {
   const res = await fetch(`${BASE}/${projectId}/zoning-runs/latest`);
   if (res.status === 404) return null;

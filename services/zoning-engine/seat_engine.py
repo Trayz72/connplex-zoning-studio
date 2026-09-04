@@ -209,3 +209,61 @@ def best_fit_preset(area_sqft: float) -> dict:
                 "shortfall_vs_smallest_preset_sqft": round(smallest["min_area_sqft"] - area_sqft, 1)}
     best = max(satisfied, key=lambda p: p["min_area_sqft"])
     return {"matches_preset": best["id"], "status": "MEETS_PRESET_AREA_FLOOR"}
+
+
+def default_seat_config(preset):
+    """Real seat type + a front-lounger row when the matched preset's own
+    seating_mix calls for one — not a hardcoded default. Every preset
+    already declares its own seating_mix (35_SEAT: PREMIUM_RECLINER + DUO_
+    LOUNGER; 60/90/125_SEAT: SLIDER_SOFA + FRONT_LOUNGER); this reads that
+    declaration instead of silently defaulting every screen to SLIDER_SOFA
+    regardless of preset — wrong even for a premium-tier screen, and
+    missing the front-lounger row every real Connplex reference file this
+    project has (Swati Trinity, Keshav Landmark, Maruti Nandan) uses as
+    standard practice. Returns (primary_seat_type_id,
+    secondary_seat_type_id_or_None, front_row_count_or_None) — primary is
+    the *front* band when a front row is used (see estimate_seats's own
+    front-row convention), so a real front-lounger mix comes back as
+    (FRONT_LOUNGER, bulk_type, 1)."""
+    mix = preset.get("seating_mix") or []
+    selectable = {s["id"] for s in selectable_seat_types()}
+    bulk_candidates = [t for t in mix if t in selectable and t != "FRONT_LOUNGER"]
+    bulk_type = bulk_candidates[0] if bulk_candidates else DEFAULT_SEAT_TYPE_ID
+    if "FRONT_LOUNGER" in mix and "FRONT_LOUNGER" in selectable:
+        return "FRONT_LOUNGER", bulk_type, 1
+    return bulk_type, None, None
+
+
+def best_seat_estimate(preset, w, h, enclosed_obstacle_area_sqft, screen_width_ft):
+    """The real "maximize total seat count" objective (this pipeline's own
+    locked v1 goal) applies to seat *type* choice too, not just room
+    placement — a front-lounger row isn't always a win. Real, measured case
+    that would otherwise regress: a room with a large screen_width_ft (a
+    big first-row setback) can be so depth-starved that swapping one row
+    from the narrower-stepped bulk type to the wider-stepped FRONT_LOUNGER
+    (5.67ft vs SLIDER_SOFA's 4.25ft) costs an entire row and nets *fewer*
+    total seats, even though the same mix is a real net gain in a normal,
+    non-depth-starved room. Computes both options when a front-lounger row
+    applies at all and keeps whichever genuinely seats more — ties go to
+    the front-row mix (the real, human-observed default), never silently
+    accepting fewer seats for its own sake. Returns (seat_config_dict,
+    seat_estimate_dict)."""
+    primary, secondary, front_rows = default_seat_config(preset) if preset else (DEFAULT_SEAT_TYPE_ID, None, None)
+    mixed_estimate = estimate_seats(
+        w, h, primary_seat_type_id=primary, secondary_seat_type_id=secondary, front_row_count=front_rows,
+        enclosed_obstacle_area_sqft=enclosed_obstacle_area_sqft, screen_width_ft=screen_width_ft
+    )
+    if front_rows is None:
+        seat_config = {"primary_seat_type_id": primary, "secondary_seat_type_id": None, "primary_ratio_pct": 100, "front_row_count": None}
+        return seat_config, mixed_estimate
+
+    bulk_only_estimate = estimate_seats(
+        w, h, primary_seat_type_id=secondary,
+        enclosed_obstacle_area_sqft=enclosed_obstacle_area_sqft, screen_width_ft=screen_width_ft
+    )
+    if bulk_only_estimate["seat_count"] > mixed_estimate["seat_count"]:
+        seat_config = {"primary_seat_type_id": secondary, "secondary_seat_type_id": None, "primary_ratio_pct": 100, "front_row_count": None}
+        return seat_config, bulk_only_estimate
+
+    seat_config = {"primary_seat_type_id": primary, "secondary_seat_type_id": secondary, "primary_ratio_pct": 100, "front_row_count": front_rows}
+    return seat_config, mixed_estimate

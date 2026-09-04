@@ -394,3 +394,44 @@ def test_generate_candidate_uses_custom_fit_in_auto_layout_too():
     candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 1}, [])
     assert len(candidate["rooms"]) == 1
     assert candidate["rooms"][0]["preset_id"] is None
+
+
+def test_custom_fit_uses_real_maximal_rectangle_not_a_geometric_guess():
+    """Real-world regression this exists to catch: a naive geometric-decay
+    guess (aspect 1.5, shrink toward the center) can miss a real, large,
+    off-aspect rectangle entirely. An L-shaped usable area (60x60 minus its
+    top-right 30x30 corner) has a real 30x60=1800 sqft strip available on
+    the left — free_rectangles-based search must find and use it, not
+    settle for a smaller, more "aspect-normal" guess."""
+    boundary = [[0, 0], [60, 0], [60, 30], [30, 30], [30, 60], [0, 60], [0, 0]]
+    usable = layout_engine.compute_usable_area(boundary, [])
+    bbox = (0.0, 0.0, 60.0, 60.0)
+    result, used_fallback = layout_engine._find_largest_fitting_custom_screen(
+        usable, usable, [], [], bbox, min_area_sqft=900
+    )
+    assert result is not None
+    x, y, w, h = result
+    assert round(w * h) >= 1800 - 1  # the real 30x60 (or 60x30) strip, not a smaller guess
+
+
+def test_multiple_custom_fit_screens_place_in_one_auto_layout_run():
+    """The outer per-screen loop in _place_auditoriums already retries
+    custom-fit on every iteration — since each call now computes real
+    remaining free rectangles against whatever's actually left (not a
+    fixed decay guess), a floor plate with two disconnected large-enough
+    leftover areas should get TWO custom-fit screens in one run, not stop
+    after the first. A "dumbbell" boundary: two 20x50 (1000 sqft) blocks
+    joined by a thin 2ft-tall corridor — each block is too narrow (20ft)
+    for any real preset's 24ft width minimum in either orientation, so
+    both must come from the custom-fit fallback, and the corridor is too
+    thin to merge them into one bigger rectangle."""
+    boundary = [[0, 0], [20, 0], [20, 24], [40, 24], [40, 0], [60, 0], [60, 50],
+                [40, 50], [40, 26], [20, 26], [20, 50], [0, 50], [0, 0]]
+    usable = layout_engine.compute_usable_area(boundary, [])
+    candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 4}, [])
+    custom_fit_rooms = [r for r in candidate["rooms"] if r["preset_id"] is None]
+    assert len(custom_fit_rooms) == 2, (
+        f"expected both 1000 sqft blocks to be used as separate custom-fit screens, got "
+        f"{[(r['preset_id'], r['area_sqft']) for r in candidate['rooms']]}"
+    )
+    assert all(r["area_sqft"] >= 900 for r in custom_fit_rooms)
