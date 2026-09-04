@@ -1,7 +1,6 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
 import { LiveRoom, Obstacle, RoomDoor, FlowSegment } from '../../types/live';
 import { RawGeometry } from '../../types/live';
-import { EntryExitMarkers } from './EntryExitMarkers';
 
 interface EditableCanvasProps {
   boundaryPointsFt: number[][];
@@ -121,6 +120,41 @@ function doorGlyphPoints(room: LiveRoom, door: RoomDoor): { p1: [number, number]
 
 function snap(v: number, grid: number) {
   return grid > 0 ? Math.round(v / grid) * grid : v;
+}
+
+// Mirrors export_pdf.py's/export_dxf.py's own _nearest_boundary_edge_point
+// exactly — see either module's copy for the full reasoning. Lets the
+// building's own main entrance/exit be drawn as a real opening cut into
+// the boundary wall (matching a real Connplex reference drawing's "CINEMA
+// ENTRY"/"CINEMA EXIT" convention) instead of a marker floating nearby.
+function nearestBoundaryEdgePoint(pt: [number, number], boundaryPointsFt: number[][]):
+  { snapped: [number, number]; tangent: [number, number]; normal: [number, number] } | null {
+  const n = boundaryPointsFt.length;
+  if (n < 2) return null;
+  const cx = boundaryPointsFt.reduce((s, p) => s + p[0], 0) / n;
+  const cy = boundaryPointsFt.reduce((s, p) => s + p[1], 0) / n;
+  let best: { snapped: [number, number]; tangent: [number, number]; normal: [number, number] } | null = null;
+  let bestDist = Infinity;
+  for (let i = 0; i < n; i++) {
+    const [ax, ay] = boundaryPointsFt[i];
+    const [bx, by] = boundaryPointsFt[(i + 1) % n];
+    const dx = bx - ax, dy = by - ay;
+    const segLenSq = dx * dx + dy * dy;
+    if (segLenSq < 1e-9) continue;
+    const t = Math.max(0, Math.min(1, ((pt[0] - ax) * dx + (pt[1] - ay) * dy) / segLenSq));
+    const sx = ax + t * dx, sy = ay + t * dy;
+    const dist = Math.hypot(pt[0] - sx, pt[1] - sy);
+    if (dist < bestDist) {
+      const segLen = Math.sqrt(segLenSq);
+      const tangent: [number, number] = [dx / segLen, dy / segLen];
+      const n1: [number, number] = [-tangent[1], tangent[0]];
+      const toPt: [number, number] = [sx - cx, sy - cy];
+      const normal: [number, number] = (n1[0] * toPt[0] + n1[1] * toPt[1]) >= 0 ? n1 : [-n1[0], -n1[1]];
+      bestDist = dist;
+      best = { snapped: [sx, sy], tangent, normal };
+    }
+  }
+  return best;
 }
 
 type HandleId = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w';
@@ -526,23 +560,30 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
         )}
 
         {liveRooms.map(room => {
-          const isSelected = room.room_id === selectedRoomId;
-          const isHovered = room.room_id === hoveredRoomId;
+          const isFoyer = room.room_type === 'FOYER';
+          const isSelected = !isFoyer && room.room_id === selectedRoomId;
+          const isHovered = !isFoyer && room.room_id === hoveredRoomId;
           const isAuditorium = room.room_type.startsWith('AUDITORIUM');
           // Auditoriums get a warm, on-brand tint (they're the room every
           // reviewer looks at first); every other zone stays the plain
           // neutral box — a deliberate, minimal distinction, not a full
           // rainbow color-coded diagram (see ROOM_NEUTRAL's own comment for
-          // why this file avoids that).
-          const roomFill = isAuditorium ? 'var(--brand)' : ROOM_NEUTRAL;
+          // why this file avoids that). Foyer gets no fill at all — a real
+          // Connplex reference drawing never renders circulation as a
+          // colored room, only as plain floor space (its area still shows
+          // up in the Area & Seat Chart) — so it reads as background, not a
+          // room competing for attention with the ones actually being
+          // designed.
+          const roomFill = isFoyer ? 'none' : isAuditorium ? 'var(--brand)' : ROOM_NEUTRAL;
           const b = polygonBounds(room.geometry_points_ft);
           const w = b.maxX - b.minX, h = b.maxY - b.minY;
           // Capped — an uncapped size scaled a large, non-rectangular room
           // (Foyer, computed as the real leftover remainder) into a label
           // that dwarfed and hid every room underneath it. MAX_LABEL_FONT_FT
           // sits just above the largest normal screen's own size so ordinary
-          // rooms are unaffected.
-          const fontSize = Math.min(Math.max(Math.min(w, h) * 0.09, 0.6), MAX_LABEL_FONT_FT);
+          // rooms are unaffected. Foyer's own label is further scaled down —
+          // it's a background label, not a named component.
+          const fontSize = Math.min(Math.max(Math.min(w, h) * 0.09, 0.6), MAX_LABEL_FONT_FT) * (isFoyer ? 0.55 : 1);
           // Guaranteed inside the room's true polygon (server-computed via
           // shapely representative_point()) — a bbox-center label lands
           // outside a concave shape like Foyer's own remainder, which is why
@@ -555,10 +596,15 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           return (
             <g
               key={room.room_id}
-              onPointerDown={(e) => handlePointerDown(e, room, 'move')}
-              onPointerEnter={() => setHoveredRoomId(room.room_id)}
-              onPointerLeave={() => setHoveredRoomId(null)}
-              style={{ cursor: 'move' }}
+              onPointerDown={isFoyer ? undefined : (e) => handlePointerDown(e, room, 'move')}
+              onPointerEnter={isFoyer ? undefined : () => setHoveredRoomId(room.room_id)}
+              onPointerLeave={isFoyer ? undefined : () => setHoveredRoomId(null)}
+              // Foyer is never draggable/resizable/selectable — it's always
+              // freshly recomputed server-side as the real leftover
+              // remainder on the next save regardless of what the UI does
+              // with it (see main.py's _replace_foyer_with_derived), so
+              // offering to edit it directly would be misleading.
+              style={{ cursor: isFoyer ? 'default' : 'move', pointerEvents: isFoyer ? 'none' : 'auto' }}
             >
               {isSelected && (
                 <polygon
@@ -569,10 +615,15 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
               <polygon
                 points={room.geometry_points_ft.map(p => p.join(',')).join(' ')}
                 fill={roomFill}
-                fillOpacity={isSelected ? 0.32 : isHovered ? 0.24 : 0.16}
-                stroke={isSelected ? 'var(--text-primary)' : roomFill}
-                strokeWidth={isSelected ? ftPerHandlePx(1.5) : ftPerHandlePx(1)}
-                filter="url(#roomShadow)"
+                fillOpacity={isFoyer ? 0 : isSelected ? 0.32 : isHovered ? 0.24 : 0.16}
+                // A light dashed outline, not a solid colored one — enough
+                // to see where circulation space is without it visually
+                // competing with the real, named components (see roomFill's
+                // own comment). No shadow filter either, for the same reason.
+                stroke={isFoyer ? 'var(--border-color)' : isSelected ? 'var(--text-primary)' : roomFill}
+                strokeWidth={isFoyer ? ftPerHandlePx(0.75) : isSelected ? ftPerHandlePx(1.5) : ftPerHandlePx(1)}
+                strokeDasharray={isFoyer ? `${ftPerHandlePx(5)} ${ftPerHandlePx(4)}` : undefined}
+                filter={isFoyer ? undefined : "url(#roomShadow)"}
                 style={{ transition: 'fill-opacity 0.12s ease-out, stroke-width 0.12s ease-out' }}
               />
               {isAuditorium && (() => {
@@ -672,10 +723,10 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                   })}
                 </g>
               )}
-              <text x={lx} y={ly} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="var(--text-primary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+              <text x={lx} y={ly} textAnchor="middle" fontSize={fontSize} fontWeight={isFoyer ? 400 : 600} fill={isFoyer ? 'var(--text-tertiary)' : 'var(--text-primary)'} style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.display_name}
               </text>
-              <text x={lx} y={ly + fontSize * 1.3} textAnchor="middle" fontSize={fontSize * 0.8} fill="var(--text-secondary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+              <text x={lx} y={ly + fontSize * 1.3} textAnchor="middle" fontSize={fontSize * 0.8} fill="var(--text-tertiary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.area_sqft} sqft{room.seat_estimate?.seat_count ? ` / ${room.seat_estimate.seat_count} seats` : ''}
               </text>
 
@@ -725,7 +776,39 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
             </g>
           );
         })}
-        <EntryExitMarkers entryPointFt={entryPointFt} exitPointsFt={exitPointsFt} markerR={entryExitMarkerR} />
+        {(() => {
+          // A real door-in-the-wall glyph for the building's own main
+          // entrance/exit — an opening cut into the boundary line plus a
+          // leaf line swung inward (same construction as every room's own
+          // doorGlyphPoints) and a label just outside the wall. Replaces a
+          // floating circle marker: a real CAD zoning sheet marks the
+          // entrance as an opening in the wall itself, confirmed directly
+          // against a real Connplex reference drawing. Mirrors export_pdf.py's/
+          // export_dxf.py's own _draw_entry_exit_markers exactly.
+          const doorWidthFt = Math.max(entryExitMarkerR * 3, 4);
+          const glyphs: { pt: [number, number]; color: string; label: string }[] = [];
+          if (entryPointFt) glyphs.push({ pt: entryPointFt, color: 'var(--brand-strong)', label: 'ENTRY' });
+          (exitPointsFt ?? []).forEach((p, i) => glyphs.push({ pt: p, color: 'var(--danger)', label: `EXIT ${i + 1}` }));
+          return glyphs.map((g, i) => {
+            const hit = nearestBoundaryEdgePoint(g.pt, boundaryPointsFt);
+            if (!hit) return null;
+            const { snapped: [sx, sy], tangent: [tx, ty], normal: [nx, ny] } = hit;
+            const half = doorWidthFt / 2;
+            const p1: [number, number] = [sx - tx * half, sy - ty * half];
+            const p2: [number, number] = [sx + tx * half, sy + ty * half];
+            const leafEnd: [number, number] = [p1[0] - nx * doorWidthFt, p1[1] - ny * doorWidthFt];
+            const labelPt: [number, number] = [sx + nx * doorWidthFt * 1.1, sy + ny * doorWidthFt * 1.1];
+            return (
+              <g key={`entryexit-${i}`} pointerEvents="none">
+                <line x1={p1[0]} y1={p1[1]} x2={p2[0]} y2={p2[1]} stroke={g.color} strokeWidth={ftPerHandlePx(4)} strokeLinecap="round" />
+                <line x1={p1[0]} y1={p1[1]} x2={leafEnd[0]} y2={leafEnd[1]} stroke={g.color} strokeWidth={ftPerHandlePx(1.3)} />
+                <text x={labelPt[0]} y={labelPt[1]} textAnchor="middle" fontSize={doorWidthFt * 0.55} fontWeight={700} fill={g.color} style={{ userSelect: 'none' }}>
+                  {g.label}
+                </text>
+              </g>
+            );
+          });
+        })()}
       </svg>
     </div>
   );

@@ -5,6 +5,7 @@ separate EXISTING vs PROPOSED information on distinct, meaningfully-named layers
 Also converts the DXF to a real DWG via the same ODA File Converter used for
 import, so both formats genuinely round-trip through this app.
 """
+import math
 import os
 import sys
 
@@ -79,21 +80,63 @@ def _flip(pt):
     return (pt[0], -pt[1])
 
 
-def _draw_entry_exit_markers(msp, entry_point_ft, exit_points_ft, marker_r):
-    """Same convention export_pdf.py's _draw_entry_exit_markers uses (and
-    the frontend's EntryExitPicker.tsx before it) — a circle + short label
-    for the building's own main entrance/exit, on their own layer so an
-    architect can toggle them independently of room/door annotation."""
+def _nearest_boundary_edge_point(pt, boundary_points_ft):
+    """Same construction as export_pdf.py's own — see that module's copy
+    for the full reasoning. Returns (snapped_point, tangent_unit,
+    outward_normal_unit) or None."""
+    n = len(boundary_points_ft)
+    if n < 2:
+        return None
+    cx = sum(p[0] for p in boundary_points_ft) / n
+    cy = sum(p[1] for p in boundary_points_ft) / n
+    best_dist, result = None, None
+    for i in range(n):
+        ax, ay = boundary_points_ft[i]
+        bx, by = boundary_points_ft[(i + 1) % n]
+        dx, dy = bx - ax, by - ay
+        seg_len_sq = dx * dx + dy * dy
+        if seg_len_sq < 1e-9:
+            continue
+        t = max(0.0, min(1.0, ((pt[0] - ax) * dx + (pt[1] - ay) * dy) / seg_len_sq))
+        sx, sy = ax + t * dx, ay + t * dy
+        dist = math.hypot(pt[0] - sx, pt[1] - sy)
+        if best_dist is None or dist < best_dist:
+            seg_len = math.sqrt(seg_len_sq)
+            tangent = (dx / seg_len, dy / seg_len)
+            n1 = (-tangent[1], tangent[0])
+            to_pt = (sx - cx, sy - cy)
+            normal = n1 if (n1[0] * to_pt[0] + n1[1] * to_pt[1]) >= 0 else (-n1[0], -n1[1])
+            best_dist = dist
+            result = ((sx, sy), tangent, normal)
+    return result
+
+
+def _draw_entry_exit_markers(msp, entry_point_ft, exit_points_ft, boundary_points_ft, door_width_ft=6.0):
+    """A real door-in-the-wall glyph for the building's own main entrance/
+    exit (matches export_pdf.py's own — see that module's copy for the
+    full reasoning) — an opening cut into the boundary line plus a leaf
+    line swung inward, same construction as every room's own
+    _door_glyph_points_ft, on their own layer so an architect can toggle
+    them independently of room/door annotation."""
+    def draw_one(pt, color, label):
+        hit = _nearest_boundary_edge_point(pt, boundary_points_ft)
+        if hit is None:
+            return
+        (sx, sy), (tx, ty), (nx, ny) = hit
+        half = door_width_ft / 2
+        p1 = (sx - tx * half, sy - ty * half)
+        p2 = (sx + tx * half, sy + ty * half)
+        leaf_end = (p1[0] - nx * door_width_ft, p1[1] - ny * door_width_ft)
+        msp.add_line(_flip(p1), _flip(p2), dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": color, "lineweight": 50})
+        msp.add_line(_flip(p1), _flip(leaf_end), dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": color})
+        label_pt = _flip((sx + nx * door_width_ft * 1.1, sy + ny * door_width_ft * 1.1))
+        msp.add_text(label, dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": color, "height": door_width_ft * 0.5,
+                                         "insert": (label_pt[0] - door_width_ft * 0.9, label_pt[1])})
+
     if entry_point_ft is not None:
-        cx, cy = _flip(entry_point_ft)
-        msp.add_circle((cx, cy), marker_r, dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": _ENTRY_ACI})
-        msp.add_text("IN", dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": _ENTRY_ACI,
-                                        "height": marker_r * 0.8, "insert": (cx - marker_r * 0.55, cy - marker_r * 0.3)})
+        draw_one(entry_point_ft, _ENTRY_ACI, "ENTRY")
     for i, ep in enumerate(exit_points_ft or [], start=1):
-        cx, cy = _flip(ep)
-        msp.add_circle((cx, cy), marker_r, dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": _EXIT_ACI})
-        msp.add_text(f"E{i}", dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": _EXIT_ACI,
-                                           "height": marker_r * 0.8, "insert": (cx - marker_r * 0.55, cy - marker_r * 0.3)})
+        draw_one(ep, _EXIT_ACI, f"EXIT {i}")
 
 
 def _draw_flow_segments(msp, flow_segments):
@@ -150,11 +193,8 @@ def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, room
             msp.add_line(_flip(p1), _flip(leaf_end), dxfattribs={"layer": "ANNOTATION-DOOR"})
 
     if boundary_points_ft:
-        bw = max(p[0] for p in boundary_points_ft) - min(p[0] for p in boundary_points_ft)
-        bh = max(p[1] for p in boundary_points_ft) - min(p[1] for p in boundary_points_ft)
-        marker_r = max(bw, bh) * 0.018
         _draw_flow_segments(msp, flow_segments)
-        _draw_entry_exit_markers(msp, entry_point_ft, exit_points_ft, marker_r)
+        _draw_entry_exit_markers(msp, entry_point_ft, exit_points_ft, boundary_points_ft)
 
     title = project_meta.get("property_name") or "Untitled Project"
     header_lines = [

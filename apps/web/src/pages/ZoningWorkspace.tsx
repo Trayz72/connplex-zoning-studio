@@ -34,9 +34,14 @@ const STEP_ORDER: Step[] = ['UPLOAD', 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQ
 // entry-aware position using the same scan-and-fit machinery auto-layout
 // itself uses for screens, so this list only needs a type + label, no
 // client-guessed size or position.
+//
+// No FOYER entry here — it's never independently added or resized anymore.
+// The server always recomputes it fresh as the real leftover remainder
+// after every other room (see main.py's _replace_foyer_with_derived), on
+// every add/move/resize/delete, so it can never go stale or overlap
+// anything the way an independently-placed Foyer rectangle used to.
 const ROOM_TYPE_TEMPLATES: { type: string; label: string }[] = [
   { type: 'AUDITORIUM', label: 'Screen' },
-  { type: 'FOYER', label: 'Foyer' },
   { type: 'FNB', label: 'F&B / Concession' },
   { type: 'WASHROOM', label: 'Washroom' },
   { type: 'BOX_OFFICE', label: 'Box Office' },
@@ -283,7 +288,6 @@ export const ZoningWorkspace: React.FC = () => {
   // does — it just runs the same real addZone/place_single_zone machinery
   // once per missing standard type instead of six individual clicks.
   const STANDARD_FILL_TYPES: typeof ROOM_TYPE_TEMPLATES = [
-    { type: 'FOYER', label: 'Foyer' },
     { type: 'FNB', label: 'F&B / Concession' },
     { type: 'WASHROOM', label: 'Washroom' },
     { type: 'BOX_OFFICE', label: 'Box Office' },
