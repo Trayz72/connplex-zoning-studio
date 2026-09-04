@@ -931,18 +931,18 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               {geometry.units.suggested_unit_reason || 'Confirm the real-world unit before trusting any measurement below.'}
             </div>
             <select
+              className="select-control"
               value={selectedUnit}
               onChange={(e) => setSelectedUnit(e.target.value)}
-              style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '3px 6px', fontSize: '0.74rem' }}
             >
               {UNIT_OPTIONS.map(u => (
                 <option key={u} value={u}>{u}{u === geometry.units.suggested_unit ? ' (suggested)' : ''}</option>
               ))}
             </select>
-            <button className="btn btn-primary" style={{ fontSize: '0.72rem', padding: '4px 10px', whiteSpace: 'nowrap' }} disabled={confirmingUnit} onClick={() => confirmUnit()}>
+            <button className="btn btn-primary btn-sm" style={{ whiteSpace: 'nowrap' }} disabled={confirmingUnit} onClick={() => confirmUnit()}>
               {confirmingUnit ? 'Applying…' : 'Confirm Unit'}
             </button>
-            <button className="btn btn-secondary" style={{ fontSize: '0.72rem', padding: '4px 8px' }} onClick={() => setUnitsDismissed(true)}>Dismiss</button>
+            <button className="btn btn-secondary btn-sm" onClick={() => setUnitsDismissed(true)}>Dismiss</button>
           </div>
         )}
 
@@ -956,55 +956,55 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               {unitMismatchWarning}
             </div>
             <button
-              className="btn btn-primary" style={{ fontSize: '0.72rem', padding: '4px 10px', whiteSpace: 'nowrap' }}
+              className="btn btn-primary btn-sm" style={{ whiteSpace: 'nowrap' }}
               disabled={confirmingUnit}
               onClick={() => { setSelectedUnit(geometry.units.suggested_unit!); confirmUnit(geometry.units.suggested_unit!); }}
             >
               Use {geometry.units.suggested_unit} instead
             </button>
-            <button className="btn btn-secondary" style={{ fontSize: '0.72rem', padding: '4px 8px', whiteSpace: 'nowrap' }} onClick={() => setUnitMismatchWarning(null)}>
+            <button className="btn btn-secondary btn-sm" style={{ whiteSpace: 'nowrap' }} onClick={() => setUnitMismatchWarning(null)}>
               Keep {selectedUnit}, this is correct
             </button>
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
+        <div className="toolbar" style={{ justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', gap: '4px' }}>
-            <button className={tool === 'browse' ? 'btn btn-primary' : 'btn btn-secondary'} style={{ fontSize: '0.72rem', padding: '4px 10px' }} onClick={() => switchTool('browse')}>Browse</button>
-            <button className={tool === 'shape' ? 'btn btn-primary' : 'btn btn-secondary'} style={{ fontSize: '0.72rem', padding: '4px 10px' }} onClick={() => switchTool('shape')}>Select Closed Shape</button>
-            <button className={tool === 'walls' ? 'btn btn-primary' : 'btn btn-secondary'} style={{ fontSize: '0.72rem', padding: '4px 10px' }} onClick={() => switchTool('walls')}>Select Walls</button>
-            <button className={tool === 'draw' ? 'btn btn-primary' : 'btn btn-secondary'} style={{ fontSize: '0.72rem', padding: '4px 10px' }} onClick={() => switchTool('draw')}>Draw Boundary</button>
+            <button className={`btn btn-sm ${tool === 'browse' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => switchTool('browse')}>Browse</button>
+            <button className={`btn btn-sm ${tool === 'shape' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => switchTool('shape')}>Select Closed Shape</button>
+            <button className={`btn btn-sm ${tool === 'walls' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => switchTool('walls')}>Select Walls</button>
+            <button className={`btn btn-sm ${tool === 'draw' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => switchTool('draw')}>Draw Boundary</button>
           </div>
-          <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={onStartOver}>
+          <button className="btn btn-secondary btn-sm" onClick={onStartOver}>
             <RefreshIcon size={13} /> Replace CAD File
           </button>
         </div>
 
         <div style={{ flex: 1, position: 'relative', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', zIndex: 10, margin: '10px', display: 'flex', gap: '4px' }}>
-            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => {
+          <div style={{ position: 'absolute', zIndex: 10, margin: '10px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            <button className="btn btn-secondary btn-sm" onClick={() => {
               const r = svgRef.current?.getBoundingClientRect();
               if (r) zoomAtScreenPoint(r.left + r.width / 2, r.top + r.height / 2, 1.5);
             }}>+</button>
-            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => {
+            <button className="btn btn-secondary btn-sm" onClick={() => {
               const r = svgRef.current?.getBoundingClientRect();
               if (r) zoomAtScreenPoint(r.left + r.width / 2, r.top + r.height / 2, 1 / 1.5);
             }}>−</button>
-            <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => {
+            <button className="btn btn-secondary btn-sm" onClick={() => {
               setZoom(1);
               setCenter({ x: bbox.minX + bbox.width / 2, y: bbox.minY + bbox.height / 2 });
             }}>Reset</button>
-            <span style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-tertiary)', fontSize: '0.68rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center' }}>
+            <span className="badge" style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center' }}>
               {raw.lines.length.toLocaleString()} lines · {raw.closed_shapes.length.toLocaleString()} shapes{raw.truncated ? ' (truncated)' : ''}
             </span>
             {annotationLineCount > 0 && (
-              <span style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-tertiary)', fontSize: '0.68rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span className="badge" style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <span style={{ display: 'inline-block', width: '14px', borderTop: '1.5px dashed var(--text-tertiary)', opacity: 0.5 }} />
                 {annotationLineCount.toLocaleString()} dimension/leader lines (dimmed, not selectable as walls)
               </span>
             )}
             {sheetLineCount > 0 && (
-              <span style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-tertiary)', fontSize: '0.68rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span className="badge" style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-strong)', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <span style={{ display: 'inline-block', width: '14px', borderTop: '1.5px dashed var(--text-tertiary)', opacity: 0.5 }} />
                 {sheetLineCount.toLocaleString()} sheet frame/margin/title-block lines (dimmed, not selectable as walls)
               </span>
@@ -1102,6 +1102,31 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
       </div>
 
       <div style={{ width: '340px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
+        {/* recovery_note/conversion_note/extraction_method/entity counts are
+            all computed on every upload (cad_extraction.py) but had no UI
+            anywhere before this — recovery_note in particular is a real,
+            specific data-quality warning ("this DXF wasn't fully
+            spec-compliant, geometry near the affected entities may be
+            incomplete") that was silently discarded on every response. */}
+        {geometry.recovery_note && (
+          <div className="panel" style={{ borderColor: 'rgba(201,154,58,0.4)' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+              <WarningIcon size={14} className="text-warning" style={{ flex: '0 0 auto', marginTop: '2px' }} />
+              <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                {geometry.recovery_note}
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="panel">
+          <div className="panel-label" style={{ marginBottom: '6px' }}>Source File</div>
+          <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            <div className="font-mono" style={{ color: 'var(--text-primary)', wordBreak: 'break-all' }}>{geometry.source_filename}</div>
+            {geometry.conversion_note && <div>{geometry.conversion_note}</div>}
+            <div>{geometry.total_entities_scanned.toLocaleString()} entities scanned · {geometry.total_closed_shapes_found.toLocaleString()} closed shapes found</div>
+            <div style={{ color: 'var(--text-tertiary)' }}>Extraction method: {geometry.extraction_method}</div>
+          </div>
+        </div>
         <div className="panel">
           <div className="panel-label" style={{ marginBottom: '8px' }}>Auto-Detected Candidates</div>
           {geometry.regions.length === 0 ? (

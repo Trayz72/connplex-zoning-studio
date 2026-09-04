@@ -188,6 +188,18 @@ header.navbar .nav-links {
   line-height: 1.2;
 }
 
+/* Keyboard-only ring — every .btn variant previously fell back to each
+   browser's own default focus style (a thin blue outline in most, easy to
+   lose entirely against this dark theme), the one real accessibility gap
+   in an otherwise deliberate design system. :focus-visible so it only
+   appears for keyboard/assistive-tech focus, never on a mouse click. */
+.btn:focus-visible,
+.select-control:focus-visible,
+.btn-icon-danger:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
+}
+
 .btn-primary {
   background-color: var(--accent);
   color: var(--accent-ink);
@@ -251,6 +263,89 @@ header.navbar .nav-links {
 .btn-icon-danger svg {
   width: 15px;
   height: 15px;
+}
+
+/* Small button variant — the workspace's dense toolbars (Edit step's "Add
+   zone" row, Geometry Review's linework/draw-boundary row, Boundary
+   Studio's tool switcher) all needed a button that reads as a real .btn
+   (same colors, same hover, same focus ring) but smaller than the default
+   padding/font-size allows. Previously every call site re-typed its own
+   one-off `style={{ fontSize: '0.7rem', padding: '3px 8px' }}` — same idea,
+   several slightly different numbers scattered across files, so two
+   adjacent toolbars could end up with visibly different button heights.
+   One real class instead: same optical size everywhere, easy to keep that
+   way. */
+.btn-sm {
+  padding: 0.3rem 0.6rem;
+  font-size: var(--text-sm);
+}
+
+.btn-xs {
+  padding: 0.22rem 0.5rem;
+  font-size: var(--text-xs);
+}
+
+/* Styled <select> matching .form-control's look — an unstyled native
+   select (browser-default height/border/no radius) sitting next to real
+   .btn elements in the same toolbar row reads as unfinished, not just
+   differently sized. */
+.select-control {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.select-control:hover {
+  border-color: var(--border-strong);
+}
+
+.select-control:focus {
+  outline: none;
+  border-color: var(--text-tertiary);
+}
+
+/* Checkbox + label pairing used throughout the workspace toolbars (CAD
+   linework toggle, etc.) — a real class instead of re-typing the same
+   flex/gap/cursor combination inline at every call site, and gives the
+   checkbox itself a consistent size instead of each browser's own default. */
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--brand-strong);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+/* A toolbar row of controls sitting directly on the workspace background
+   (no card behind it) reads as loose/unfinished, especially once it mixes
+   buttons, a checkbox, and a select — a thin card treatment gives the row
+   a real edge, consistent with the .panel treatment used everywhere else
+   in the workspace, without the heavier padding a full .panel uses. */
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.7rem;
 }
 
 .main-content {

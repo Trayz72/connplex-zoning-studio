@@ -136,6 +136,13 @@ export interface GeometryResult {
   schema_version: string;
   source_filename: string;
   conversion_note: string | null;
+  /** Set only when the DXF wasn't fully spec-compliant and ezdxf's
+   * fault-tolerant recovery reader had to step in (see
+   * cad_extraction.py's _read_dxf_with_recovery) — a real, specific
+   * "geometry near the affected entities may be incomplete, review
+   * carefully" warning, computed on every upload but not previously shown
+   * anywhere in the UI. */
+  recovery_note: string | null;
   units: GeometryUnits;
   extraction_method: string;
   total_entities_scanned: number;

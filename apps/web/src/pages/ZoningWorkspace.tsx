@@ -22,6 +22,12 @@ const STEP_LABEL: Record<Step, string> = {
   REQUIREMENTS: 'Requirements', RUN: 'Run', EDIT: 'Edit'
 };
 
+// The real wizard order, LOADING excluded — used both to render the
+// stepper left-to-right and to know which steps count as "already visited"
+// (see maxStepIndex) so a completed step can be revisited without also
+// making an unreached one clickable, which would just 404 on missing state.
+const STEP_ORDER: Step[] = ['UPLOAD', 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'];
+
 const ROOM_TYPE_TEMPLATES: { type: string; label: string; w: number; h: number }[] = [
   { type: 'FOYER', label: 'Foyer', w: 20, h: 15 },
   { type: 'FNB', label: 'F&B / Concession', w: 12, h: 10 },
@@ -38,6 +44,21 @@ export const ZoningWorkspace: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [project, setProject] = useState<Project | null>(null);
   const [step, setStep] = useState<Step>('LOADING');
+  // How far this project has actually gotten — a step already visited can be
+  // revisited (a real "Back" affordance, see the stepper/Back button below),
+  // but nothing past that: an unreached step has no state to show yet
+  // (e.g. clicking "5. Run" before requirements exist would just render an
+  // empty RunStep). Tracked separately from `step` itself since going back
+  // must not un-mark a later step as reached — that's what makes it safe to
+  // navigate forward again without re-doing everything.
+  const [maxStepIndex, setMaxStepIndex] = useState(0);
+  const goToStep = useCallback((s: Step) => {
+    const idx = STEP_ORDER.indexOf(s);
+    if (idx >= 0) setMaxStepIndex(prev => Math.max(prev, idx));
+    setStep(s);
+  }, []);
+  const stepIndex = STEP_ORDER.indexOf(step);
+  const goBack = () => { if (stepIndex > 0) goToStep(STEP_ORDER[stepIndex - 1]); };
   const [geometry, setGeometry] = useState<GeometryResult | null>(null);
   const [regionId, setRegionId] = useState<string>('');
   const [reviewRegionId, setReviewRegionId] = useState<string | undefined>(undefined);
@@ -96,33 +117,33 @@ export const ZoningWorkspace: React.FC = () => {
       setProject(proj);
 
       const geo = await engine.getGeometry(id).catch(() => null);
-      if (!geo) { setStep('UPLOAD'); return; }
+      if (!geo) { goToStep('UPLOAD'); return; }
       setGeometry(geo);
 
       const confirmedRegion = geo.regions.find(r => r.boundary.status === 'CONFIRMED');
-      if (!confirmedRegion) { setStep('BOUNDARY_STUDIO'); return; }
+      if (!confirmedRegion) { goToStep('BOUNDARY_STUDIO'); return; }
       setRegionId(confirmedRegion.region_id);
 
       const req = await engine.getRequirements(id).catch(() => null);
-      if (!req) { setStep('REQUIREMENTS'); return; }
+      if (!req) { goToStep('REQUIREMENTS'); return; }
       setRequirements(req);
 
       const existingLayout = await engine.getLayout(id).catch(() => null);
-      if (existingLayout) { setLayout(existingLayout); setStep('EDIT'); return; }
+      if (existingLayout) { setLayout(existingLayout); goToStep('EDIT'); return; }
 
-      setStep('RUN');
+      goToStep('RUN');
     })();
   }, [id]);
 
   const handleUploaded = (geo: GeometryResult) => {
     setGeometry(geo);
-    setStep('BOUNDARY_STUDIO');
+    goToStep('BOUNDARY_STUDIO');
   };
 
   const handleStartOver = () => {
     setGeometry(null);
     setReviewRegionId(undefined);
-    setStep('UPLOAD');
+    goToStep('UPLOAD');
   };
 
   const handleBoundaryChosen = (
@@ -133,7 +154,7 @@ export const ZoningWorkspace: React.FC = () => {
     setReviewRegionId(chosenRegionId);
     if (entryPt !== undefined) setEntryPointFt(entryPt);
     if (exitPts !== undefined) setExitPointsFt(exitPts.length ? exitPts : null);
-    setStep('GEOMETRY_REVIEW');
+    goToStep('GEOMETRY_REVIEW');
   };
 
   const handleGeometryConfirmed = async (regions: GeometryRegion[], selectedRegionId: string) => {
@@ -141,20 +162,20 @@ export const ZoningWorkspace: React.FC = () => {
     const updated = await engine.updateGeometry(id, regions);
     setGeometry(updated);
     setRegionId(selectedRegionId);
-    setStep('REQUIREMENTS');
+    goToStep('REQUIREMENTS');
   };
 
   const handleRequirementsSubmit = async (req: Requirements) => {
     if (!id) return;
     const saved = await engine.setRequirements(id, req);
     setRequirements(saved);
-    setStep('RUN');
+    goToStep('RUN');
   };
 
   const handleLayoutReady = (l: EditableLayout) => {
     setLayout(l);
     setSelectedRoomId(null);
-    setStep('EDIT');
+    goToStep('EDIT');
   };
 
   const persistLayout = useCallback(async (rooms: LiveRoom[]) => {
@@ -261,14 +282,42 @@ export const ZoningWorkspace: React.FC = () => {
           <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>{project?.property_name || 'Project'}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {stepIndex > 0 && (
+            <button
+              className="btn btn-secondary" style={{ fontSize: '0.72rem', padding: '0.32rem 0.7rem' }}
+              onClick={goBack} title={`Back to ${STEP_LABEL[STEP_ORDER[stepIndex - 1]]}`}
+            >
+              ← Back
+            </button>
+          )}
           <div style={{ display: 'flex', gap: '2px', fontSize: 'var(--text-xs)' }}>
-            {(['UPLOAD', 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'] as Step[]).map((s, i) => (
-              <span key={s} style={{
-                padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontWeight: step === s ? 600 : 400,
-                background: step === s ? 'var(--bg-raised)' : 'transparent',
-                color: step === s ? 'var(--text-primary)' : 'var(--text-tertiary)'
-              }}>{i + 1}. {STEP_LABEL[s]}</span>
-            ))}
+            {STEP_ORDER.map((s, i) => {
+              const reached = i <= maxStepIndex;
+              const isCurrent = step === s;
+              // A step already visited is a real link back to it (the
+              // stepper doubles as breadcrumb navigation, not just a
+              // progress indicator) — one not yet reached stays plain text,
+              // since clicking it would just render a step with no state to
+              // show yet (e.g. Requirements before a boundary is confirmed).
+              return (
+                <button
+                  key={s}
+                  disabled={!reached || isCurrent}
+                  onClick={() => reached && goToStep(s)}
+                  title={reached && !isCurrent ? `Back to ${STEP_LABEL[s]}` : undefined}
+                  style={{
+                    padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontWeight: isCurrent ? 600 : 400,
+                    background: isCurrent ? 'var(--bg-raised)' : 'transparent',
+                    color: isCurrent ? 'var(--text-primary)' : reached ? 'var(--text-secondary)' : 'var(--text-tertiary)',
+                    border: 'none', font: 'inherit', fontSize: 'inherit',
+                    cursor: reached && !isCurrent ? 'pointer' : 'default',
+                    opacity: reached ? 1 : 0.6
+                  }}
+                >
+                  {i + 1}. {STEP_LABEL[s]}
+                </button>
+              );
+            })}
           </div>
           <ThemeToggle />
         </div>
@@ -303,25 +352,26 @@ export const ZoningWorkspace: React.FC = () => {
         {step === 'EDIT' && layout && (
           <div style={{ display: 'flex', height: '100%' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '8px', gap: '8px' }}>
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)' }}>Add zone:</span>
+              <div className="toolbar">
+                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)', fontWeight: 500 }}>Add zone:</span>
                 {ROOM_TYPE_TEMPLATES.map(t => (
-                  <button key={t.type} className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={() => addZone(t)}>+ {t.label}</button>
+                  <button key={t.type} className="btn btn-secondary btn-sm" onClick={() => addZone(t)}>+ {t.label}</button>
                 ))}
-                {selectedRoomId && <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px', color: 'var(--danger)' }} onClick={deleteSelected}>Delete Selected</button>}
-                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', color: 'var(--text-tertiary)', marginLeft: 'auto', cursor: 'pointer' }}>
+                {selectedRoomId && <button className="btn btn-danger btn-sm" onClick={deleteSelected}>Delete Selected</button>}
+                <label className="checkbox-label" style={{ marginLeft: 'auto' }}>
                   <input type="checkbox" checked={showCadLinework} onChange={(e) => setShowCadLinework(e.target.checked)} />
                   CAD linework
                 </label>
-                <label style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>
-                  Snap: <select value={snapFt} onChange={(e) => setSnapFt(parseFloat(e.target.value))} style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '2px' }}>
+                <label className="checkbox-label" style={{ cursor: 'default' }}>
+                  Snap:
+                  <select className="select-control" value={snapFt} onChange={(e) => setSnapFt(parseFloat(e.target.value))}>
                     <option value={0}>Off</option>
                     <option value={0.5}>0.5 ft</option>
                     <option value={1}>1 ft</option>
                     <option value={2}>2 ft</option>
                   </select>
                 </label>
-                {saving && <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Saving…</span>}
+                {saving && <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Saving…</span>}
               </div>
 
               {validationErrors.length > 0 && (

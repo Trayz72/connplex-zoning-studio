@@ -347,8 +347,8 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
   return (
     <div style={{ display: 'flex', height: '100%', gap: '12px', padding: '12px' }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.72rem', color: 'var(--text-tertiary)', cursor: 'pointer' }}>
+        <div className="toolbar" style={{ justifyContent: 'space-between' }}>
+          <label className="checkbox-label">
             <input type="checkbox" checked={showCadLinework} onChange={(e) => setShowCadLinework(e.target.checked)} />
             Show original CAD linework
             {activeRegion.raw_geometry?.truncated && (
@@ -358,10 +358,10 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
             )}
           </label>
           <div style={{ display: 'flex', gap: '6px' }}>
-            <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={() => setDrawingBoundary(v => !v)}>
+            <button className="btn btn-secondary btn-sm" onClick={() => setDrawingBoundary(v => !v)}>
               {drawingBoundary ? 'Cancel Drawing' : 'Draw Boundary Manually'}
             </button>
-            <button className="btn btn-secondary" style={{ fontSize: '0.7rem', padding: '3px 8px' }} onClick={onStartOver}>
+            <button className="btn btn-secondary btn-sm" onClick={onStartOver}>
               <RefreshIcon size={13} /> Replace CAD File
             </button>
           </div>

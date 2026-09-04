@@ -13,6 +13,58 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-04 — Real back navigation, toolbar/button polish, surfaced two dead backend fields
+
+Explicit ask: "add back button, proper button and their style, looks should
+be great without touching any features. also if backend has some features
+made which is useful and not yet have proper ui then add those." No layout
+engine, extraction, or API logic touched — every change here is navigation
+plumbing or presentation.
+
+**Back navigation** — genuinely didn't exist before. The step header
+(`ZoningWorkspace.tsx`) was a static breadcrumb with no click handlers at
+all; going from, say, Requirements back to re-pick a boundary meant losing
+your place entirely. Added `maxStepIndex` (how far this project has
+actually gotten) and a `goToStep` wrapper around every `setStep` call that
+tracks it — a step already visited is now a real link back to it in the
+stepper, plus an explicit "← Back" button in the header that steps back
+one at a time. An unreached step stays inert (clicking "5. Run" before
+Requirements exists would just render nothing useful). Verified live:
+walked forward to Requirements, clicked back to Upload, clicked "2. Select
+Boundary" in the stepper to jump forward again — state held correctly
+both directions.
+
+**Button/control consistency** — the workspace's toolbars (Edit step's
+"Add zone" row, Geometry Review's linework/draw-boundary row, Boundary
+Studio's tool switcher and unit-confirmation banners) had each grown their
+own one-off `style={{ fontSize: '0.7Xrem', padding: 'Ypx Zpx' }}` per
+button, several slightly different numbers doing the same job, plus raw
+unstyled `<select>`/checkbox elements sitting next to real `.btn`s. Added
+real reusable classes to `index.css` instead — `.btn-sm`/`.btn-xs`,
+`.select-control`, `.checkbox-label`, `.toolbar` — and a `.btn:focus-visible`
+ring, the one real accessibility gap in an otherwise deliberate design
+system (every `.btn` previously fell back to the browser's own default
+outline, easy to lose against this dark theme). Applied throughout;
+"Delete Selected" also switched from `.btn-secondary` with manually
+red-colored text to the actual `.btn-danger` class that already existed
+for exactly this.
+
+**Two backend fields that had zero UI, found by diffing `GeometryResult`
+against what's actually rendered**: `recovery_note` (set when a DXF wasn't
+fully spec-compliant and ezdxf's fault-tolerant recovery reader had to
+step in — a real, specific "geometry near the affected entities may be
+incomplete, review carefully" warning, silently discarded on every
+response until now) wasn't even declared in the TS type. `extraction_method`
+and the entity/closed-shape counts were fetched but never shown either.
+Added a "Source File" panel to Boundary Studio's sidebar (filename,
+extraction method, entity/shape counts, conversion note when a DWG was
+converted) and a warning banner for `recovery_note` when present, same
+visual treatment as the existing units-confirmation banner. Verified live
+against a real upload — filename/counts/method render correctly; the
+recovery-note path is a straightforward conditional matching an
+already-proven pattern, not separately live-tested (no malformed DXF on
+hand this session to trigger it).
+
 ## 2026-09-03 — One-click gap closing for boundary tracing, opt-in and never silent
 
 Direct response to "there's a button to auto fill those gaps and close the
