@@ -91,6 +91,24 @@ def poly_from_points(points_ft):
     return p if p.is_valid else p.buffer(0)
 
 
+def _label_point_ft(geometry_points_ft):
+    """A point GUARANTEED to fall inside the room's own polygon — unlike a
+    bounding-box center, which lands outside a concave shape (a real,
+    confirmed defect: Foyer's own leftover-remainder polygon can be
+    concave/keyhole-cut, and a bbox-center label rendered visibly outside
+    it, floating over unrelated rooms). Every room carries this so the
+    frontend/PDF/DXF label renderers never have to guess at polygon
+    geometry themselves — for a plain rectangle (every room type except
+    Foyer) this is equivalent to the bbox center, so nothing changes for
+    them; it only matters for a genuinely non-convex shape."""
+    poly = poly_from_points(geometry_points_ft)
+    if poly.is_empty:
+        b = Polygon(geometry_points_ft).bounds
+        return [round((b[0] + b[2]) / 2, 2), round((b[1] + b[3]) / 2, 2)]
+    pt = poly.representative_point()
+    return [round(pt.x, 2), round(pt.y, 2)]
+
+
 def _rect(x, y, w, h):
     return box(x, y, x + w, y + h)
 
@@ -617,6 +635,7 @@ def _build_auditorium_room(x, y, w, h, index, used_preset, used_fallback, column
         "depth_ft": round(h, 2),
         "origin_ft": [round(x, 2), round(y, 2)],
         "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
+        "label_point_ft": [round(x + w / 2, 2), round(y + h / 2, 2)],
         "seat_estimate": seat_est,
         "seat_config": seat_config,
         "screen_wall": screen_wall,
@@ -1009,6 +1028,7 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
             "area_sqft": round(w * h, 2), "width_ft": round(w, 2), "depth_ft": round(h, 2),
             "origin_ft": [round(x, 2), round(y, 2)],
             "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
+            "label_point_ft": [round(x + w / 2, 2), round(y + h / 2, 2)],
             "seat_estimate": seat_est,
             "seat_config": seat_config,
             "screen_wall": screen_wall,
@@ -1121,6 +1141,7 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
         "depth_ft": round(h, 2),
         "origin_ft": [round(x, 2), round(y, 2)],
         "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
+        "label_point_ft": [round(x + w / 2, 2), round(y + h / 2, 2)],
         "area_basis_note": note
     }
     if shrink_note:
@@ -1303,6 +1324,7 @@ def _build_foyer_room(fallback_poly, placed_polys, placed_rooms_for_doors, entry
 
     coords = _single_ring_with_keyholes(chosen)
     b = chosen.bounds
+    label_pt = chosen.representative_point()  # guaranteed inside the TRUE shape (holes excluded), not just its bbox center
     room = {
         "room_id": f"foyer-{uuid.uuid4().hex[:8]}",
         "room_type": "FOYER",
@@ -1312,6 +1334,7 @@ def _build_foyer_room(fallback_poly, placed_polys, placed_rooms_for_doors, entry
         "depth_ft": round(b[3] - b[1], 2),
         "origin_ft": [round(b[0], 2), round(b[1], 2)],
         "geometry_points_ft": [[round(px, 2), round(py, 2)] for px, py in coords],
+        "label_point_ft": [round(label_pt.x, 2), round(label_pt.y, 2)],
         "doors": [],
         "area_basis_note": "Computed as the real contiguous leftover usable area after screens and all other "
                             "support zones were placed, not independently sized or positioned.",
@@ -1374,6 +1397,7 @@ def _place_support_zones_and_foyer(usable_poly, fallback_poly, column_polys, bbo
             "depth_ft": round(h, 2),
             "origin_ft": [round(x, 2), round(y, 2)],
             "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
+            "label_point_ft": [round(x + w / 2, 2), round(y + h / 2, 2)],
             "area_basis_note": note,
             "doors": _door_for_support_zone(w, h, wall, door_width_ft),
         }

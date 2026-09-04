@@ -93,8 +93,16 @@ def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, room
         pts = room["geometry_points_ft"]
         msp.add_lwpolyline([_flip(p) for p in pts], close=True, dxfattribs={"layer": layer})
 
-        cx = sum(p[0] for p in pts) / len(pts)
-        cy = -sum(p[1] for p in pts) / len(pts)
+        # label_point_ft (server-computed via shapely representative_point())
+        # is guaranteed to fall inside the room's true polygon — a plain
+        # vertex-mean centroid can land outside a concave shape (Foyer's own
+        # leftover-remainder polygon). Falls back to vertex-mean for any
+        # older cached layout without the field.
+        if "label_point_ft" in room:
+            cx, cy = room["label_point_ft"][0], -room["label_point_ft"][1]
+        else:
+            cx = sum(p[0] for p in pts) / len(pts)
+            cy = -sum(p[1] for p in pts) / len(pts)
         label = f"{room['display_name']}\n{room['area_sqft']} sqft"
         seat_count = room.get("seat_estimate", {}).get("seat_count")
         if seat_count:

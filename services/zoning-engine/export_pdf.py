@@ -515,14 +515,27 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
         page_pts = [tx(p) for p in pts]
         rw = max(p[0] for p in page_pts) - min(p[0] for p in page_pts)
         rh = max(p[1] for p in page_pts) - min(p[1] for p in page_pts)
-        cx = sum(p[0] for p in pts) / len(pts)
-        cy = sum(p[1] for p in pts) / len(pts)
+        # label_point_ft (server-computed via shapely representative_point())
+        # is guaranteed to fall inside the room's true polygon — a plain
+        # vertex-mean centroid can land outside a concave shape (Foyer's own
+        # leftover-remainder polygon), which used to put its area/name text
+        # outside the room entirely. Falls back to vertex-mean for any older
+        # cached layout without the field.
+        if "label_point_ft" in room:
+            cx, cy = room["label_point_ft"]
+        else:
+            cx = sum(p[0] for p in pts) / len(pts)
+            cy = sum(p[1] for p in pts) / len(pts)
         lx, ly = tx((cx, cy))
 
         seat = room.get("seat_estimate") or {}
         seat_count = seat.get("seat_count")
         name = room["display_name"].upper()
-        start_size = max(min(rw, rh) * 0.11, 6)
+        # Capped — see EditableCanvas.tsx's MAX_LABEL_FONT_FT for the same
+        # fix on the frontend: an uncapped size scaled a large, non-
+        # rectangular room's (Foyer's) label into something that dwarfed
+        # every room underneath it.
+        start_size = min(max(min(rw, rh) * 0.11, 6), 26)
         # Fit the name to the room's actual on-page width, rather than letting
         # it spill past the room's boundary — real rooms vary a lot in shape.
         name_lines, name_size = _fit_room_name(c, name, rw * 0.92, start_size)
