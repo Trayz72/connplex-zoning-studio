@@ -206,7 +206,7 @@ export async function updateLayout(projectId: string, layout: Pick<EditableLayou
   }));
 }
 
-/** Places one new room (AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | BOH)
+/** Places one new room (AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | BOH | PASSAGE)
  * into the current layout at a real, collision-free position the backend
  * finds via the same entry-aware scan-and-fit machinery auto-layout itself
  * uses — never a client-guessed corner. Throws a plain Error (its `message`

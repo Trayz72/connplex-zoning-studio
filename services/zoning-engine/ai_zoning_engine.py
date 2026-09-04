@@ -51,8 +51,9 @@ NON_AUDITORIUM_DISPLAY_NAMES = {
     "WASHROOM": "Washrooms",
     "BOX_OFFICE": "Box Office / Ticketing",
     "BOH": "Back-of-House (Electrical / Server / Store)",
+    "PASSAGE": "Passage / Corridor",
 }
-ROOM_TYPES = ["AUDITORIUM", "FOYER", "FNB", "WASHROOM", "BOX_OFFICE", "BOH"]
+ROOM_TYPES = ["AUDITORIUM", "FOYER", "FNB", "WASHROOM", "BOX_OFFICE", "BOH", "PASSAGE"]
 
 
 class AiZoningError(Exception):
@@ -178,7 +179,9 @@ any hard obstacle or the boundary edge — placements that just barely touch an 
 routinely rejected by exact geometric validation afterward, so don't cut it precisely to the edge.
 3. Include real support zones: at least one FOYER, one FNB, one WASHROOM, one BOX_OFFICE, and one BOH — \
 these are mandatory per SOP (§9), sized reasonably against what's left after auditoriums, not to any fixed \
-number.
+number. Also include a PASSAGE (corridor) connecting the Foyer to the auditoriums, at least \
+EGRESS_PASSAGE_MIN_WIDTH_FT wide if that planning norm is present in the data above — real cinemas route a \
+dedicated corridor between the public foyer and the screens, not open floor area with no defined path.
 4. No two rooms may overlap each other.
 5. Space utilization is the main thing you're being judged on. Before finalizing, add up every room's area \
 and compare it to the usable floor area — if less than ~75-80% of the usable area is covered by real rooms, \
@@ -206,8 +209,9 @@ def _room_type_and_label(raw_type, index, counters):
     return raw_type, NON_AUDITORIUM_DISPLAY_NAMES.get(raw_type, raw_type.replace("_", " ").title())
 
 
-def _rooms_from_tool_input(tool_input, column_polys):
+def _rooms_from_tool_input(tool_input, column_polys, entry_point=None, screen_width_ft=None):
     valid_seat_ids = {s["id"] for s in seat_engine.selectable_seat_types()}
+    door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
     counters = {}
     rooms = []
     for r in tool_input.get("rooms", []):
@@ -235,11 +239,19 @@ def _rooms_from_tool_input(tool_input, column_polys):
                 seat_type_id = seat_engine.DEFAULT_SEAT_TYPE_ID
             rect_poly = layout_engine.poly_from_points(geometry_points_ft)
             enclosed_area = layout_engine._enclosed_obstacle_area(rect_poly, column_polys) if column_polys else 0.0
-            seat_est = seat_engine.estimate_seats(w, d, primary_seat_type_id=seat_type_id, enclosed_obstacle_area_sqft=enclosed_area)
+            seat_est = seat_engine.estimate_seats(w, d, primary_seat_type_id=seat_type_id, enclosed_obstacle_area_sqft=enclosed_area,
+                                                   screen_width_ft=screen_width_ft)
             room["seat_estimate"] = seat_est
             room["seat_config"] = {"primary_seat_type_id": seat_type_id, "secondary_seat_type_id": None, "primary_ratio_pct": 100}
             if seat_est.get("note"):
                 room["obstacle_note"] = seat_est["note"]
+            # Same screen-wall/door derivation the deterministic engine uses
+            # (layout_engine._screen_wall_for_rect/_doors_for_screen_wall) —
+            # an AI-proposed screen should render and validate consistently
+            # with an auto-placed one, not read as a different kind of room.
+            screen_wall = layout_engine._screen_wall_for_rect(x, y, w, d, entry_point)
+            room["screen_wall"] = screen_wall
+            room["doors"] = layout_engine._doors_for_screen_wall(w, d, screen_wall, door_width_ft)
         rooms.append(room)
     return rooms
 
@@ -302,7 +314,9 @@ def generate_ai_candidate(boundary_points_ft, confirmed_obstacles, requirements:
 
         reasoning = tool_use.input.get("reasoning", "")
         try:
-            rooms = _rooms_from_tool_input(tool_use.input, column_polys)
+            rooms = _rooms_from_tool_input(tool_use.input, column_polys,
+                                            entry_point=requirements.get("entry_point_ft"),
+                                            screen_width_ft=requirements.get("screen_width_ft"))
         except AiZoningError as e:
             last_errors = [{"message": str(e)}]
             continue

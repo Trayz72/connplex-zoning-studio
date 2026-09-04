@@ -13,6 +13,70 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-04 — Real screen/column/circulation placement upgrade: screen-wall + doors, column-grid snapping, per-room-type column tolerance, PASSAGE room type, real first-row-distance rule
+
+Deep-dive architectural analysis session (grounded in two real Connplex
+reference floor plans in `docs/reference/`, cross-checked against the
+actual `layout_engine.py` code — see `docs/prompts/component_placement_and_circulation_spec.md`)
+turned into an implementation round the same day. Deliberately scoped down
+from that spec's full menu to the slice with real, tested value — see the
+spec doc and this round's commit message for exactly what was deferred and
+why (general-purpose doors on every room type + full path-based
+reachability validation, splitting `BOH` into `ELECTRICAL`/`SERVER`/`STORE`,
+DXF `DIMENSION`-value extraction, real fire-code egress compliance).
+
+**Screen best-fit is now real, not just area matching.** Intake captures
+`screen_width_ft`; `seat_engine.estimate_seats()` uses
+`max(SCREEN_TO_BACK_WALL_MIN_FT, screen_width_ft)` as the effective
+front setback, so the SOP's first-row-legibility rule (first-row distance
+>= screen width) is satisfied by seat-packing construction, not just
+reported after the fact — the previous `SCREEN_TO_BACK_WALL_MIN_FT` alone
+(3ft) would have failed this rule on every real screen. New
+`VR_FIRST_ROW_DISTANCE` viability rule wired up via a derived
+`first_row_margin_ft` measurement, since `evaluate_rule`'s fixed-threshold
+design doesn't support comparing two measured values directly.
+
+**Auditoriums get a real `screen_wall` + `doors` now**, not a hardcoded
+"always top edge" frontend assumption. `screen_wall` (geometry-relative:
+`min_x`/`max_x`/`min_y`/`max_y`, deliberately never compass directions,
+given this project's own history with exactly this class of Y-axis
+orientation bug) is derived from the marked entry point, matching the
+reference drawings' real pattern (entry/exit cluster on the screen-adjacent
+wall, projector booth at the true rear). One ENTRY + one EXIT door are
+placed on that wall automatically. `EditableCanvas.tsx`'s screen-wall
+indicator and seat-row rendering both now key off this field instead of
+assuming the top edge — verified live in the browser with a marked
+left-side entrance: indicator, doors, and seat-row orientation all rotated
+correctly to the left wall. Doors also render in both PDF and DXF exports
+(a perpendicular leaf-tick glyph).
+
+**Column-grid-aware placement.** `estimate_column_grid_spacing` existed
+already but only fed a post-hoc viability check; new `_column_grid_lines`
+extracts actual grid-line coordinates and threads them into the scan
+functions so candidate placements snap to real structural bay lines when
+at least 2 distinct lines exist per axis, falling back to the original
+fixed-step scan otherwise (zero behavior change for every existing test
+fixture). Also added real per-room-type column-enclosure tolerance
+(`AUDITORIUM_MAX_ENCLOSED_COLUMN_RATIO` = 2%, near-zero — a column
+mid-seating-bowl is a real defect; `SUPPORT_ZONE_MAX_ENCLOSED_COLUMN_RATIO`
+= 15%, generous — foyers/services cores commonly wrap a column, confirmed
+against the reference drawings), replacing what was previously unlimited
+tolerance for any room type.
+
+**New `PASSAGE`/`Corridor` room type** — a real, elongated connector
+(fixed `EGRESS_PASSAGE_MIN_WIDTH_FT` width, not the generic square-ish
+aspect every other support zone uses), placed via Add Zone with a real
+proximity heuristic (closest to both the Foyer and the nearest Screen),
+not just wherever a plain scan happens to land. Rendered in both exports
+and the interactive canvas; every room-type enumeration across both
+services learned about it (AI-zoning tool schema, chart labels, export
+layers/fill colors).
+
+10 new pytest cases, each verified as a real regression guard (temporarily
+broke the fix, confirmed the new test actually fails, restored) — the same
+break/restore discipline as the orientation tests from an earlier session.
+All 11 pre-existing tests still pass unchanged.
+
 ## 2026-09-04 — Orientation data migration, undo/redo, registry-write logging + concurrency guard, seat-row rendering, onboarding
 
 Full backlog round from the previous session's own end-of-session

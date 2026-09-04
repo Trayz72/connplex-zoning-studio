@@ -24,9 +24,38 @@ from convert import convert as oda_convert  # noqa: E402
 LAYER_NAMES = [
     "EXISTING-BOUNDARY", "EXISTING-OBSTACLE",
     "PROPOSED-AUDITORIUM", "PROPOSED-FOYER", "PROPOSED-FNB",
-    "PROPOSED-WASHROOM", "PROPOSED-BOX_OFFICE", "PROPOSED-BOH",
-    "PROPOSED-CIRCULATION", "ANNOTATION"
+    "PROPOSED-WASHROOM", "PROPOSED-BOX_OFFICE", "PROPOSED-BOH", "PROPOSED-PASSAGE",
+    "PROPOSED-CIRCULATION", "ANNOTATION", "ANNOTATION-DOOR"
 ]
+
+# Which points_ft direction is "into the room" from each screen_wall value
+# (see layout_engine._screen_wall_for_rect) — used to draw a door's leaf
+# line swung perpendicular off the wall.
+_INTERIOR_DIR = {"min_y": (0, 1), "max_y": (0, -1), "min_x": (1, 0), "max_x": (-1, 0)}
+
+
+def _door_glyph_points_ft(room, door):
+    """A simplified 2D door symbol for a room's door (see
+    layout_engine._doors_for_screen_wall for the {wall, offset_ft, width_ft}
+    shape): the opening's two endpoints, plus a straight leaf line swung
+    perpendicular into the room. Deliberately not a swing arc — that needs
+    angle trigonometry this pass can't visually verify is right; a straight
+    leaf line is a real, unambiguous, standard-enough simplified door symbol
+    for a computational-draft export."""
+    x, y = room["origin_ft"]
+    w, h = room["width_ft"], room["depth_ft"]
+    wall, off, dw = door["wall"], door["offset_ft"], door["width_ft"]
+    if wall == "min_y":
+        p1, p2 = (x + off, y), (x + off + dw, y)
+    elif wall == "max_y":
+        p1, p2 = (x + off, y + h), (x + off + dw, y + h)
+    elif wall == "min_x":
+        p1, p2 = (x, y + off), (x, y + off + dw)
+    else:  # max_x
+        p1, p2 = (x + w, y + off), (x + w, y + off + dw)
+    dx, dy = _INTERIOR_DIR.get(wall, (0, 0))
+    leaf_end = (p1[0] + dx * dw, p1[1] + dy * dw)
+    return p1, p2, leaf_end
 
 
 def _ensure_layers(doc):
@@ -73,6 +102,11 @@ def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, room
         msp.add_text(room["display_name"], dxfattribs={"layer": "ANNOTATION", "height": 1.5, "insert": (cx - 5, cy)})
         msp.add_text(f"{room['area_sqft']} sqft" + (f" / {seat_count} seats" if seat_count else ""),
                       dxfattribs={"layer": "ANNOTATION", "height": 1.0, "insert": (cx - 5, cy - 2)})
+
+        for door in room.get("doors", []):
+            p1, p2, leaf_end = _door_glyph_points_ft(room, door)
+            msp.add_line(_flip(p1), _flip(p2), dxfattribs={"layer": "ANNOTATION-DOOR"})
+            msp.add_line(_flip(p1), _flip(leaf_end), dxfattribs={"layer": "ANNOTATION-DOOR"})
 
     title = project_meta.get("property_name") or "Untitled Project"
     header_lines = [

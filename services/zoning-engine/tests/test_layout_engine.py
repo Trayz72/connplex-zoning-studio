@@ -133,3 +133,158 @@ def test_validate_rooms_accepts_real_non_overlapping_layout():
     result = layout_engine.validate_rooms(RECT_BOUNDARY, [], [room_a, room_b])
     assert result["valid"] is True
     assert result["errors"] == []
+
+
+# ---------- screen_wall / doors (component-placement upgrade) ----------
+
+def test_screen_wall_and_doors_derived_from_entry_point():
+    """An auditorium placed with a marked entry point should get its
+    screen_wall on the edge nearest that entry point (see
+    layout_engine._screen_wall_for_rect), with one ENTRY + one EXIT door on
+    that same wall — matching the real reference floor plans this feature
+    was designed against, where every auditorium's entry/exit cluster sits
+    on the screen-adjacent wall."""
+    usable = _usable()
+    requirements = {"entry_point_ft": [0, 30]}  # far left, mid-height
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 100, 60), "AUDITORIUM", requirements
+    )
+    assert room is not None, warning
+    assert room["screen_wall"] == "min_x"
+    kinds = sorted(d["kind"] for d in room["doors"])
+    assert kinds == ["ENTRY", "EXIT"]
+    for door in room["doors"]:
+        assert door["wall"] == "min_x"
+        assert door["width_ft"] > 0
+
+
+def test_screen_wall_defaults_to_min_y_without_entry_point():
+    """No entry point marked: screen_wall defaults to 'min_y' — this app's
+    original hardcoded frontend assumption — so a layout with no entry data
+    renders identically to before this field existed."""
+    usable = _usable()
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 100, 60), "AUDITORIUM", {}
+    )
+    assert room is not None, warning
+    assert room["screen_wall"] == "min_y"
+
+
+# ---------- per-room-type column tolerance ----------
+
+def test_auditorium_rejects_column_enclosure_above_tolerance():
+    """A column covering way more than AUDITORIUM_MAX_ENCLOSED_COLUMN_RATIO
+    (2%) of the only footprint available must be rejected — a column
+    mid-seating-bowl is a real defect, not something an auditorium should
+    silently absorb the way a foyer can. Boundary is sized so exactly one
+    35_SEAT preset fits with zero slack, forcing the engine to either use
+    the column-covered fallback tier or genuinely fail — proving the cap is
+    actually enforced, not just present."""
+    boundary = [[0, 0], [24, 0], [24, 35], [0, 35], [0, 0]]
+    big_column = {
+        "points_ft": [[10, 10], [14, 10], [14, 25], [10, 25]],  # 4x15 = 60 sqft, way over 2% of ~840
+        "classification": "COLUMN",
+    }
+    usable = layout_engine.compute_usable_area(boundary, [big_column])
+    fallback = layout_engine.compute_usable_area(boundary, [big_column], exclude_classifications=("COLUMN",))
+    column_polys = [layout_engine.poly_from_points(big_column["points_ft"])]
+    room, warning = layout_engine.place_single_zone(
+        usable, fallback, column_polys, [], [], (0, 0, 24, 35), "AUDITORIUM", {}
+    )
+    assert room is None
+    assert warning and "No space" in warning
+
+
+def test_auditorium_accepts_small_column_within_tolerance():
+    """The mirror case: a small column, comfortably under the 2% cap,
+    should still be accepted via the column-tolerant fallback tier — the
+    cap must not have been set so aggressively it breaks the existing
+    "an auditorium may enclose a small column" behavior."""
+    boundary = [[0, 0], [24, 0], [24, 35], [0, 35], [0, 0]]
+    small_column = {
+        "points_ft": [[11.5, 17], [12.5, 17], [12.5, 18], [11.5, 18]],  # 1 sqft
+        "classification": "COLUMN",
+    }
+    usable = layout_engine.compute_usable_area(boundary, [small_column])
+    fallback = layout_engine.compute_usable_area(boundary, [small_column], exclude_classifications=("COLUMN",))
+    column_polys = [layout_engine.poly_from_points(small_column["points_ft"])]
+    room, warning = layout_engine.place_single_zone(
+        usable, fallback, column_polys, [], [], (0, 0, 24, 35), "AUDITORIUM", {}
+    )
+    assert room is not None, warning
+    assert "obstacle_note" in room
+
+
+# ---------- column-grid-aware placement ----------
+
+def test_grid_snapping_aligns_placement_to_column_grid_lines():
+    """place_single_zone should snap a candidate's leading edge to a real
+    detected column-grid line (layout_engine._column_grid_lines) instead of
+    the fixed GRID_STEP_FT(=2.0) scan step, once at least 2 distinct grid
+    lines exist per axis. The grid line here (x=21) is deliberately not a
+    multiple of 2.0, and a hard obstacle blocks everything left of x=21, so
+    a plain fixed-step scan would land at x=22 (the next 2ft-step position
+    clear of the obstacle) while a grid-snapped scan lands exactly at
+    x=21 — an unambiguous, non-coincidental proof the grid drove the
+    result."""
+    boundary = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
+    blocker = layout_engine.poly_from_points([[0, 0], [21, 0], [21, 60], [0, 60]])
+    usable = layout_engine.poly_from_points(boundary).difference(blocker)
+
+    def col(cx, cy):
+        return layout_engine.poly_from_points([[cx - 0.5, cy - 0.5], [cx + 0.5, cy - 0.5], [cx + 0.5, cy + 0.5], [cx - 0.5, cy + 0.5]])
+
+    column_polys = [col(21, 15), col(21, 45), col(81, 15), col(81, 45)]  # 2 grid lines per axis: x={21,81}, y={15,45}
+
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, column_polys, [], [], (0, 0, 100, 60), "WASHROOM", {}
+    )
+    assert room is not None, warning
+    assert room["origin_ft"][0] == 21.0, (
+        f"expected the room to snap to the x=21 column-grid line, got x={room['origin_ft'][0]} "
+        f"(x=22 would mean the fixed-step scan ran instead of grid-snapping)"
+    )
+
+
+# ---------- PASSAGE ----------
+
+def test_place_single_zone_passage_connects_foyer_and_auditorium():
+    """A PASSAGE should be placed close to both the Foyer and the nearest
+    already-placed Screen (see place_single_zone's PASSAGE branch) — real,
+    evidence-based behavior from the reference floor plans this feature was
+    designed against, not just "wherever a plain first-fit scan happens to
+    land." Foyer/auditorium are pushed to the far side (x=200+) of a wide
+    boundary, with a large empty region at x=0 that a plain scan (no
+    proximity heuristic) would fill first — so a placement near x=200
+    specifically proves the heuristic ran, rather than coinciding with
+    first-fit's own default bottom-left-first order the way a tighter test
+    geometry could."""
+    boundary = [[0, 0], [300, 0], [300, 100], [0, 100], [0, 0]]
+    usable = layout_engine.compute_usable_area(boundary, [])
+    auditorium = layout_engine._rect(200, 0, 70, 50)
+    foyer = layout_engine._rect(200, 60, 30, 20)
+    placed_polys = [auditorium, foyer]
+    placed_types = ["AUDITORIUM", "FOYER"]
+
+    passage, warning = layout_engine.place_single_zone(
+        usable, usable, [], placed_polys, placed_types, (0, 0, 300, 100), "PASSAGE", {"max_auditoriums": 1}
+    )
+    assert passage is not None, warning
+    passage_poly = layout_engine.poly_from_points(passage["geometry_points_ft"])
+    real_distance_sum = passage_poly.distance(auditorium) + passage_poly.distance(foyer)
+    # A plain first-fit scan (no heuristic) lands at the boundary's own
+    # (0, 0) corner here — real, empirically confirmed, not a guess.
+    # Compare against a same-*size* rect placed at that corner (not an
+    # arbitrary marker) so the comparison isolates position, not shape.
+    first_fit_corner = layout_engine._rect(0, 0, passage["width_ft"], passage["depth_ft"])
+    first_fit_distance_sum = first_fit_corner.distance(auditorium) + first_fit_corner.distance(foyer)
+    assert real_distance_sum < first_fit_distance_sum, (
+        f"expected the passage closer to the foyer/auditorium (distance sum {real_distance_sum}) than a "
+        f"same-size placement at the far (0,0) corner would be ({first_fit_distance_sum}), origin was "
+        f"{passage['origin_ft']} — looks like the proximity heuristic didn't run"
+    )
+    # A real corridor shape, not a square-ish room — min(w, h) should equal
+    # the configured minimum passage width, not the generic aspect=1.6 shape
+    # every other support zone uses.
+    min_width_ft = layout_engine.rules_registry.planning_norm("EGRESS_PASSAGE_MIN_WIDTH_FT")
+    assert abs(min(passage["width_ft"], passage["depth_ft"]) - min_width_ft) < 0.5

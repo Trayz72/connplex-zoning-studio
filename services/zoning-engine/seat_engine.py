@@ -94,18 +94,29 @@ def _pack_band(usable_width_ft, band_depth_ft, seat_type_id, central_aisle_ft):
 
 def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str = DEFAULT_SEAT_TYPE_ID,
                     secondary_seat_type_id: str = None, primary_ratio_pct: float = 100,
-                    enclosed_obstacle_area_sqft: float = 0.0) -> dict:
+                    enclosed_obstacle_area_sqft: float = 0.0, screen_width_ft: float = None) -> dict:
     central_aisle_ft = rules_registry.planning_norm("CENTRAL_AISLE_MIN_FT")
     side_clear_ft = rules_registry.planning_norm("SIDE_CLEARANCE_ASSUMPTION_FT")
     rear_clear_ft = rules_registry.planning_norm("REAR_CLEARANCE_ASSUMPTION_FT")
+    # SCREEN_TO_BACK_WALL_MIN_FT (3 ft) is the SOP's absolute minimum front
+    # setback, not a claim that 3 ft is enough for a legible first row —
+    # that's FIRST_ROW_DISTANCE_RULE's separate, much larger requirement
+    # (first_row_distance_ft >= screen_width_ft). When the architect has
+    # actually captured a screen width, use whichever is bigger, so the
+    # seat-packing math itself satisfies the legibility rule by
+    # construction instead of silently under-setting the front row and
+    # letting a feasibility check fail after the fact.
     front_setback_ft = rules_registry.planning_norm("SCREEN_TO_BACK_WALL_MIN_FT")
+    if screen_width_ft:
+        front_setback_ft = max(front_setback_ft, screen_width_ft)
 
     usable_width_ft = width_ft - (2 * side_clear_ft)
     usable_depth_ft = depth_ft - front_setback_ft - rear_clear_ft
 
     if usable_width_ft <= 0 or usable_depth_ft <= 0:
         return {"status": "INSUFFICIENT_ROOM_FOR_SEATING", "seat_count": 0, "rows": 0, "seats_per_row": 0,
-                "seat_breakdown": {"LOUNGER": 0, "SOFA_SLIDER": 0, "DUO_LOUNGER": 0, "PREMIUM_RECLINER": 0}}
+                "seat_breakdown": {"LOUNGER": 0, "SOFA_SLIDER": 0, "DUO_LOUNGER": 0, "PREMIUM_RECLINER": 0},
+                "first_row_distance_ft": round(front_setback_ft, 2)}
 
     primary_ratio_pct = max(0, min(100, primary_ratio_pct))
     use_mix = secondary_seat_type_id and primary_ratio_pct < 100
@@ -159,7 +170,8 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
         "rows": total_rows,
         "seats_per_row": total_seats_per_row,
         "seat_type_used": seat_type_used,
-        "seat_breakdown": breakdown
+        "seat_breakdown": breakdown,
+        "first_row_distance_ft": round(front_setback_ft, 2)
     }
     if note:
         result["note"] = note

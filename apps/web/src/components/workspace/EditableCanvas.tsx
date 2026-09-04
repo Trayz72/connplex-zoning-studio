@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
-import { LiveRoom, Obstacle } from '../../types/live';
+import { LiveRoom, Obstacle, RoomDoor } from '../../types/live';
 import { RawGeometry } from '../../types/live';
 
 interface EditableCanvasProps {
@@ -49,6 +49,59 @@ function polygonBounds(points: number[][]) {
 
 function rectsOverlap(a: { minX: number; maxX: number; minY: number; maxY: number }, b: { minX: number; maxX: number; minY: number; maxY: number }) {
   return a.minX < b.maxX && a.maxX > b.minX && a.minY < b.maxY && a.maxY > b.minY;
+}
+
+// Which wall of a room's bounding box is the screen wall — geometry-relative
+// (min_x/max_x/min_y/max_y), matching layout_engine.py's
+// _screen_wall_for_rect exactly (never a compass direction; see that
+// function's own docstring for why). `along` is the unit vector running
+// along the wall (for spreading seats/door offsets across it), `inward` is
+// the unit vector perpendicular to the wall, pointing into the room (for
+// how far back the screen-wall indicator/seat rows/door leaves reach).
+// Defaults to 'min_y' — this app's original hardcoded assumption — so a
+// room with no screen_wall set (older stored layouts) renders exactly as
+// before this field existed.
+interface WallGeometry {
+  wallStart: [number, number];
+  wallEnd: [number, number];
+  inward: [number, number];
+  along: [number, number];
+  wallLen: number;
+  depthLen: number;
+}
+
+function wallGeometry(b: { minX: number; maxX: number; minY: number; maxY: number }, screenWall?: string): WallGeometry {
+  const w = b.maxX - b.minX, h = b.maxY - b.minY;
+  switch (screenWall) {
+    case 'max_y':
+      return { wallStart: [b.minX, b.maxY], wallEnd: [b.maxX, b.maxY], inward: [0, -1], along: [1, 0], wallLen: w, depthLen: h };
+    case 'min_x':
+      return { wallStart: [b.minX, b.minY], wallEnd: [b.minX, b.maxY], inward: [1, 0], along: [0, 1], wallLen: h, depthLen: w };
+    case 'max_x':
+      return { wallStart: [b.maxX, b.minY], wallEnd: [b.maxX, b.maxY], inward: [-1, 0], along: [0, 1], wallLen: h, depthLen: w };
+    case 'min_y':
+    default:
+      return { wallStart: [b.minX, b.minY], wallEnd: [b.maxX, b.minY], inward: [0, 1], along: [1, 0], wallLen: w, depthLen: h };
+  }
+}
+
+// Mirrors layout_engine.py's _doors_for_screen_wall/_door_glyph_points_ft
+// geometry exactly — a door's {wall, offset_ft, width_ft} plus the room's
+// own origin_ft/width_ft/depth_ft is enough to derive its real on-canvas
+// position, no separate door coordinates are stored server-side.
+const DOOR_INTERIOR_DIR: Record<string, [number, number]> = { min_y: [0, 1], max_y: [0, -1], min_x: [1, 0], max_x: [-1, 0] };
+
+function doorGlyphPoints(room: LiveRoom, door: RoomDoor): { p1: [number, number]; leafEnd: [number, number] } {
+  const [x, y] = room.origin_ft;
+  const w = room.width_ft, h = room.depth_ft;
+  const { wall, offset_ft: off, width_ft: dw } = door;
+  let p1: [number, number];
+  if (wall === 'min_y') p1 = [x + off, y];
+  else if (wall === 'max_y') p1 = [x + off, y + h];
+  else if (wall === 'min_x') p1 = [x, y + off];
+  else p1 = [x + w, y + off];
+  const [dx, dy] = DOOR_INTERIOR_DIR[wall] || [0, 0];
+  return { p1, leafEnd: [p1[0] + dx * dw, p1[1] + dy * dw] };
 }
 
 function snap(v: number, grid: number) {
@@ -485,25 +538,40 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                 filter="url(#roomShadow)"
                 style={{ transition: 'fill-opacity 0.12s ease-out, stroke-width 0.12s ease-out' }}
               />
-              {isAuditorium && (
-                // The screen wall: a bold line across the room's width edge
-                // (geometrically always b.minY→b.maxX-minX, since a room's
-                // geometry is built with its width_ft running along X — see
-                // layout_engine.py/place_single_zone), plus a small arrow
-                // into the seating rows, so an auditorium reads as a real
-                // theater — screen + sightline direction — not an anonymous
-                // rectangle.
-                <g pointerEvents="none">
-                  <line
-                    x1={b.minX + w * 0.08} y1={b.minY} x2={b.maxX - w * 0.08} y2={b.minY}
-                    stroke="var(--brand-strong)" strokeWidth={ftPerHandlePx(3)} strokeLinecap="round"
-                  />
-                  <polygon
-                    points={`${(b.minX + b.maxX) / 2 - ftPerHandlePx(5)},${b.minY + ftPerHandlePx(4)} ${(b.minX + b.maxX) / 2 + ftPerHandlePx(5)},${b.minY + ftPerHandlePx(4)} ${(b.minX + b.maxX) / 2},${b.minY + ftPerHandlePx(15)}`}
-                    fill="var(--brand-strong)" fillOpacity={0.5}
-                  />
-                </g>
-              )}
+              {isAuditorium && (() => {
+                // The screen wall: a bold line across whichever edge
+                // room.screen_wall names (server-derived from the marked
+                // entry point — see layout_engine.py's
+                // _screen_wall_for_rect; defaults to the room's min_y edge,
+                // this app's original hardcoded assumption, when unset),
+                // plus a small arrow into the seating rows, so an
+                // auditorium reads as a real theater — screen + sightline
+                // direction — not an anonymous rectangle.
+                const wg = wallGeometry(b, room.screen_wall);
+                const midX = (wg.wallStart[0] + wg.wallEnd[0]) / 2;
+                const midY = (wg.wallStart[1] + wg.wallEnd[1]) / 2;
+                const inset = wg.wallLen * 0.08;
+                const lx1 = wg.wallStart[0] + wg.along[0] * inset, ly1 = wg.wallStart[1] + wg.along[1] * inset;
+                const lx2 = wg.wallEnd[0] - wg.along[0] * inset, ly2 = wg.wallEnd[1] - wg.along[1] * inset;
+                const b1x = midX - wg.along[0] * ftPerHandlePx(5) + wg.inward[0] * ftPerHandlePx(4);
+                const b1y = midY - wg.along[1] * ftPerHandlePx(5) + wg.inward[1] * ftPerHandlePx(4);
+                const b2x = midX + wg.along[0] * ftPerHandlePx(5) + wg.inward[0] * ftPerHandlePx(4);
+                const b2y = midY + wg.along[1] * ftPerHandlePx(5) + wg.inward[1] * ftPerHandlePx(4);
+                const tipX = midX + wg.inward[0] * ftPerHandlePx(15);
+                const tipY = midY + wg.inward[1] * ftPerHandlePx(15);
+                return (
+                  <g pointerEvents="none">
+                    <line
+                      x1={lx1} y1={ly1} x2={lx2} y2={ly2}
+                      stroke="var(--brand-strong)" strokeWidth={ftPerHandlePx(3)} strokeLinecap="round"
+                    />
+                    <polygon
+                      points={`${b1x},${b1y} ${b2x},${b2y} ${tipX},${tipY}`}
+                      fill="var(--brand-strong)" fillOpacity={0.5}
+                    />
+                  </g>
+                );
+              })()}
               {isAuditorium && showSeatRows && room.seat_estimate && room.seat_estimate.rows > 0 && room.seat_estimate.seats_per_row > 0 && (
                 // Real per-row seat marks from seat_estimate's own row/
                 // seats-per-row counts (the same real row-packing
@@ -512,32 +580,39 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                 // footprint, since that geometry isn't sent to the
                 // frontend; still a real count, not a decorative pattern,
                 // and split around a central gap the way every packed row
-                // here already reserves a central aisle.
+                // here already reserves a central aisle. Rows progress from
+                // the screen wall inward (room.screen_wall — see above),
+                // not always top-to-bottom.
                 (() => {
+                  const wg = wallGeometry(b, room.screen_wall);
                   const rows = room.seat_estimate.rows;
                   const perRow = room.seat_estimate.seats_per_row;
-                  const topMargin = h * 0.18, bottomMargin = h * 0.06;
-                  const usableH = Math.max(h - topMargin - bottomMargin, 0);
-                  const sideMargin = w * 0.08;
-                  const usableW = Math.max(w - 2 * sideMargin, 0);
+                  const depthLen = wg.depthLen, wallLen = wg.wallLen;
+                  const nearMargin = depthLen * 0.18, farMargin = depthLen * 0.06;
+                  const usableDepth = Math.max(depthLen - nearMargin - farMargin, 0);
+                  const sideMargin = wallLen * 0.08;
+                  const usableWall = Math.max(wallLen - 2 * sideMargin, 0);
                   const aisleFrac = 0.1;
                   const half = Math.ceil(perRow / 2);
-                  const seatR = Math.min(ftPerHandlePx(2.5), usableW / Math.max(perRow * 2.5, 1));
+                  const seatR = Math.min(ftPerHandlePx(2.5), usableWall / Math.max(perRow * 2.5, 1));
+                  const [ox, oy] = wg.wallStart;
                   const marks: React.ReactNode[] = [];
                   for (let r = 0; r < rows; r++) {
-                    const ry = b.minY + topMargin + (rows > 1 ? (r / (rows - 1)) * usableH : usableH / 2);
+                    const depthOff = nearMargin + (rows > 1 ? (r / (rows - 1)) * usableDepth : usableDepth / 2);
+                    const rowBaseX = ox + wg.inward[0] * depthOff, rowBaseY = oy + wg.inward[1] * depthOff;
                     for (let s = 0; s < perRow; s++) {
                       const leftSide = s < half;
                       const idx = leftSide ? s : s - half;
                       const sideCount = leftSide ? half : perRow - half;
                       if (sideCount <= 0) continue;
-                      const sideW = usableW * (0.5 - aisleFrac / 2);
-                      const sideStart = leftSide ? b.minX + sideMargin : b.minX + sideMargin + usableW * (0.5 + aisleFrac / 2);
-                      const sx = sideCount > 1 ? sideStart + (idx / (sideCount - 1)) * sideW : sideStart + sideW / 2;
+                      const sideLen = usableWall * (0.5 - aisleFrac / 2);
+                      const sideStart = leftSide ? sideMargin : sideMargin + usableWall * (0.5 + aisleFrac / 2);
+                      const alongOff = sideCount > 1 ? sideStart + (idx / (sideCount - 1)) * sideLen : sideStart + sideLen / 2;
+                      const sx = rowBaseX + wg.along[0] * alongOff, sy = rowBaseY + wg.along[1] * alongOff;
                       marks.push(
                         <rect
                           key={`${r}-${s}`}
-                          x={sx - seatR} y={ry - seatR} width={seatR * 2} height={seatR * 2} rx={seatR * 0.35}
+                          x={sx - seatR} y={sy - seatR} width={seatR * 2} height={seatR * 2} rx={seatR * 0.35}
                           fill="var(--text-secondary)"
                         />
                       );
@@ -545,6 +620,20 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                   }
                   return <g pointerEvents="none" opacity={0.65}>{marks}</g>;
                 })()
+              )}
+              {room.doors && room.doors.length > 0 && (
+                <g pointerEvents="none">
+                  {room.doors.map((door, i) => {
+                    const { p1, leafEnd } = doorGlyphPoints(room, door);
+                    return (
+                      <line
+                        key={i}
+                        x1={p1[0]} y1={p1[1]} x2={leafEnd[0]} y2={leafEnd[1]}
+                        stroke="var(--text-primary)" strokeWidth={ftPerHandlePx(1.5)} strokeLinecap="round"
+                      />
+                    );
+                  })}
+                </g>
               )}
               <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="var(--text-primary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.display_name}

@@ -79,6 +79,14 @@ class RequirementsIn(BaseModel):
     # decided at zoning-design time, and the generator still produces a
     # real layout without them (falls back to entry-only orientation).
     exit_points_ft: Optional[List[Tuple[float, float]]] = None
+    # Real screen width, architect-entered — unlocks FIRST_ROW_DISTANCE_RULE
+    # (SOP §4.4/§9: first-row distance >= screen width), previously
+    # permanently un-evaluable with no captured input for it. When set,
+    # seat_engine.estimate_seats() uses it (if larger) as the effective
+    # front setback instead of the bare SCREEN_TO_BACK_WALL_MIN_FT minimum,
+    # so the seat-packing math satisfies the rule by construction — see
+    # layout_engine.py/seat_engine.py.
+    screen_width_ft: Optional[float] = None
 
 
 class GeometryUpdateIn(BaseModel):
@@ -126,7 +134,7 @@ class LayoutUpdateIn(BaseModel):
 
 
 class AddZoneIn(BaseModel):
-    room_type: str  # AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | BOH
+    room_type: str  # AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | BOH | PASSAGE
 
 
 class ExportIn(BaseModel):
@@ -136,7 +144,7 @@ class ExportIn(BaseModel):
 
 
 def _build_measurements(requirements: dict, confirmed_obstacles: list, boundary_area_sqft: float,
-                         total_seats: int, screen_count: int) -> dict:
+                         total_seats: int, screen_count: int, rooms: list = None) -> dict:
     """Shared measurement builder for feasibility evaluation — used at run time,
     on every layout read, and on export, so the three call sites can't drift out
     of sync on which real signals get wired in."""
@@ -153,6 +161,24 @@ def _build_measurements(requirements: dict, confirmed_obstacles: list, boundary_
     if grid_width is not None:
         measurements["column_grid_width_ft"] = grid_width
         measurements["column_grid_length_ft"] = grid_length
+    # VR_FIRST_ROW_DISTANCE's metric — derived, not a fixed registry
+    # constant, since the underlying formula (first_row_distance_ft >=
+    # screen_width_ft) compares two per-project measured values, which
+    # feasibility_engine.evaluate_rule's fixed-threshold design doesn't
+    # support directly. first_row_distance_ft is read straight from each
+    # auditorium's already-computed seat_estimate (see
+    # seat_engine.estimate_seats) — the smallest (worst-case) margin across
+    # every screen is reported, same "don't hide a real problem behind an
+    # average" convention as every other per-screen check in this file.
+    screen_width_ft = requirements.get("screen_width_ft")
+    if screen_width_ft and rooms:
+        margins = [
+            r["seat_estimate"]["first_row_distance_ft"] - screen_width_ft
+            for r in rooms
+            if r["room_type"].startswith("AUDITORIUM") and r.get("seat_estimate", {}).get("first_row_distance_ft") is not None
+        ]
+        if margins:
+            measurements["first_row_margin_ft"] = round(min(margins), 2)
     return measurements
 
 
@@ -381,7 +407,7 @@ def run_zoning(project_id: str, body: ZoningRunIn):
 
     for cand in candidates:
         measurements = _build_measurements(requirements, confirmed_obstacle_records, cand["boundary_area_sqft"],
-                                            cand["total_seats"], cand["screen_count"])
+                                            cand["total_seats"], cand["screen_count"], cand["rooms"])
         cand["feasibility"] = feasibility_engine.evaluate(requirements.get("property_type", "EXISTING_BUILDING"), measurements)
         cand["area_seat_chart"] = chart_engine.build_chart(cand)
         for room in cand["rooms"]:
@@ -462,7 +488,7 @@ def run_ai_zoning(project_id: str, body: ZoningRunIn):
         raise HTTPException(502, str(e))
 
     measurements = _build_measurements(requirements, confirmed_obstacle_records, candidate["boundary_area_sqft"],
-                                        candidate["total_seats"], candidate["screen_count"])
+                                        candidate["total_seats"], candidate["screen_count"], candidate["rooms"])
     candidate["feasibility"] = feasibility_engine.evaluate(requirements.get("property_type", "EXISTING_BUILDING"), measurements)
     candidate["area_seat_chart"] = chart_engine.build_chart(candidate)
     for room in candidate["rooms"]:
@@ -523,7 +549,7 @@ def select_candidate(project_id: str, body: CandidateSelectIn):
     return _enrich_layout(project_id, layout)
 
 
-def _recompute_room_derived_fields(room: dict, column_polys: list):
+def _recompute_room_derived_fields(room: dict, column_polys: list, screen_width_ft: float = None):
     """Recomputes a room's seat_estimate/preset_fit/obstacle_note from its
     current, real geometry — shared by update_layout (an architect's
     move/resize/edit) and add_zone (a freshly placed room) so both paths stay
@@ -540,6 +566,7 @@ def _recompute_room_derived_fields(room: dict, column_polys: list):
             secondary_seat_type_id=cfg.get("secondary_seat_type_id"),
             primary_ratio_pct=cfg.get("primary_ratio_pct", 100),
             enclosed_obstacle_area_sqft=enclosed_area,
+            screen_width_ft=screen_width_ft,
         )
         room["preset_fit"] = seat_engine.best_fit_preset(room["area_sqft"])
         if room["seat_estimate"].get("note"):
@@ -578,8 +605,9 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
     # from the real, current geometry rather than left stale from before the
     # edit.
     column_polys = [layout_engine.poly_from_points(o["points_ft"]) for o in body.obstacles if o.get("classification") == "COLUMN"]
+    requirements = storage.read_json(storage.requirements_path(project_id)) or {}
     for room in body.rooms:
-        _recompute_room_derived_fields(room, column_polys)
+        _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"))
 
     boundary_poly = layout_engine.poly_from_points(body.boundary_points_ft)
     room_area = sum(r["area_sqft"] for r in body.rooms)
@@ -648,7 +676,7 @@ def add_zone(project_id: str, body: AddZoneIn):
     if not room:
         raise HTTPException(422, message)
 
-    _recompute_room_derived_fields(room, column_polys)
+    _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"))
     new_rooms = rooms + [room]
 
     boundary_poly = layout_engine.poly_from_points(boundary_points_ft)
@@ -682,7 +710,7 @@ def _enrich_layout(project_id: str, layout: dict) -> dict:
     total_seats = sum(r.get("seat_estimate", {}).get("seat_count", 0) for r in layout["rooms"] if r["room_type"].startswith("AUDITORIUM"))
     screen_count = len([r for r in layout["rooms"] if r["room_type"].startswith("AUDITORIUM")])
     measurements = _build_measurements(requirements, layout.get("obstacles", []), candidate_shape["boundary_area_sqft"],
-                                        total_seats, screen_count)
+                                        total_seats, screen_count, layout["rooms"])
     layout = dict(layout)
     layout["feasibility"] = feasibility_engine.evaluate(requirements.get("property_type", "EXISTING_BUILDING"), measurements)
     layout["area_seat_chart"] = chart_engine.build_chart(candidate_shape)
@@ -765,7 +793,7 @@ def _enrich_with_requirements(project_id: str, layout: dict) -> dict:
     total_seats = sum(r.get("seat_estimate", {}).get("seat_count", 0) for r in layout["rooms"] if r["room_type"].startswith("AUDITORIUM"))
     screen_count = len([r for r in layout["rooms"] if r["room_type"].startswith("AUDITORIUM")])
     boundary_area = layout_engine.poly_from_points(layout["boundary_points_ft"]).area
-    measurements = _build_measurements(requirements, layout.get("obstacles", []), boundary_area, total_seats, screen_count)
+    measurements = _build_measurements(requirements, layout.get("obstacles", []), boundary_area, total_seats, screen_count, layout["rooms"])
     feasibility = feasibility_engine.evaluate(requirements.get("property_type", "EXISTING_BUILDING"), measurements)
     chart = chart_engine.build_chart({"rooms": layout["rooms"], "circulation_area_sqft": layout["circulation_area_sqft"]})
     return {"feasibility": feasibility, "area_seat_chart": chart}

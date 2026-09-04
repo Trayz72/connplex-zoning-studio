@@ -62,6 +62,7 @@ ROOM_FILL = {
     "WASHROOM": HexColor("#c9e0f5"),    # blue
     "BOX_OFFICE": HexColor("#f5d6e6"),  # magenta
     "BOH": HexColor("#dcdce2"),         # slate
+    "PASSAGE": HexColor("#e8e4d8"),     # warm gray-beige — distinct from the BOH slate and the plain #eeeeee fallback
 }
 
 COMPANY_NAME = "CONNPLEX SMART THEATRES"
@@ -127,6 +128,36 @@ def _fit_room_name(c, name, max_w, start_size, floor_size=4.2):
 def _room_color(room_type):
     key = room_type.split("_")[0] if room_type.startswith("AUDITORIUM") else room_type
     return ROOM_FILL.get(key, HexColor("#eeeeee"))
+
+
+# Which points_ft direction is "into the room" from each screen_wall value
+# (see layout_engine._screen_wall_for_rect) — used to draw a door's leaf
+# line swung perpendicular off the wall. Same convention as export_dxf.py's
+# copy of this — kept as a small, separate duplicate rather than a shared
+# import, matching how this file already keeps its own tx()/_room_color
+# rather than sharing export_dxf.py's _flip.
+_INTERIOR_DIR = {"min_y": (0, 1), "max_y": (0, -1), "min_x": (1, 0), "max_x": (-1, 0)}
+
+
+def _door_glyph_points_ft(room, door):
+    """A simplified 2D door symbol (see export_dxf.py's identical helper for
+    the full rationale): the opening's two endpoints, plus a straight leaf
+    line swung perpendicular into the room, all in points_ft — the caller
+    runs each through this function's own tx() to place them on the page."""
+    x, y = room["origin_ft"]
+    w, h = room["width_ft"], room["depth_ft"]
+    wall, off, dw = door["wall"], door["offset_ft"], door["width_ft"]
+    if wall == "min_y":
+        p1, p2 = (x + off, y), (x + off + dw, y)
+    elif wall == "max_y":
+        p1, p2 = (x + off, y + h), (x + off + dw, y + h)
+    elif wall == "min_x":
+        p1, p2 = (x, y + off), (x, y + off + dw)
+    else:  # max_x
+        p1, p2 = (x + w, y + off), (x + w, y + off + dw)
+    dx, dy = _INTERIOR_DIR.get(wall, (0, 0))
+    leaf_end = (p1[0] + dx * dw, p1[1] + dy * dw)
+    return p1, p2, leaf_end
 
 
 def _draw_logo(c, x, y, w, h):
@@ -523,6 +554,16 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
         else:
             c.setFont("Helvetica", name_size * 0.7)
             c.drawCentredString(lx, name_bottom_y - name_size * 1.1, f"{room['area_sqft']:,.0f} SQ.FT")
+
+        for door in room.get("doors", []):
+            p1, p2, leaf_end = _door_glyph_points_ft(room, door)
+            c.setStrokeColor(black)
+            c.setLineWidth(1.3)
+            x1, y1 = tx(p1)
+            x2, y2 = tx(p2)
+            c.line(x1, y1, x2, y2)
+            lex, ley = tx(leaf_end)
+            c.line(x1, y1, lex, ley)
 
     # A confirmed obstacle (typically a structural column) can legitimately
     # fall inside a room now (layout_engine.py's two-tier placement allows a

@@ -40,7 +40,8 @@ const ROOM_TYPE_TEMPLATES: { type: string; label: string }[] = [
   { type: 'FNB', label: 'F&B / Concession' },
   { type: 'WASHROOM', label: 'Washroom' },
   { type: 'BOX_OFFICE', label: 'Box Office' },
-  { type: 'BOH', label: 'Back-of-House' }
+  { type: 'BOH', label: 'Back-of-House' },
+  { type: 'PASSAGE', label: 'Passage / Corridor' }
 ];
 
 const FEAS_COLOR: Record<string, string> = {

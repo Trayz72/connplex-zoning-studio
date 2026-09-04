@@ -182,6 +182,13 @@ export interface Requirements {
    * explicit cross-movement warning (SOP §4.4/§9: "no cross-movement
    * between entry/exit flows"). */
   exit_points_ft: [number, number][] | null;
+  /** Real screen width, architect-entered — unlocks the SOP's first-row
+   * legibility rule (§4.4/§9: first-row distance >= screen width). When
+   * set, seat_engine.estimate_seats() uses it (if larger) as the effective
+   * front setback instead of the bare 3ft screen-to-wall minimum, so
+   * seat-packing satisfies the rule by construction. Null when not yet
+   * captured — the rule then reports INSUFFICIENT_DATA rather than a guess. */
+  screen_width_ft: number | null;
 }
 
 export interface SeatEstimate {
@@ -196,6 +203,12 @@ export interface SeatEstimate {
   // is already discounted for it; this explains why and asks for a manual
   // seat-plan check around the column position.
   note?: string;
+  // The effective screen-to-first-row setback actually used to pack this
+  // room's seats — either the bare SCREEN_TO_BACK_WALL_MIN_FT norm, or
+  // screen_width_ft (Requirements) when that's larger. Feeds the
+  // first-row-distance feasibility check server-side; also useful directly
+  // as "how far back does row 1 start."
+  first_row_distance_ft?: number;
 }
 
 export interface PresetFit {
@@ -228,6 +241,21 @@ export interface SeatConfig {
   primary_ratio_pct: number;
 }
 
+/** One entry/exit door on a room's wall — currently only set on
+ * auto-placed/AI-proposed AUDITORIUM rooms (layout_engine.py's
+ * _doors_for_screen_wall), derived from screen_wall below, not
+ * independently placed. offset_ft is measured along `wall` from its start
+ * corner — (origin_ft.x, origin_ft.y) for a min_y/max_y wall, in the
+ * direction of increasing X; (origin_ft.x, origin_ft.y) for a min_x/max_x
+ * wall, in the direction of increasing Y. See EditableCanvas.tsx's door
+ * rendering for the geometry this maps to. */
+export interface RoomDoor {
+  kind: 'ENTRY' | 'EXIT';
+  wall: 'min_x' | 'max_x' | 'min_y' | 'max_y';
+  offset_ft: number;
+  width_ft: number;
+}
+
 export interface LiveRoom {
   room_id: string;
   room_type: string;
@@ -249,6 +277,14 @@ export interface LiveRoom {
   // carry the equivalent note on seat_estimate.note instead, since there it's
   // tied to the seat-count discount.
   obstacle_note?: string;
+  // Which of this room's own edges is the screen wall — geometry-relative,
+  // never a compass direction (see layout_engine.py's
+  // _screen_wall_for_rect for why). Auditoriums only; defaults to 'min_y'
+  // server-side when unset, matching this app's original hardcoded
+  // assumption, so older stored layouts render identically to before this
+  // field existed.
+  screen_wall?: 'min_x' | 'max_x' | 'min_y' | 'max_y';
+  doors?: RoomDoor[];
 }
 
 export interface FeasibilityRuleResult {

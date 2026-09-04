@@ -56,7 +56,8 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({
   const [req, setReq] = useState<Requirements>(initial || {
     property_type: 'EXISTING_BUILDING', max_auditoriums: 4, franchise_tier_id: null,
     support_zone_area_overrides_sqft: {}, clear_height_ft: parseClearHeightToFeet(clearHeightHint),
-    entry_point_ft: initialEntryPointFt ?? null, exit_points_ft: initialExitPointsFt ?? null
+    entry_point_ft: initialEntryPointFt ?? null, exit_points_ft: initialExitPointsFt ?? null,
+    screen_width_ft: null
   });
   // Real registry data, not hardcoded text — the tier dropdown previously had
   // static area/screen ranges typed directly into the JSX that had drifted
@@ -105,6 +106,20 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({
           {clearHeightHint
             ? `Auto-suggested from intake ("${clearHeightHint}") — confirm or correct it.`
             : 'Not captured at intake — enter it, or leave blank.'}
+        </div>
+      </div>
+
+      <div className="form-group" style={{ marginBottom: '1rem' }}>
+        <label>Screen Width (ft)</label>
+        <input
+          type="number" step={0.5} min={0} className="form-control"
+          value={req.screen_width_ft ?? ''}
+          onChange={(e) => setReq({ ...req, screen_width_ft: e.target.value === '' ? null : parseFloat(e.target.value) })}
+          placeholder="e.g. 30"
+        />
+        <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
+          Unlocks the SOP's first-row legibility check (first-row distance must be at least the screen width) — leave
+          blank to skip it.
         </div>
       </div>
 
