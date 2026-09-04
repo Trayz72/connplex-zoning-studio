@@ -15,6 +15,7 @@ mark too — extracted directly from a real, later Connplex production drawing
 (1159-The Crossroads, Valsad, DRG "Net Usage Area @ 2nd Floor", 21.07.2026)
 via `pdfimages`, not redrawn or approximated (see `assets/connplex_logo.jpg`).
 """
+import math
 import os
 from datetime import datetime
 
@@ -409,7 +410,65 @@ def _draw_company_block(c, x, y_top, w):
     return y_top - h
 
 
-def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h, sheet_type="Zoning Layout"):
+_ENTRY_COLOR = HexColor("#1e8e3e")  # matches EntryExitPicker.tsx's brand-color "IN" marker
+_EXIT_COLOR = HexColor("#c0392b")   # matches EntryExitPicker.tsx's danger-color "E1"/"E2" markers
+
+
+def _draw_entry_exit_markers(c, entry_point_ft, exit_points_ft, tx, marker_r):
+    """Same visual convention as the frontend's EntryExitPicker.tsx /
+    EditableCanvas.tsx (a circle + short label) — real CAD-sheet style
+    indication of the building's own main entrance/exit, distinct from
+    each room's own door glyphs drawn separately."""
+    if entry_point_ft is not None:
+        x, y = tx(entry_point_ft)
+        c.setFillColor(_ENTRY_COLOR)
+        c.setStrokeColor(white)
+        c.setLineWidth(1)
+        c.circle(x, y, marker_r, stroke=1, fill=1)
+        c.setFillColor(white)
+        c.setFont("Helvetica-Bold", marker_r * 0.9)
+        c.drawCentredString(x, y - marker_r * 0.32, "IN")
+    for i, ep in enumerate(exit_points_ft or [], start=1):
+        x, y = tx(ep)
+        c.setFillColor(_EXIT_COLOR)
+        c.setStrokeColor(white)
+        c.setLineWidth(1)
+        c.circle(x, y, marker_r, stroke=1, fill=1)
+        c.setFillColor(white)
+        c.setFont("Helvetica-Bold", marker_r * 0.85)
+        c.drawCentredString(x, y - marker_r * 0.32, f"E{i}")
+
+
+def _draw_flow_segments(c, flow_segments, tx, marker_r):
+    """The "common path" indication: a dashed desire-line arrow per segment
+    (see layout_engine._entry_exit_flow_segments's own docstring for why a
+    simple two-point line is a real, honest simplification here, not a
+    fully routed corridor) — colored to match which end it belongs to
+    (entry-green or exit-red), with a small arrowhead showing flow
+    direction, so it reads as a real circulation indicator, never mistaken
+    for a wall."""
+    for seg in flow_segments or []:
+        color = _ENTRY_COLOR if seg["kind"] == "ENTRY" else _EXIT_COLOR
+        x1, y1 = tx(seg["from"])
+        x2, y2 = tx(seg["to"])
+        c.setStrokeColor(color)
+        c.setLineWidth(1.1)
+        c.setDash([4, 3])
+        c.line(x1, y1, x2, y2)
+        c.setDash([])
+        ang = math.atan2(y2 - y1, x2 - x1)
+        head = marker_r * 0.7
+        c.setFillColor(color)
+        p = c.beginPath()
+        p.moveTo(x2, y2)
+        p.lineTo(x2 - head * math.cos(ang - math.pi / 7), y2 - head * math.sin(ang - math.pi / 7))
+        p.lineTo(x2 - head * math.cos(ang + math.pi / 7), y2 - head * math.sin(ang + math.pi / 7))
+        p.close()
+        c.drawPath(p, stroke=0, fill=1)
+
+
+def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h, sheet_type="Zoning Layout",
+                      entry_point_ft=None, exit_points_ft=None, flow_segments=None):
     if not boundary_points_ft:
         return
     xs = [p[0] for p in boundary_points_ft]
@@ -652,6 +711,10 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
         c.setFillColor(HexColor("#c0392b"))
         c.drawCentredString(label_x, label_y - 1, label)
 
+    marker_r = max(bw, bh) * 0.018 * scale
+    _draw_flow_segments(c, flow_segments, tx, marker_r)
+    _draw_entry_exit_markers(c, entry_point_ft, exit_points_ft, tx, marker_r)
+
     # Overall dimension line under the drawing — real bounding-box size of the
     # confirmed region (in whichever axis now runs horizontal on the page,
     # after any rotation above), not an invented/rounded scale figure.
@@ -719,7 +782,8 @@ def _draw_feasibility_block(c, x, y_top, w, feasibility):
 
 
 def render_pdf(project_meta: dict, boundary_points_ft, rooms, chart: dict, feasibility: dict, out_path: str,
-                sheet_type="Zoning Layout", obstacles=None, region_meta=None):
+                sheet_type="Zoning Layout", obstacles=None, region_meta=None,
+                entry_point_ft=None, exit_points_ft=None, flow_segments=None):
     region_meta = region_meta or {}
     page_w, page_h = PAGE_SIZE
     c = pdfcanvas.Canvas(out_path, pagesize=PAGE_SIZE)
@@ -729,7 +793,8 @@ def render_pdf(project_meta: dict, boundary_points_ft, rooms, chart: dict, feasi
     plan_w = sidebar_x - GAP - MARGIN
     plan_h = page_h - 2 * MARGIN
 
-    _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h, sheet_type)
+    _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h, sheet_type,
+                      entry_point_ft=entry_point_ft, exit_points_ft=exit_points_ft, flow_segments=flow_segments)
     c.setStrokeColor(black)
     c.setLineWidth(1)
     c.rect(plan_x, plan_y, plan_w, plan_h, stroke=1, fill=0)

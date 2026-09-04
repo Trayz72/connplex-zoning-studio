@@ -211,6 +211,21 @@ def best_fit_preset(area_sqft: float) -> dict:
     return {"matches_preset": best["id"], "status": "MEETS_PRESET_AREA_FLOOR"}
 
 
+def _nearest_preset_for_area(area_sqft: float):
+    """Same "largest preset whose min_area_sqft <= area_sqft" selection as
+    best_fit_preset, but returns the real preset dict (not just an id/
+    status string) — used to give a custom-fit room (no preset object of
+    its own) a realistic seat-type mix to borrow, via default_seat_config,
+    instead of always falling back to one flat seat type. Falls back to the
+    smallest configured preset when the room is smaller than every real
+    preset's own floor (still a real, defined mix — not nothing)."""
+    presets = rules_registry.load()["auditorium_presets"]
+    satisfied = [p for p in presets if area_sqft >= p["min_area_sqft"]]
+    if not satisfied:
+        return min(presets, key=lambda p: p["min_area_sqft"])
+    return max(satisfied, key=lambda p: p["min_area_sqft"])
+
+
 def default_seat_config(preset):
     """Real seat type + a front-lounger row when the matched preset's own
     seating_mix calls for one — not a hardcoded default. Every preset
@@ -246,9 +261,18 @@ def best_seat_estimate(preset, w, h, enclosed_obstacle_area_sqft, screen_width_f
     non-depth-starved room. Computes both options when a front-lounger row
     applies at all and keeps whichever genuinely seats more — ties go to
     the front-row mix (the real, human-observed default), never silently
-    accepting fewer seats for its own sake. Returns (seat_config_dict,
-    seat_estimate_dict)."""
-    primary, secondary, front_rows = default_seat_config(preset) if preset else (DEFAULT_SEAT_TYPE_ID, None, None)
+    accepting fewer seats for its own sake.
+
+    preset=None (a custom-fit room, no standard SOP tier matched) still
+    gets a real mix, not a flat single seat type: it borrows
+    default_seat_config from whichever standard preset its own actual area
+    (w*h) most resembles (_nearest_preset_for_area) — the room's reported
+    preset_id/preset_name stay None/"Custom-fit screen" elsewhere (its
+    PLACEMENT is genuinely non-standard), only its seat proportions borrow
+    a real tier's realistic mix instead of defaulting to one uniform type.
+    Returns (seat_config_dict, seat_estimate_dict)."""
+    mix_source = preset if preset else _nearest_preset_for_area(w * h)
+    primary, secondary, front_rows = default_seat_config(mix_source)
     mixed_estimate = estimate_seats(
         w, h, primary_seat_type_id=primary, secondary_seat_type_id=secondary, front_row_count=front_rows,
         enclosed_obstacle_area_sqft=enclosed_obstacle_area_sqft, screen_width_ft=screen_width_ft

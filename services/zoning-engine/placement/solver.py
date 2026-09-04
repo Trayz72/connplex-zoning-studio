@@ -54,13 +54,26 @@ def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
     there by using the strip as-is — found by direct comparison against
     greedy on a boundary with such strips, where the solver otherwise
     finished with fewer total seats than greedy despite being a strictly
-    more powerful search. Returns a list of dicts: {x, y, w, h, preset,
+    more powerful search.
+
+    That fix still has a floor, though: a custom-fit candidate's own short
+    side must clear min_short_side_ft (the smallest configured preset's own
+    width_min_ft) — a strip narrower than that produced architecturally
+    absurd "screens" (a real, measured case: 70.8x13.8ft) no human would
+    ever draw. Rejecting it here is safe, not just a shape preference: the
+    strip's area doesn't vanish, it becomes real Foyer/circulation space
+    instead once layout_engine's post-auditorium pass runs (see
+    _build_foyer_room) — never silently lost usable area the way it would
+    have been before that existed.
+
+    Returns a list of dicts: {x, y, w, h, preset,
     used_fallback, seat_config, seat_estimate} — preset is None for a
     custom-fit candidate, the same convention _build_auditorium_room
     already understands for greedy's custom-fit rooms."""
     candidates = []
     seen = set()
     min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
+    min_short_side_ft = min((p["width_min_ft"] for p in presets), default=0)
 
     for poly, used_fallback in ((usable_poly, False), (fallback_poly, True)):
         if poly is None or (used_fallback and poly is usable_poly):
@@ -68,7 +81,7 @@ def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
         rects = free_rectangles.free_rectangles_ft(poly, bbox, cell_ft=1.0, max_candidates=max_free_rects)
         for rx, ry, rw, rh in rects:
             cw, ch = min(rw, max_dim_ft), min(rh, max_dim_ft)
-            if cw * ch >= min_preset_area_sqft:
+            if cw * ch >= min_preset_area_sqft and min(cw, ch) >= min_short_side_ft:
                 for ax, ay in ((rx, ry), (rx + rw - cw, ry + rh - ch)):
                     key = (round(ax, 2), round(ay, 2), round(cw, 2), round(ch, 2))
                     if key in seen:

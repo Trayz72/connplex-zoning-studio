@@ -25,8 +25,14 @@ LAYER_NAMES = [
     "EXISTING-BOUNDARY", "EXISTING-OBSTACLE",
     "PROPOSED-AUDITORIUM", "PROPOSED-FOYER", "PROPOSED-FNB",
     "PROPOSED-WASHROOM", "PROPOSED-BOX_OFFICE", "PROPOSED-BOH", "PROPOSED-PASSAGE",
-    "PROPOSED-CIRCULATION", "ANNOTATION", "ANNOTATION-DOOR"
+    "PROPOSED-CIRCULATION", "ANNOTATION", "ANNOTATION-DOOR", "ANNOTATION-ENTRY-EXIT"
 ]
+
+# ACI 3 (green) for entry, ACI 1 (red) for exit — distinct from the plain
+# ACI 7 (black/white) line work everywhere else, same green/red convention
+# EntryExitPicker.tsx already uses on the frontend for "IN"/"E1" markers.
+_ENTRY_ACI = 3
+_EXIT_ACI = 1
 
 # Which points_ft direction is "into the room" from each screen_wall value
 # (see layout_engine._screen_wall_for_rect) — used to draw a door's leaf
@@ -73,7 +79,34 @@ def _flip(pt):
     return (pt[0], -pt[1])
 
 
-def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, rooms, out_path: str, also_dwg: bool = True) -> dict:
+def _draw_entry_exit_markers(msp, entry_point_ft, exit_points_ft, marker_r):
+    """Same convention export_pdf.py's _draw_entry_exit_markers uses (and
+    the frontend's EntryExitPicker.tsx before it) — a circle + short label
+    for the building's own main entrance/exit, on their own layer so an
+    architect can toggle them independently of room/door annotation."""
+    if entry_point_ft is not None:
+        cx, cy = _flip(entry_point_ft)
+        msp.add_circle((cx, cy), marker_r, dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": _ENTRY_ACI})
+        msp.add_text("IN", dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": _ENTRY_ACI,
+                                        "height": marker_r * 0.8, "insert": (cx - marker_r * 0.55, cy - marker_r * 0.3)})
+    for i, ep in enumerate(exit_points_ft or [], start=1):
+        cx, cy = _flip(ep)
+        msp.add_circle((cx, cy), marker_r, dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": _EXIT_ACI})
+        msp.add_text(f"E{i}", dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": _EXIT_ACI,
+                                           "height": marker_r * 0.8, "insert": (cx - marker_r * 0.55, cy - marker_r * 0.3)})
+
+
+def _draw_flow_segments(msp, flow_segments):
+    """The "common path" indication (see layout_engine._entry_exit_flow_segments
+    and export_pdf.py's own _draw_flow_segments for the full reasoning) —
+    a real, honest desire-line, colored to match which end it belongs to."""
+    for seg in flow_segments or []:
+        color = _ENTRY_ACI if seg["kind"] == "ENTRY" else _EXIT_ACI
+        msp.add_line(_flip(seg["from"]), _flip(seg["to"]), dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": color})
+
+
+def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, rooms, out_path: str, also_dwg: bool = True,
+                          entry_point_ft=None, exit_points_ft=None, flow_segments=None) -> dict:
     doc = ezdxf.new("R2018")
     doc.header["$INSUNITS"] = 2  # feet, matches this app's internal canonical unit
     _ensure_layers(doc)
@@ -115,6 +148,13 @@ def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, room
             p1, p2, leaf_end = _door_glyph_points_ft(room, door)
             msp.add_line(_flip(p1), _flip(p2), dxfattribs={"layer": "ANNOTATION-DOOR"})
             msp.add_line(_flip(p1), _flip(leaf_end), dxfattribs={"layer": "ANNOTATION-DOOR"})
+
+    if boundary_points_ft:
+        bw = max(p[0] for p in boundary_points_ft) - min(p[0] for p in boundary_points_ft)
+        bh = max(p[1] for p in boundary_points_ft) - min(p[1] for p in boundary_points_ft)
+        marker_r = max(bw, bh) * 0.018
+        _draw_flow_segments(msp, flow_segments)
+        _draw_entry_exit_markers(msp, entry_point_ft, exit_points_ft, marker_r)
 
     title = project_meta.get("property_name") or "Untitled Project"
     header_lines = [
