@@ -109,7 +109,17 @@ def test_foyer_polygon_is_the_real_remainder_not_a_bounding_box():
     must equal the true leftover space (rooms subtracted from usable area),
     not an approximation, and — since the comb boundary's leftover space is
     not a plain rectangle — its area must differ from width_ft*depth_ft
-    (the bounding box), proving geometry_points_ft carries the real shape."""
+    (the bounding box), proving geometry_points_ft carries the real shape.
+
+    The true remainder can be a MultiPolygon here (a real, correct outcome
+    on this boundary once the realistic-shape floor rejects a sliver
+    custom-fit screen: the freed-up strip is too small/disconnected to
+    reach Foyer's own connected piece, so it correctly shows up as
+    circulation_area_sqft leftover slack instead — see
+    test_multipolygon_remainder_picks_entry_connected_piece_as_foyer for
+    that behavior's own dedicated test) — so this test compares Foyer's
+    polygon against the true remainder's OWN matching piece, not the
+    combined multi-piece total."""
     usable = _usable(COMB_BOUNDARY)
     candidate = layout_engine.generate_candidate(usable, COMB_BOUNDARY, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 6}, [])
     foyer = next((r for r in candidate["rooms"] if r["room_type"] == "FOYER"), None)
@@ -121,8 +131,15 @@ def test_foyer_polygon_is_the_real_remainder_not_a_bounding_box():
     ]
     foyer_poly = layout_engine.poly_from_points(foyer["geometry_points_ft"] + [foyer["geometry_points_ft"][0]])
     true_remainder = usable.difference(unary_union(other_polys))
-    mismatch_area = foyer_poly.symmetric_difference(true_remainder).area
-    assert mismatch_area < 2.0, f"Foyer's stored polygon differs from the true leftover remainder by {mismatch_area} sqft"
+    pieces = list(true_remainder.geoms) if true_remainder.geom_type == "MultiPolygon" else [true_remainder]
+    match_idx = min(range(len(pieces)), key=lambda i: abs(pieces[i].area - foyer["area_sqft"]))
+    matching_piece = pieces[match_idx]
+    mismatch_area = foyer_poly.symmetric_difference(matching_piece).area
+    assert mismatch_area < 2.0, f"Foyer's stored polygon differs from its matching true-remainder piece by {mismatch_area} sqft"
+    # Every other piece (if any) must be accounted for as reported leftover
+    # slack, not silently dropped.
+    other_pieces_area = sum(p.area for i, p in enumerate(pieces) if i != match_idx)
+    assert abs(candidate["circulation_area_sqft"] - other_pieces_area) < 2.0
 
     bbox_area = foyer["width_ft"] * foyer["depth_ft"]
     assert abs(foyer["area_sqft"] - bbox_area) > 1.0, "expected a non-rectangular Foyer remainder on the comb boundary"

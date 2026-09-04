@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { EntryExitMarkers } from './EntryExitMarkers';
 
 interface EntryExitPickerProps {
   boundaryPointsFt: number[][];
@@ -80,18 +81,7 @@ export const EntryExitPicker: React.FC<EntryExitPickerProps> = ({
           points={boundaryPointsFt.map(p => p.join(',')).join(' ')}
           fill="var(--bg-secondary)" stroke="var(--border-strong)" strokeWidth={w * 0.004}
         />
-        {exitValues.map((p, i) => (
-          <g key={`exit-${i}`}>
-            <circle cx={p[0]} cy={p[1]} r={markerR} fill="var(--danger)" stroke="var(--bg-primary)" strokeWidth={w * 0.003} />
-            <text x={p[0]} y={p[1] - markerR * 1.6} textAnchor="middle" fontSize={markerR * 1.3} fill="var(--danger)">E{i + 1}</text>
-          </g>
-        ))}
-        {entryValue && (
-          <g>
-            <circle cx={entryValue[0]} cy={entryValue[1]} r={markerR * 1.15} fill="var(--brand-strong)" stroke="var(--bg-primary)" strokeWidth={w * 0.003} />
-            <text x={entryValue[0]} y={entryValue[1] - markerR * 1.9} textAnchor="middle" fontSize={markerR * 1.3} fontWeight={700} fill="var(--brand-strong)">IN</text>
-          </g>
-        )}
+        <EntryExitMarkers entryPointFt={entryValue} exitPointsFt={exitValues} markerR={markerR} />
       </svg>
 
       <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '6px' }}>

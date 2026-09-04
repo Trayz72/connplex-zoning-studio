@@ -575,6 +575,9 @@ export const ZoningWorkspace: React.FC = () => {
                 showCadLinework={showCadLinework}
                 showSeatRows={showSeatRows}
                 onDeleteSelected={deleteSelected}
+                entryPointFt={layout.entry_point_ft}
+                exitPointsFt={layout.exit_points_ft}
+                flowSegments={layout.flow_segments}
               />
             </div>
 

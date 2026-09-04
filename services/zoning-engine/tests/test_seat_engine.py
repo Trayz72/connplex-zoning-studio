@@ -81,3 +81,40 @@ def test_front_row_count_none_reproduces_percentage_behavior_unchanged():
     )
     assert result["seat_breakdown"]["SOFA_SLIDER"] > 0
     assert result["seat_breakdown"]["DUO_LOUNGER"] > 0
+
+
+def test_nearest_preset_for_area_picks_the_largest_preset_the_area_clears():
+    """Same selection rule as best_fit_preset, just returning the real
+    preset dict instead of an id/status string."""
+    p = seat_engine._nearest_preset_for_area(1500)  # clears 60_SEAT's floor (1350) but not 90_SEAT's (2000)
+    assert p["id"] == "60_SEAT"
+
+
+def test_nearest_preset_for_area_falls_back_to_smallest_below_every_floor():
+    """A room smaller than even the smallest preset's own min_area_sqft
+    still gets a real preset dict back (the smallest one), never None —
+    best_seat_estimate needs a real seating_mix to borrow from regardless
+    of how small the custom-fit room turned out to be."""
+    p = seat_engine._nearest_preset_for_area(10)
+    assert p["id"] == "35_SEAT"  # the smallest configured preset
+
+
+def test_custom_fit_room_gets_a_real_seat_mix_not_a_flat_single_type():
+    """The real defect this round fixes: a custom-fit room (preset=None)
+    used to always fall back to one flat seat type (SLIDER_SOFA, no front
+    row) regardless of its own size — found via live testing where every
+    custom-fit screen on a real project came back 100% one seat type,
+    unlike the human reference plan's realistic per-room mix. A custom-fit
+    room sized like a 125_SEAT tier (70x50, matching
+    test_best_seat_estimate_uses_front_row_mix_when_it_genuinely_seats_more's
+    own preset-driven case) must now get the SAME real front-lounger mix a
+    matching preset room would — proving the mix is borrowed from the
+    nearest real tier, not invented from nothing."""
+    preset = next(p for p in seat_engine.rules_registry.auditorium_presets() if p["id"] == "125_SEAT")
+    preset_config, preset_estimate = seat_engine.best_seat_estimate(preset, 70, 50, 0.0, None)
+    custom_config, custom_estimate = seat_engine.best_seat_estimate(None, 70, 50, 0.0, None)
+    assert custom_config["front_row_count"] == preset_config["front_row_count"]
+    assert custom_config["primary_seat_type_id"] == preset_config["primary_seat_type_id"]
+    assert custom_config["secondary_seat_type_id"] == preset_config["secondary_seat_type_id"]
+    nonzero_types = [v for v in custom_estimate["seat_breakdown"].values() if v > 0]
+    assert len(nonzero_types) >= 2, f"expected a real mix of >=2 seat types, got {custom_estimate['seat_breakdown']}"

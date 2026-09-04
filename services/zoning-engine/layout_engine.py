@@ -514,7 +514,7 @@ _best_seat_estimate = seat_engine.best_seat_estimate
 
 
 def _find_largest_fitting_custom_screen(usable_poly, fallback_poly, placed_polys, placed_types, bbox,
-                                         min_area_sqft, max_dim_ft=80.0):
+                                         min_area_sqft, max_dim_ft=80.0, min_short_side_ft=0.0):
     """When no registered auditorium preset fits anywhere, don't give up
     while real usable area still remains — a real, directly measured defect
     this exists to fix: on a real uploaded file, the engine placed 2
@@ -540,6 +540,16 @@ def _find_largest_fitting_custom_screen(usable_poly, fallback_poly, placed_polys
     room shapes (what a human actually draws on an irregular floor plate)
     are a separate, much larger effort (see Module D: pre-drawn room
     detection, which sidesteps this for a real file that already has one).
+
+    min_short_side_ft rejects a free rectangle whose short side falls below
+    it outright — a real, measured defect this guards against: without it,
+    a genuinely narrow leftover strip (e.g. 70.8x13.8ft) could still clear
+    min_area_sqft and get built as a "screen" no human would ever draw
+    (real cinema auditoriums are never that shallow). Safe to reject
+    outright, not just discourage, because that strip's area doesn't
+    vanish — it becomes real Foyer/circulation space instead (see
+    _build_foyer_room), never silently lost usable area.
+
     Returns the same (result, used_fallback) shape _scan_place_with_fallback
     does, or (None, False)."""
     placed_union = unary_union(placed_polys) if placed_polys else None
@@ -552,6 +562,8 @@ def _find_largest_fitting_custom_screen(usable_poly, fallback_poly, placed_polys
             continue
         for x, y, w, h in free_rectangles.free_rectangles_ft(remaining, bbox, cell_ft=1.0, max_candidates=40):
             cw, ch = min(w, max_dim_ft), min(h, max_dim_ft)
+            if min(cw, ch) < min_short_side_ft:
+                continue
             if cw * ch < min_area_sqft:
                 continue
             cand = _rect(x, y, cw, ch)
@@ -655,7 +667,8 @@ def _build_auditorium_room(x, y, w, h, index, used_preset, used_fallback, column
 def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, column_polys, bbox,
                                                     placed_polys, placed_types, remaining_slots,
                                                     min_area_sqft, aud_column_cap, flip_x, flip_y,
-                                                    max_dim_ft=80.0, aud_edge_tolerance_ft=None):
+                                                    max_dim_ft=80.0, aud_edge_tolerance_ft=None,
+                                                    min_short_side_ft=0.0):
     """Fills up to remaining_slots more custom-fit auditorium footprints
     using placement.backtracking's bounded search instead of committing to
     the single largest free rectangle at each step irrevocably (which is
@@ -684,6 +697,8 @@ def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, co
                 continue
             for x, y, w, h in free_rectangles.free_rectangles_ft(remaining, bbox, cell_ft=1.0, max_candidates=12):
                 cw, ch = min(w, max_dim_ft), min(h, max_dim_ft)
+                if min(cw, ch) < min_short_side_ft:
+                    continue
                 if cw * ch < min_area_sqft:
                     continue
                 cands.append((x, y, cw, ch, used_fb, remaining))
@@ -744,6 +759,7 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
         aud_edge_tolerance_ft = 2.0
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
     min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
+    min_short_side_ft = min((p["width_min_ft"] for p in presets), default=0)
 
     # Phase 1: real SOP presets only, largest-fits-first, exactly as before.
     # The instant a preset fails to fit anywhere, stop this loop — every
@@ -824,7 +840,7 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
         backtrack_results = _fill_remaining_auditoriums_with_backtracking(
             scan_usable, scan_fallback, column_polys, bbox, scan_placed_polys, scan_placed_types,
             remaining_slots, min_preset_area_sqft, aud_column_cap, flip_x, flip_y,
-            aud_edge_tolerance_ft=aud_edge_tolerance_ft
+            aud_edge_tolerance_ft=aud_edge_tolerance_ft, min_short_side_ft=min_short_side_ft
         )
         for sx, sy, w, h, used_fallback in backtrack_results:
             scan_placed_polys.append(_rect(sx, sy, w, h))
@@ -997,9 +1013,10 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
         if not matched_preset or not result:
             result = None
             min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
+            min_short_side_ft = min((p["width_min_ft"] for p in presets), default=0)
             custom_result, custom_used_fallback = _find_largest_fitting_custom_screen(
                 usable_poly, fallback_poly, placed_polys, placed_types, bbox,
-                min_preset_area_sqft
+                min_preset_area_sqft, min_short_side_ft=min_short_side_ft
             )
             if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, False, False, column_polys, aud_column_cap, aud_edge_tolerance_ft):
                 custom_result = None
@@ -1419,6 +1436,40 @@ def _place_support_zones_and_foyer(usable_poly, fallback_poly, column_polys, bbo
     return support_rooms, foyer_room, leftover_slack, warnings
 
 
+def _entry_exit_flow_segments(rooms, entry_point, exit_points_ft):
+    """A real, honest "common path" indication without full pathfinding:
+    Foyer's connectivity to every door is already geometrically guaranteed
+    by construction (this session's connectivity-gated support-zone
+    placement), so a simple two-point flow line — the marked entry point
+    straight to each auditorium's own ENTRY door, and each auditorium's
+    EXIT door straight to the nearest marked exit point — is a real,
+    honest simplification of circulation flow, the same convention real
+    CAD zoning sheets use (a dashed desire-line arrow through open floor,
+    not a fully routed corridor). Reuses connectivity.door_outside_point
+    for the door-side endpoint — the exact same "just outside this door,
+    in real open floor space" point this session's connectivity gate
+    already computes and trusts.
+
+    Returns a list of {"from": [x, y], "to": [x, y], "kind": "ENTRY"|"EXIT"}
+    dicts — empty wherever the data to draw it isn't marked (no entry
+    point, no exit points, or a room with no matching door), a real,
+    confirmed case on at least one live project, never a crash."""
+    segments = []
+    for room in rooms:
+        if not room["room_type"].startswith("AUDITORIUM"):
+            continue
+        for door in room.get("doors", []):
+            outside_pt = connectivity.door_outside_point(room, door)
+            if door.get("kind") == "ENTRY" and entry_point is not None:
+                segments.append({"from": [round(entry_point[0], 2), round(entry_point[1], 2)],
+                                  "to": [round(outside_pt[0], 2), round(outside_pt[1], 2)], "kind": "ENTRY"})
+            elif door.get("kind") == "EXIT" and exit_points_ft:
+                nearest = min(exit_points_ft, key=lambda ep: (ep[0] - outside_pt[0]) ** 2 + (ep[1] - outside_pt[1]) ** 2)
+                segments.append({"from": [round(outside_pt[0], 2), round(outside_pt[1], 2)],
+                                  "to": [round(nearest[0], 2), round(nearest[1], 2)], "kind": "EXIT"})
+    return segments
+
+
 def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requirements: dict, confirmed_obstacles: list = None) -> dict:
     # True boundary bbox, not usable_poly's — obstacle subtraction almost
     # never shrinks the bounding box (obstacles are interior), but computing
@@ -1537,6 +1588,7 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
         "total_seats": total_seats,
         "screen_count": screen_count,
         "seats_per_screen": seats_per_screen,
+        "flow_segments": _entry_exit_flow_segments(auditoriums, entry_point, exit_points_ft),
         "warnings": aud_warnings + notes
     }
 
@@ -1571,6 +1623,7 @@ def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: 
 
     max_auditoriums = requirements.get("max_auditoriums", 4) if requirements else 4
     entry_point = requirements.get("entry_point_ft") if requirements else None
+    exit_points_ft = requirements.get("exit_points_ft") if requirements else None
     screen_width_ft = requirements.get("screen_width_ft") if requirements else None
 
     aud_column_cap = rules_registry.planning_norm("AUDITORIUM_MAX_ENCLOSED_COLUMN_RATIO")
@@ -1638,6 +1691,7 @@ def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: 
         "total_seats": total_seats,
         "screen_count": screen_count,
         "seats_per_screen": seats_per_screen,
+        "flow_segments": _entry_exit_flow_segments(auditoriums, entry_point, exit_points_ft),
         "warnings": notes
     }
 

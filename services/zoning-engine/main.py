@@ -774,11 +774,21 @@ def _enrich_layout(project_id: str, layout: dict) -> dict:
     screen_count = len([r for r in layout["rooms"] if r["room_type"].startswith("AUDITORIUM")])
     measurements = _build_measurements(requirements, layout.get("obstacles", []), candidate_shape["boundary_area_sqft"],
                                         total_seats, screen_count, layout["rooms"])
+    entry_point = requirements.get("entry_point_ft")
+    exit_points = requirements.get("exit_points_ft") or []
     layout = dict(layout)
     layout["feasibility"] = feasibility_engine.evaluate(requirements.get("property_type", "EXISTING_BUILDING"), measurements)
     layout["area_seat_chart"] = chart_engine.build_chart(candidate_shape)
     layout["total_seats"] = total_seats
     layout["screen_count"] = screen_count
+    # Entry/exit + the common-path flow arrows the Edit canvas draws from
+    # them (see layout_engine._entry_exit_flow_segments) — real CAD-sheet
+    # style indication, distinct from each room's own door glyphs. Empty
+    # segments (no entry point marked, a real case on at least one live
+    # project) is a graceful, honest "nothing to draw yet," not an error.
+    layout["entry_point_ft"] = entry_point
+    layout["exit_points_ft"] = exit_points
+    layout["flow_segments"] = layout_engine._entry_exit_flow_segments(layout["rooms"], entry_point, exit_points)
     return layout
 
 
@@ -796,10 +806,16 @@ def export_pdf_endpoint(project_id: str, body: ExportIn):
     meta["revision"] = rev
     meta["generated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
+    requirements = storage.read_json(storage.requirements_path(project_id)) or {}
+    entry_point = requirements.get("entry_point_ft")
+    exit_points = requirements.get("exit_points_ft") or []
+    flow_segments = layout_engine._entry_exit_flow_segments(layout["rooms"], entry_point, exit_points)
+
     region_meta = {"net_usage_area_sqft": f"{layout_engine.poly_from_points(layout['boundary_points_ft']).area:,.0f}"}
     out_path = os.path.join(storage.export_dir(project_id), f"{project_id}_{body.sheet_type.replace(' ', '_')}_{rev}.pdf")
     export_pdf.render_pdf(meta, layout["boundary_points_ft"], layout["rooms"], enriched["area_seat_chart"], enriched["feasibility"],
-                           out_path, body.sheet_type, obstacles=layout.get("obstacles"), region_meta=region_meta)
+                           out_path, body.sheet_type, obstacles=layout.get("obstacles"), region_meta=region_meta,
+                           entry_point_ft=entry_point, exit_points_ft=exit_points, flow_segments=flow_segments)
     storage.append_export_record(project_id, {
         "revision": rev, "sheet_type": body.sheet_type, "format": "pdf",
         "filename": os.path.basename(out_path), "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -820,8 +836,15 @@ def export_cad_endpoint(project_id: str, body: ExportIn):
     meta["revision"] = rev
     meta["generated_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
+    requirements = storage.read_json(storage.requirements_path(project_id)) or {}
+    entry_point = requirements.get("entry_point_ft")
+    exit_points = requirements.get("exit_points_ft") or []
+    flow_segments = layout_engine._entry_exit_flow_segments(layout["rooms"], entry_point, exit_points)
+
     out_path = os.path.join(storage.export_dir(project_id), f"{project_id}_ZoningLayout_{rev}.dxf")
-    result = export_dxf.export_layout_to_dxf(meta, layout["boundary_points_ft"], layout["obstacles"], layout["rooms"], out_path, also_dwg=(body.format == "dwg"))
+    result = export_dxf.export_layout_to_dxf(meta, layout["boundary_points_ft"], layout["obstacles"], layout["rooms"], out_path,
+                                              also_dwg=(body.format == "dwg"), entry_point_ft=entry_point,
+                                              exit_points_ft=exit_points, flow_segments=flow_segments)
 
     if body.format == "dwg":
         if not result["dwg_path"]:

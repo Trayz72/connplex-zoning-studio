@@ -372,21 +372,46 @@ def test_custom_fit_screen_used_when_no_preset_fits_but_real_area_remains():
     """A real, directly-measured defect: on a real uploaded file, the engine
     left 5,194 of 6,979 sqft of usable area (74%) completely untouched
     because no fixed preset footprint happened to fit what remained, even
-    though real usable area did. Reproduced here with a narrow 20x100
-    corridor-shaped boundary — every real preset needs at least 24ft in its
-    narrow dimension (35_SEAT's own width_min_ft), so none can fit, but the
-    custom-fit fallback should still use the real 2,000 sqft available
-    rather than placing nothing."""
-    boundary = [[0, 0], [20, 0], [20, 100], [0, 100], [0, 0]]
+    though real usable area did. Reproduced here with a 28x33 boundary —
+    too short (33ft) for 35_SEAT's own length_min (35ft) and too narrow
+    (28ft) for 60_SEAT's own width_min (30ft), so no preset can fit, but
+    the custom-fit fallback should still use the real ~924 sqft available
+    rather than placing nothing. (28x33, not the narrower shapes this test
+    used before this round: a custom-fit screen's own short side must now
+    clear the same 24ft floor as every real preset — see
+    test_custom_fit_screen_rejects_unrealistically_narrow_shape below —
+    so the boundary here is sized to be realistic AND still preset-free.)"""
+    boundary = [[0, 0], [28, 0], [28, 33], [0, 33], [0, 0]]
     usable = layout_engine.compute_usable_area(boundary, [])
     room, warning = layout_engine.place_single_zone(
-        usable, usable, [], [], [], (0, 0, 20, 100), "AUDITORIUM", {}
+        usable, usable, [], [], [], (0, 0, 28, 33), "AUDITORIUM", {}
     )
     assert room is not None, warning
     assert room["preset_id"] is None
     assert room["preset_name"] == "Custom-fit screen"
     assert "area_basis_note" in room
     assert room["area_sqft"] > 900  # the smallest real preset's own min_area_sqft floor
+
+
+def test_custom_fit_screen_rejects_unrealistically_narrow_shape():
+    """The new rule this round adds: a custom-fit auditorium's own short
+    side must clear the smallest configured preset's own width_min_ft
+    (24ft) — a boundary narrower than that (here, 20ft) must place NO
+    screen at all, not an architecturally absurd sliver. Before this rule
+    existed, this exact 20x100 boundary (see git history of this test)
+    produced a real, ~13-16ft-deep custom-fit "screen" no human would draw
+    — a real, measured defect on a live project this round fixes. The 2,000
+    sqft of real usable area doesn't vanish: with no screen placed, it
+    becomes real Foyer/circulation space instead (see
+    _place_support_zones_and_foyer / _build_foyer_room), never silently
+    lost the way it would have been before Foyer-as-remainder existed."""
+    boundary = [[0, 0], [20, 0], [20, 100], [0, 100], [0, 0]]
+    usable = layout_engine.compute_usable_area(boundary, [])
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 20, 100), "AUDITORIUM", {}
+    )
+    assert room is None, "a 20ft-wide boundary must not produce any screen, custom-fit or otherwise"
+    assert warning and "No space" in warning
 
 
 def test_best_seat_estimate_never_seats_fewer_than_the_bulk_only_option():
@@ -422,8 +447,10 @@ def test_best_seat_estimate_uses_front_row_mix_when_it_genuinely_seats_more():
 
 def test_generate_candidate_uses_custom_fit_in_auto_layout_too():
     """The same fallback applies inside auto-layout's own _place_auditoriums,
-    not just the manual Add-Zone path — both call sites share it."""
-    boundary = [[0, 0], [20, 0], [20, 100], [0, 100], [0, 0]]
+    not just the manual Add-Zone path — both call sites share it. Same
+    28x33 no-preset-fits-but-realistically-shaped boundary as
+    test_custom_fit_screen_used_when_no_preset_fits_but_real_area_remains."""
+    boundary = [[0, 0], [28, 0], [28, 33], [0, 33], [0, 0]]
     usable = layout_engine.compute_usable_area(boundary, [])
     candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 1}, [])
     aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
@@ -455,13 +482,15 @@ def test_multiple_custom_fit_screens_place_in_one_auto_layout_run():
     remaining free rectangles against whatever's actually left (not a
     fixed decay guess), a floor plate with two disconnected large-enough
     leftover areas should get TWO custom-fit screens in one run, not stop
-    after the first. A "dumbbell" boundary: two 20x50 (1000 sqft) blocks
-    joined by a thin 2ft-tall corridor — each block is too narrow (20ft)
-    for any real preset's 24ft width minimum in either orientation, so
-    both must come from the custom-fit fallback, and the corridor is too
-    thin to merge them into one bigger rectangle."""
-    boundary = [[0, 0], [20, 0], [20, 24], [40, 24], [40, 0], [60, 0], [60, 50],
-                [40, 50], [40, 26], [20, 26], [20, 50], [0, 50], [0, 0]]
+    after the first. A "dumbbell" boundary: two 28x33 (~924 sqft) blocks
+    joined by a thin 20x2ft bridge — each block clears the new realistic-
+    shape floor (min short side 24ft) but is too short (33ft) for
+    35_SEAT's own 35ft length_min and too narrow (28ft) for 60_SEAT's own
+    30ft width_min, so no preset fits either block; both must come from
+    the custom-fit fallback, and the bridge is too thin to merge them into
+    one bigger rectangle."""
+    boundary = [(0, 0), (28, 0), (48, 0), (76, 0), (76, 33), (48, 33),
+                (48, 2), (28, 2), (28, 33), (0, 33), (0, 0)]
     usable = layout_engine.compute_usable_area(boundary, [])
     candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 4}, [])
     aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
@@ -471,3 +500,47 @@ def test_multiple_custom_fit_screens_place_in_one_auto_layout_run():
         f"{[(r['preset_id'], r['area_sqft']) for r in aud_rooms]}"
     )
     assert all(r["area_sqft"] >= 900 for r in custom_fit_rooms)
+
+
+# ---------- entry/exit common-path flow segments ----------
+
+def _aud_room(x, y, w, h, doors):
+    return {"room_type": "AUDITORIUM_1", "origin_ft": [x, y], "width_ft": w, "depth_ft": h, "doors": doors}
+
+
+def test_flow_segments_connect_entry_to_each_auditorium_entry_door():
+    entry = (5, -5)
+    room = _aud_room(0, 0, 24, 40, [{"kind": "ENTRY", "wall": "min_y", "offset_ft": 2, "width_ft": 3.5}])
+    segments = layout_engine._entry_exit_flow_segments([room], entry, [])
+    assert len(segments) == 1
+    assert segments[0]["kind"] == "ENTRY"
+    assert segments[0]["from"] == [5, -5]
+    # The door-side endpoint is just outside the min_y wall (y slightly < 0).
+    assert segments[0]["to"][1] < 0
+
+
+def test_flow_segments_connect_exit_door_to_the_nearest_marked_exit():
+    room = _aud_room(0, 0, 24, 40, [{"kind": "EXIT", "wall": "max_y", "offset_ft": 2, "width_ft": 3.5}])
+    near_exit, far_exit = (5, 45), (500, 500)
+    segments = layout_engine._entry_exit_flow_segments([room], None, [far_exit, near_exit])
+    assert len(segments) == 1
+    assert segments[0]["kind"] == "EXIT"
+    assert segments[0]["to"] == [5, 45]
+
+
+def test_flow_segments_skip_non_auditorium_rooms():
+    support = {"room_type": "BOX_OFFICE", "origin_ft": [0, 0], "width_ft": 10, "depth_ft": 6,
+               "doors": [{"kind": "ENTRY", "wall": "min_y", "offset_ft": 1, "width_ft": 3}]}
+    segments = layout_engine._entry_exit_flow_segments([support], (5, -5), [(5, 45)])
+    assert segments == []
+
+
+def test_flow_segments_empty_when_no_entry_or_exit_marked():
+    """The real, confirmed live-project case: entry_point_ft/exit_points_ft
+    can both be null. Must degrade to an empty list, never crash."""
+    room = _aud_room(0, 0, 24, 40, [
+        {"kind": "ENTRY", "wall": "min_y", "offset_ft": 2, "width_ft": 3.5},
+        {"kind": "EXIT", "wall": "max_y", "offset_ft": 2, "width_ft": 3.5},
+    ])
+    assert layout_engine._entry_exit_flow_segments([room], None, []) == []
+    assert layout_engine._entry_exit_flow_segments([room], None, None) == []
