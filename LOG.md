@@ -13,6 +13,66 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-04 — Screen-first auto-layout, real Add-Zone placement, canvas UX polish
+
+Explicit ask, with a real human-made cinema layout supplied as a reference:
+auto-layout should place screens only ("leave other things and dont put
+them, just logically and optimally place screens"), everything else added
+via "Add zone" (now including "+ Screen" itself), plus three reported bugs.
+
+**Auto-layout is screens-only now.** `generate_candidate` (`layout_engine.py`)
+no longer calls what was `_place_support_zones` — a run returns auditoriums
+only, with a plain note ("N screen(s) placed on X sqft. Y sqft remains — add
+Foyer/F&B/Washroom/... from Add zone") instead of guessing at support-zone
+footprints before the architect has even seen the screens. The old ">30%
+unallocated" health-check warning (which assumed support zones would consume
+most of the floor) is gone — it would have fired on every run under the new
+behavior.
+
+**Zero-gap adjacency between auditoriums.** `_neighbor_gap_ft` — the scan's
+clearance buffer was a flat `AISLE_CLEARANCE_FT` (3.5ft) against every
+already-placed room regardless of type. Two auditoriums now get 0 gap (real
+cinemas share a demising wall — confirmed directly against the 35_SEAT
+preset's own source note, measured from a real client file built this way);
+every other pairing keeps the real aisle clearance. Verified live: a fresh
+4-screen run packs into a tight 2×2 block sharing walls, matching the
+supplied reference layout's look, instead of the old gapped-everywhere
+scatter.
+
+**Bug: "can't add a new zone without making space first."** Root cause —
+`ZoningWorkspace.tsx`'s `addZone` always dropped the new room at the
+boundary's fixed top-left corner with zero collision awareness, which the
+backend's real validation then silently rejected (that corner was almost
+always already occupied). Fixed properly, not patched: extracted
+`place_single_zone` from the old support-zone placer's per-type
+entry-aware scoring (foyer-near-entry, F&B-sightline, washroom-hidden-
+from-foyer, BOH-far-from-entry/exit) plus the auditorium preset-fit loop,
+exposed via a new `POST /layout/zones` endpoint, called by every "Add
+zone" button including the new "+ Screen". Also caught and fixed a real
+lost-update race while testing this: rapid-clicking multiple Add Zone
+buttons before the first request resolved could silently drop one of the
+additions (both requests read the same pre-write layout snapshot) — fixed
+by disabling the Add Zone/Delete Selected buttons while a save is in
+flight, same as any other in-flight-disabled control in this app.
+
+**Two smaller reported bugs**, both in `EditableCanvas.tsx`: the permanent
+bottom caption ("Drag a room to move it...") was low-contrast and
+redundant once a room's handles/sidebar fields are visible — removed.
+Canvas mechanics got real polish: mouse-wheel zoom centered on the cursor
+(previously only +/− buttons, always anchored to a corner), click-drag
+panning of the background (a `pan` offset added to the viewBox, armed only
+outside drawMode so precise boundary-tracing clicks are untouched),
+Delete/Backspace to delete the selected room, Escape to deselect, and a
+CSS transition on room fill/stroke so hover/selection feels less abrupt.
+
+Verified live end-to-end on the real Connplex Tower project: fresh
+auto-layout (both strategies) screens-only + adjacent; every Add Zone
+button including Screen; the previously-broken race now serializes
+correctly; an honest 422 ("No space available for a new Screen — even the
+smallest auditorium preset doesn't fit") when space genuinely runs out;
+pan/wheel-zoom/Delete/Escape; existing drag/resize + validation-rejection
+(overlap, out-of-bounds) still intact.
+
 ## 2026-09-04 — Real back navigation, toolbar/button polish, surfaced two dead backend fields
 
 Explicit ask: "add back button, proper button and their style, looks should

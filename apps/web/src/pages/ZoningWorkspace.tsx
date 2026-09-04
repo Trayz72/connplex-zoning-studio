@@ -28,12 +28,18 @@ const STEP_LABEL: Record<Step, string> = {
 // making an unreached one clickable, which would just 404 on missing state.
 const STEP_ORDER: Step[] = ['UPLOAD', 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'];
 
-const ROOM_TYPE_TEMPLATES: { type: string; label: string; w: number; h: number }[] = [
-  { type: 'FOYER', label: 'Foyer', w: 20, h: 15 },
-  { type: 'FNB', label: 'F&B / Concession', w: 12, h: 10 },
-  { type: 'WASHROOM', label: 'Washroom', w: 10, h: 10 },
-  { type: 'BOX_OFFICE', label: 'Box Office', w: 8, h: 8 },
-  { type: 'BOH', label: 'Back-of-House', w: 10, h: 9 }
+// Placement itself is entirely server-side now (see zoningEngineApi.addZone /
+// layout_engine.place_single_zone) — the backend finds a real, collision-free,
+// entry-aware position using the same scan-and-fit machinery auto-layout
+// itself uses for screens, so this list only needs a type + label, no
+// client-guessed size or position.
+const ROOM_TYPE_TEMPLATES: { type: string; label: string }[] = [
+  { type: 'AUDITORIUM', label: 'Screen' },
+  { type: 'FOYER', label: 'Foyer' },
+  { type: 'FNB', label: 'F&B / Concession' },
+  { type: 'WASHROOM', label: 'Washroom' },
+  { type: 'BOX_OFFICE', label: 'Box Office' },
+  { type: 'BOH', label: 'Back-of-House' }
 ];
 
 const FEAS_COLOR: Record<string, string> = {
@@ -203,22 +209,25 @@ export const ZoningWorkspace: React.FC = () => {
     }
   }, [id, layout]);
 
-  const addZone = (template: typeof ROOM_TYPE_TEMPLATES[number]) => {
-    if (!layout) return;
-    const bx = layout.boundary_points_ft;
-    const minX = Math.min(...bx.map(p => p[0]));
-    const minY = Math.min(...bx.map(p => p[1]));
-    const newRoom: LiveRoom = {
-      room_id: `${template.type.toLowerCase()}-${Math.random().toString(16).slice(2, 8)}`,
-      room_type: template.type,
-      display_name: template.label,
-      area_sqft: template.w * template.h,
-      width_ft: template.w,
-      depth_ft: template.h,
-      origin_ft: [minX + 1, minY + 1],
-      geometry_points_ft: [[minX + 1, minY + 1], [minX + 1 + template.w, minY + 1], [minX + 1 + template.w, minY + 1 + template.h], [minX + 1, minY + 1 + template.h]]
-    };
-    persistLayout([...layout.rooms, newRoom]);
+  // Placement is entirely server-side (engine.addZone -> place_single_zone) —
+  // this used to drop the new room at a fixed boundary corner with no
+  // collision awareness at all, which the backend's own validation then
+  // silently rejected almost every time (that corner is normally already
+  // occupied), making "Add zone" look broken. The server now finds a real,
+  // collision-free, entry-aware position using the same machinery
+  // auto-layout itself uses for screens.
+  const addZone = async (template: typeof ROOM_TYPE_TEMPLATES[number]) => {
+    if (!id || !layout) return;
+    setSaving(true);
+    setValidationErrors([]);
+    try {
+      const updated = await engine.addZone(id, template.type);
+      setLayout(updated);
+    } catch (e: any) {
+      setValidationErrors([{ room_id: '', issue: 'ERROR', message: e.message || `Could not add ${template.label}.` }]);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const deleteSelected = () => {
@@ -355,9 +364,9 @@ export const ZoningWorkspace: React.FC = () => {
               <div className="toolbar">
                 <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)', fontWeight: 500 }}>Add zone:</span>
                 {ROOM_TYPE_TEMPLATES.map(t => (
-                  <button key={t.type} className="btn btn-secondary btn-sm" onClick={() => addZone(t)}>+ {t.label}</button>
+                  <button key={t.type} className="btn btn-secondary btn-sm" disabled={saving} onClick={() => addZone(t)}>+ {t.label}</button>
                 ))}
-                {selectedRoomId && <button className="btn btn-danger btn-sm" onClick={deleteSelected}>Delete Selected</button>}
+                {selectedRoomId && <button className="btn btn-danger btn-sm" disabled={saving} onClick={deleteSelected}>Delete Selected</button>}
                 <label className="checkbox-label" style={{ marginLeft: 'auto' }}>
                   <input type="checkbox" checked={showCadLinework} onChange={(e) => setShowCadLinework(e.target.checked)} />
                   CAD linework
@@ -391,6 +400,7 @@ export const ZoningWorkspace: React.FC = () => {
                 snapToGridFt={snapFt}
                 rawGeometry={geometry?.regions.find(r => r.region_id === layout.region_id)?.raw_geometry}
                 showCadLinework={showCadLinework}
+                onDeleteSelected={deleteSelected}
               />
             </div>
 

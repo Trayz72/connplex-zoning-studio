@@ -125,6 +125,10 @@ class LayoutUpdateIn(BaseModel):
     circulation_area_sqft: Optional[float] = None
 
 
+class AddZoneIn(BaseModel):
+    room_type: str  # AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | BOH
+
+
 class ExportIn(BaseModel):
     project_meta: dict
     sheet_type: str = "Zoning Layout"
@@ -519,6 +523,38 @@ def select_candidate(project_id: str, body: CandidateSelectIn):
     return _enrich_layout(project_id, layout)
 
 
+def _recompute_room_derived_fields(room: dict, column_polys: list):
+    """Recomputes a room's seat_estimate/preset_fit/obstacle_note from its
+    current, real geometry — shared by update_layout (an architect's
+    move/resize/edit) and add_zone (a freshly placed room) so both paths stay
+    honest about a room that now encloses a confirmed column, rather than
+    leaving a stale value from before the edit/placement."""
+    room_poly = layout_engine.poly_from_points(room["geometry_points_ft"])
+    enclosed_area = sum(room_poly.intersection(cp).area for cp in column_polys) if column_polys else 0.0
+
+    if room["room_type"].startswith("AUDITORIUM"):
+        cfg = room.get("seat_config") or {}
+        room["seat_estimate"] = seat_engine.estimate_seats(
+            room["width_ft"], room["depth_ft"],
+            primary_seat_type_id=cfg.get("primary_seat_type_id", seat_engine.DEFAULT_SEAT_TYPE_ID),
+            secondary_seat_type_id=cfg.get("secondary_seat_type_id"),
+            primary_ratio_pct=cfg.get("primary_ratio_pct", 100),
+            enclosed_obstacle_area_sqft=enclosed_area,
+        )
+        room["preset_fit"] = seat_engine.best_fit_preset(room["area_sqft"])
+        if room["seat_estimate"].get("note"):
+            room["obstacle_note"] = room["seat_estimate"]["note"]
+        else:
+            room.pop("obstacle_note", None)
+    elif enclosed_area > 0.5:
+        room["obstacle_note"] = (
+            f"{round(enclosed_area, 1)} sqft of confirmed obstacle(s) (e.g. a structural column) fall "
+            f"inside this room's footprint — plan furniture/layout around the obstacle position(s)."
+        )
+    else:
+        room.pop("obstacle_note", None)
+
+
 @app.put("/api/projects/{project_id}/layout")
 def update_layout(project_id: str, body: LayoutUpdateIn):
     """Architect edit (move/resize/add/delete a zone). Real validation — an
@@ -543,30 +579,7 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
     # edit.
     column_polys = [layout_engine.poly_from_points(o["points_ft"]) for o in body.obstacles if o.get("classification") == "COLUMN"]
     for room in body.rooms:
-        room_poly = layout_engine.poly_from_points(room["geometry_points_ft"])
-        enclosed_area = sum(room_poly.intersection(cp).area for cp in column_polys) if column_polys else 0.0
-
-        if room["room_type"].startswith("AUDITORIUM"):
-            cfg = room.get("seat_config") or {}
-            room["seat_estimate"] = seat_engine.estimate_seats(
-                room["width_ft"], room["depth_ft"],
-                primary_seat_type_id=cfg.get("primary_seat_type_id", seat_engine.DEFAULT_SEAT_TYPE_ID),
-                secondary_seat_type_id=cfg.get("secondary_seat_type_id"),
-                primary_ratio_pct=cfg.get("primary_ratio_pct", 100),
-                enclosed_obstacle_area_sqft=enclosed_area,
-            )
-            room["preset_fit"] = seat_engine.best_fit_preset(room["area_sqft"])
-            if room["seat_estimate"].get("note"):
-                room["obstacle_note"] = room["seat_estimate"]["note"]
-            else:
-                room.pop("obstacle_note", None)
-        elif enclosed_area > 0.5:
-            room["obstacle_note"] = (
-                f"{round(enclosed_area, 1)} sqft of confirmed obstacle(s) (e.g. a structural column) fall "
-                f"inside this room's footprint — plan furniture/layout around the obstacle position(s)."
-            )
-        else:
-            room.pop("obstacle_note", None)
+        _recompute_room_derived_fields(room, column_polys)
 
     boundary_poly = layout_engine.poly_from_points(body.boundary_points_ft)
     room_area = sum(r["area_sqft"] for r in body.rooms)
@@ -591,6 +604,66 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
         # auto-layout originally generated this candidate (unmarked entrance,
         # undersized presets, etc.), which a manual edit doesn't retroactively
         # change the truth of.
+        "warnings": existing.get("warnings", []),
+        "revision": existing.get("revision", "R0"),
+        "updated_at": storage.now_iso()
+    }
+    storage.write_json(storage.layout_path(project_id), updated)
+    return _enrich_layout(project_id, updated)
+
+
+@app.post("/api/projects/{project_id}/layout/zones")
+def add_zone(project_id: str, body: AddZoneIn):
+    """Adds exactly one new room to the current layout at a real, collision-free
+    position found by layout_engine.place_single_zone — the same entry-aware
+    scan-and-fit machinery auto-layout itself uses for screens, run against the
+    layout's actual current rooms/obstacles. Replaces the frontend's old blind
+    fixed-corner placement, which had no collision awareness at all and relied
+    on this endpoint's sibling (update_layout)'s validation to reject the
+    overlap it produced almost every time.
+
+    Rejects with an honest 422 (never invents a placement that doesn't fit —
+    Product Principle #4) when nothing fits anywhere for this zone type."""
+    existing = storage.read_json(storage.layout_path(project_id))
+    if not existing:
+        raise HTTPException(404, "No editable layout exists for this project yet — run zoning first.")
+
+    boundary_points_ft = existing["boundary_points_ft"]
+    obstacles = existing.get("obstacles", [])
+    rooms = existing["rooms"]
+    requirements = storage.read_json(storage.requirements_path(project_id)) or {}
+
+    usable_poly = layout_engine.compute_usable_area(boundary_points_ft, obstacles)
+    fallback_poly = layout_engine.compute_usable_area(boundary_points_ft, obstacles, exclude_classifications=("COLUMN",)) if obstacles else usable_poly
+    column_polys = [layout_engine.poly_from_points(o["points_ft"]) for o in obstacles if o.get("classification") == "COLUMN"]
+    bbox = layout_engine.poly_from_points(boundary_points_ft).bounds
+
+    placed_polys = [layout_engine.poly_from_points(r["geometry_points_ft"]) for r in rooms]
+    placed_types = ["AUDITORIUM" if r["room_type"].startswith("AUDITORIUM") else r["room_type"] for r in rooms]
+
+    room, message = layout_engine.place_single_zone(
+        usable_poly, fallback_poly, column_polys, placed_polys, placed_types, bbox,
+        body.room_type, requirements, franchise_tier_id=requirements.get("franchise_tier_id")
+    )
+    if not room:
+        raise HTTPException(422, message)
+
+    _recompute_room_derived_fields(room, column_polys)
+    new_rooms = rooms + [room]
+
+    boundary_poly = layout_engine.poly_from_points(boundary_points_ft)
+    room_area = sum(r["area_sqft"] for r in new_rooms)
+    non_column_obstacle_points = [o["points_ft"] for o in obstacles if o.get("classification") != "COLUMN"]
+    obstacle_area = sum(layout_engine.poly_from_points(o).area for o in non_column_obstacle_points) if non_column_obstacle_points else 0
+    circulation = max(boundary_poly.area - room_area - obstacle_area, 0.0)
+
+    updated = {
+        "region_id": existing["region_id"],
+        "source_candidate_id": existing.get("source_candidate_id"),
+        "boundary_points_ft": boundary_points_ft,
+        "obstacles": obstacles,
+        "rooms": new_rooms,
+        "circulation_area_sqft": round(circulation, 2),
         "warnings": existing.get("warnings", []),
         "revision": existing.get("revision", "R0"),
         "updated_at": storage.now_iso()

@@ -96,10 +96,15 @@ canonical product spec and source of truth for business rules; treat this file a
      starting guess, never bypasses review (spec Sec 11).
    - `layout_engine.py` — generic auto-layout generator. Subtracts confirmed
      obstacles from the boundary, then a deterministic first-fit rectangle scan
-     places auditoriums (largest `AuditoriumPreset` that still fits, tried first —
-     this is what makes "maximize seat count" real) and then support zones in
-     whatever remains. Produces two genuinely different strategies
-     (`MAX_SEATS_PER_SCREEN`, `MAX_SCREEN_COUNT`), not cosmetic variants.
+     places auditoriums only (largest `AuditoriumPreset` that still fits, tried
+     first — this is what makes "maximize seat count" real; two adjacent
+     auditoriums get zero gap between them, real cinemas share a demising wall).
+     Produces two genuinely different strategies (`MAX_SEATS_PER_SCREEN`,
+     `MAX_SCREEN_COUNT`), not cosmetic variants. Support zones (Foyer/F&B/
+     Washroom/Box Office/Back-of-House) are NOT auto-placed — `place_single_zone`
+     adds one at a time, called from the Edit step's "Add zone" toolbar (POST
+     `/layout/zones` in `main.py`) against the real, current room layout, using
+     the same entry-aware scan-and-fit machinery.
    - `seat_engine.py`, `feasibility_engine.py`, `chart_engine.py` — the same
      seat-packing / ViabilityRule-evaluation / Area-Seat-Chart logic the legacy
      pipeline's M8 scripts have, refactored into plain functions so the live

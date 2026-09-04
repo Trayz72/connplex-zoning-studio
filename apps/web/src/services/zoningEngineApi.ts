@@ -206,6 +206,17 @@ export async function updateLayout(projectId: string, layout: Pick<EditableLayou
   }));
 }
 
+/** Places one new room (AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | BOH)
+ * into the current layout at a real, collision-free position the backend
+ * finds via the same entry-aware scan-and-fit machinery auto-layout itself
+ * uses — never a client-guessed corner. Throws a plain Error (its `message`
+ * is the honest "no space" reason) when nothing fits anywhere. */
+export async function addZone(projectId: string, roomType: string): Promise<EditableLayout> {
+  return asJson(await fetch(`${BASE}/${projectId}/layout/zones`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room_type: roomType })
+  }));
+}
+
 async function downloadFile(res: Response, fallbackName: string) {
   if (!res.ok) {
     let detail: any = null;

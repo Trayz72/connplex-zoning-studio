@@ -20,6 +20,8 @@ interface EditableCanvasProps {
    * detection found the wrong region, or none at all. */
   drawMode?: boolean;
   onDrawComplete?: (points: number[][]) => void;
+  /** Delete/Backspace with a room selected — mirrors the toolbar's "Delete Selected" button. */
+  onDeleteSelected?: () => void;
 }
 
 // Deliberately no per-room-type color coding — every room renders as a
@@ -62,12 +64,19 @@ const HANDLE_DEFS: { id: HandleId; cursor: string; fx: number; fy: number }[] = 
 
 export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   boundaryPointsFt, obstacles, rooms, selectedRoomId, onSelectRoom, onLiveChange, onCommit, snapToGridFt,
-  rawGeometry, showCadLinework = true, drawMode = false, onDrawComplete
+  rawGeometry, showCadLinework = true, drawMode = false, onDrawComplete, onDeleteSelected
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragMode>(null);
   const [liveRooms, setLiveRooms] = useState<LiveRoom[]>(rooms);
   const [zoom, setZoom] = useState(1);
+  // Panning offset, in the same feet units as bbox — added to bbox's own
+  // minX/minY when building the viewBox (see viewBox below). Kept separate
+  // from bbox itself so dragging/zooming the view never has to touch the
+  // boundary/obstacle data the bbox is derived from.
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const bgDragRef = useRef<{ startClientX: number; startClientY: number; startPan: { x: number; y: number } } | null>(null);
   const [pxPerFt, setPxPerFt] = useState(10);
   const [collision, setCollision] = useState(false);
   const [hoveredHandle, setHoveredHandle] = useState<string | null>(null);
@@ -94,7 +103,8 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   }, [boundaryPointsFt, obstacles, rawGeometry]);
 
   const viewBoxWidth = bbox.width / zoom;
-  const viewBox = `${bbox.minX} ${bbox.minY} ${viewBoxWidth} ${bbox.height / zoom}`;
+  const viewBoxHeight = bbox.height / zoom;
+  const viewBox = `${bbox.minX + pan.x} ${bbox.minY + pan.y} ${viewBoxWidth} ${viewBoxHeight}`;
 
   // Recompute the actual screen-pixels-per-drawing-foot scale whenever the SVG's
   // rendered size or the viewBox changes, so handle hit-areas stay a constant,
@@ -153,7 +163,19 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!drag) return;
+    if (!drag) {
+      if (bgDragRef.current) {
+        const dxPx = e.clientX - bgDragRef.current.startClientX;
+        const dyPx = e.clientY - bgDragRef.current.startClientY;
+        const dxFt = dxPx / Math.max(pxPerFt, 0.01);
+        const dyFt = dyPx / Math.max(pxPerFt, 0.01);
+        // Dragging right/down should reveal content to the left/above (the
+        // camera moves opposite the hand) so the content under the cursor
+        // visually follows the drag, same as any map/canvas grab-to-pan.
+        setPan({ x: bgDragRef.current.startPan.x - dxFt, y: bgDragRef.current.startPan.y - dyFt });
+      }
+      return;
+    }
     const { x, y } = screenToUser(e.clientX, e.clientY);
     const dx = snap(x - drag.startX, snapToGridFt);
     const dy = snap(y - drag.startY, snapToGridFt);
@@ -209,15 +231,16 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
     setDrag(null);
     setCollision(false);
     moved.current = false;
+    bgDragRef.current = null;
+    setIsPanning(false);
   };
 
   const CLOSE_HIT_FT_MULT = HANDLE_HIT_SCREEN_PX; // reuse the same generous click-target sizing as room handles
 
-  const handleBackgroundClick = (e: React.PointerEvent) => {
-    if (!drawMode) {
-      onSelectRoom(null);
-      return;
-    }
+  // Drawing a boundary needs precise, undeferred clicks (each one places a
+  // point), so background panning is deliberately not offered in drawMode —
+  // every pointerdown there goes straight to point-adding, same as before.
+  const handleDrawClick = (e: React.PointerEvent) => {
     const { x, y } = screenToUser(e.clientX, e.clientY);
     if (drawPoints.length >= 3) {
       const [fx, fy] = drawPoints[0];
@@ -230,6 +253,55 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
     }
     setDrawPoints(prev => [...prev, [Math.round(x * 100) / 100, Math.round(y * 100) / 100]]);
   };
+
+  // Outside drawMode, a pointerdown on empty background deselects immediately
+  // (same as before) and — new — arms a grab-to-pan drag, so the canvas can
+  // be panned freely instead of only zoomed via the +/- buttons.
+  const handleBackgroundPointerDown = (e: React.PointerEvent) => {
+    if (drawMode) {
+      handleDrawClick(e);
+      return;
+    }
+    onSelectRoom(null);
+    (e.target as Element).setPointerCapture(e.pointerId);
+    bgDragRef.current = { startClientX: e.clientX, startClientY: e.clientY, startPan: pan };
+    setIsPanning(true);
+  };
+
+  // Mouse-wheel zoom centered on the cursor, not the viewBox's own corner —
+  // keeps whatever the user is looking at under their cursor while zooming,
+  // the way any map/canvas app behaves.
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const { x: ux, y: uy } = screenToUser(e.clientX, e.clientY);
+    const oldW = bbox.width / zoom, oldH = bbox.height / zoom;
+    const fracX = oldW > 0 ? (ux - (bbox.minX + pan.x)) / oldW : 0.5;
+    const fracY = oldH > 0 ? (uy - (bbox.minY + pan.y)) / oldH : 0.5;
+    const newZoom = Math.min(Math.max(zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15), 0.5), 8);
+    const newW = bbox.width / newZoom, newH = bbox.height / newZoom;
+    setZoom(newZoom);
+    setPan({ x: ux - fracX * newW - bbox.minX, y: uy - fracY * newH - bbox.minY });
+  };
+
+  // Delete/Backspace deletes the selected room (mirrors the toolbar button);
+  // Escape deselects. Skipped while drawMode owns these same keys (below),
+  // and while focus is in a text field so typing in the sidebar isn't hijacked.
+  useEffect(() => {
+    if (drawMode) return;
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+      if (!selectedRoomId) return;
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        onDeleteSelected?.();
+      } else if (e.key === 'Escape') {
+        onSelectRoom(null);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [drawMode, selectedRoomId, onDeleteSelected, onSelectRoom]);
 
   useEffect(() => {
     if (!drawMode) return;
@@ -267,7 +339,7 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
       <div style={{ position: 'absolute', zIndex: 10, margin: '10px', display: 'flex', gap: '4px' }}>
         <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => setZoom(z => Math.min(z * 1.25, 8))}>+</button>
         <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => setZoom(z => Math.max(z / 1.25, 0.5))}>−</button>
-        <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => setZoom(1)}>Reset</button>
+        <button className="btn btn-secondary" style={{ fontSize: '0.75rem', padding: '3px 10px' }} onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}>Reset</button>
         {collision && (
           <span style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', color: 'var(--danger)', fontSize: '0.72rem', padding: '3px 8px', borderRadius: 'var(--radius-sm)' }}>
             Overlap / out of bounds — will be rejected on release
@@ -289,10 +361,11 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
       <svg
         ref={svgRef}
         viewBox={viewBox}
-        style={{ flex: 1, width: '100%', touchAction: 'none', cursor: drawMode ? 'crosshair' : drag ? 'grabbing' : 'default' }}
+        style={{ flex: 1, width: '100%', touchAction: 'none', userSelect: 'none', cursor: drawMode ? 'crosshair' : (drag || isPanning) ? 'grabbing' : 'grab' }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerDown={handleBackgroundClick}
+        onPointerDown={handleBackgroundPointerDown}
+        onWheel={handleWheel}
       >
         {boundaryPointsFt.length > 0 && (
           <polygon points={boundaryPointsFt.map(p => p.join(',')).join(' ')} fill="var(--bg-secondary)" stroke="var(--text-primary)" strokeWidth={0.15} />
@@ -376,6 +449,7 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                 fillOpacity={isSelected ? 0.32 : isHovered ? 0.24 : 0.16}
                 stroke={isSelected ? 'var(--text-primary)' : ROOM_NEUTRAL}
                 strokeWidth={isSelected ? ftPerHandlePx(1.5) : ftPerHandlePx(1)}
+                style={{ transition: 'fill-opacity 0.12s ease-out, stroke-width 0.12s ease-out' }}
               />
               <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="var(--text-primary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.display_name}
@@ -413,9 +487,6 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           );
         })}
       </svg>
-      <div style={{ position: 'absolute', bottom: '8px', right: '10px', fontSize: '0.68rem', color: 'var(--text-tertiary)', background: 'rgba(0,0,0,0.55)', padding: '2px 6px', borderRadius: 'var(--radius-sm)' }}>
-        Drag a room to move it · drag a white handle to resize · use the exact-size fields in the sidebar for precise dimensions
-      </div>
     </div>
   );
 };
