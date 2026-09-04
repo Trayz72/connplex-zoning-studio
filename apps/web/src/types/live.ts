@@ -272,6 +272,15 @@ export interface LiveRoom {
   depth_ft: number;
   origin_ft: [number, number];
   geometry_points_ft: number[][];
+  // A point guaranteed to fall inside the room's own polygon (shapely
+  // representative_point() server-side) — for a plain rectangle this is the
+  // same as the bounding-box center, so it changes nothing for most rooms;
+  // it matters for a genuinely non-convex shape (Foyer, computed as the
+  // real leftover remainder, can be concave/keyhole-cut), where a bbox
+  // center can land outside the shape entirely. Optional so an older
+  // cached layout without this field still renders (falls back to bbox
+  // center client-side).
+  label_point_ft?: [number, number];
   preset_id?: string;
   preset_name?: string;
   seat_estimate?: SeatEstimate;

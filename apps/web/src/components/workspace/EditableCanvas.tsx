@@ -38,6 +38,12 @@ interface EditableCanvasProps {
 // editing-convenience decoration, not information.
 const ROOM_NEUTRAL = 'var(--text-secondary)';
 
+// Just above the largest normal screen's own label size (a big auditorium's
+// min(w,h) rarely exceeds ~30ft, giving fontSize ~2.7 under the 0.09 scale
+// factor below) — caps a large non-rectangular room's label (Foyer) from
+// dwarfing the rooms underneath it, without shrinking any ordinary room.
+const MAX_LABEL_FONT_FT = 3;
+
 const HANDLE_SCREEN_PX = 9;       // visible handle size, constant on screen regardless of zoom
 const HANDLE_HIT_SCREEN_PX = 26;  // invisible hit-area, much larger than the visible mark — this is the actual fix
 
@@ -512,7 +518,19 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           const roomFill = isAuditorium ? 'var(--brand)' : ROOM_NEUTRAL;
           const b = polygonBounds(room.geometry_points_ft);
           const w = b.maxX - b.minX, h = b.maxY - b.minY;
-          const fontSize = Math.max(Math.min(w, h) * 0.09, 0.6);
+          // Capped — an uncapped size scaled a large, non-rectangular room
+          // (Foyer, computed as the real leftover remainder) into a label
+          // that dwarfed and hid every room underneath it. MAX_LABEL_FONT_FT
+          // sits just above the largest normal screen's own size so ordinary
+          // rooms are unaffected.
+          const fontSize = Math.min(Math.max(Math.min(w, h) * 0.09, 0.6), MAX_LABEL_FONT_FT);
+          // Guaranteed inside the room's true polygon (server-computed via
+          // shapely representative_point()) — a bbox-center label lands
+          // outside a concave shape like Foyer's own remainder, which is why
+          // its area text used to float disconnected over unrelated rooms.
+          // Falls back to bbox center for any older cached layout that
+          // doesn't carry this field yet.
+          const [lx, ly] = room.label_point_ft ?? [(b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2];
           const handleVisR = ftPerHandlePx(HANDLE_SCREEN_PX) / 2;
           const handleHitR = ftPerHandlePx(HANDLE_HIT_SCREEN_PX) / 2;
           return (
@@ -635,10 +653,10 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                   })}
                 </g>
               )}
-              <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="var(--text-primary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+              <text x={lx} y={ly} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="var(--text-primary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.display_name}
               </text>
-              <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2 + fontSize * 1.3} textAnchor="middle" fontSize={fontSize * 0.8} fill="var(--text-secondary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+              <text x={lx} y={ly + fontSize * 1.3} textAnchor="middle" fontSize={fontSize * 0.8} fill="var(--text-secondary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.area_sqft} sqft{room.seat_estimate?.seat_count ? ` / ${room.seat_estimate.seat_count} seats` : ''}
               </text>
 
