@@ -35,6 +35,15 @@ def _ensure_layers(doc):
             doc.layers.add(name, color=7)
 
 
+def _flip(pt):
+    """points_ft is Y-down (screen/SVG convention — see cad_extraction.py's
+    _identity_tf), but DXF is natively Y-up (north = larger Y) — every point
+    written into this new file negates Y back so it opens right-side-up in
+    AutoCAD/any DWG viewer instead of inheriting the app's internal screen
+    convention."""
+    return (pt[0], -pt[1])
+
+
 def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, rooms, out_path: str, also_dwg: bool = True) -> dict:
     doc = ezdxf.new("R2018")
     doc.header["$INSUNITS"] = 2  # feet, matches this app's internal canonical unit
@@ -42,21 +51,21 @@ def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, room
     msp = doc.modelspace()
 
     if boundary_points_ft:
-        msp.add_lwpolyline(boundary_points_ft, close=True, dxfattribs={"layer": "EXISTING-BOUNDARY"})
+        msp.add_lwpolyline([_flip(p) for p in boundary_points_ft], close=True, dxfattribs={"layer": "EXISTING-BOUNDARY"})
 
     for obs in obstacles or []:
         pts = obs.get("points_ft") if isinstance(obs, dict) else obs
-        msp.add_lwpolyline(pts, close=True, dxfattribs={"layer": "EXISTING-OBSTACLE"})
+        msp.add_lwpolyline([_flip(p) for p in pts], close=True, dxfattribs={"layer": "EXISTING-OBSTACLE"})
 
     for room in rooms:
         layer = f"PROPOSED-{room['room_type'].split('_')[0]}" if room["room_type"].startswith("AUDITORIUM") else f"PROPOSED-{room['room_type']}"
         if layer not in doc.layers:
             doc.layers.add(layer, color=7)
         pts = room["geometry_points_ft"]
-        msp.add_lwpolyline(pts, close=True, dxfattribs={"layer": layer})
+        msp.add_lwpolyline([_flip(p) for p in pts], close=True, dxfattribs={"layer": layer})
 
         cx = sum(p[0] for p in pts) / len(pts)
-        cy = sum(p[1] for p in pts) / len(pts)
+        cy = -sum(p[1] for p in pts) / len(pts)
         label = f"{room['display_name']}\n{room['area_sqft']} sqft"
         seat_count = room.get("seat_estimate", {}).get("seat_count")
         if seat_count:
@@ -74,7 +83,10 @@ def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, room
         "DISCLAIMER: Decision-support draft only — not a final architectural/structural/fire-engineering document."
     ]
     minx = min(p[0] for p in boundary_points_ft) if boundary_points_ft else 0
-    maxy = max(p[1] for p in boundary_points_ft) if boundary_points_ft else 0
+    # min_y in points_ft's Y-down convention is the topmost (most-north)
+    # point — negated, that's the largest DXF-native Y, so the header text
+    # still lands above the boundary once written in DXF's own Y-up space.
+    maxy = -min(p[1] for p in boundary_points_ft) if boundary_points_ft else 0
     for i, line in enumerate(header_lines):
         msp.add_text(line, dxfattribs={"layer": "ANNOTATION", "height": 1.2, "insert": (minx, maxy + 5 + i * 2)})
 

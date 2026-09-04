@@ -71,8 +71,7 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({
     <div style={{ maxWidth: '560px', margin: '3rem auto', padding: '0 1rem' }}>
       <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Zoning Requirements</h2>
       <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-        These drive the auto-layout generator and which viability rules apply — nothing here is hardcoded in the
-        engine, it's all read from the versioned rules registry.
+        These drive the auto-layout generator and which viability rules apply.
       </p>
 
       <div className="form-group" style={{ marginBottom: '1rem' }}>
@@ -90,13 +89,12 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({
           onChange={(e) => setReq({ ...req, max_auditoriums: parseInt(e.target.value, 10) || 1 })}
         />
         <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
-          Phase-1 product scope supports 1–4 auditoriums per SOP; the generator will place up to this many if the
-          floor plate has room, and stop early (with a note) if it doesn't.
+          The generator places up to this many, stopping early if the floor plate runs out of room.
         </div>
       </div>
 
       <div className="form-group" style={{ marginBottom: '1rem' }}>
-        <label>Clear Height (ft) — feeds the 10 ft minimum viability check</label>
+        <label>Clear Height (ft)</label>
         <input
           type="number" step={0.1} min={0} className="form-control"
           value={req.clear_height_ft ?? ''}
@@ -105,8 +103,8 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({
         />
         <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
           {clearHeightHint
-            ? `Auto-suggested from intake ("${clearHeightHint}") — confirm or correct it; this number, not the free-text intake field, drives the feasibility check.`
-            : 'Not captured at intake — enter it directly, or leave blank to keep the clear-height rule unevaluable.'}
+            ? `Auto-suggested from intake ("${clearHeightHint}") — confirm or correct it.`
+            : 'Not captured at intake — enter it, or leave blank.'}
         </div>
       </div>
 
@@ -124,7 +122,7 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({
 
       {boundaryPointsFt && boundaryPointsFt.length >= 3 && (
         <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-          <label>Entrance &amp; Exits (optional — enables entry-aware placement and the SOP's no-cross-movement check)</label>
+          <label>Entrance &amp; Exits (optional)</label>
           <EntryExitPicker
             boundaryPointsFt={boundaryPointsFt}
             entryValue={req.entry_point_ft}
@@ -134,10 +132,7 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({
             height={220}
           />
           <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '4px' }}>
-            Nothing in the uploaded CAD file identifies doors, so these aren't detected automatically. Usually
-            already marked in "Select Boundary" — adjust here if you need to. Leave unmarked to skip the SOP's
-            entry-sightline placement rules (F&amp;B visible from entry, washrooms hidden from foyer sightline) and
-            the entry/exit separation check rather than guess at a location.
+            Usually already marked in "Select Boundary" — adjust here if needed. Leave unmarked to skip entry-aware placement.
           </div>
         </div>
       )}

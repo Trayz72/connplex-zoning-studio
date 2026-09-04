@@ -839,11 +839,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
           <div className="panel" style={{ padding: '16px' }}>
             <div className="panel-label" style={{ marginBottom: '10px' }}>Mark Entrance &amp; Exits</div>
             <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-              Nothing in the CAD file identifies doors, so this is the one honest way to get this data — mark the
-              main entrance and any exits directly on the confirmed boundary. Both are optional: the generator
-              still produces a real layout without them (see the warnings on the Edit screen if skipped), but
-              marking them enables entry-facing placement of the Foyer/F&amp;B/Washrooms and the SOP's "no
-              cross-movement between entry/exit flows" check (§4.4/§9).
+              Nothing in the CAD file identifies doors — mark the main entrance and any exits on the boundary. Both are optional; marking them enables entry-aware placement later.
             </div>
             <button
               className="btn btn-primary" style={{ width: '100%', fontSize: '0.8rem' }}
@@ -897,10 +893,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               Floor boundary — {bestRegion.boundary.area_sqft.toLocaleString()} sqft
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-              {geometry.regions.length > 1 ? `Largest of ${geometry.regions.length} candidate regions found in this file.` : 'The only candidate region found in this file.'}
-            </div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-              Continuing to obstacle review automatically…
+              {geometry.regions.length > 1 ? `Largest of ${geometry.regions.length} candidate regions — continuing automatically…` : 'The only candidate region found — continuing automatically…'}
             </div>
             <button className="btn btn-primary" style={{ width: '100%', fontSize: '0.8rem', marginBottom: '8px' }}
               onClick={() => { setAutoFired(true); setPendingChoice({ geometry, regionId: bestRegion.region_id }); }}>
@@ -1144,10 +1137,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               Selected Walls ({selectedUnitCount + partialWalls.length})
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginBottom: '10px' }}>
-              Click a wall line to select the whole thing — a curved wall selects as one real curve, however many
-              tiny fragments it's drawn from. Hold Shift and drag along a wall to select just part of it (e.g. half
-              a long wall) — shown in green while dragging, gold once released. Click a selected partial again to
-              remove it. Then trace the boundary they enclose.
+              Click a wall to select it. Shift+drag to select part of one (green while dragging, gold once released — click again to remove).
             </div>
             {partialWalls.length > 0 && (
               <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginBottom: '10px' }}>

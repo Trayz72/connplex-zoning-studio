@@ -265,7 +265,31 @@ def _handle_of(e, fallback_idx):
 
 
 def _identity_tf(p):
-    return (p[0], p[1])
+    """The base case every entity's transform chain composes down to (see
+    _resolve_entities: a top-level entity's tf is this function directly; a
+    block INSERT's tf is make_child_transform(...) wrapping its parent's tf,
+    recursively bottoming out here regardless of nesting depth) — so this is
+    the single point where every extracted coordinate in the whole module
+    passes through exactly once. DXF's own coordinate convention is Y-up
+    (north = larger Y, matching how AutoCAD renders it); this app's SVG-based
+    web viewer (BoundaryStudio.tsx/EditableCanvas.tsx) is Y-down (the SVG
+    spec's own convention), with no compensating flip anywhere in the
+    frontend. Left as true identity, every uploaded drawing rendered
+    vertically mirrored on screen — confirmed as the real cause of "the CAD
+    file appears upside down/180° on upload" reports, not a per-file quirk
+    (every extraction path bottoms out here, so the mirror was
+    deterministic and universal). Negating Y here is the single, minimal
+    fix: every consumer of points_ft (boundary, obstacles, raw linework,
+    text labels, the manual trace/draw paths that only ever re-slice
+    already-extracted geometry) is corrected automatically, since none of
+    them — nor layout_engine.py/seat_engine.py/chart_engine.py/
+    feasibility_engine.py, which only ever compare/measure points relative
+    to each other — assume which way Y points. The two export paths
+    (export_pdf.py, export_dxf.py) are the only consumers that write
+    points_ft into an inherently Y-up target (a DXF file; reportlab's canvas
+    is also natively Y-up) and so carry a compensating negation of their
+    own — see their own comments."""
+    return (p[0], -p[1])
 
 
 def _resolve_entities(doc, msp):

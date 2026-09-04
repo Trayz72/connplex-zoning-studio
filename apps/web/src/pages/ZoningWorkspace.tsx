@@ -291,6 +291,9 @@ export const ZoningWorkspace: React.FC = () => {
           <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>{project?.property_name || 'Project'}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Link to="/projects" className="btn btn-secondary btn-sm" style={{ textDecoration: 'none' }} title="All Projects">
+            ⌂ All Projects
+          </Link>
           {stepIndex > 0 && (
             <button
               className="btn btn-secondary" style={{ fontSize: '0.72rem', padding: '0.32rem 0.7rem' }}
@@ -318,7 +321,7 @@ export const ZoningWorkspace: React.FC = () => {
                     padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontWeight: isCurrent ? 600 : 400,
                     background: isCurrent ? 'var(--bg-raised)' : 'transparent',
                     color: isCurrent ? 'var(--text-primary)' : reached ? 'var(--text-secondary)' : 'var(--text-tertiary)',
-                    border: 'none', font: 'inherit', fontSize: 'inherit',
+                    border: 'none', fontFamily: 'inherit', fontSize: 'inherit',
                     cursor: reached && !isCurrent ? 'pointer' : 'default',
                     opacity: reached ? 1 : 0.6
                   }}

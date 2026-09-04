@@ -76,8 +76,7 @@ export const UploadStep: React.FC<UploadStepProps> = ({ projectId, onUploaded })
     <div style={{ maxWidth: '620px', margin: '3rem auto', padding: '0 1rem' }}>
       <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Upload CAD Drawing</h2>
       <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-        Upload a .dwg or .dxf floor plate. It's parsed for real — boundary and structural obstacle detection run
-        against the file you provide, not a demo dataset. You'll review and confirm what was detected next.
+        Upload a .dwg or .dxf floor plate — you'll review and confirm what's detected next.
       </p>
 
       <div
@@ -106,10 +105,7 @@ export const UploadStep: React.FC<UploadStepProps> = ({ projectId, onUploaded })
             <WarningIcon size={22} className="text-tertiary" />
             <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-primary)', margin: '0.75rem 0 0.4rem' }}>{fileName}</div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1.1rem', maxWidth: '440px', marginLeft: 'auto', marginRight: 'auto' }}>
-              The standard scan found no usable floor boundary in this file — common on real drawings where the
-              wall/floor geometry is buried among dimension, hatch, or furniture layers. Try the AI scan: it looks
-              at the file's actual layers and picks which one(s) are most likely the real boundary, then re-runs
-              extraction against just those.
+              No usable floor boundary found in this file. Try the AI scan — it picks out which layer(s) most likely hold the real boundary and re-runs extraction against just those.
             </p>
             <button className="btn btn-primary" style={{ padding: '0.5rem 1.5rem', marginBottom: '0.75rem' }} disabled={aiScanning} onClick={runAiScan}>
               {aiScanning ? <><RefreshIcon size={14} /> Scanning with AI… (~15-30s)</> : <><RefreshIcon size={14} /> Scan with AI</>}

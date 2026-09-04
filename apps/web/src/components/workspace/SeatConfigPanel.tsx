@@ -86,9 +86,7 @@ export const SeatConfigPanel: React.FC<SeatConfigPanelProps> = ({ room, seatType
               style={{ width: '100%' }}
             />
             <div style={{ fontSize: '0.62rem', color: 'var(--text-tertiary)', marginTop: '2px' }}>
-              Rows nearest the screen get {primaryType?.name}; the remaining depth gets {secondaryType?.name}. An
-              explicit proportional-depth split — not a claim this matches any specific approved company layout
-              standard (none exists yet as a decided rule).
+              Rows nearest the screen get {primaryType?.name}; the remaining depth gets {secondaryType?.name}.
             </div>
           </div>
         )}

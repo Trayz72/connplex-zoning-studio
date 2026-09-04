@@ -124,8 +124,7 @@ export const ProjectsPage: React.FC = () => {
           <div>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 700 }}>Projects</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-              {loading ? 'Manage property intake and zoning plans' :
-                `${projects.length} project${projects.length === 1 ? '' : 's'} — manage property intake and zoning plans`}
+              {loading ? '' : `${projects.length} project${projects.length === 1 ? '' : 's'}`}
             </p>
           </div>
           <button

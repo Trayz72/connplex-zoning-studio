@@ -216,11 +216,6 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
         <div style={{ width: '360px' }}>
           <div className="panel" style={{ padding: '16px' }}>
             <div className="panel-label" style={{ marginBottom: '8px' }}>Draw the Floor Boundary</div>
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              Click points along the real wall outline shown in the drawing, in order, tracing the boundary you want
-              to zone. Click back near your first point (or press Enter) once you have at least 3 points to close
-              it — Backspace undoes the last point, Escape clears and starts over.
-            </p>
             {!backdropRawGeometry && (
               <div className="alert-box" style={{ marginTop: '10px', fontSize: '0.72rem' }}>
                 This file has no recoverable linework at all to trace over — a re-export or a different file is the
@@ -366,11 +361,6 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
             </button>
           </div>
         </div>
-        {drawingBoundary && (
-          <div style={{ fontSize: '0.72rem', color: 'var(--brand-strong)' }}>
-            Click points tracing the boundary you want instead — Enter or click near the first point to close, Esc to cancel.
-          </div>
-        )}
         {regionSwitcher}
         <EditableCanvas
           boundaryPointsFt={drawingBoundary ? [] : activeRegion.boundary.points_ft}
@@ -409,8 +399,7 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
           <div className="panel" style={{
             fontSize: '0.72rem', color: 'var(--text-tertiary)', padding: '8px 10px'
           }}>
-            This geometry looked clean enough to proceed on its own. You asked to review it — nothing is confirmed
-            until you confirm the boundary and resolve every obstacle below.
+            This geometry looked clean enough to proceed automatically — nothing is confirmed until you confirm below.
           </div>
         )}
 

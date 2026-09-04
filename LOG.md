@@ -13,6 +13,59 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-04 — Fixed CAD upload orientation, home nav, UI text cleanup, "human-made" screen graphics
+
+Real bug fix plus a bundle of refinement: "the CAD file appears upside down
+on upload," a home/all-projects button, UI text cleanup, and making
+auto-placed screens read as human-designed rather than flat gray boxes.
+
+**CAD orientation bug — root cause found.** `cad_extraction.py`'s
+`_identity_tf` — the single base case every extracted coordinate in the
+whole module composes down to (verified: every entity type's own coordinate
+read routes through a `tf()` parameter, and nested INSERT/DIMENSION block
+transforms recursively bottom out here) — was true identity. DXF is
+natively Y-up; this app's SVG-based web viewer is Y-down with no
+compensating flip anywhere. Every uploaded drawing rendered vertically
+mirrored, deterministically, on every file — not a per-file quirk. Fixed by
+negating Y once in `_identity_tf`; every consumer (boundary, obstacles, raw
+linework, text labels, the manual trace/draw paths) inherits the fix with
+zero frontend changes, since none of them assume which way Y points.
+Verified two ways: an unambiguous synthetic test file (a rectangle with a
+notch cut from one corner only) rendered with the notch in the correct
+corner end-to-end in the browser; and a direct round-trip test proving
+`export_dxf.py`/`export_pdf.py` — the only two consumers that write into an
+inherently Y-up target — produce byte-identical coordinates to before the
+fix once their own compensating negation was added.
+
+**Home navigation.** The workspace header only routed back to the project
+list via the brand logotype — easy to miss, not a labeled affordance. Added
+an explicit "All Projects" button next to the existing "← Back" control.
+
+**UI text cleanup.** Trimmed or removed permanent paragraph-style
+instructional text that duplicated something already visible elsewhere
+(GeometryReviewStep's draw-boundary instructions duplicated the on-canvas
+badge three times over; BoundaryStudio's and RequirementsStep's
+entrance/exit explanations said the same thing twice) across Upload,
+BoundaryStudio, GeometryReview, Requirements, Export, SeatConfig, and both
+top-level project pages — kept anything carrying real, non-obvious
+information (SOP §-references, engineering-assumption disclosures), only
+shortened those.
+
+**Screens now read as human-designed.** `EditableCanvas.tsx` rendered every
+room type as an identical flat neutral box. Auditoriums now get a warm,
+on-brand tint, a soft drop-shadow (all rooms), and a drawn "screen wall"
+line + sightline-direction marker across their front edge — the single
+highest-value change, since the auditorium is what every reviewer looks at
+first. Support zones deliberately stay plain (a minimal, purposeful
+distinction, not a full color-coded rainbow).
+
+**Found and fixed in passing** (surfaced by a console-log check while
+verifying the above, not part of the original ask): a pre-existing
+`fontWeight`/`font`-shorthand React warning in the workspace header's
+stepper buttons, and a passive-event-listener console error from this
+session's own wheel-zoom handler — moved to a real non-passive native
+listener so `preventDefault()` actually works.
+
 ## 2026-09-04 — Screen-first auto-layout, real Add-Zone placement, canvas UX polish
 
 Explicit ask, with a real human-made cinema layout supplied as a reference:

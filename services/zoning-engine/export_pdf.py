@@ -415,20 +415,28 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
     scale_rotated = min(draw_w / bh, draw_h / bw)
     rotated = scale_rotated > scale_normal * 1.1
     scale = (scale_rotated if rotated else scale_normal) * 0.94
-    min_x, min_y = min(xs), min(ys)
+    min_x = min(xs)
+    max_y = max(ys)
 
+    # points_ft is Y-down (screen/SVG convention — see cad_extraction.py's
+    # _identity_tf) while reportlab's canvas is natively Y-up bottom-left
+    # origin, same as DXF itself — every use of a Y coordinate below is
+    # mirrored about max_y (instead of the plain pt[1] the pre-fix version
+    # used) so the exported PDF's floor plan stays right-side-up instead of
+    # inheriting the on-screen Y-down convention into a Y-up page. X is
+    # untouched — only Y ever flips.
     if rotated:
         ox = draw_x + (draw_w - bh * scale) / 2
         oy = draw_y + (draw_h - bw * scale) / 2
 
         def tx(pt):
-            return (ox + (pt[1] - min_y) * scale, oy + (pt[0] - min_x) * scale)
+            return (ox + (max_y - pt[1]) * scale, oy + (pt[0] - min_x) * scale)
     else:
         ox = draw_x + (draw_w - bw * scale) / 2 - min_x * scale
-        oy = draw_y + (draw_h - bh * scale) / 2 - min_y * scale
+        oy = draw_y + (draw_h - bh * scale) / 2 + max_y * scale
 
         def tx(pt):
-            return (ox + pt[0] * scale, oy + pt[1] * scale)
+            return (ox + pt[0] * scale, oy - pt[1] * scale)
 
     c.setStrokeColor(black)
     c.setLineWidth(1.6)

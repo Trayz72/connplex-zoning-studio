@@ -147,7 +147,6 @@ export const ProjectIntakePage: React.FC = () => {
                 onClick={handleGoToCanvas}
                 disabled={!project.is_intake_complete}
                 className="btn btn-primary"
-                title={!project.is_intake_complete ? 'Complete all intake fields first' : 'Go to Zoning Canvas'}
               >
                 Go to Zoning Canvas
               </button>

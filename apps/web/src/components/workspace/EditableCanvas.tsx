@@ -270,18 +270,28 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
 
   // Mouse-wheel zoom centered on the cursor, not the viewBox's own corner —
   // keeps whatever the user is looking at under their cursor while zooming,
-  // the way any map/canvas app behaves.
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const { x: ux, y: uy } = screenToUser(e.clientX, e.clientY);
-    const oldW = bbox.width / zoom, oldH = bbox.height / zoom;
-    const fracX = oldW > 0 ? (ux - (bbox.minX + pan.x)) / oldW : 0.5;
-    const fracY = oldH > 0 ? (uy - (bbox.minY + pan.y)) / oldH : 0.5;
-    const newZoom = Math.min(Math.max(zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15), 0.5), 8);
-    const newW = bbox.width / newZoom, newH = bbox.height / newZoom;
-    setZoom(newZoom);
-    setPan({ x: ux - fracX * newW - bbox.minX, y: uy - fracY * newH - bbox.minY });
-  };
+  // the way any map/canvas app behaves. Attached as a real, non-passive
+  // native listener (not React's onWheel prop) — React attaches wheel
+  // listeners as passive by default, which silently drops preventDefault
+  // (and logs a console error) instead of stopping the page from also
+  // scrolling underneath the canvas while zooming.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const onNativeWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const { x: ux, y: uy } = screenToUser(e.clientX, e.clientY);
+      const oldW = bbox.width / zoom, oldH = bbox.height / zoom;
+      const fracX = oldW > 0 ? (ux - (bbox.minX + pan.x)) / oldW : 0.5;
+      const fracY = oldH > 0 ? (uy - (bbox.minY + pan.y)) / oldH : 0.5;
+      const newZoom = Math.min(Math.max(zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15), 0.5), 8);
+      const newW = bbox.width / newZoom, newH = bbox.height / newZoom;
+      setZoom(newZoom);
+      setPan({ x: ux - fracX * newW - bbox.minX, y: uy - fracY * newH - bbox.minY });
+    };
+    svg.addEventListener('wheel', onNativeWheel, { passive: false });
+    return () => svg.removeEventListener('wheel', onNativeWheel);
+  }, [bbox, pan, zoom, screenToUser]);
 
   // Delete/Backspace deletes the selected room (mirrors the toolbar button);
   // Escape deselects. Skipped while drawMode owns these same keys (below),
@@ -365,8 +375,17 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerDown={handleBackgroundPointerDown}
-        onWheel={handleWheel}
       >
+        <defs>
+          {/* Soft depth on placed rooms — constant screen size regardless of
+             zoom, since it's built from ftPerHandlePx like every other
+             on-screen-constant measurement in this file. Turns the flat
+             wireframe fill into something that reads as a placed, physical
+             object rather than a bare rectangle. */}
+          <filter id="roomShadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy={ftPerHandlePx(1.5)} stdDeviation={ftPerHandlePx(1.5)} floodOpacity="0.28" />
+          </filter>
+        </defs>
         {boundaryPointsFt.length > 0 && (
           <polygon points={boundaryPointsFt.map(p => p.join(',')).join(' ')} fill="var(--bg-secondary)" stroke="var(--text-primary)" strokeWidth={0.15} />
         )}
@@ -424,6 +443,13 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
         {liveRooms.map(room => {
           const isSelected = room.room_id === selectedRoomId;
           const isHovered = room.room_id === hoveredRoomId;
+          const isAuditorium = room.room_type.startsWith('AUDITORIUM');
+          // Auditoriums get a warm, on-brand tint (they're the room every
+          // reviewer looks at first); every other zone stays the plain
+          // neutral box — a deliberate, minimal distinction, not a full
+          // rainbow color-coded diagram (see ROOM_NEUTRAL's own comment for
+          // why this file avoids that).
+          const roomFill = isAuditorium ? 'var(--brand)' : ROOM_NEUTRAL;
           const b = polygonBounds(room.geometry_points_ft);
           const w = b.maxX - b.minX, h = b.maxY - b.minY;
           const fontSize = Math.max(Math.min(w, h) * 0.09, 0.6);
@@ -445,12 +471,32 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
               )}
               <polygon
                 points={room.geometry_points_ft.map(p => p.join(',')).join(' ')}
-                fill={ROOM_NEUTRAL}
+                fill={roomFill}
                 fillOpacity={isSelected ? 0.32 : isHovered ? 0.24 : 0.16}
-                stroke={isSelected ? 'var(--text-primary)' : ROOM_NEUTRAL}
+                stroke={isSelected ? 'var(--text-primary)' : roomFill}
                 strokeWidth={isSelected ? ftPerHandlePx(1.5) : ftPerHandlePx(1)}
+                filter="url(#roomShadow)"
                 style={{ transition: 'fill-opacity 0.12s ease-out, stroke-width 0.12s ease-out' }}
               />
+              {isAuditorium && (
+                // The screen wall: a bold line across the room's width edge
+                // (geometrically always b.minY→b.maxX-minX, since a room's
+                // geometry is built with its width_ft running along X — see
+                // layout_engine.py/place_single_zone), plus a small arrow
+                // into the seating rows, so an auditorium reads as a real
+                // theater — screen + sightline direction — not an anonymous
+                // rectangle.
+                <g pointerEvents="none">
+                  <line
+                    x1={b.minX + w * 0.08} y1={b.minY} x2={b.maxX - w * 0.08} y2={b.minY}
+                    stroke="var(--brand-strong)" strokeWidth={ftPerHandlePx(3)} strokeLinecap="round"
+                  />
+                  <polygon
+                    points={`${(b.minX + b.maxX) / 2 - ftPerHandlePx(5)},${b.minY + ftPerHandlePx(4)} ${(b.minX + b.maxX) / 2 + ftPerHandlePx(5)},${b.minY + ftPerHandlePx(4)} ${(b.minX + b.maxX) / 2},${b.minY + ftPerHandlePx(15)}`}
+                    fill="var(--brand-strong)" fillOpacity={0.5}
+                  />
+                </g>
+              )}
               <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="var(--text-primary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.display_name}
               </text>

@@ -91,9 +91,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ projectId, projectMeta
         </button>
       </div>
       <div style={{ fontSize: '0.62rem', color: 'var(--text-tertiary)', marginTop: '8px', lineHeight: 1.4 }}>
-        Every export bumps the revision (R0, R1, R2…). PDF/DXF reproduce the required content (title block, floor
-        plan, Area &amp; Seat Chart, legend, revisions) using a generic template — not a byte-for-byte copy of
-        Connplex's proprietary sheet artwork.
+        Every export bumps the revision (R0, R1, R2…) and uses a generic sheet template.
       </div>
 
       {history.length > 0 && (
