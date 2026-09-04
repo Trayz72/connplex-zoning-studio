@@ -565,6 +565,7 @@ def _recompute_room_derived_fields(room: dict, column_polys: list, screen_width_
             primary_seat_type_id=cfg.get("primary_seat_type_id", seat_engine.DEFAULT_SEAT_TYPE_ID),
             secondary_seat_type_id=cfg.get("secondary_seat_type_id"),
             primary_ratio_pct=cfg.get("primary_ratio_pct", 100),
+            front_row_count=cfg.get("front_row_count"),
             enclosed_obstacle_area_sqft=enclosed_area,
             screen_width_ft=screen_width_ft,
         )

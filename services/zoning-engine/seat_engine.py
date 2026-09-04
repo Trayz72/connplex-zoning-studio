@@ -10,9 +10,10 @@ Methodology, same deterministic row-packing approach as before, generalized:
   2. Each seat type's real footprint (width + row-to-row step) is read from the
      registry — never hardcoded here. Only registry entries that have BOTH a
      real width and a real row-step are offered as selectable (see
-     `selectable_seat_types()`); types the SOP extract doesn't fully specify
-     (e.g. Front Lounger has no stated row step) are excluded rather than
-     guessing a number for them.
+     `selectable_seat_types()`); a type the SOP extract doesn't fully specify
+     (e.g. Front Lounger's row step) gets a real, evidence-derived estimate
+     in the registry itself instead — tagged ENGINEERING_ASSUMPTION there,
+     not invented here — rather than being permanently excluded.
   3. A two-type mix splits the room's usable depth into two row-bands by the
      given ratio (e.g. 30% front rows one type, 70% back rows another) — each
      band is packed independently with its own type's real dimensions, then
@@ -54,6 +55,12 @@ def _seat_geometry(seat_type: dict):
         width_in = seat_type["width_in_after_slide"]
     elif "seat_width_in" in seat_type:
         width_in = seat_type["seat_width_in"]
+    elif "width_in_front_view" in seat_type:
+        # FRONT_LOUNGER's own real field name — "front view width" is the
+        # same real quantity every other seat type calls seat/width_in,
+        # just named for how it was measured (a lounger's width is read off
+        # its front elevation, not a plan-view footprint).
+        width_in = seat_type["width_in_front_view"]
     elif "width_in" in seat_type:
         width_in = seat_type["width_in"] / seats_per_unit
     else:
@@ -94,6 +101,7 @@ def _pack_band(usable_width_ft, band_depth_ft, seat_type_id, central_aisle_ft):
 
 def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str = DEFAULT_SEAT_TYPE_ID,
                     secondary_seat_type_id: str = None, primary_ratio_pct: float = 100,
+                    front_row_count: int = None,
                     enclosed_obstacle_area_sqft: float = 0.0, screen_width_ft: float = None) -> dict:
     central_aisle_ft = rules_registry.planning_norm("CENTRAL_AISLE_MIN_FT")
     side_clear_ft = rules_registry.planning_norm("SIDE_CLEARANCE_ASSUMPTION_FT")
@@ -119,7 +127,7 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
                 "first_row_distance_ft": round(front_setback_ft, 2)}
 
     primary_ratio_pct = max(0, min(100, primary_ratio_pct))
-    use_mix = secondary_seat_type_id and primary_ratio_pct < 100
+    use_mix = secondary_seat_type_id and (primary_ratio_pct < 100 or front_row_count is not None)
 
     breakdown = {"LOUNGER": 0, "SOFA_SLIDER": 0, "DUO_LOUNGER": 0, "PREMIUM_RECLINER": 0}
 
@@ -130,13 +138,27 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
         seat_type_used = primary_seat_type_id
         total_rows, total_seats_per_row = rows, seats_per_row
     else:
-        primary_depth = usable_depth_ft * (primary_ratio_pct / 100.0)
+        if front_row_count is not None:
+            # Exact row-count split (e.g. "1 front lounger row, rest sofa
+            # slider") — the real convention observed across every real
+            # Connplex reference file, crisper than a depth percentage
+            # (which can silently yield 0 or 2 front rows depending on the
+            # room's actual depth). primary_seat_type_id is the *front*
+            # band here (see this function's own module docstring: primary
+            # = front rows, secondary = back rows).
+            _, primary_step = _seat_geometry(rules_registry.seat_type(primary_seat_type_id))
+            primary_depth = min(front_row_count * primary_step, usable_depth_ft) if primary_step else 0.0
+        else:
+            primary_depth = usable_depth_ft * (primary_ratio_pct / 100.0)
         secondary_depth = usable_depth_ft - primary_depth
         p_rows, p_spr, p_count = _pack_band(usable_width_ft, primary_depth, primary_seat_type_id, central_aisle_ft)
         s_rows, s_spr, s_count = _pack_band(usable_width_ft, secondary_depth, secondary_seat_type_id, central_aisle_ft)
         breakdown[CHART_COLUMN_BY_SEAT_TYPE.get(primary_seat_type_id, "LOUNGER")] += p_count
         breakdown[CHART_COLUMN_BY_SEAT_TYPE.get(secondary_seat_type_id, "LOUNGER")] += s_count
-        seat_type_used = f"{primary_seat_type_id}+{secondary_seat_type_id} ({primary_ratio_pct:.0f}/{100-primary_ratio_pct:.0f})"
+        if front_row_count is not None:
+            seat_type_used = f"{primary_seat_type_id} ({p_rows}x front row) + {secondary_seat_type_id}"
+        else:
+            seat_type_used = f"{primary_seat_type_id}+{secondary_seat_type_id} ({primary_ratio_pct:.0f}/{100-primary_ratio_pct:.0f})"
         total_rows = p_rows + s_rows
         total_seats_per_row = max(p_spr, s_spr)
 

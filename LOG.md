@@ -13,6 +13,75 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-04 — Forensic comparison against a real human-drafted PDF, seat-mix + custom-fit gap closure
+
+The user ran auto-layout on a real uploaded file and compared the output
+directly against the real human-drafted PDF for the same building (Swati
+Trinity, Ahmedabad — the uploaded DXF turned out to literally be the
+architect's own finished zoning file, confirmed by matching area figures).
+Root-caused the gap via direct, hands-on investigation of the real stored
+project data (temporarily instrumented `cad_extraction.py`, reverted after)
+rather than guesswork — see the three findings below, plus one investigated
+and ruled out: the boundary's deep notches were suspected as an
+obstacle-detection blind spot, but direct containment testing showed they
+correctly trace around real structural voids (standard "net usable area"
+practice), not a bug.
+
+**Seat type/mix now comes from the matched preset's own `seating_mix`, not
+a hardcoded default.** Every preset already declared its intended mix
+(35_SEAT: Premium Recliner + Duo Lounger; 60/90/125_SEAT: Sofa Slider +
+Front Lounger) but every placed room silently got 100% Sofa Slider
+regardless — wrong even for a premium tier. Fixed `FRONT_LOUNGER`'s missing
+row-step data too (same derivation Premium Recliner already used: its own
+stated footprint, tagged `ENGINEERING_ASSUMPTION`) and a real width-field
+bug (`_seat_geometry` never checked `width_in_front_view`, so Front Lounger
+was silently unselectable even with a row step). New
+`seat_engine.estimate_seats(front_row_count=...)`: an exact row-count split
+("1 front lounger row, rest bulk type") instead of a depth percentage —
+crisper, matches the real convention. Caught a real self-inflicted
+regression during live testing: blindly applying the front-lounger mix
+sometimes seats *fewer* people than 100% Sofa Slider (Front Lounger's row
+step is bigger; in a depth-starved room — e.g. a large `screen_width_ft`
+eating most of the depth — that costs more than it gains), which directly
+contradicts this module's own locked "maximize total seat count" objective.
+Fixed: the engine now computes both options and keeps whichever genuinely
+seats more.
+
+**"Fill Standard Zones"** — a new one-click Edit-toolbar button that runs
+the existing, already-tested Add-Zone action once per missing standard
+support zone (Foyer/F&B/Washroom/Box Office/BOH/Passage), skipping ones
+already present, surfacing any that genuinely don't fit rather than
+aborting. Auto-layout itself still only places screens (an earlier
+session's considered decision, not reversed) — this just removes the
+tedium of six individual clicks for what a human draws as one complete
+plan.
+
+**Custom-fit fallback for auditoriums.** Measured directly on the real
+file: the engine placed 2 undersized screens and stopped with 5,194 of
+6,979 sqft (74%) of usable area completely untouched, because none of the
+four fixed preset footprints happened to fit what remained — not because
+the area wasn't there. New geometric-decay search tries a shrinking
+non-preset rectangle (real aspect ratio, real area floor — never smaller
+than the SOP's own smallest tier) before giving up. Honestly labeled
+(`preset_id: null`, an explicit note) when used. On the real file that
+started this: total seats went from 78 → 106 (better seat-type mix); the
+custom-fit fallback correctly found nothing extra there specifically —
+verified directly that no rectangle of any real preset-sized area fits in
+what remains, confirming the deeper, explicitly out-of-scope limitation
+below.
+
+**Explicitly not attempted, and why:** the placement engine only ever
+produces axis-aligned rectangles. This building's real leasable boundary is
+a deep zigzag; a human draws rooms that follow its actual notches. Real
+non-rectangular, boundary-hugging room generation is a fundamentally
+different, much larger effort (polygon-offset/cutting-stock optimization,
+not a rectangle scanner) — not attempted this round, flagged honestly
+rather than faked with a half-real version.
+
+10 new pytest cases (2 of which exist specifically to catch the seat-count
+regression above), each verified as a real regression guard via the
+established break/restore discipline. All 21 pre-existing tests unaffected.
+
 ## 2026-09-04 — Real screen/column/circulation placement upgrade: screen-wall + doors, column-grid snapping, per-room-type column tolerance, PASSAGE room type, real first-row-distance rule
 
 Deep-dive architectural analysis session (grounded in two real Connplex

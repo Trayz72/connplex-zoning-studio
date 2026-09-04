@@ -274,6 +274,48 @@ export const ZoningWorkspace: React.FC = () => {
     }
   };
 
+  // Standard support zones every real Connplex zoning drawing includes —
+  // auto-layout itself deliberately only ever places screens (see
+  // layout_engine.py's generate_candidate docstring: an earlier session's
+  // considered decision, not reversed here), so a plain auto-layout run
+  // always looks unfinished next to a human's complete drawing. This is an
+  // explicit, one-click action, not a silent change to what auto-layout
+  // does — it just runs the same real addZone/place_single_zone machinery
+  // once per missing standard type instead of six individual clicks.
+  const STANDARD_FILL_TYPES: typeof ROOM_TYPE_TEMPLATES = [
+    { type: 'FOYER', label: 'Foyer' },
+    { type: 'FNB', label: 'F&B / Concession' },
+    { type: 'WASHROOM', label: 'Washroom' },
+    { type: 'BOX_OFFICE', label: 'Box Office' },
+    { type: 'BOH', label: 'Back-of-House' },
+    { type: 'PASSAGE', label: 'Passage / Corridor' },
+  ];
+
+  const fillStandardZones = async () => {
+    if (!id || !layout) return;
+    setSaving(true);
+    const failures: string[] = [];
+    let current = layout;
+    // Sequential, not parallel — each placement depends on the real,
+    // current room layout the previous one just produced (the same reason
+    // place_single_zone itself only ever places one room at a time).
+    for (const t of STANDARD_FILL_TYPES) {
+      if (current.rooms.some(r => r.room_type === t.type)) continue; // idempotent — safe to click again after a manual edit
+      try {
+        current = await engine.addZone(id, t.type);
+        commitLayout(current);
+      } catch (e: any) {
+        failures.push(`${t.label}: ${e.message || 'could not place'}`);
+      }
+    }
+    if (failures.length) {
+      setValidationErrors(failures.map(message => ({ room_id: '', issue: 'ERROR', message })));
+    } else {
+      setValidationErrors([]);
+    }
+    setSaving(false);
+  };
+
   const deleteSelected = () => {
     if (!layout || !selectedRoomId) return;
     persistLayout(layout.rooms.filter(r => r.room_id !== selectedRoomId));
@@ -479,6 +521,12 @@ export const ZoningWorkspace: React.FC = () => {
                 {ROOM_TYPE_TEMPLATES.map(t => (
                   <button key={t.type} className="btn btn-secondary btn-sm" disabled={saving} onClick={() => addZone(t)}>+ {t.label}</button>
                 ))}
+                <button
+                  className="btn btn-secondary btn-sm" disabled={saving} onClick={fillStandardZones}
+                  title="Add every standard support zone (Foyer, F&B, Washroom, Box Office, Back-of-House, Passage) not already present, one real placement at a time"
+                >
+                  Fill Standard Zones
+                </button>
                 {selectedRoomId && <button className="btn btn-danger btn-sm" disabled={saving} onClick={deleteSelected}>Delete Selected</button>}
                 <button className="btn btn-secondary btn-sm" disabled={saving || history.length === 0} onClick={undo} title="Undo (Ctrl/Cmd+Z)">↶ Undo</button>
                 <button className="btn btn-secondary btn-sm" disabled={saving || future.length === 0} onClick={redo} title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button>

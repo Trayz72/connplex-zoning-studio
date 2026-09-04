@@ -239,6 +239,13 @@ export interface SeatConfig {
   primary_seat_type_id: string;
   secondary_seat_type_id: string | null;
   primary_ratio_pct: number;
+  // Set only by the auto-layout/Add-Zone default seat mix (see
+  // layout_engine.py's _default_seat_config) — an exact row count of
+  // primary_seat_type_id at the front, rather than a depth percentage.
+  // SeatConfigPanel's own manual save never sends this, which is exactly
+  // what reverts a room to the plain percentage-based mix once an
+  // architect edits it by hand.
+  front_row_count?: number | null;
 }
 
 /** One entry/exit door on a room's wall — currently only set on

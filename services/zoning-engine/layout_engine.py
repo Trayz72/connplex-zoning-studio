@@ -441,6 +441,107 @@ def _column_enclosure_ok(scan_result, bbox, flip_x, flip_y, column_polys, max_ra
     return (_enclosed_obstacle_area(rect, column_polys) / rect.area) <= max_ratio
 
 
+def _default_seat_config(preset):
+    """Real seat type + a front-lounger row when the matched preset's own
+    seating_mix calls for one — not a hardcoded module-level default. Every
+    preset already declares its own seating_mix (35_SEAT: PREMIUM_RECLINER
+    + DUO_LOUNGER; 60/90/125_SEAT: SLIDER_SOFA + FRONT_LOUNGER), but until
+    now every placed auditorium silently got SLIDER_SOFA regardless of
+    preset — wrong even for a premium-tier screen, and missing the
+    front-lounger row every real Connplex reference file this project has
+    (Swati Trinity, Keshav Landmark, Maruti Nandan) uses as standard
+    practice. Returns (primary_seat_type_id, secondary_seat_type_id_or_None,
+    front_row_count_or_None) — primary is the *front* band when a front row
+    is used (see seat_engine.estimate_seats's own front-row convention), so
+    a real front-lounger mix comes back as (FRONT_LOUNGER, bulk_type, 1)."""
+    mix = preset.get("seating_mix") or []
+    selectable = {s["id"] for s in seat_engine.selectable_seat_types()}
+    bulk_candidates = [t for t in mix if t in selectable and t != "FRONT_LOUNGER"]
+    bulk_type = bulk_candidates[0] if bulk_candidates else seat_engine.DEFAULT_SEAT_TYPE_ID
+    if "FRONT_LOUNGER" in mix and "FRONT_LOUNGER" in selectable:
+        return "FRONT_LOUNGER", bulk_type, 1
+    return bulk_type, None, None
+
+
+def _best_seat_estimate(preset, w, h, enclosed_obstacle_area_sqft, screen_width_ft):
+    """The real "maximize total seat count" objective (this module's own
+    locked v1 goal, per its top docstring) applies to seat *type* choice
+    too, not just room placement — a front-lounger row isn't always a
+    win. Real, measured case that would otherwise regress: a room with a
+    large screen_width_ft (a big first-row setback) can be so depth-
+    starved that swapping one row from the narrower-stepped bulk type to
+    the wider-stepped FRONT_LOUNGER (5.67ft vs SLIDER_SOFA's 4.25ft) costs
+    an entire row and nets *fewer* total seats, even though the same mix
+    is a real net gain in a normal, non-depth-starved room. Computes both
+    options when a front-lounger row applies at all and keeps whichever
+    genuinely seats more — ties go to the front-row mix (the real,
+    human-observed default), never silently accepting fewer seats for its
+    own sake. Returns (seat_config_dict, seat_estimate_dict)."""
+    primary, secondary, front_rows = _default_seat_config(preset) if preset else (seat_engine.DEFAULT_SEAT_TYPE_ID, None, None)
+    mixed_estimate = seat_engine.estimate_seats(
+        w, h, primary_seat_type_id=primary, secondary_seat_type_id=secondary, front_row_count=front_rows,
+        enclosed_obstacle_area_sqft=enclosed_obstacle_area_sqft, screen_width_ft=screen_width_ft
+    )
+    if front_rows is None:
+        seat_config = {"primary_seat_type_id": primary, "secondary_seat_type_id": None, "primary_ratio_pct": 100, "front_row_count": None}
+        return seat_config, mixed_estimate
+
+    bulk_only_estimate = seat_engine.estimate_seats(
+        w, h, primary_seat_type_id=secondary,
+        enclosed_obstacle_area_sqft=enclosed_obstacle_area_sqft, screen_width_ft=screen_width_ft
+    )
+    if bulk_only_estimate["seat_count"] > mixed_estimate["seat_count"]:
+        seat_config = {"primary_seat_type_id": secondary, "secondary_seat_type_id": None, "primary_ratio_pct": 100, "front_row_count": None}
+        return seat_config, bulk_only_estimate
+
+    seat_config = {"primary_seat_type_id": primary, "secondary_seat_type_id": secondary, "primary_ratio_pct": 100, "front_row_count": front_rows}
+    return seat_config, mixed_estimate
+
+
+def _find_largest_fitting_custom_screen(usable_poly, fallback_poly, placed_polys, placed_types, bbox,
+                                         min_area_sqft, target_aspect=1.5, grid_lines_x=None, grid_lines_y=None,
+                                         decay=0.9, max_steps=40):
+    """When no registered auditorium preset fits anywhere, don't give up
+    while real usable area still remains — a real, directly measured defect
+    this exists to fix: on a real uploaded file, the engine placed 2
+    undersized screens and then stopped with 5,194 of 6,979 sqft of usable
+    area (74%) completely untouched, because none of the four fixed preset
+    footprints happened to fit what was left, even though plenty of real
+    area did. A bounded geometric-decay search: start from a generous size
+    bounded by the floor plate's own extent, shrink both dimensions
+    together (preserving a real auditorium-like aspect ratio — the four
+    configured presets themselves range 1.25-1.67, so 1.5 is representative
+    — never degenerating into a useless sliver) until something fits or the
+    area drops below min_area_sqft (the smallest *configured* preset's own
+    floor — never invents a screen smaller than the SOP's own smallest real
+    tier). Still an axis-aligned rectangle — real non-rectangular,
+    boundary-hugging room shapes (what a human actually draws on an
+    irregular floor plate) are a separate, much larger effort, not
+    attempted here (see docs/prompts/component_placement_and_circulation_spec.md).
+    Returns the same (result, used_fallback) shape _scan_place_with_fallback
+    does, or (None, False)."""
+    minx, miny, maxx, maxy = bbox
+    start_span = max(maxx - minx, maxy - miny) * 0.9
+    if start_span <= 0:
+        return None, False
+    w = math.sqrt((start_span * start_span) / target_aspect)
+    h = w * target_aspect
+    w = min(w, maxx - minx)
+    h = min(h, maxy - miny)
+    for _ in range(max_steps):
+        if w * h < min_area_sqft:
+            break
+        result, used_fallback = _scan_place_with_fallback(
+            usable_poly, fallback_poly, placed_polys, placed_types, "AUDITORIUM", w, h, bbox,
+            grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y
+        )
+        if result:
+            return result, used_fallback
+        w *= decay
+        h *= decay
+    return None, False
+
+
 def _screen_wall_for_rect(x, y, w, h, entry_point):
     """Which edge of a placed auditorium rect is the screen wall —
     geometry-relative labels (never compass directions: this project has
@@ -527,6 +628,7 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
     if aud_column_cap is None:
         aud_column_cap = 0.02
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
+    min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
 
     for _ in range(max_count):
         placement = None
@@ -563,11 +665,30 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
                 placement = result
                 used_preset = preset
                 break
-        if not placement:
-            warnings.append(f"Could not fit another auditorium after placing {len(placed)} — no remaining preset fits available usable space.")
-            break
 
-        if used_preset is not ordered_presets[0]:
+        used_custom_fit = False
+        if not placement:
+            # No registered preset fits anywhere — before giving up, check
+            # whether real usable area still remains that a non-preset
+            # custom footprint could use. See
+            # _find_largest_fitting_custom_screen's own docstring: a real,
+            # directly-measured defect (a real uploaded file left 74% of
+            # its usable area untouched this way) motivated this fallback.
+            custom_result, custom_used_fallback = _find_largest_fitting_custom_screen(
+                scan_usable, scan_fallback, scan_placed_polys, scan_placed_types, bbox,
+                min_preset_area_sqft, grid_lines_x=scan_grid_x, grid_lines_y=scan_grid_y
+            )
+            if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, flip_x, flip_y, column_polys, aud_column_cap):
+                custom_result = None
+            if custom_result:
+                placement = custom_result
+                used_fallback = custom_used_fallback
+                used_custom_fit = True
+            else:
+                warnings.append(f"Could not fit another auditorium after placing {len(placed)} — no remaining preset or custom-fit footprint fits available usable space.")
+                break
+
+        if used_preset is not None and used_preset is not ordered_presets[0]:
             undersized_count += 1
 
         sx, sy, w, h = placement
@@ -584,23 +705,32 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
         # retrofit building. Seat count is discounted honestly, not
         # optimistically ignored — see seat_engine.estimate_seats.
         enclosed_area = _enclosed_obstacle_area(rect, column_polys) if used_fallback else 0.0
-        seat_est = seat_engine.estimate_seats(w, h, enclosed_obstacle_area_sqft=enclosed_area, screen_width_ft=screen_width_ft)
+        seat_config, seat_est = _best_seat_estimate(
+            None if used_custom_fit else used_preset, w, h, enclosed_area, screen_width_ft
+        )
         screen_wall = _screen_wall_for_rect(x, y, w, h, entry_point)
         room = {
             "room_id": f"auditorium-{uuid.uuid4().hex[:8]}",
             "room_type": f"AUDITORIUM_{len(placed) + 1}",
             "display_name": f"Screen {len(placed) + 1} (Auditorium)",
-            "preset_id": used_preset["id"],
-            "preset_name": used_preset["name"],
+            "preset_id": used_preset["id"] if used_preset else None,
+            "preset_name": used_preset["name"] if used_preset else "Custom-fit screen",
             "area_sqft": round(w * h, 2),
             "width_ft": round(w, 2),
             "depth_ft": round(h, 2),
             "origin_ft": [round(x, 2), round(y, 2)],
             "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
             "seat_estimate": seat_est,
+            "seat_config": seat_config,
             "screen_wall": screen_wall,
             "doors": _doors_for_screen_wall(w, h, screen_wall, door_width_ft)
         }
+        if used_custom_fit:
+            room["area_basis_note"] = (
+                "No standard SOP auditorium preset fit the remaining usable area — sized to the largest "
+                "rectangle that does fit, rather than leaving real usable floor area unplaced. Not a "
+                "standard preset tier; review before finalizing."
+            )
         if seat_est.get("note"):
             room["obstacle_note"] = seat_est["note"]
         placed.append(room)
@@ -662,7 +792,9 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
 
     if room_type == "AUDITORIUM":
-        for preset in rules_registry.auditorium_presets():  # largest-first
+        presets = rules_registry.auditorium_presets()  # largest-first
+        matched_preset = None
+        for preset in presets:
             w_max = preset.get("width_max_ft", preset["width_min_ft"])
             h_max = preset.get("length_max_ft", preset["length_min_ft"])
             result, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, "AUDITORIUM", w_max, h_max, bbox,
@@ -674,30 +806,59 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
                                                                     grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y)
                 if result and used_fallback and not _column_enclosure_ok(result, bbox, False, False, column_polys, aud_column_cap):
                     result = None
-            if not result:
-                continue
-            x, y, w, h = result
-            rect = _rect(x, y, w, h)
-            enclosed_area = _enclosed_obstacle_area(rect, column_polys) if used_fallback else 0.0
-            seat_est = seat_engine.estimate_seats(w, h, enclosed_obstacle_area_sqft=enclosed_area, screen_width_ft=screen_width_ft)
-            existing_screens = sum(1 for t in placed_types if t == "AUDITORIUM")
-            screen_wall = _screen_wall_for_rect(x, y, w, h, entry_point)
-            room = {
-                "room_id": f"auditorium-{uuid.uuid4().hex[:8]}",
-                "room_type": f"AUDITORIUM_{existing_screens + 1}",
-                "display_name": f"Screen {existing_screens + 1} (Auditorium)",
-                "preset_id": preset["id"], "preset_name": preset["name"],
-                "area_sqft": round(w * h, 2), "width_ft": round(w, 2), "depth_ft": round(h, 2),
-                "origin_ft": [round(x, 2), round(y, 2)],
-                "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
-                "seat_estimate": seat_est,
-                "screen_wall": screen_wall,
-                "doors": _doors_for_screen_wall(w, h, screen_wall, door_width_ft)
-            }
-            if seat_est.get("note"):
-                room["obstacle_note"] = seat_est["note"]
-            return room, None
-        return None, "No space available for a new Screen — even the smallest auditorium preset doesn't fit in the remaining area."
+            if result:
+                matched_preset = preset
+                break
+
+        used_custom_fit = False
+        if not matched_preset or not result:
+            result = None
+            min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
+            custom_result, custom_used_fallback = _find_largest_fitting_custom_screen(
+                usable_poly, fallback_poly, placed_polys, placed_types, bbox,
+                min_preset_area_sqft, grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y
+            )
+            if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, False, False, column_polys, aud_column_cap):
+                custom_result = None
+            if custom_result:
+                result = custom_result
+                used_fallback = custom_used_fallback
+                used_custom_fit = True
+
+        if not result:
+            return None, "No space available for a new Screen — even a custom-fit footprint doesn't fit in the remaining area."
+
+        x, y, w, h = result
+        rect = _rect(x, y, w, h)
+        enclosed_area = _enclosed_obstacle_area(rect, column_polys) if used_fallback else 0.0
+        seat_config, seat_est = _best_seat_estimate(
+            None if used_custom_fit else matched_preset, w, h, enclosed_area, screen_width_ft
+        )
+        existing_screens = sum(1 for t in placed_types if t == "AUDITORIUM")
+        screen_wall = _screen_wall_for_rect(x, y, w, h, entry_point)
+        room = {
+            "room_id": f"auditorium-{uuid.uuid4().hex[:8]}",
+            "room_type": f"AUDITORIUM_{existing_screens + 1}",
+            "display_name": f"Screen {existing_screens + 1} (Auditorium)",
+            "preset_id": matched_preset["id"] if matched_preset else None,
+            "preset_name": matched_preset["name"] if matched_preset else "Custom-fit screen",
+            "area_sqft": round(w * h, 2), "width_ft": round(w, 2), "depth_ft": round(h, 2),
+            "origin_ft": [round(x, 2), round(y, 2)],
+            "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
+            "seat_estimate": seat_est,
+            "seat_config": seat_config,
+            "screen_wall": screen_wall,
+            "doors": _doors_for_screen_wall(w, h, screen_wall, door_width_ft)
+        }
+        if used_custom_fit:
+            room["area_basis_note"] = (
+                "No standard SOP auditorium preset fit the remaining usable area — sized to the largest "
+                "rectangle that does fit, rather than leaving real usable floor area unplaced. Not a "
+                "standard preset tier; review before finalizing."
+            )
+        if seat_est.get("note"):
+            room["obstacle_note"] = seat_est["note"]
+        return room, None
 
     default_entry = next((t for t in SUPPORT_ZONE_DEFAULTS if t[0] == room_type), None)
     if default_entry is None:

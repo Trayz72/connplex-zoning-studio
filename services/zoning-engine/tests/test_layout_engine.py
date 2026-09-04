@@ -288,3 +288,109 @@ def test_place_single_zone_passage_connects_foyer_and_auditorium():
     # every other support zone uses.
     min_width_ft = layout_engine.rules_registry.planning_norm("EGRESS_PASSAGE_MIN_WIDTH_FT")
     assert abs(min(passage["width_ft"], passage["depth_ft"]) - min_width_ft) < 0.5
+
+
+# ---------- default seat mix from the matched preset (real-file gap-closure round) ----------
+
+def test_default_seat_config_35_seat_has_no_front_row():
+    """35_SEAT's own seating_mix is PREMIUM_RECLINER + DUO_LOUNGER, not
+    FRONT_LOUNGER — it must stay 100% its own primary type, not silently
+    get a front-lounger row that doesn't match its real design intent."""
+    preset = next(p for p in layout_engine.rules_registry.auditorium_presets() if p["id"] == "35_SEAT")
+    primary, secondary, front_rows = layout_engine._default_seat_config(preset)
+    assert primary == "PREMIUM_RECLINER"
+    assert secondary is None
+    assert front_rows is None
+
+
+def test_default_seat_config_60_seat_gets_one_front_lounger_row():
+    """60_SEAT's seating_mix includes FRONT_LOUNGER — matches the real
+    convention observed in every real Connplex reference file this
+    project's design work has been grounded in (Swati Trinity, Keshav
+    Landmark, Maruti Nandan): exactly one front lounger row, bulk seating
+    behind it."""
+    preset = next(p for p in layout_engine.rules_registry.auditorium_presets() if p["id"] == "60_SEAT")
+    primary, secondary, front_rows = layout_engine._default_seat_config(preset)
+    assert primary == "FRONT_LOUNGER"
+    assert secondary == "SLIDER_SOFA"
+    assert front_rows == 1
+
+
+def test_placed_auditorium_uses_preset_seating_mix_not_a_hardcoded_default():
+    """End-to-end: a real placed auditorium's seat_estimate should actually
+    reflect the matched preset's own seating_mix, not silently default to
+    SLIDER_SOFA regardless of preset — the real, measured defect this round
+    fixes (a 35_SEAT-tier screen getting Sofa Slider counts instead of its
+    own Premium Recliner mix undercounted real seats on an actual uploaded
+    file)."""
+    usable = _usable()
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 100, 60), "AUDITORIUM", {}
+    )
+    assert room is not None, warning
+    assert room["seat_config"]["primary_seat_type_id"] in ("PREMIUM_RECLINER", "FRONT_LOUNGER")
+    assert room["seat_estimate"]["seat_breakdown"]["SOFA_SLIDER"] == 0 or room["seat_config"]["secondary_seat_type_id"] == "SLIDER_SOFA"
+
+
+# ---------- custom-fit fallback when no preset fits (real-file gap-closure round) ----------
+
+def test_custom_fit_screen_used_when_no_preset_fits_but_real_area_remains():
+    """A real, directly-measured defect: on a real uploaded file, the engine
+    left 5,194 of 6,979 sqft of usable area (74%) completely untouched
+    because no fixed preset footprint happened to fit what remained, even
+    though real usable area did. Reproduced here with a narrow 20x100
+    corridor-shaped boundary — every real preset needs at least 24ft in its
+    narrow dimension (35_SEAT's own width_min_ft), so none can fit, but the
+    custom-fit fallback should still use the real 2,000 sqft available
+    rather than placing nothing."""
+    boundary = [[0, 0], [20, 0], [20, 100], [0, 100], [0, 0]]
+    usable = layout_engine.compute_usable_area(boundary, [])
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 20, 100), "AUDITORIUM", {}
+    )
+    assert room is not None, warning
+    assert room["preset_id"] is None
+    assert room["preset_name"] == "Custom-fit screen"
+    assert "area_basis_note" in room
+    assert room["area_sqft"] > 900  # the smallest real preset's own min_area_sqft floor
+
+
+def test_best_seat_estimate_never_seats_fewer_than_the_bulk_only_option():
+    """The front-lounger default isn't always a net win — FRONT_LOUNGER's
+    row step (5.67ft) is bigger than SLIDER_SOFA's (4.25ft), so in a
+    genuinely depth-starved room (e.g. a large screen_width_ft eating most
+    of the depth) swapping one row to a lounger can cost more seats than it
+    gains. Real, measured regression found via live testing this round:
+    a 70x50 125_SEAT-tier room with screen_width_ft=30 (SOP-mandated big
+    front setback) went from 80 seats (100% Sofa Slider) to 63 with a
+    blindly-applied front-lounger row — a real regression against this
+    module's own locked "maximize total seat count" objective.
+    _best_seat_estimate must self-correct back to the bulk-only option
+    whenever the mix would seat fewer, since maximizing seats is the
+    actual goal, not applying the mix unconditionally."""
+    preset = next(p for p in layout_engine.rules_registry.auditorium_presets() if p["id"] == "125_SEAT")
+    seat_config, seat_est = layout_engine._best_seat_estimate(preset, 70, 50, 0.0, 30.0)
+    assert seat_config["front_row_count"] is None
+    assert seat_config["primary_seat_type_id"] == "SLIDER_SOFA"
+    assert seat_est["seat_count"] == 80
+
+
+def test_best_seat_estimate_uses_front_row_mix_when_it_genuinely_seats_more():
+    """The normal (non-depth-starved) case: the front-lounger mix really
+    does seat more than 100% Sofa Slider, and should be used."""
+    preset = next(p for p in layout_engine.rules_registry.auditorium_presets() if p["id"] == "125_SEAT")
+    seat_config, seat_est = layout_engine._best_seat_estimate(preset, 70, 50, 0.0, None)
+    assert seat_config["front_row_count"] == 1
+    assert seat_config["primary_seat_type_id"] == "FRONT_LOUNGER"
+    bulk_only = layout_engine.seat_engine.estimate_seats(70, 50, primary_seat_type_id="SLIDER_SOFA")
+    assert seat_est["seat_count"] >= bulk_only["seat_count"]
+
+
+def test_generate_candidate_uses_custom_fit_in_auto_layout_too():
+    """The same fallback applies inside auto-layout's own _place_auditoriums,
+    not just the manual Add-Zone path — both call sites share it."""
+    boundary = [[0, 0], [20, 0], [20, 100], [0, 100], [0, 0]]
+    usable = layout_engine.compute_usable_area(boundary, [])
+    candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 1}, [])
+    assert len(candidate["rooms"]) == 1
+    assert candidate["rooms"][0]["preset_id"] is None

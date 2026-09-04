@@ -33,13 +33,14 @@
       "category": "STANDARD",
       "length_in_side_elevation": 68,
       "width_in_front_view": 32,
-      "min_row_step_ft": null,
-      "min_row_step_display": "TBD — not stated in source",
-      "notes": "Reclines with leg-rest extension; row step not given in SOP extract.",
+      "min_row_step_ft": 5.67,
+      "min_row_step_display": "≈ 5'-8\" (derived from 68in side-elevation length — same derivation PREMIUM_RECLINER already uses for its own row step; NOT an explicit SOP row-step figure)",
+      "min_row_step_provenance": "ENGINEERING_ASSUMPTION",
+      "notes": "Reclines with leg-rest extension; row step not explicitly given in SOP extract, estimated from its own stated footprint instead of left unusable.",
       "allowed_presets": ["60_SEAT", "90_SEAT", "125_SEAT"],
       "source": "SOP",
       "source_section": "§4.2-4.3",
-      "approval_status": "SOURCE_BACKED_INCOMPLETE"
+      "approval_status": "SOURCE_BACKED_PARTIAL"
     },
     {
       "id": "DUO_LOUNGER",
