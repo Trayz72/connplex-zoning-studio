@@ -414,29 +414,90 @@ _ENTRY_COLOR = HexColor("#1e8e3e")  # matches EntryExitPicker.tsx's brand-color 
 _EXIT_COLOR = HexColor("#c0392b")   # matches EntryExitPicker.tsx's danger-color "E1"/"E2" markers
 
 
-def _draw_entry_exit_markers(c, entry_point_ft, exit_points_ft, tx, marker_r):
-    """Same visual convention as the frontend's EntryExitPicker.tsx /
-    EditableCanvas.tsx (a circle + short label) — real CAD-sheet style
-    indication of the building's own main entrance/exit, distinct from
-    each room's own door glyphs drawn separately."""
+def _nearest_boundary_edge_point(pt, boundary_points_ft):
+    """The closest point on the boundary ring to pt, plus that edge's own
+    unit tangent and outward-facing normal — lets the building's own main
+    entrance/exit be drawn as a real opening cut into the boundary wall
+    (matching a real Connplex reference drawing's "CINEMA ENTRY"/"CINEMA
+    EXIT" convention: a labeled opening in the wall itself, not a marker
+    floating nearby) instead of a circle marker. "Outward" is determined
+    by which of the two perpendicular candidates points away from the
+    boundary's own centroid — robust for any real floor plate without
+    needing to know the ring's winding order. Returns
+    (snapped_point, tangent_unit, outward_normal_unit) or None if the
+    boundary has no real segments."""
+    n = len(boundary_points_ft)
+    if n < 2:
+        return None
+    cx = sum(p[0] for p in boundary_points_ft) / n
+    cy = sum(p[1] for p in boundary_points_ft) / n
+    best_dist, result = None, None
+    for i in range(n):
+        ax, ay = boundary_points_ft[i]
+        bx, by = boundary_points_ft[(i + 1) % n]
+        dx, dy = bx - ax, by - ay
+        seg_len_sq = dx * dx + dy * dy
+        if seg_len_sq < 1e-9:
+            continue
+        t = max(0.0, min(1.0, ((pt[0] - ax) * dx + (pt[1] - ay) * dy) / seg_len_sq))
+        sx, sy = ax + t * dx, ay + t * dy
+        dist = math.hypot(pt[0] - sx, pt[1] - sy)
+        if best_dist is None or dist < best_dist:
+            seg_len = math.sqrt(seg_len_sq)
+            tangent = (dx / seg_len, dy / seg_len)
+            n1 = (-tangent[1], tangent[0])
+            to_pt = (sx - cx, sy - cy)
+            normal = n1 if (n1[0] * to_pt[0] + n1[1] * to_pt[1]) >= 0 else (-n1[0], -n1[1])
+            best_dist = dist
+            result = ((sx, sy), tangent, normal)
+    return result
+
+
+def _draw_entry_exit_markers(c, entry_point_ft, exit_points_ft, boundary_points_ft, tx, scale, door_width_ft=6.0):
+    """A real door-in-the-wall glyph for the building's own main entrance/
+    exit — an opening cut into the boundary line (thicker colored stroke)
+    plus a leaf line swung inward (same construction as every room's own
+    _door_glyph_points_ft) and a text label just outside the wall. Replaces
+    the earlier circle+"IN"/"E1" marker: a real CAD zoning sheet marks the
+    entrance as an opening in the wall itself, confirmed directly against a
+    real Connplex reference drawing. door_width_ft is a real, generously-
+    sized opening (wider than a single room's own door — a main entrance
+    is usually a double door or a storefront-width opening) purely for
+    legibility on the sheet; it doesn't claim to be the architect's actual
+    measured opening width."""
+    def draw_one(pt, color, label):
+        hit = _nearest_boundary_edge_point(pt, boundary_points_ft)
+        if hit is None:
+            return
+        (sx, sy), (tx_, ty_), (nx, ny) = hit
+        half = door_width_ft / 2
+        p1 = (sx - tx_ * half, sy - ty_ * half)
+        p2 = (sx + tx_ * half, sy + ty_ * half)
+        leaf_end = (p1[0] - nx * door_width_ft, p1[1] - ny * door_width_ft)  # swings inward, like a room's own door
+        x1, y1 = tx(p1)
+        x2, y2 = tx(p2)
+        c.setStrokeColor(color)
+        c.setLineWidth(3)
+        c.line(x1, y1, x2, y2)
+        c.setLineWidth(1.1)
+        lx, ly = tx(leaf_end)
+        c.line(x1, y1, lx, ly)
+        font_size = max(door_width_ft * scale * 0.55, 6)
+        label_pt = tx((sx + nx * door_width_ft * 1.1, sy + ny * door_width_ft * 1.1))
+        c.setFillColor(color)
+        c.setFont("Helvetica-Bold", font_size)
+        # A label near the sheet's own edge (a real, observed case: an
+        # exit marked close to the boundary's own corner) can otherwise
+        # center past the page margin and get clipped — clamp so the full
+        # label always stays on the visible sheet.
+        half_w = c.stringWidth(label, "Helvetica-Bold", font_size) / 2
+        label_x = max(MARGIN + half_w, min(PAGE_SIZE[0] - MARGIN - half_w, label_pt[0]))
+        c.drawCentredString(label_x, label_pt[1] - font_size * 0.35, label)
+
     if entry_point_ft is not None:
-        x, y = tx(entry_point_ft)
-        c.setFillColor(_ENTRY_COLOR)
-        c.setStrokeColor(white)
-        c.setLineWidth(1)
-        c.circle(x, y, marker_r, stroke=1, fill=1)
-        c.setFillColor(white)
-        c.setFont("Helvetica-Bold", marker_r * 0.9)
-        c.drawCentredString(x, y - marker_r * 0.32, "IN")
+        draw_one(entry_point_ft, _ENTRY_COLOR, "ENTRY")
     for i, ep in enumerate(exit_points_ft or [], start=1):
-        x, y = tx(ep)
-        c.setFillColor(_EXIT_COLOR)
-        c.setStrokeColor(white)
-        c.setLineWidth(1)
-        c.circle(x, y, marker_r, stroke=1, fill=1)
-        c.setFillColor(white)
-        c.setFont("Helvetica-Bold", marker_r * 0.85)
-        c.drawCentredString(x, y - marker_r * 0.32, f"E{i}")
+        draw_one(ep, _EXIT_COLOR, f"EXIT {i}")
 
 
 def _draw_flow_segments(c, flow_segments, tx, marker_r):
@@ -559,9 +620,21 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
 
     for room in rooms:
         pts = room["geometry_points_ft"]
-        c.setFillColor(_room_color(room["room_type"]))
-        c.setStrokeColor(black)
-        c.setLineWidth(1.1)
+        is_foyer = room["room_type"] == "FOYER"
+        # A real Connplex reference drawing never renders circulation as a
+        # colored room — only plain floor space, with its area appearing
+        # solely in the Area & Seat Chart — so Foyer gets no fill and a
+        # light dashed outline instead of the solid black/colored box every
+        # other room gets, letting it read as background rather than a
+        # named component competing for attention.
+        if is_foyer:
+            c.setStrokeColor(HexColor("#999999"))
+            c.setLineWidth(0.5)
+            c.setDash([3, 2])
+        else:
+            c.setFillColor(_room_color(room["room_type"]))
+            c.setStrokeColor(black)
+            c.setLineWidth(1.1)
         path = c.beginPath()
         x0, y0 = tx(pts[0])
         path.moveTo(x0, y0)
@@ -569,7 +642,9 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
             x, y = tx(p)
             path.lineTo(x, y)
         path.close()
-        c.drawPath(path, stroke=1, fill=1)
+        c.drawPath(path, stroke=1, fill=0 if is_foyer else 1)
+        if is_foyer:
+            c.setDash([])
 
         page_pts = [tx(p) for p in pts]
         rw = max(p[0] for p in page_pts) - min(p[0] for p in page_pts)
@@ -594,7 +669,7 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
         # fix on the frontend: an uncapped size scaled a large, non-
         # rectangular room's (Foyer's) label into something that dwarfed
         # every room underneath it.
-        start_size = min(max(min(rw, rh) * 0.11, 6), 26)
+        start_size = min(max(min(rw, rh) * 0.11, 6), 26) * (0.6 if is_foyer else 1)
         # Fit the name to the room's actual on-page width, rather than letting
         # it spill past the room's boundary — real rooms vary a lot in shape.
         name_lines, name_size = _fit_room_name(c, name, rw * 0.92, start_size)
@@ -607,7 +682,7 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
             name = ROOM_SHORT_LABEL[room["room_type"]]
             name_lines, name_size = _fit_room_name(c, name, rw * 0.92, start_size)
         extra = len(name_lines) - 1
-        c.setFillColor(black)
+        c.setFillColor(HexColor("#999999") if is_foyer else black)
         c.setFont("Helvetica-Bold", name_size)
         line_y = ly + (name_size * 0.8 if seat_count else 0) + extra * name_size * 0.55
         for i, ln in enumerate(name_lines):
@@ -713,7 +788,7 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
 
     marker_r = max(bw, bh) * 0.018 * scale
     _draw_flow_segments(c, flow_segments, tx, marker_r)
-    _draw_entry_exit_markers(c, entry_point_ft, exit_points_ft, tx, marker_r)
+    _draw_entry_exit_markers(c, entry_point_ft, exit_points_ft, boundary_points_ft, tx, scale)
 
     # Overall dimension line under the drawing — real bounding-box size of the
     # confirmed region (in whichever axis now runs horizontal on the page,

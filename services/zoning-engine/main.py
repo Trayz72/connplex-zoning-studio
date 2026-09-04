@@ -649,15 +649,23 @@ def _recompute_room_derived_fields(room: dict, column_polys: list, screen_width_
 def update_layout(project_id: str, body: LayoutUpdateIn):
     """Architect edit (move/resize/add/delete a zone). Real validation — an
     invalid edit (overlap, outside boundary, obstacle collision) is rejected with
-    the specific reason, never silently accepted (Product Principle #4)."""
+    the specific reason, never silently accepted (Product Principle #4).
+
+    FOYER is never part of what's validated or stored here — see
+    _replace_foyer_with_derived's own docstring for why: it's always
+    recomputed as the real leftover remainder after every other room in
+    body.rooms, the same way generate_candidate's own auto-layout pass
+    already does, so it can never be the thing an edit gets rejected for."""
     existing = storage.read_json(storage.layout_path(project_id))
     if not existing:
         raise HTTPException(404, "No editable layout exists for this project yet — run zoning first.")
 
+    real_rooms = [r for r in body.rooms if r["room_type"] != "FOYER"]
+
     # body.obstacles carries classification (points_ft + classification), same
     # as generate_candidates below — validate_rooms only hard-blocks on
     # non-COLUMN obstacles (a room may legitimately enclose a column).
-    validation = layout_engine.validate_rooms(body.boundary_points_ft, body.obstacles, body.rooms)
+    validation = layout_engine.validate_rooms(body.boundary_points_ft, body.obstacles, real_rooms)
     if not validation["valid"]:
         raise HTTPException(422, {"message": "Layout edit rejected — geometry validation failed.", "errors": validation["errors"]})
 
@@ -669,27 +677,17 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
     # edit.
     column_polys = [layout_engine.poly_from_points(o["points_ft"]) for o in body.obstacles if o.get("classification") == "COLUMN"]
     requirements = storage.read_json(storage.requirements_path(project_id)) or {}
-    for room in body.rooms:
+    for room in real_rooms:
         _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"))
 
-    boundary_poly = layout_engine.poly_from_points(body.boundary_points_ft)
-    room_area = sum(r["area_sqft"] for r in body.rooms)
-    # A confirmed COLUMN is excluded here too — a room may now legitimately
-    # enclose one, so it's no longer "lost" area the way a wall/stair/washroom
-    # genuinely is (matches layout_engine.generate_candidate's own
-    # fallback_poly-based usable-area accounting).
-    non_column_obstacle_points = [o["points_ft"] for o in body.obstacles if o.get("classification") != "COLUMN"]
-    obstacle_area = sum(layout_engine.poly_from_points(o).area for o in non_column_obstacle_points) if non_column_obstacle_points else 0
-    circulation = body.circulation_area_sqft if body.circulation_area_sqft is not None else max(
-        boundary_poly.area - room_area - obstacle_area, 0.0
-    )
+    final_rooms, circulation = _replace_foyer_with_derived(body.boundary_points_ft, body.obstacles, real_rooms, requirements)
 
     updated = {
         "region_id": existing["region_id"],
         "source_candidate_id": existing.get("source_candidate_id"),
         "boundary_points_ft": body.boundary_points_ft,
         "obstacles": body.obstacles,
-        "rooms": body.rooms,
+        "rooms": final_rooms,
         "circulation_area_sqft": round(circulation, 2),
         # Carried forward unchanged, not recomputed — these describe how the
         # auto-layout originally generated this candidate (unmarked entrance,
@@ -703,6 +701,26 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
     return _enrich_layout(project_id, updated)
 
 
+def _replace_foyer_with_derived(boundary_points_ft, obstacles, real_rooms, requirements):
+    """FOYER is never a room an architect (or auto-layout) independently
+    places or resizes — it's always whatever contiguous usable area is left
+    once every other room is accounted for (see layout_engine._build_foyer_room,
+    already used by generate_candidate's own auto-layout pass). Called from
+    both update_layout and add_zone right after real_rooms is finalized, so
+    Foyer can never go stale or overlap anything: it's derived fresh from
+    the ACTUAL current room list every single time, not stored and
+    validated like an ordinary room. Returns (rooms_with_fresh_foyer,
+    circulation_area_sqft) — the latter is _build_foyer_room's own
+    leftover_slack (the real, small, genuinely-disconnected pockets Foyer
+    itself didn't claim), not a coarse boundary-minus-rooms estimate."""
+    fallback_poly = layout_engine.compute_usable_area(boundary_points_ft, obstacles, exclude_classifications=("COLUMN",)) if obstacles else layout_engine.poly_from_points(boundary_points_ft)
+    real_room_polys = [layout_engine.poly_from_points(r["geometry_points_ft"]) for r in real_rooms]
+    entry_point = requirements.get("entry_point_ft") if requirements else None
+    foyer_room, leftover_slack = layout_engine._build_foyer_room(fallback_poly, real_room_polys, real_rooms, entry_point)
+    final_rooms = real_rooms + ([foyer_room] if foyer_room else [])
+    return final_rooms, leftover_slack
+
+
 @app.post("/api/projects/{project_id}/layout/zones")
 def add_zone(project_id: str, body: AddZoneIn):
     """Adds exactly one new room to the current layout at a real, collision-free
@@ -714,14 +732,21 @@ def add_zone(project_id: str, body: AddZoneIn):
     overlap it produced almost every time.
 
     Rejects with an honest 422 (never invents a placement that doesn't fit —
-    Product Principle #4) when nothing fits anywhere for this zone type."""
+    Product Principle #4) when nothing fits anywhere for this zone type.
+
+    FOYER can't be requested here — see _replace_foyer_with_derived's own
+    docstring: it's never independently placed, always recomputed as the
+    real leftover remainder after this call's real_rooms is finalized."""
+    if body.room_type == "FOYER":
+        raise HTTPException(422, "Foyer is computed automatically from the remaining space — it can't be added manually.")
+
     existing = storage.read_json(storage.layout_path(project_id))
     if not existing:
         raise HTTPException(404, "No editable layout exists for this project yet — run zoning first.")
 
     boundary_points_ft = existing["boundary_points_ft"]
     obstacles = existing.get("obstacles", [])
-    rooms = existing["rooms"]
+    real_rooms = [r for r in existing["rooms"] if r["room_type"] != "FOYER"]
     requirements = storage.read_json(storage.requirements_path(project_id)) or {}
 
     usable_poly = layout_engine.compute_usable_area(boundary_points_ft, obstacles)
@@ -729,8 +754,8 @@ def add_zone(project_id: str, body: AddZoneIn):
     column_polys = [layout_engine.poly_from_points(o["points_ft"]) for o in obstacles if o.get("classification") == "COLUMN"]
     bbox = layout_engine.poly_from_points(boundary_points_ft).bounds
 
-    placed_polys = [layout_engine.poly_from_points(r["geometry_points_ft"]) for r in rooms]
-    placed_types = ["AUDITORIUM" if r["room_type"].startswith("AUDITORIUM") else r["room_type"] for r in rooms]
+    placed_polys = [layout_engine.poly_from_points(r["geometry_points_ft"]) for r in real_rooms]
+    placed_types = ["AUDITORIUM" if r["room_type"].startswith("AUDITORIUM") else r["room_type"] for r in real_rooms]
 
     room, message = layout_engine.place_single_zone(
         usable_poly, fallback_poly, column_polys, placed_polys, placed_types, bbox,
@@ -740,20 +765,16 @@ def add_zone(project_id: str, body: AddZoneIn):
         raise HTTPException(422, message)
 
     _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"))
-    new_rooms = rooms + [room]
+    real_rooms = real_rooms + [room]
 
-    boundary_poly = layout_engine.poly_from_points(boundary_points_ft)
-    room_area = sum(r["area_sqft"] for r in new_rooms)
-    non_column_obstacle_points = [o["points_ft"] for o in obstacles if o.get("classification") != "COLUMN"]
-    obstacle_area = sum(layout_engine.poly_from_points(o).area for o in non_column_obstacle_points) if non_column_obstacle_points else 0
-    circulation = max(boundary_poly.area - room_area - obstacle_area, 0.0)
+    final_rooms, circulation = _replace_foyer_with_derived(boundary_points_ft, obstacles, real_rooms, requirements)
 
     updated = {
         "region_id": existing["region_id"],
         "source_candidate_id": existing.get("source_candidate_id"),
         "boundary_points_ft": boundary_points_ft,
         "obstacles": obstacles,
-        "rooms": new_rooms,
+        "rooms": final_rooms,
         "circulation_area_sqft": round(circulation, 2),
         "warnings": existing.get("warnings", []),
         "revision": existing.get("revision", "R0"),
