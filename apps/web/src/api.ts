@@ -224,6 +224,21 @@ export interface RulesRegistry {
   planning_norms: any[];
   viability_rules: any[];
   not_evaluable_today: string[];
+  /** The registry file's mtime at read time — echoed back on save so a save
+   * built from a stale copy is rejected (409) instead of silently
+   * overwriting whatever changed underneath it. See rulesConfig.js. */
+  _file_mtime_ms: number;
+}
+
+/** Thrown by saveRulesCategory when the registry changed server-side since
+ * it was loaded (HTTP 409) — `current` is the fresh registry so the caller
+ * can offer to reload without losing the in-progress edit entirely. */
+export class RulesConfigConflictError extends Error {
+  current: RulesRegistry;
+  constructor(message: string, current: RulesRegistry) {
+    super(message);
+    this.current = current;
+  }
 }
 
 export async function getRulesConfig(): Promise<RulesRegistry> {
@@ -235,15 +250,18 @@ export async function getRulesConfig(): Promise<RulesRegistry> {
   return res.json();
 }
 
-export async function saveRulesCategory(category: RulesCategory, items: any[]): Promise<RulesRegistry> {
+export async function saveRulesCategory(category: RulesCategory, items: any[], expectedMtimeMs: number): Promise<RulesRegistry> {
   const res = await fetch(`${API_BASE}/admin/rules-config/${category}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ items })
+    body: JSON.stringify({ items, expected_mtime_ms: expectedMtimeMs })
   });
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'Failed to save' }));
+    if (res.status === 409 && error.current) {
+      throw new RulesConfigConflictError(error.error || 'Registry changed since load', error.current);
+    }
     throw new Error(error.error || 'Failed to save');
   }
   return res.json();

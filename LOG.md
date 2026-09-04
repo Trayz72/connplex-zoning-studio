@@ -13,6 +13,67 @@ dates were consistently logged are numbered instead ("session N").
 
 ---
 
+## 2026-09-04 — Orientation data migration, undo/redo, registry-write logging + concurrency guard, seat-row rendering, onboarding
+
+Full backlog round from the previous session's own end-of-session
+recommendations, all built and verified this session.
+
+**Existing-project orientation migration.** The orientation fix only
+affected fresh extractions; every project uploaded before it kept rendering
+mirrored. New `migrate_orientation.py` (dry-run mode, `.bak` of every file
+before writing, per-project `.orientation_migrated` marker for idempotency)
+flips Y across every stored geometry/requirements/layout/run JSON. Applied
+to 8 of the 9 stored projects — the 9th was excluded on purpose: it held
+this same session's own fresh test uploads (already correctly oriented),
+verified directly by content before excluding it, since a naive re-flip
+would have doubled back to wrong.
+
+**Registry stray-write — real root cause found, not just logging.**
+`services/project` had zero request logging (confirmed the actual gap
+flagged in an earlier session). Added general request logging plus a
+dedicated audit log for every rules-registry write. While diagnosing, found
+the real latent bug via code review: `AdminRulesPage.tsx`'s "replace the
+whole category array" save pattern had no concurrency check at all — two
+admin sessions (or one admin, two tabs) editing the same category
+concurrently would have the second save silently discard the first's
+changes with zero warning, a real match for a value silently reverting
+between sessions. Fixed with a real optimistic-concurrency guard (registry
+file mtime, checked and rejected with a clear 409 on mismatch) plus a
+before/after audit-log entry per write.
+
+**Undo/redo** for manual layout edits — snapshots the whole `EditableLayout`
+(not just rooms), since add-zone/strategy-switch each hit their own
+endpoint bypassing the room-drag/resize save path entirely; a rooms-only
+stack would have silently paired a restored room array with the wrong
+boundary/obstacles. Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z, plus toolbar buttons.
+Verified live: add a zone, undo, redo, both via buttons and keyboard.
+
+**Seat-row rendering**, opt-in via a new "Seat rows" toggle next to CAD
+linework — real per-row/seats-per-row counts from each auditorium's own
+`seat_estimate`, drawn as an evenly-distributed grid with a central-aisle
+gap, not a decorative pattern.
+
+**Onboarding + shortcuts reference** — a small modal, shown once
+automatically on a browser's first real visit to the Edit canvas (plain
+localStorage, same pattern as the theme toggle), reopenable anytime via a
+"?" button in the toolbar.
+
+**Basic pytest suite** for `layout_engine.py` and the orientation fix (11
+tests) — sanity-checked by deliberately reverting `_identity_tf` to a plain
+identity and confirming all three orientation tests fail, then restoring
+and confirming green again, so these are real regression guards, not
+vacuous.
+
+**Investigated and found NOT a bug**: a reproducible "intake form stuck on
+pending" case from the previous session turned out to be a testing mistake,
+not a defect — there's a "Save Intake Details" submit button below the
+fold that was never clicked; the header's "Go to Zoning Canvas" correctly
+stays disabled without it.
+
+**Not done**: richer export template matching to Connplex's real sheet
+artwork — needs a specific reference file to match against, which wasn't
+supplied this session.
+
 ## 2026-09-04 — Fixed CAD upload orientation, home nav, UI text cleanup, "human-made" screen graphics
 
 Real bug fix plus a bundle of refinement: "the CAD file appears upside down

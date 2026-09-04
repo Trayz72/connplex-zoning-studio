@@ -15,6 +15,13 @@ interface EditableCanvasProps {
   snapToGridFt: number;
   rawGeometry?: RawGeometry | null;
   showCadLinework?: boolean;
+  /** Draws actual per-seat row marks inside each auditorium (from its
+   * seat_estimate.rows/seats_per_row — the same real row-packing count
+   * seat_engine.py already computes, just visualized) instead of only the
+   * "N sqft / N seats" text label. Off by default — real per-row detail is
+   * denser and can clutter a small/zoomed-out room, so it's an explicit
+   * opt-in, not the default presentation. */
+  showSeatRows?: boolean;
   /** When true, clicking the canvas traces a boundary polygon instead of
    * selecting/dragging rooms — for "draw your own boundary" when auto-
    * detection found the wrong region, or none at all. */
@@ -64,7 +71,7 @@ const HANDLE_DEFS: { id: HandleId; cursor: string; fx: number; fy: number }[] = 
 
 export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   boundaryPointsFt, obstacles, rooms, selectedRoomId, onSelectRoom, onLiveChange, onCommit, snapToGridFt,
-  rawGeometry, showCadLinework = true, drawMode = false, onDrawComplete, onDeleteSelected
+  rawGeometry, showCadLinework = true, showSeatRows = false, drawMode = false, onDrawComplete, onDeleteSelected
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragMode>(null);
@@ -496,6 +503,48 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                     fill="var(--brand-strong)" fillOpacity={0.5}
                   />
                 </g>
+              )}
+              {isAuditorium && showSeatRows && room.seat_estimate && room.seat_estimate.rows > 0 && room.seat_estimate.seats_per_row > 0 && (
+                // Real per-row seat marks from seat_estimate's own row/
+                // seats-per-row counts (the same real row-packing
+                // seat_engine.py computes) — evenly distributed within the
+                // room rather than placed at each seat type's real
+                // footprint, since that geometry isn't sent to the
+                // frontend; still a real count, not a decorative pattern,
+                // and split around a central gap the way every packed row
+                // here already reserves a central aisle.
+                (() => {
+                  const rows = room.seat_estimate.rows;
+                  const perRow = room.seat_estimate.seats_per_row;
+                  const topMargin = h * 0.18, bottomMargin = h * 0.06;
+                  const usableH = Math.max(h - topMargin - bottomMargin, 0);
+                  const sideMargin = w * 0.08;
+                  const usableW = Math.max(w - 2 * sideMargin, 0);
+                  const aisleFrac = 0.1;
+                  const half = Math.ceil(perRow / 2);
+                  const seatR = Math.min(ftPerHandlePx(2.5), usableW / Math.max(perRow * 2.5, 1));
+                  const marks: React.ReactNode[] = [];
+                  for (let r = 0; r < rows; r++) {
+                    const ry = b.minY + topMargin + (rows > 1 ? (r / (rows - 1)) * usableH : usableH / 2);
+                    for (let s = 0; s < perRow; s++) {
+                      const leftSide = s < half;
+                      const idx = leftSide ? s : s - half;
+                      const sideCount = leftSide ? half : perRow - half;
+                      if (sideCount <= 0) continue;
+                      const sideW = usableW * (0.5 - aisleFrac / 2);
+                      const sideStart = leftSide ? b.minX + sideMargin : b.minX + sideMargin + usableW * (0.5 + aisleFrac / 2);
+                      const sx = sideCount > 1 ? sideStart + (idx / (sideCount - 1)) * sideW : sideStart + sideW / 2;
+                      marks.push(
+                        <rect
+                          key={`${r}-${s}`}
+                          x={sx - seatR} y={ry - seatR} width={seatR * 2} height={seatR * 2} rx={seatR * 0.35}
+                          fill="var(--text-secondary)"
+                        />
+                      );
+                    }
+                  }
+                  return <g pointerEvents="none" opacity={0.65}>{marks}</g>;
+                })()
               )}
               <text x={(b.minX + b.maxX) / 2} y={(b.minY + b.maxY) / 2} textAnchor="middle" fontSize={fontSize} fontWeight={600} fill="var(--text-primary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.display_name}

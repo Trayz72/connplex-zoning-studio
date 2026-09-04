@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getRulesConfig, saveRulesCategory, RulesRegistry, RulesCategory, RULES_CATEGORIES } from '../api';
+import { getRulesConfig, saveRulesCategory, RulesRegistry, RulesCategory, RULES_CATEGORIES, RulesConfigConflictError } from '../api';
 import { BlockedIcon, TrashIcon } from '../components/Icons';
 import { ThemeToggle } from '../components/ThemeToggle';
 
@@ -47,6 +47,7 @@ export const AdminRulesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [conflict, setConflict] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -105,14 +106,23 @@ export const AdminRulesPage: React.FC = () => {
   };
 
   const handleSave = async () => {
+    if (!registry) return;
     setSaving(true);
     setError(null);
     try {
-      const updated = await saveRulesCategory(category, items);
+      const updated = await saveRulesCategory(category, items, registry._file_mtime_ms);
       setRegistry(updated);
       setSavedAt(Date.now());
+      setConflict(false);
     } catch (err: any) {
+      // Deliberately does NOT touch `registry`/`items` here even on a
+      // conflict (RulesConfigConflictError) — registry drives the
+      // items-sync effect below, so replacing it here would silently wipe
+      // this session's own unsaved edit, the opposite of what the error
+      // banner's "Reload" action (see below) is for: an explicit choice,
+      // not an automatic one.
       setError(err.message || 'Failed to save');
+      if (err instanceof RulesConfigConflictError) setConflict(true);
     } finally {
       setSaving(false);
     }
@@ -152,7 +162,16 @@ export const AdminRulesPage: React.FC = () => {
           </div>
         </div>
 
-        {error && <div className="alert-box alert-error">{error}</div>}
+        {error && (
+          <div className="alert-box alert-error" style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'space-between' }}>
+            <span>{error}</span>
+            {conflict && (
+              <button className="btn btn-secondary btn-sm" onClick={() => { setConflict(false); setError(null); load(); }}>
+                Reload
+              </button>
+            )}
+          </div>
+        )}
         {savedAt && !error && Date.now() - savedAt < 4000 && (
           <div className="alert-box alert-success">Saved. A backup of the previous version was written automatically.</div>
         )}

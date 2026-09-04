@@ -13,6 +13,7 @@ import { EditableCanvas } from '../components/workspace/EditableCanvas';
 import { ExportPanel } from '../components/workspace/ExportPanel';
 import { SeatConfigPanel } from '../components/workspace/SeatConfigPanel';
 import { RoomDimensionEditor } from '../components/workspace/RoomDimensionEditor';
+import { ShortcutsHelp, hasSeenEditOnboarding } from '../components/workspace/ShortcutsHelp';
 import { ThemeToggle } from '../components/ThemeToggle';
 
 type Step = 'LOADING' | 'UPLOAD' | 'BOUNDARY_STUDIO' | 'GEOMETRY_REVIEW' | 'REQUIREMENTS' | 'RUN' | 'EDIT';
@@ -78,19 +79,59 @@ export const ZoningWorkspace: React.FC = () => {
   const [entryPointFt, setEntryPointFt] = useState<[number, number] | null>(null);
   const [exitPointsFt, setExitPointsFt] = useState<[number, number][] | null>(null);
   const [layout, setLayout] = useState<EditableLayout | null>(null);
+  // Undo/redo for manual layout edits. Snapshots the *whole* EditableLayout
+  // (not just rooms) — persistLayout's own PUT sends boundary_points_ft/
+  // obstacles from whatever `layout` happens to be at call time, and
+  // add-zone/strategy-switch each hit their own separate endpoint entirely
+  // (bypassing persistLayout), so a rooms-only stack populated from just one
+  // of those paths would silently miss the others and could pair a restored
+  // room array with the wrong boundary/obstacles. Capped at MAX_HISTORY so
+  // a long editing session doesn't grow this unboundedly.
+  const MAX_HISTORY = 25;
+  const [history, setHistory] = useState<EditableLayout[]>([]);
+  const [future, setFuture] = useState<EditableLayout[]>([]);
+  const [undoing, setUndoing] = useState(false);
+  // The one place every real layout mutation (persistLayout, addZone,
+  // switchStrategy) should call instead of setLayout directly — pushes the
+  // *previous* layout onto the undo stack and clears redo (a fresh action
+  // invalidates whatever was available to redo). The very first load
+  // (handleLayoutReady / the initial-fetch effect) and persistLayout's own
+  // reject-and-snap-back path intentionally keep calling plain setLayout —
+  // neither is a real forward edit to make undoable.
+  const commitLayout = useCallback((updated: EditableLayout) => {
+    setLayout(prev => {
+      if (prev) setHistory(h => [...h, prev].slice(-MAX_HISTORY));
+      return updated;
+    });
+    setFuture([]);
+  }, []);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [snapFt, setSnapFt] = useState(1);
   const [showCadLinework, setShowCadLinework] = useState(true);
+  const [showSeatRows, setShowSeatRows] = useState(false);
   const [saving, setSaving] = useState(false);
   const [seatTypes, setSeatTypes] = useState<SelectableSeatType[]>([]);
   const [applyingSeatConfig, setApplyingSeatConfig] = useState(false);
   const [alternateCandidates, setAlternateCandidates] = useState<LiveCandidate[]>([]);
   const [switchingStrategy, setSwitchingStrategy] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [helpIsFirstRun, setHelpIsFirstRun] = useState(false);
 
   useEffect(() => {
     engine.getSeatTypes().then(setSeatTypes).catch(() => {});
   }, []);
+
+  // First real visit to the Edit canvas in this browser: show the shortcuts
+  // reference once, framed as a welcome — same dismiss-and-remember pattern
+  // as theme.ts (plain localStorage, no backend involvement since this is
+  // purely a per-browser UI nicety).
+  useEffect(() => {
+    if (step === 'EDIT' && !hasSeenEditOnboarding()) {
+      setHelpIsFirstRun(true);
+      setShowHelp(true);
+    }
+  }, [step]);
 
   // The auto-run flow (RunStep) picks the higher-seat-count strategy without
   // asking, so the architect who never touches anything still gets a real
@@ -107,7 +148,7 @@ export const ZoningWorkspace: React.FC = () => {
     setSwitchingStrategy(true);
     try {
       const l = await engine.selectCandidate(id, candidateId);
-      setLayout(l);
+      commitLayout(l);
       setSelectedRoomId(null);
     } catch {
       // Best-effort — the current layout stays exactly as it was if this fails.
@@ -192,7 +233,7 @@ export const ZoningWorkspace: React.FC = () => {
       const updated = await engine.updateLayout(id, {
         rooms, boundary_points_ft: layout.boundary_points_ft, obstacles: layout.obstacles, circulation_area_sqft: null as any
       });
-      setLayout(updated);
+      commitLayout(updated);
     } catch (e: any) {
       if (e instanceof ValidationRejectedError) {
         setValidationErrors(e.errors);
@@ -202,12 +243,14 @@ export const ZoningWorkspace: React.FC = () => {
       // The server rejected the edit, so `layout` (the last-known-good state) is
       // unchanged — but force a new array reference so EditableCanvas's reset
       // effect fires and the dragged room visually snaps back rather than being
-      // left in the invalid position it was dropped at.
+      // left in the invalid position it was dropped at. Plain setLayout, not
+      // commitLayout — a rejected edit never actually happened, so it has no
+      // "before" state to push onto the undo stack.
       setLayout(prev => prev ? { ...prev, rooms: [...prev.rooms] } : prev);
     } finally {
       setSaving(false);
     }
-  }, [id, layout]);
+  }, [id, layout, commitLayout]);
 
   // Placement is entirely server-side (engine.addZone -> place_single_zone) —
   // this used to drop the new room at a fixed boundary corner with no
@@ -222,7 +265,7 @@ export const ZoningWorkspace: React.FC = () => {
     setValidationErrors([]);
     try {
       const updated = await engine.addZone(id, template.type);
-      setLayout(updated);
+      commitLayout(updated);
     } catch (e: any) {
       setValidationErrors([{ room_id: '', issue: 'ERROR', message: e.message || `Could not add ${template.label}.` }]);
     } finally {
@@ -261,6 +304,72 @@ export const ZoningWorkspace: React.FC = () => {
     await persistLayout(rooms);
     setApplyingDimensions(false);
   };
+
+  // Restores one snapshot exactly (rooms + boundary_points_ft + obstacles +
+  // circulation_area_sqft, all four, explicitly from the snapshot itself —
+  // not persistLayout's own PUT, which pulls boundary_points_ft/obstacles
+  // from the *current* layout closure and hardcodes circulation_area_sqft
+  // to null. Using persistLayout here would silently pair a restored rooms
+  // array with today's boundary/obstacles instead of the snapshot's own,
+  // and drop the snapshot's real circulation figure.
+  const restoreSnapshot = useCallback(async (snapshot: EditableLayout) => {
+    if (!id) return null;
+    setSaving(true);
+    setValidationErrors([]);
+    try {
+      return await engine.updateLayout(id, {
+        rooms: snapshot.rooms, boundary_points_ft: snapshot.boundary_points_ft,
+        obstacles: snapshot.obstacles, circulation_area_sqft: snapshot.circulation_area_sqft
+      });
+    } catch (e: any) {
+      setValidationErrors([{ room_id: '', issue: 'ERROR', message: e.message || 'Could not undo/redo.' }]);
+      return null;
+    } finally {
+      setSaving(false);
+    }
+  }, [id]);
+
+  const undo = useCallback(async () => {
+    if (history.length === 0 || !layout || undoing) return;
+    setUndoing(true);
+    const target = history[history.length - 1];
+    const restored = await restoreSnapshot(target);
+    if (restored) {
+      setFuture(f => [layout, ...f].slice(0, MAX_HISTORY));
+      setHistory(h => h.slice(0, -1));
+      setLayout(restored);
+      setSelectedRoomId(null);
+    }
+    setUndoing(false);
+  }, [history, layout, restoreSnapshot, undoing]);
+
+  const redo = useCallback(async () => {
+    if (future.length === 0 || !layout || undoing) return;
+    setUndoing(true);
+    const target = future[0];
+    const restored = await restoreSnapshot(target);
+    if (restored) {
+      setHistory(h => [...h, layout].slice(-MAX_HISTORY));
+      setFuture(f => f.slice(1));
+      setLayout(restored);
+      setSelectedRoomId(null);
+    }
+    setUndoing(false);
+  }, [future, layout, restoreSnapshot, undoing]);
+
+  useEffect(() => {
+    if (step !== 'EDIT') return;
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+      const mod = e.metaKey || e.ctrlKey;
+      if (!mod || e.key.toLowerCase() !== 'z') return;
+      e.preventDefault();
+      if (e.shiftKey) redo(); else undo();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [step, undo, redo]);
 
   const selectedRoom = layout?.rooms.find(r => r.room_id === selectedRoomId) || null;
 
@@ -370,7 +479,13 @@ export const ZoningWorkspace: React.FC = () => {
                   <button key={t.type} className="btn btn-secondary btn-sm" disabled={saving} onClick={() => addZone(t)}>+ {t.label}</button>
                 ))}
                 {selectedRoomId && <button className="btn btn-danger btn-sm" disabled={saving} onClick={deleteSelected}>Delete Selected</button>}
+                <button className="btn btn-secondary btn-sm" disabled={saving || history.length === 0} onClick={undo} title="Undo (Ctrl/Cmd+Z)">↶ Undo</button>
+                <button className="btn btn-secondary btn-sm" disabled={saving || future.length === 0} onClick={redo} title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button>
                 <label className="checkbox-label" style={{ marginLeft: 'auto' }}>
+                  <input type="checkbox" checked={showSeatRows} onChange={(e) => setShowSeatRows(e.target.checked)} />
+                  Seat rows
+                </label>
+                <label className="checkbox-label">
                   <input type="checkbox" checked={showCadLinework} onChange={(e) => setShowCadLinework(e.target.checked)} />
                   CAD linework
                 </label>
@@ -384,6 +499,12 @@ export const ZoningWorkspace: React.FC = () => {
                   </select>
                 </label>
                 {saving && <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Saving…</span>}
+                <button
+                  className="btn btn-secondary btn-sm" title="Keyboard & mouse shortcuts"
+                  onClick={() => { setHelpIsFirstRun(false); setShowHelp(true); }}
+                >
+                  ?
+                </button>
               </div>
 
               {validationErrors.length > 0 && (
@@ -403,6 +524,7 @@ export const ZoningWorkspace: React.FC = () => {
                 snapToGridFt={snapFt}
                 rawGeometry={geometry?.regions.find(r => r.region_id === layout.region_id)?.raw_geometry}
                 showCadLinework={showCadLinework}
+                showSeatRows={showSeatRows}
                 onDeleteSelected={deleteSelected}
               />
             </div>
@@ -508,6 +630,9 @@ export const ZoningWorkspace: React.FC = () => {
           </div>
         )}
       </div>
+      {showHelp && (
+        <ShortcutsHelp isFirstRun={helpIsFirstRun} onClose={() => { setShowHelp(false); setHelpIsFirstRun(false); }} />
+      )}
     </div>
   );
 };

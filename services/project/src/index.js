@@ -5,6 +5,7 @@ import authRoutes from './routes/auth.js';
 import projectRoutes from './routes/projects.js';
 import adminRoutes from './routes/admin.js';
 import rulesConfigRoutes from './routes/rulesConfig.js';
+import { requestLogger } from './utils/requestLog.js';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -28,6 +29,12 @@ app.use(express.json());
 // req.signedCookies when it matches. COOKIE_SECRET must be set in any real
 // deployment; the fallback is fine for local dev only.
 app.use(cookieParser(process.env.COOKIE_SECRET || 'dev-only-insecure-secret'));
+
+// Every request, logged once it finishes (method/path/status/duration/user)
+// — this service previously had no logging at all, which is exactly why a
+// real, recurring data-integrity incident (see rulesConfig.js) could never
+// be root-caused. See utils/requestLog.js for the log file locations.
+app.use(requestLogger);
 
 // Namespaced under /api/pm so these routes can never collide with a frontend
 // route sharing the same prefix (e.g. /projects/:id/studio) — see api.ts.
