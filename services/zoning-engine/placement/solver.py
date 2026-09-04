@@ -23,20 +23,10 @@ candidate pool blowing up into the tens of thousands.
 """
 import rules_registry
 import seat_engine
-from placement import free_rectangles
+from placement import free_rectangles, column_enclosure
 
 TIME_LIMIT_SECONDS = 20.0
 MAX_FREE_RECTS = 60
-
-
-def _column_enclosed_ratio(x, y, w, h, column_polys):
-    if not column_polys:
-        return 0.0
-    from shapely.geometry import box
-    rect = box(x, y, x + w, y + h)
-    if rect.area <= 0:
-        return 0.0
-    return sum(rect.intersection(cp).area for cp in column_polys) / rect.area
 
 
 def _rects_overlap(a, b):
@@ -52,7 +42,7 @@ def _rects_overlap(a, b):
 
 def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
                          aud_column_cap, screen_width_ft=None, max_free_rects=MAX_FREE_RECTS,
-                         max_dim_ft=80.0):
+                         max_dim_ft=80.0, aud_edge_tolerance_ft=None):
     """Every (preset, free-rectangle, orientation, corner) combination that
     actually fits, PLUS one custom-fit candidate per free rectangle (its own
     full extent, capped at max_dim_ft) — real parity with the greedy path's
@@ -84,8 +74,8 @@ def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
                     if key in seen:
                         continue
                     seen.add(key)
-                    enclosed_ratio = _column_enclosed_ratio(ax, ay, cw, ch, column_polys) if used_fallback else 0.0
-                    if used_fallback and enclosed_ratio > aud_column_cap:
+                    enclosed_ratio = column_enclosure.enclosed_ratio(ax, ay, cw, ch, column_polys) if used_fallback else 0.0
+                    if used_fallback and not column_enclosure.enclosure_ok(ax, ay, cw, ch, column_polys, aud_column_cap, aud_edge_tolerance_ft):
                         continue
                     enclosed_area = enclosed_ratio * cw * ch
                     seat_config, seat_est = seat_engine.best_seat_estimate(
@@ -113,8 +103,8 @@ def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
                             if key in seen:
                                 continue
                             seen.add(key)
-                            enclosed_ratio = _column_enclosed_ratio(ax, ay, ow, oh, column_polys) if used_fallback else 0.0
-                            if used_fallback and enclosed_ratio > aud_column_cap:
+                            enclosed_ratio = column_enclosure.enclosed_ratio(ax, ay, ow, oh, column_polys) if used_fallback else 0.0
+                            if used_fallback and not column_enclosure.enclosure_ok(ax, ay, ow, oh, column_polys, aud_column_cap, aud_edge_tolerance_ft):
                                 continue
                             enclosed_area = enclosed_ratio * ow * oh
                             seat_config, seat_est = seat_engine.best_seat_estimate(
@@ -131,7 +121,8 @@ def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
 
 
 def solve(usable_poly, fallback_poly, column_polys, bbox, presets, max_auditoriums,
-          aud_column_cap, screen_width_ft=None, time_limit_seconds=TIME_LIMIT_SECONDS):
+          aud_column_cap, screen_width_ft=None, time_limit_seconds=TIME_LIMIT_SECONDS,
+          aud_edge_tolerance_ft=None):
     """Maximum Weight Independent Set over the real candidate pool
     (generate_candidates): one boolean decision variable per candidate, a
     "not both" constraint for every pair whose rectangles actually
@@ -148,7 +139,7 @@ def solve(usable_poly, fallback_poly, column_polys, bbox, presets, max_auditoriu
     from ortools.sat.python import cp_model
 
     candidates = generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
-                                      aud_column_cap, screen_width_ft)
+                                      aud_column_cap, screen_width_ft, aud_edge_tolerance_ft=aud_edge_tolerance_ft)
     if not candidates:
         return [], "NO_CANDIDATES"
 

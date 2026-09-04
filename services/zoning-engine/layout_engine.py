@@ -42,7 +42,7 @@ from shapely.affinity import scale as shapely_scale
 
 import rules_registry
 import seat_engine
-from placement import free_rectangles, backtracking, solver
+from placement import free_rectangles, backtracking, solver, column_enclosure, connectivity
 
 GRID_STEP_FT = 2.0
 AISLE_CLEARANCE_FT = 3.5   # matches CENTRAL_AISLE_MIN_FT — used generically as the minimum gap between placed zones
@@ -286,15 +286,17 @@ def _has_sightline(usable_poly, placed_polys, from_point, rect):
     return not any(line.intersects(p) for p in placed_polys)
 
 
-def _scan_place_best(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True, score_fn=None, prefer_fn=None, max_candidates=80,
-                      grid_lines_x=None, grid_lines_y=None):
+def _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True, score_fn=None, prefer_fn=None, max_candidates=80,
+                        grid_lines_x=None, grid_lines_y=None):
     """Same first-fit grid scan as _scan_place, but collects up to
-    max_candidates valid positions instead of stopping at the first one, so a
-    placement can be chosen for *where* it sits, not just *that* it fits.
-    prefer_fn is a soft constraint (e.g. "has a sightline from the entry") —
-    placement still succeeds using the unfiltered candidates if none satisfy
-    it, per Product Principle #7 (never silently invent a placement that
-    contradicts real geometry, but never silently drop a room either).
+    max_candidates valid positions and returns the FULL best-first ranked
+    list — [(x, y, ow, oh), satisfied_preference), ...] — instead of
+    collapsing to one winner. Preferred+scored candidates (per prefer_fn/
+    score_fn) come first, followed by the rest of the pool, so a caller
+    that needs to veto the top choice (e.g. it would sever reachability —
+    see placement/connectivity.py) can fall through to the next-best
+    position instead of failing outright. _scan_place_best below is just
+    ranked[0] of this — same selection logic, unchanged behavior.
     grid_lines_x/grid_lines_y: see _scan_place."""
     minx, miny, maxx, maxy = bbox
     step = _grid_step_for_bbox(bbox)
@@ -323,9 +325,9 @@ def _scan_place_best(usable_poly, placed_polys, placed_types, candidate_type, w,
                     break
 
     if not candidates:
-        return None, False
+        return []
     if score_fn is None and prefer_fn is None:
-        return candidates[0], False
+        return [(c, False) for c in candidates]
 
     pool = candidates
     satisfied_preference = False
@@ -335,8 +337,30 @@ def _scan_place_best(usable_poly, placed_polys, placed_types, candidate_type, w,
             pool = preferred
             satisfied_preference = True
 
-    best = min(pool, key=score_fn) if score_fn else pool[0]
-    return best, satisfied_preference
+    ranked_pool = sorted(pool, key=score_fn) if score_fn else pool
+    ranked = [(c, satisfied_preference) for c in ranked_pool]
+    if satisfied_preference:
+        rest = [c for c in candidates if c not in pool]
+        if score_fn:
+            rest = sorted(rest, key=score_fn)
+        ranked += [(c, False) for c in rest]
+    return ranked
+
+
+def _scan_place_best(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True, score_fn=None, prefer_fn=None, max_candidates=80,
+                      grid_lines_x=None, grid_lines_y=None):
+    """Same first-fit grid scan as _scan_place, but collects up to
+    max_candidates valid positions instead of stopping at the first one, so a
+    placement can be chosen for *where* it sits, not just *that* it fits.
+    prefer_fn is a soft constraint (e.g. "has a sightline from the entry") —
+    placement still succeeds using the unfiltered candidates if none satisfy
+    it, per Product Principle #7 (never silently invent a placement that
+    contradicts real geometry, but never silently drop a room either).
+    grid_lines_x/grid_lines_y: see _scan_place."""
+    ranked = _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y)
+    if not ranked:
+        return None, False
+    return ranked[0]
 
 
 def _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True,
@@ -357,18 +381,34 @@ def _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_t
     return None, False
 
 
+def _scan_place_ranked_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True,
+                                      score_fn=None, prefer_fn=None, top_k=1, max_candidates=80, grid_lines_x=None, grid_lines_y=None):
+    """Ranked strict-then-column-tolerant retry: strict-tier ranked
+    candidates always precede fallback-tier ones (a column-free placement
+    beats a column-tolerant one regardless of score), each tagged with
+    used_fallback, combined list capped to top_k. The fallback-tier scan is
+    only run when the strict tier alone doesn't already offer top_k
+    candidates — same laziness _scan_place_best_with_fallback (now just
+    ranked[0] of this, top_k=1) always had: a column-tolerant scan is never
+    even attempted when the strict tier already has enough to work with.
+    Returns [((x, y, ow, oh), satisfied_preference, used_fallback), ...]."""
+    ranked = [(c, satisfied, False) for c, satisfied in
+              _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y)]
+    if len(ranked) < top_k and fallback_poly is not None and fallback_poly is not usable_poly:
+        ranked += [(c, satisfied, True) for c, satisfied in
+                   _scan_place_ranked(fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y)]
+    return ranked[:top_k]
+
+
 def _scan_place_best_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True,
                                     score_fn=None, prefer_fn=None, max_candidates=80, grid_lines_x=None, grid_lines_y=None):
     """Same strict-then-column-tolerant retry as _scan_place_with_fallback,
     for the score_fn/prefer_fn-driven placements (foyer-near-entry etc)."""
-    best, satisfied = _scan_place_best(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y)
-    if best:
-        return best, satisfied, False
-    if fallback_poly is not None and fallback_poly is not usable_poly:
-        best, satisfied = _scan_place_best(fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y)
-        if best:
-            return best, satisfied, True
-    return None, False, False
+    ranked = _scan_place_ranked_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate,
+                                               score_fn, prefer_fn, top_k=1, max_candidates=max_candidates, grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y)
+    if not ranked:
+        return None, False, False
+    return ranked[0]
 
 
 def _enclosed_obstacle_area(rect, column_polys):
@@ -423,23 +463,25 @@ def _mirror_axis_values(values, minv, maxv, flip):
     return [(minv + maxv) - v for v in values]
 
 
-def _column_enclosure_ok(scan_result, bbox, flip_x, flip_y, column_polys, max_ratio):
+def _column_enclosure_ok(scan_result, bbox, flip_x, flip_y, column_polys, max_ratio, edge_tolerance_ft=None):
     """Whether a fallback (column-tolerant) placement's own confirmed-COLUMN
     coverage stays within max_ratio of its footprint — the per-room-type
     column tolerance policy (see AUDITORIUM_MAX_ENCLOSED_COLUMN_RATIO /
-    SUPPORT_ZONE_MAX_ENCLOSED_COLUMN_RATIO). scan_result is in whatever space
-    the scan actually ran in (mirrored, for _place_auditoriums; real, for
+    SUPPORT_ZONE_MAX_ENCLOSED_COLUMN_RATIO) — AND, when edge_tolerance_ft is
+    given (auditoriums only; see AUDITORIUM_COLUMN_EDGE_TOLERANCE_FT), that
+    no part of an enclosed column sits stranded in the room's interior far
+    from every one of its own walls. scan_result is in whatever space the
+    scan actually ran in (mirrored, for _place_auditoriums; real, for
     place_single_zone, where flip_x/flip_y are always False) — unmirrored
     back to real coordinates before measuring, since column_polys are always
-    real-space."""
+    real-space. The real gate math lives in placement.column_enclosure, so
+    placement/solver.py's own CP-SAT candidate generation shares the exact
+    same logic instead of a second implementation that could drift."""
     if not column_polys or not scan_result:
         return True
     sx, sy, w, h = scan_result
     x, y = _unmirror_rect(sx, sy, w, h, bbox, flip_x, flip_y)
-    rect = _rect(x, y, w, h)
-    if rect.area <= 0:
-        return True
-    return (_enclosed_obstacle_area(rect, column_polys) / rect.area) <= max_ratio
+    return column_enclosure.enclosure_ok(x, y, w, h, column_polys, max_ratio, edge_tolerance_ft)
 
 
 # Real seat-config selection lives in seat_engine.py (default_seat_config /
@@ -594,7 +636,7 @@ def _build_auditorium_room(x, y, w, h, index, used_preset, used_fallback, column
 def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, column_polys, bbox,
                                                     placed_polys, placed_types, remaining_slots,
                                                     min_area_sqft, aud_column_cap, flip_x, flip_y,
-                                                    max_dim_ft=80.0):
+                                                    max_dim_ft=80.0, aud_edge_tolerance_ft=None):
     """Fills up to remaining_slots more custom-fit auditorium footprints
     using placement.backtracking's bounded search instead of committing to
     the single largest free rectangle at each step irrevocably (which is
@@ -634,7 +676,7 @@ def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, co
         rect = _rect(x, y, cw, ch)
         if not remaining.contains(rect.buffer(-0.01)):
             return None
-        if used_fb and not _column_enclosure_ok((x, y, cw, ch), bbox, flip_x, flip_y, column_polys, aud_column_cap):
+        if used_fb and not _column_enclosure_ok((x, y, cw, ch), bbox, flip_x, flip_y, column_polys, aud_column_cap, aud_edge_tolerance_ft):
             return None
         return (x, y, cw, ch, used_fb)
 
@@ -678,6 +720,9 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
     aud_column_cap = rules_registry.planning_norm("AUDITORIUM_MAX_ENCLOSED_COLUMN_RATIO")
     if aud_column_cap is None:
         aud_column_cap = 0.02
+    aud_edge_tolerance_ft = rules_registry.planning_norm("AUDITORIUM_COLUMN_EDGE_TOLERANCE_FT")
+    if aud_edge_tolerance_ft is None:
+        aud_edge_tolerance_ft = 2.0
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
     min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
 
@@ -713,12 +758,12 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
             # same as a genuine no-fit — this v1 only retries the preset's
             # own two declared footprints, not every other position the
             # fallback polygon might offer; a real but bounded scope cut.
-            if result and used_fallback and not _column_enclosure_ok(result, bbox, flip_x, flip_y, column_polys, aud_column_cap):
+            if result and used_fallback and not _column_enclosure_ok(result, bbox, flip_x, flip_y, column_polys, aud_column_cap, aud_edge_tolerance_ft):
                 result = None
             if not result and (w_max, h_max) != (preset["width_min_ft"], preset["length_min_ft"]):
                 result, used_fallback = _scan_place_with_fallback(scan_usable, scan_fallback, scan_placed_polys, scan_placed_types, "AUDITORIUM", preset["width_min_ft"], preset["length_min_ft"], bbox,
                                                                     grid_lines_x=scan_grid_x, grid_lines_y=scan_grid_y)
-                if result and used_fallback and not _column_enclosure_ok(result, bbox, flip_x, flip_y, column_polys, aud_column_cap):
+                if result and used_fallback and not _column_enclosure_ok(result, bbox, flip_x, flip_y, column_polys, aud_column_cap, aud_edge_tolerance_ft):
                     result = None
             if result:
                 placement = result
@@ -759,7 +804,8 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
     if remaining_slots > 0:
         backtrack_results = _fill_remaining_auditoriums_with_backtracking(
             scan_usable, scan_fallback, column_polys, bbox, scan_placed_polys, scan_placed_types,
-            remaining_slots, min_preset_area_sqft, aud_column_cap, flip_x, flip_y
+            remaining_slots, min_preset_area_sqft, aud_column_cap, flip_x, flip_y,
+            aud_edge_tolerance_ft=aud_edge_tolerance_ft
         )
         for sx, sy, w, h, used_fallback in backtrack_results:
             scan_placed_polys.append(_rect(sx, sy, w, h))
@@ -793,6 +839,85 @@ def _support_zone_dims(room_type, area):
     return ww, hh
 
 
+def _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly, fallback_poly,
+                             placed_polys, placed_types, foyer_rect):
+    """The per-room-type score_fn/prefer_fn selection place_single_zone
+    always used inline — pulled out so place_single_zone and the new
+    auto-orchestration (_place_support_zones_and_foyer) share one
+    implementation instead of two that could drift. foyer_rect may be None
+    (no Foyer placed/known yet) — place_single_zone can be called before a
+    Foyer exists (an architect adding Washroom via Add Zone before Foyer),
+    and the new auto-orchestration always computes Foyer last by design, so
+    both callers already had to cope with a None foyer_rect; this isn't new
+    branching.
+
+    Real entry point marked by the architect (spec M6 / SOP §4.4-§9): "Foyer
+    (at main entry level)", "F&B: visible from entry", "Washrooms: ... not
+    directly visible from foyer". Nothing in CAD extraction detects doors,
+    so this is only applied when the architect actually marked one."""
+    score_fn = prefer_fn = None
+    if room_type == "PASSAGE":
+        # A passage connects the foyer to the auditoriums — evidence-based
+        # from the reference floor plans, not a compass-direction guess:
+        # prefer a position close to both the foyer and the nearest
+        # already-placed screen. Independent of whether an entry point is
+        # marked (unlike every other support zone's heuristic below), since
+        # foyer/auditorium positions are already known once either exists.
+        aud_polys_only = [p for p, t in zip(placed_polys, placed_types) if t == "AUDITORIUM"]
+        nearest_aud = (min(aud_polys_only, key=lambda p: p.distance(foyer_rect))
+                       if aud_polys_only and foyer_rect is not None
+                       else (aud_polys_only[0] if aud_polys_only else None))
+        if foyer_rect is not None and nearest_aud is not None:
+            score_fn = lambda c: _rect(*c).distance(foyer_rect) + _rect(*c).distance(nearest_aud)
+        elif foyer_rect is not None:
+            score_fn = lambda c: _rect(*c).distance(foyer_rect)
+        elif nearest_aud is not None:
+            score_fn = lambda c: _rect(*c).distance(nearest_aud)
+        # else: no Foyer or Screen placed yet — falls through to a plain
+        # scan below, same as any other support zone with no heuristic
+        # available yet at this point in the layout.
+    elif entry_point is not None:
+        if room_type in ("FOYER", "BOX_OFFICE"):
+            score_fn = lambda c: (_rect(*c).centroid.x - entry_point[0]) ** 2 + (_rect(*c).centroid.y - entry_point[1]) ** 2
+        elif room_type == "FNB":
+            # The foyer itself is deliberately excluded from what counts as
+            # "blocking" this — see place_single_zone's own module docstring
+            # discussion in the original _place_support_zones this was
+            # extracted from: a sightline starting inside/behind the foyer
+            # trivially fails otherwise.
+            blockers = [p for p in placed_polys if p is not foyer_rect]
+            prefer_fn = lambda c: _has_sightline(usable_poly, blockers, entry_point, _rect(*c))
+        elif room_type == "WASHROOM":
+            if foyer_rect is not None:
+                foyer_centroid = (foyer_rect.centroid.x, foyer_rect.centroid.y)
+                blockers = [p for p in placed_polys if p is not foyer_rect]
+                prefer_fn = lambda c: not _has_sightline(usable_poly, blockers, foyer_centroid, _rect(*c))
+            else:
+                # No Foyer placed/known yet — "no sightline from the entry"
+                # is a real, close proxy for "no sightline from the foyer,"
+                # since Foyer ends up being exactly the leftover area around
+                # the entry once everything else is placed (see
+                # _build_foyer_room). Purely additive: before this rule
+                # existed, Washroom had no preference at all without a real
+                # foyer_rect.
+                prefer_fn = lambda c: not _has_sightline(usable_poly, placed_polys, entry_point, _rect(*c))
+        elif room_type == "BOH":
+            # Back-of-house (electrical/server/store) is staff-only — sits as
+            # far as possible from both the entrance and every marked exit.
+            ref_points = [entry_point] + list(exit_points_ft or [])
+            score_fn = lambda c: -min(
+                (_rect(*c).centroid.x - rx) ** 2 + (_rect(*c).centroid.y - ry) ** 2
+                for rx, ry in ref_points
+            )
+    elif room_type in ("FOYER", "BOX_OFFICE"):
+        # No entrance marked: prefer a placement touching the boundary's own
+        # perimeter — a foyer/box-office is essentially always at the
+        # building's frontage in real cinema design.
+        perimeter = _exterior_lines(fallback_poly)
+        prefer_fn = lambda c: _rect(*c).distance(perimeter) < PERIMETER_TOUCH_TOLERANCE_FT
+    return score_fn, prefer_fn
+
+
 def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, placed_types, bbox,
                        room_type, requirements, franchise_tier_id=None):
     """Places exactly one new room of `room_type` into the current layout
@@ -822,6 +947,9 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
     aud_column_cap = rules_registry.planning_norm("AUDITORIUM_MAX_ENCLOSED_COLUMN_RATIO")
     if aud_column_cap is None:
         aud_column_cap = 0.02
+    aud_edge_tolerance_ft = rules_registry.planning_norm("AUDITORIUM_COLUMN_EDGE_TOLERANCE_FT")
+    if aud_edge_tolerance_ft is None:
+        aud_edge_tolerance_ft = 2.0
     support_column_cap = rules_registry.planning_norm("SUPPORT_ZONE_MAX_ENCLOSED_COLUMN_RATIO")
     if support_column_cap is None:
         support_column_cap = 0.15
@@ -835,12 +963,12 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
             h_max = preset.get("length_max_ft", preset["length_min_ft"])
             result, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, "AUDITORIUM", w_max, h_max, bbox,
                                                                 grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y)
-            if result and used_fallback and not _column_enclosure_ok(result, bbox, False, False, column_polys, aud_column_cap):
+            if result and used_fallback and not _column_enclosure_ok(result, bbox, False, False, column_polys, aud_column_cap, aud_edge_tolerance_ft):
                 result = None
             if not result and (w_max, h_max) != (preset["width_min_ft"], preset["length_min_ft"]):
                 result, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, "AUDITORIUM", preset["width_min_ft"], preset["length_min_ft"], bbox,
                                                                     grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y)
-                if result and used_fallback and not _column_enclosure_ok(result, bbox, False, False, column_polys, aud_column_cap):
+                if result and used_fallback and not _column_enclosure_ok(result, bbox, False, False, column_polys, aud_column_cap, aud_edge_tolerance_ft):
                     result = None
             if result:
                 matched_preset = preset
@@ -854,7 +982,7 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
                 usable_poly, fallback_poly, placed_polys, placed_types, bbox,
                 min_preset_area_sqft
             )
-            if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, False, False, column_polys, aud_column_cap):
+            if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, False, False, column_polys, aud_column_cap, aud_edge_tolerance_ft):
                 custom_result = None
             if custom_result:
                 result = custom_result
@@ -929,61 +1057,8 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
 
     foyer_rect = next((p for p, t in zip(placed_polys, placed_types) if t == "FOYER"), None)
 
-    # Real entry point marked by the architect (spec M6 / SOP §4.4-§9): "Foyer
-    # (at main entry level)", "F&B: visible from entry", "Washrooms: ... not
-    # directly visible from foyer". Nothing in CAD extraction detects doors,
-    # so this is only applied when the architect actually marked one.
-    score_fn = prefer_fn = None
-    if room_type == "PASSAGE":
-        # A passage connects the foyer to the auditoriums — evidence-based
-        # from the reference floor plans, not a compass-direction guess:
-        # prefer a position close to both the foyer and the nearest
-        # already-placed screen. Independent of whether an entry point is
-        # marked (unlike every other support zone's heuristic below), since
-        # foyer/auditorium positions are already known once either exists.
-        aud_polys_only = [p for p, t in zip(placed_polys, placed_types) if t == "AUDITORIUM"]
-        nearest_aud = (min(aud_polys_only, key=lambda p: p.distance(foyer_rect))
-                       if aud_polys_only and foyer_rect is not None
-                       else (aud_polys_only[0] if aud_polys_only else None))
-        if foyer_rect is not None and nearest_aud is not None:
-            score_fn = lambda c: _rect(*c).distance(foyer_rect) + _rect(*c).distance(nearest_aud)
-        elif foyer_rect is not None:
-            score_fn = lambda c: _rect(*c).distance(foyer_rect)
-        elif nearest_aud is not None:
-            score_fn = lambda c: _rect(*c).distance(nearest_aud)
-        # else: no Foyer or Screen placed yet — falls through to a plain
-        # scan below, same as any other support zone with no heuristic
-        # available yet at this point in the layout.
-    elif entry_point is not None:
-        if room_type in ("FOYER", "BOX_OFFICE"):
-            score_fn = lambda c: (_rect(*c).centroid.x - entry_point[0]) ** 2 + (_rect(*c).centroid.y - entry_point[1]) ** 2
-        elif room_type == "FNB":
-            # The foyer itself is deliberately excluded from what counts as
-            # "blocking" this — see place_single_zone's own module docstring
-            # discussion in the original _place_support_zones this was
-            # extracted from: a sightline starting inside/behind the foyer
-            # trivially fails otherwise.
-            blockers = [p for p in placed_polys if p is not foyer_rect]
-            prefer_fn = lambda c: _has_sightline(usable_poly, blockers, entry_point, _rect(*c))
-        elif room_type == "WASHROOM":
-            if foyer_rect is not None:
-                foyer_centroid = (foyer_rect.centroid.x, foyer_rect.centroid.y)
-                blockers = [p for p in placed_polys if p is not foyer_rect]
-                prefer_fn = lambda c: not _has_sightline(usable_poly, blockers, foyer_centroid, _rect(*c))
-        elif room_type == "BOH":
-            # Back-of-house (electrical/server/store) is staff-only — sits as
-            # far as possible from both the entrance and every marked exit.
-            ref_points = [entry_point] + list(exit_points_ft or [])
-            score_fn = lambda c: -min(
-                (_rect(*c).centroid.x - rx) ** 2 + (_rect(*c).centroid.y - ry) ** 2
-                for rx, ry in ref_points
-            )
-    elif room_type in ("FOYER", "BOX_OFFICE"):
-        # No entrance marked: prefer a placement touching the boundary's own
-        # perimeter — a foyer/box-office is essentially always at the
-        # building's frontage in real cinema design.
-        perimeter = _exterior_lines(fallback_poly)
-        prefer_fn = lambda c: _rect(*c).distance(perimeter) < PERIMETER_TOUCH_TOLERANCE_FT
+    score_fn, prefer_fn = _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly, fallback_poly,
+                                                    placed_polys, placed_types, foyer_rect)
 
     note_out = None
     used_fallback = False
@@ -1013,11 +1088,15 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
 
     shrink_note = None
     if not placement:
-        # Try shrinking toward the minimum before giving up — never invent space that isn't there.
-        for factor in (0.75, 0.5, 0.35):
-            w2, h2 = _support_zone_dims(room_type, target_area * factor)
-            if w2 * h2 < min_area:
-                break
+        # Try shrinking toward the minimum before giving up — never invent
+        # space that isn't there. The true floor (min_area) itself is always
+        # tried last even if it falls between two factors above (a shallow
+        # leftover strip can genuinely only fit the smallest legal size,
+        # not any of the three round-number factors on the way down).
+        shrink_sizes = [target_area * f for f in (0.75, 0.5, 0.35)]
+        shrink_sizes = [a for a in shrink_sizes if a >= min_area] + [min_area]
+        for area in shrink_sizes:
+            w2, h2 = _support_zone_dims(room_type, area)
             placement, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, room_type, w2, h2, bbox,
                                                                    grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y)
             if placement and used_fallback and not _column_enclosure_ok(placement, bbox, False, False, column_polys, support_column_cap):
@@ -1025,7 +1104,7 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
                 used_fallback = False
                 continue
             if placement:
-                shrink_note = f"Shrunk from target {round(target_area,1)} sqft to fit available space ({round(w2*h2,1)} sqft, {int(factor*100)}% of target)."
+                shrink_note = f"Shrunk from target {round(target_area,1)} sqft to fit available space ({round(w2*h2,1)} sqft, {round(100*area/target_area) if target_area else 0}% of target)."
                 break
 
     if not placement:
@@ -1058,6 +1137,262 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
                 f"inside this room's footprint — plan furniture/layout around the obstacle position(s)."
             )
     return zone, note_out
+
+
+# ---------- Post-auditorium auto-placement: real support zones + Foyer-as-remainder ----------
+#
+# Screens first (above), then Box Office/F&B/Washroom/BOH with real,
+# connectivity-gated geometry, then Foyer computed as whatever's genuinely
+# left — not independently placed. PASSAGE is deliberately excluded from
+# auto-placement: its old purpose (connecting Foyer to the nearest screen)
+# is now structurally satisfied by Foyer *being* the leftover common path;
+# a separate auto-placed PASSAGE rectangle would just carve a piece out of
+# what should become Foyer for no circulation benefit. PASSAGE remains
+# available for a manual "Add Zone" edit against an existing layout.
+SUPPORT_ZONE_AUTO_ORDER = ["BOX_OFFICE", "FNB", "WASHROOM", "BOH"]
+SUPPORT_ZONE_CONNECTIVITY_TOP_K = 12
+MIN_REAL_FOYER_SQFT = 20.0
+DOOR_TOUCH_TOLERANCE_FT = 1.5
+
+
+def _door_for_support_zone(w, h, wall, door_width_ft):
+    """Single ENTRY door centered on `wall` — same {kind, wall, offset_ft,
+    width_ft} shape _doors_for_screen_wall already produces (an auditorium
+    needs a separate ENTRY+EXIT per SOP; a Box Office/F&B/Washroom/BOH room
+    needs only one real opening), so export_dxf.py/export_pdf.py's door
+    glyphs and EditableCanvas.tsx's doorGlyphPoints render it with zero
+    changes — both already key only off room.doors[i].{wall,offset_ft,
+    width_ft}."""
+    wall_len = w if wall in ("min_y", "max_y") else h
+    if wall_len <= 0:
+        return []
+    dw = min(door_width_ft, wall_len / 2.5)
+    offset = max((wall_len - dw) / 2, 0.0)
+    return [{"kind": "ENTRY", "wall": wall, "offset_ft": round(offset, 2), "width_ft": round(dw, 2)}]
+
+
+def _place_single_support_zone_connectivity_aware(usable_poly, fallback_poly, column_polys, bbox,
+                                                    placed_polys, placed_types, placed_rooms_for_doors,
+                                                    room_type, requirements, entry_point, exit_points_ft,
+                                                    support_column_cap, target_area, min_area):
+    """One support zone, connectivity-gated: tries ranked candidates
+    (strict tier, then column-tolerant fallback tier — see
+    _scan_place_ranked_with_fallback) at the target size, then shrinks
+    toward the minimum (same 75/50/35% ladder place_single_zone always
+    used) — at every size, walks candidates in preference order and skips
+    any that would SEVER reachability between the entry point and any
+    already-placed room's door, relative to the current baseline (see
+    placement.connectivity.would_sever) — not any that merely fails an
+    absolute "everything reachable" test. That distinction matters on a
+    real floor plate: a genuine confirmed WALL can leave two already-placed
+    auditoriums on opposite sides with no path between them before any
+    support zone is even considered — an absolute test would then reject
+    every candidate forever (a pre-existing condition no candidate could
+    fix), whereas the relative test only vetoes a candidate that makes
+    things WORSE than they already were. Returns ((x, y, w, h,
+    used_fallback), shrink_note_or_None) or (None, None) if nothing fits
+    anywhere without blocking the common path."""
+    grid_lines_x, grid_lines_y = _column_grid_lines(column_polys)
+    score_fn, prefer_fn = _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly, fallback_poly,
+                                                    placed_polys, placed_types, None)
+
+    ref_points = ([entry_point] if entry_point else []) + [
+        connectivity.door_outside_point(r, d) for r in placed_rooms_for_doors for d in r.get("doors", [])
+    ]
+    free_space_before = fallback_poly.difference(unary_union(placed_polys)) if placed_polys else fallback_poly
+
+    def try_at(w, h):
+        ranked = _scan_place_ranked_with_fallback(
+            usable_poly, fallback_poly, placed_polys, placed_types, room_type, w, h, bbox,
+            score_fn=score_fn, prefer_fn=prefer_fn, top_k=SUPPORT_ZONE_CONNECTIVITY_TOP_K,
+            grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y
+        )
+        for (x, y, ow, oh), satisfied, used_fallback in ranked:
+            if used_fallback and not _column_enclosure_ok((x, y, ow, oh), bbox, False, False, column_polys, support_column_cap):
+                continue
+            candidate_rect = _rect(x, y, ow, oh)
+            free_space_after = free_space_before.difference(candidate_rect)
+            if connectivity.would_sever(free_space_before, free_space_after, bbox, ref_points):
+                continue
+            return x, y, ow, oh, used_fallback
+        return None
+
+    result = try_at(*_support_zone_dims(room_type, target_area))
+    if result:
+        return result, None
+    # The true floor (min_area) is always tried last even if it falls
+    # between two round-number factors — a shallow leftover strip can
+    # genuinely only fit the smallest legal size (see place_single_zone's
+    # identical shrink-ladder change and its own comment).
+    shrink_sizes = [target_area * f for f in (0.75, 0.5, 0.35)]
+    shrink_sizes = [a for a in shrink_sizes if a >= min_area] + [min_area]
+    for area in shrink_sizes:
+        w2, h2 = _support_zone_dims(room_type, area)
+        result = try_at(w2, h2)
+        if result:
+            shrink_note = f"Shrunk from target {round(target_area, 1)} sqft to fit available space ({round(w2 * h2, 1)} sqft, {round(100 * area / target_area) if target_area else 0}% of target)."
+            return result, shrink_note
+    return None, None
+
+
+def _single_ring_with_keyholes(poly):
+    """Converts a Shapely Polygon that may have interior holes (a real,
+    confirmed case: a support zone can end up fully enclosed by leftover
+    Foyer space, leaving a hole in Foyer's own remainder polygon) into one
+    equivalent single ring, using the standard "keyhole"/slit technique:
+    each hole is spliced into the outer ring via a degenerate (zero-width,
+    there-and-back) cut connecting the hole's nearest point to the ring's
+    nearest point. This preserves the TRUE area and shape exactly — no
+    silent overlap with the room that created the hole — while staying
+    representable in this codebase's existing single-ring geometry_points_ft
+    convention (used everywhere: EditableCanvas.tsx's SVG polygon,
+    export_dxf.py/export_pdf.py, validate_rooms). Before this existed, the
+    exterior ring alone was stored, which silently discarded every hole and
+    overstated the room's true footprint by their combined area — a real,
+    measured defect found via this round's own reconciliation test (589
+    sqft of false overlap on a real irregular boundary)."""
+    ring = list(poly.exterior.coords)
+    if len(ring) > 1 and ring[0] == ring[-1]:
+        ring = ring[:-1]
+    for hole in poly.interiors:
+        hole_ring = list(hole.coords)
+        if len(hole_ring) > 1 and hole_ring[0] == hole_ring[-1]:
+            hole_ring = hole_ring[:-1]
+        if not hole_ring:
+            continue
+        i, j = min(
+            ((a, b) for a in range(len(ring)) for b in range(len(hole_ring))),
+            key=lambda ab: (ring[ab[0]][0] - hole_ring[ab[1]][0]) ** 2 + (ring[ab[0]][1] - hole_ring[ab[1]][1]) ** 2,
+        )
+        detour = hole_ring[j:] + hole_ring[:j] + [hole_ring[j]]
+        ring = ring[:i + 1] + detour + ring[i:]
+    return ring
+
+
+def _build_foyer_room(fallback_poly, placed_polys, placed_rooms_for_doors, entry_point):
+    """Foyer is not independently placed — it's the real, contiguous
+    leftover usable area once screens and every other support zone are
+    placed. If the leftover is a MultiPolygon (disconnected pockets), the
+    piece touching/containing the entry point wins when one is marked
+    (falling back to the piece touching the most already-placed doors when
+    not) — every other piece's area is reported as leftover slack, never
+    promoted to a second Foyer room. Returns (foyer_room_or_None,
+    leftover_slack_sqft)."""
+    from shapely.geometry import Point
+    remainder = fallback_poly.difference(unary_union(placed_polys)) if placed_polys else fallback_poly
+    if remainder.is_empty:
+        return None, 0.0
+    pieces = [p for p in (remainder.geoms if remainder.geom_type == "MultiPolygon" else [remainder]) if p.area > 1e-6]
+    if not pieces:
+        return None, 0.0
+
+    def door_touches(piece):
+        pts = [connectivity.door_outside_point(r, d) for r in placed_rooms_for_doors for d in r.get("doors", [])]
+        return sum(1 for px, py in pts if piece.distance(Point(px, py)) < DOOR_TOUCH_TOLERANCE_FT)
+
+    if entry_point is not None:
+        ep = Point(*entry_point)
+        near_entry = [p for p in pieces if p.distance(ep) < PERIMETER_TOUCH_TOLERANCE_FT or p.contains(ep)]
+        chosen = max(near_entry, key=lambda p: p.area) if near_entry else max(pieces, key=lambda p: (door_touches(p), p.area))
+    else:
+        chosen = max(pieces, key=lambda p: (door_touches(p), p.area))
+
+    leftover_slack = round(sum(p.area for p in pieces if p is not chosen), 2)
+    if chosen.area < MIN_REAL_FOYER_SQFT:
+        return None, round(remainder.area, 2)
+
+    coords = _single_ring_with_keyholes(chosen)
+    b = chosen.bounds
+    room = {
+        "room_id": f"foyer-{uuid.uuid4().hex[:8]}",
+        "room_type": "FOYER",
+        "display_name": "Foyer",
+        "area_sqft": round(chosen.area, 2),
+        "width_ft": round(b[2] - b[0], 2),  # bounding box only — true shape is geometry_points_ft, which may be non-rectangular
+        "depth_ft": round(b[3] - b[1], 2),
+        "origin_ft": [round(b[0], 2), round(b[1], 2)],
+        "geometry_points_ft": [[round(px, 2), round(py, 2)] for px, py in coords],
+        "doors": [],
+        "area_basis_note": "Computed as the real contiguous leftover usable area after screens and all other "
+                            "support zones were placed, not independently sized or positioned.",
+    }
+    return room, leftover_slack
+
+
+def _place_support_zones_and_foyer(usable_poly, fallback_poly, column_polys, bbox,
+                                    auditorium_rooms, auditorium_polys, requirements,
+                                    franchise_tier_id=None):
+    """Post-auditorium auto-layout phase: places Box Office/F&B/Washroom/BOH
+    with real, connectivity-gated geometry and a single entry door each
+    (see SUPPORT_ZONE_AUTO_ORDER for placement order and rationale), then
+    computes Foyer as the true leftover polygon. Returns (support_rooms,
+    foyer_room_or_None, leftover_slack_sqft, warnings)."""
+    entry_point = requirements.get("entry_point_ft") if requirements else None
+    exit_points_ft = requirements.get("exit_points_ft") if requirements else None
+    overrides = requirements.get("support_zone_area_overrides_sqft", {}) if requirements else {}
+    door_width_ft = rules_registry.planning_norm("SUPPORT_ZONE_DOOR_WIDTH_FT") or 3.0
+    support_column_cap = rules_registry.planning_norm("SUPPORT_ZONE_MAX_ENCLOSED_COLUMN_RATIO")
+    if support_column_cap is None:
+        support_column_cap = 0.15
+
+    total_aud_area = sum(p.area for p in auditorium_polys)
+
+    placed_polys = list(auditorium_polys)
+    placed_types = ["AUDITORIUM"] * len(auditorium_polys)
+    placed_rooms_for_doors = list(auditorium_rooms)
+    support_rooms = []
+    warnings = []
+
+    for room_type in SUPPORT_ZONE_AUTO_ORDER:
+        default_entry = next((t for t in SUPPORT_ZONE_DEFAULTS if t[0] == room_type), None)
+        if default_entry is None:
+            continue
+        _, display_name, default_target, min_area, note = default_entry
+        target_area = overrides.get(room_type)
+        if target_area is None:
+            target_area = default_target if default_target is not None else total_aud_area * 0.08
+        if target_area <= 0:
+            target_area = min_area
+
+        result, shrink_note = _place_single_support_zone_connectivity_aware(
+            usable_poly, fallback_poly, column_polys, bbox, placed_polys, placed_types, placed_rooms_for_doors,
+            room_type, requirements, entry_point, exit_points_ft, support_column_cap, target_area, min_area
+        )
+        if result is None:
+            warnings.append(f"Could not fit {display_name} anywhere without blocking the common path or remaining usable space — skipped.")
+            continue
+
+        x, y, w, h, used_fallback = result
+        rect = _rect(x, y, w, h)
+        wall = _screen_wall_for_rect(x, y, w, h, entry_point)
+        zone = {
+            "room_id": f"{room_type.lower()}-{uuid.uuid4().hex[:8]}",
+            "room_type": room_type,
+            "display_name": display_name,
+            "area_sqft": round(w * h, 2),
+            "width_ft": round(w, 2),
+            "depth_ft": round(h, 2),
+            "origin_ft": [round(x, 2), round(y, 2)],
+            "geometry_points_ft": [[x, y], [x + w, y], [x + w, y + h], [x, y + h]],
+            "area_basis_note": note,
+            "doors": _door_for_support_zone(w, h, wall, door_width_ft),
+        }
+        if shrink_note:
+            zone["shrink_note"] = shrink_note
+        if used_fallback:
+            enclosed_area = _enclosed_obstacle_area(rect, column_polys)
+            if enclosed_area > 0:
+                zone["obstacle_note"] = (
+                    f"{round(enclosed_area, 1)} sqft of confirmed obstacle(s) (e.g. a structural column) fall "
+                    f"inside this room's footprint — plan furniture/layout around the obstacle position(s)."
+                )
+        support_rooms.append(zone)
+        placed_polys.append(rect)
+        placed_types.append(room_type)
+        placed_rooms_for_doors.append(zone)
+
+    foyer_room, leftover_slack = _build_foyer_room(fallback_poly, placed_polys, placed_rooms_for_doors, entry_point)
+    return support_rooms, foyer_room, leftover_slack, warnings
 
 
 def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requirements: dict, confirmed_obstacles: list = None) -> dict:
@@ -1100,31 +1435,39 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
     )
     total_aud_area = sum(a["area_sqft"] for a in auditoriums)
 
-    # Auto-layout places auditoriums only — Foyer/F&B/Washroom/Box
-    # Office/Back-of-House are deliberately NOT auto-placed here. They're
-    # added one at a time via the Edit step's "Add zone" toolbar, which calls
-    # place_single_zone (above) against the real, current room layout —
-    # placing them logically before the architect has actually seen how the
-    # screens landed was guessing at zones nobody asked for yet.
-    #
+    # Screens first, then Box Office/F&B/Washroom/BOH with real,
+    # connectivity-gated geometry, then Foyer computed as whatever's
+    # genuinely left — see _place_support_zones_and_foyer's own docstring.
+    # Manual "Add Zone" (place_single_zone, above) remains available
+    # afterward for the architect to add PASSAGE or adjust anything.
+    franchise_tier_id = requirements.get("franchise_tier_id") if requirements else None
+    support_rooms, foyer_room, leftover_slack, support_warnings = _place_support_zones_and_foyer(
+        usable_poly, fallback_poly, column_polys, bbox, auditoriums, aud_polys, requirements,
+        franchise_tier_id=franchise_tier_id
+    )
+    auditoriums = auditoriums + support_rooms + ([foyer_room] if foyer_room else [])
+
     # fallback_poly.area, not usable_poly.area — a room can legitimately
     # enclose a confirmed column (see fallback_poly's own comment above), so
     # the true buildable floor area for "how much is left over" purposes
     # includes it; using the strict, columns-subtracted figure here would
-    # under-count real usable area and over-report circulation.
-    allocated_area = sum(p.area for p in aud_polys)
-    circulation_area = max(fallback_poly.area - allocated_area, 0.0)
+    # under-count real usable area and over-report circulation. Now that
+    # screens and every other component are real placed rooms and Foyer is
+    # the real remainder, this is genuinely small leftover slack (disjoint
+    # pockets Foyer didn't claim), not "everything not yet added."
+    circulation_area = leftover_slack
 
-    total_seats = sum(a["seat_estimate"]["seat_count"] for a in auditoriums)
-    screen_count = len(auditoriums)
+    total_seats = sum(a["seat_estimate"]["seat_count"] for a in auditoriums if a["room_type"].startswith("AUDITORIUM"))
+    screen_count = sum(1 for a in auditoriums if a["room_type"].startswith("AUDITORIUM"))
     seats_per_screen = round(total_seats / screen_count, 2) if screen_count else 0
 
-    notes = []
+    notes = list(support_warnings)
     if screen_count > 0:
         notes.append(
-            f"{screen_count} screen(s) placed on {round(total_aud_area):,} sqft. "
-            f"{round(circulation_area):,} sqft of usable area remains — add Foyer, F&B, Washroom, Box Office, "
-            f"Back-of-House, or another Screen from the Edit step's \"Add zone\" toolbar."
+            f"{screen_count} screen(s) placed on {round(total_aud_area):,} sqft, plus "
+            f"{len(support_rooms)} support zone(s)"
+            + (" and a Foyer" if foyer_room else "")
+            + f". {round(circulation_area):,} sqft of leftover slack remains."
         )
     if undersized_count > 0:
         # Real, evidence-based diagnostic (not a guess) — a screen only takes
@@ -1209,32 +1552,51 @@ def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: 
     aud_column_cap = rules_registry.planning_norm("AUDITORIUM_MAX_ENCLOSED_COLUMN_RATIO")
     if aud_column_cap is None:
         aud_column_cap = 0.02
+    aud_edge_tolerance_ft = rules_registry.planning_norm("AUDITORIUM_COLUMN_EDGE_TOLERANCE_FT")
+    if aud_edge_tolerance_ft is None:
+        aud_edge_tolerance_ft = 2.0
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
 
     solve_kwargs = {}
     if time_limit_seconds is not None:
         solve_kwargs["time_limit_seconds"] = time_limit_seconds
     selected, status = solver.solve(usable_poly, fallback_poly, column_polys, bbox, presets, max_auditoriums,
-                                     aud_column_cap, screen_width_ft, **solve_kwargs)
+                                     aud_column_cap, screen_width_ft, aud_edge_tolerance_ft=aud_edge_tolerance_ft,
+                                     **solve_kwargs)
 
     auditoriums = []
+    aud_polys = []
     for i, cand in enumerate(selected):
         room = _build_auditorium_room(cand["x"], cand["y"], cand["w"], cand["h"], i + 1, cand["preset"],
                                        cand["used_fallback"], column_polys, screen_width_ft, entry_point, door_width_ft)
         auditoriums.append(room)
+        aud_polys.append(_rect(cand["x"], cand["y"], cand["w"], cand["h"]))
 
     total_aud_area = sum(a["area_sqft"] for a in auditoriums)
-    circulation_area = max(fallback_poly.area - total_aud_area, 0.0)
-    total_seats = sum(a["seat_estimate"]["seat_count"] for a in auditoriums)
-    screen_count = len(auditoriums)
+
+    # Same post-auditorium support-zone + Foyer-as-remainder pass
+    # generate_candidate uses — see _place_support_zones_and_foyer's own
+    # docstring — so the optimizer's screen layout also gets a real,
+    # buildable floor plan around it, not just a circulation number.
+    franchise_tier_id = requirements.get("franchise_tier_id") if requirements else None
+    support_rooms, foyer_room, leftover_slack, support_warnings = _place_support_zones_and_foyer(
+        usable_poly, fallback_poly, column_polys, bbox, auditoriums, aud_polys, requirements,
+        franchise_tier_id=franchise_tier_id
+    )
+    auditoriums = auditoriums + support_rooms + ([foyer_room] if foyer_room else [])
+
+    circulation_area = leftover_slack
+    total_seats = sum(a["seat_estimate"]["seat_count"] for a in auditoriums if a["room_type"].startswith("AUDITORIUM"))
+    screen_count = sum(1 for a in auditoriums if a["room_type"].startswith("AUDITORIUM"))
     seats_per_screen = round(total_seats / screen_count, 2) if screen_count else 0
 
     if status in ("OPTIMAL", "FEASIBLE"):
         proof = "proven optimal" if status == "OPTIMAL" else "the best found within the solver's time limit (not proven optimal — a harder instance than usual)"
-        notes = [
+        notes = list(support_warnings) + [
             f"Solved via CP-SAT combinatorial optimization over {len(selected)} selected real placement(s) — "
-            f"{proof}, not a greedy heuristic. {screen_count} screen(s) placed on {round(total_aud_area):,} sqft; "
-            f"{round(circulation_area):,} sqft of usable area remains."
+            f"{proof}, not a greedy heuristic. {screen_count} screen(s) placed on {round(total_aud_area):,} sqft, "
+            f"plus {len(support_rooms)} support zone(s)" + (" and a Foyer" if foyer_room else "") +
+            f". {round(circulation_area):,} sqft of leftover slack remains."
         ]
     elif status == "NO_CANDIDATES":
         notes = ["The optimizer found no real candidate auditorium placement anywhere in the usable area."]
