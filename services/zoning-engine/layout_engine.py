@@ -1579,44 +1579,6 @@ def _build_foyer_room(fallback_poly, placed_polys, placed_rooms_for_doors, entry
     return room, leftover_slack
 
 
-def circulation_path_segments(rooms, entry_point):
-    """A real 'spine and branches' walking-path indication for the Edit
-    canvas — the marked entry straight to Foyer's own real interior point
-    (its label_point_ft, guaranteed inside the true polygon by
-    _build_foyer_room's representative_point()), then out from that same
-    hub to each auditorium's own ENTRY door. Deliberately NOT a separate
-    ray from the raw entry point to every door — an earlier version of this
-    feature drew exactly that and was removed after live feedback that it
-    read as a chaotic starburst rather than a real path. Routing every
-    branch through the actual open Foyer space instead is what a human-
-    drawn circulation diagram looks like: one main line into the lobby,
-    then short spurs into rooms — not everything converging on the doorway
-    itself. Interactive-tool aid only (see main.py's _enrich_layout) — not
-    drawn on PDF/DXF exports, which stay faithful to the real Connplex
-    reference convention of showing no circulation arrows at all. Returns
-    [] whenever there's nothing to draw (no marked entry, or no Foyer in
-    this layout — a real, honest case on at least one live project), never
-    a crash."""
-    if entry_point is None:
-        return []
-    foyer = next((r for r in rooms if r["room_type"] == "FOYER"), None)
-    if foyer is None or "label_point_ft" not in foyer:
-        return []
-    hub = foyer["label_point_ft"]
-    segments = [{"from": [round(entry_point[0], 2), round(entry_point[1], 2)],
-                 "to": [round(hub[0], 2), round(hub[1], 2)]}]
-    for room in rooms:
-        if not room["room_type"].startswith("AUDITORIUM"):
-            continue
-        for door in room.get("doors", []):
-            if door.get("kind") != "ENTRY":
-                continue
-            outside_pt = connectivity.door_outside_point(room, door)
-            segments.append({"from": [round(hub[0], 2), round(hub[1], 2)],
-                              "to": [round(outside_pt[0], 2), round(outside_pt[1], 2)]})
-    return segments
-
-
 def _place_support_zones_and_foyer(usable_poly, fallback_poly, column_polys, bbox,
                                     auditorium_rooms, auditorium_polys, requirements,
                                     franchise_tier_id=None):

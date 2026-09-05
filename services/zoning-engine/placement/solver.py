@@ -25,7 +25,11 @@ import rules_registry
 import seat_engine
 from placement import free_rectangles, column_enclosure
 
-TIME_LIMIT_SECONDS = 20.0
+TIME_LIMIT_SECONDS = 30.0  # a real, observed case: under real server load (not an isolated script run),
+# the same 8-worker parallel search found a genuinely worse packing within 20s than it found in
+# isolation on identical input — CP-SAT's within-time-limit quality is inherently sensitive to
+# available CPU, not just wall-clock time. More headroom trades a few extra seconds of "Optimize
+# Layout" wait for a materially more reliable result instead of a load-dependent coin flip.
 MAX_FREE_RECTS = 60
 
 

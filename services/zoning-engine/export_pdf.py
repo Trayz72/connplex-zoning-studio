@@ -57,11 +57,11 @@ ROOM_SHORT_LABEL = {
 }
 
 ROOM_FILL = {
-    "AUDITORIUM": HexColor("#d9d2f0"),  # violet
-    "FOYER": HexColor("#cdefd6"),       # green
-    "FNB": HexColor("#f5dcb8"),         # amber
-    "WASHROOM": HexColor("#c9e0f5"),    # blue
-    "BOX_OFFICE": HexColor("#f5d6e6"),  # magenta
+    "AUDITORIUM": HexColor("#d9d2f0"),  # violet — matches a real Connplex reference sheet's own screen fill
+    "FOYER": HexColor("#cdefd6"),       # green (Foyer itself is de-emphasized/unfilled — see export usage)
+    "FNB": HexColor("#f5c6c6"),         # salmon/pink — matches the reference's own F&B fill
+    "WASHROOM": HexColor("#c9e0f5"),    # blue — matches the reference's own Washroom fill
+    "BOX_OFFICE": HexColor("#f5e6a8"),  # tan/yellow — matches the reference's own Box Office fill
     "BOH": HexColor("#dcdce2"),         # slate
     "PASSAGE": HexColor("#e8e4d8"),     # warm gray-beige — distinct from the BOH slate and the plain #eeeeee fallback
 }
@@ -465,11 +465,28 @@ def _draw_entry_exit_markers(c, entry_point_ft, exit_points_ft, boundary_points_
     is usually a double door or a storefront-width opening) purely for
     legibility on the sheet; it doesn't claim to be the architect's actual
     measured opening width."""
+    # Real, reported bug: entry and exit marked close together (a real live
+    # project had them only 5ft apart) snapped to nearly the same boundary
+    # point, so their glyphs and labels overlapped into unreadable stacked
+    # text. Nudge each later glyph along the same wall until it clears a
+    # real door-width-plus-label spacing from every earlier one already
+    # placed on that wall.
+    min_spacing = door_width_ft * 1.8
+    placed_hits = []
+
     def draw_one(pt, color, label):
         hit = _nearest_boundary_edge_point(pt, boundary_points_ft)
         if hit is None:
             return
         (sx, sy), (tx_, ty_), (nx, ny) = hit
+        for (psx, psy), (ptx, pty), _ in placed_hits:
+            if abs(ptx - tx_) > 1e-6 or abs(pty - ty_) > 1e-6:
+                continue
+            dist = math.hypot(sx - psx, sy - psy)
+            if dist < min_spacing:
+                shift = min_spacing - dist
+                sx, sy = sx + tx_ * shift, sy + ty_ * shift
+        placed_hits.append(((sx, sy), (tx_, ty_), (nx, ny)))
         half = door_width_ft / 2
         p1 = (sx - tx_ * half, sy - ty_ * half)
         p2 = (sx + tx_ * half, sy + ty_ * half)

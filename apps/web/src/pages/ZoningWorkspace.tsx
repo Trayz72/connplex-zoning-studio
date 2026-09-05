@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { getProject, Project } from '../api';
 import * as engine from '../services/zoningEngineApi';
@@ -65,7 +65,13 @@ export const ZoningWorkspace: React.FC = () => {
   // must not un-mark a later step as reached — that's what makes it safe to
   // navigate forward again without re-doing everything.
   const [maxStepIndex, setMaxStepIndex] = useState(0);
+  // Bumped on every navigation (see goToStep) so the background resume
+  // effect below can tell whether a manual navigation happened while its
+  // own sequential API awaits were still in flight — see that effect's
+  // own comment for the real, reported bug this guards against.
+  const navGenerationRef = useRef(0);
   const goToStep = useCallback((s: Step) => {
+    navGenerationRef.current += 1;
     const idx = STEP_ORDER.indexOf(s);
     if (idx >= 0) setMaxStepIndex(prev => Math.max(prev, idx));
     setStep(s);
@@ -165,23 +171,41 @@ export const ZoningWorkspace: React.FC = () => {
 
   useEffect(() => {
     if (!id) return;
+    // A real, reported bug: on an existing project (confirmed geometry,
+    // requirements already saved), this "resume where you left off" chain
+    // runs several sequential API calls in the background. If the user
+    // manually navigates (e.g. revisiting "3. Geometry Review" via the
+    // stepper) while those awaits are still in flight, this effect used to
+    // finish moments later and blindly call its OWN goToStep — silently
+    // yanking the user forward to wherever the saved data said they should
+    // resume, overriding the step they'd just clicked to. startGeneration
+    // captures the nav counter at mount; stillCurrent() bails out the
+    // instant any OTHER navigation (a real click) has happened since, so
+    // this background resume can only ever act when nothing else has.
+    const startGeneration = navGenerationRef.current;
+    const stillCurrent = () => navGenerationRef.current === startGeneration;
     (async () => {
       const proj = await getProject(id).catch(() => null);
+      if (!stillCurrent()) return;
       setProject(proj);
 
       const geo = await engine.getGeometry(id).catch(() => null);
+      if (!stillCurrent()) return;
       if (!geo) { goToStep('UPLOAD'); return; }
       setGeometry(geo);
 
       const confirmedRegion = geo.regions.find(r => r.boundary.status === 'CONFIRMED');
+      if (!stillCurrent()) return;
       if (!confirmedRegion) { goToStep('BOUNDARY_STUDIO'); return; }
       setRegionId(confirmedRegion.region_id);
 
       const req = await engine.getRequirements(id).catch(() => null);
+      if (!stillCurrent()) return;
       if (!req) { goToStep('REQUIREMENTS'); return; }
       setRequirements(req);
 
       const existingLayout = await engine.getLayout(id).catch(() => null);
+      if (!stillCurrent()) return;
       if (existingLayout) { setLayout(existingLayout); goToStep('EDIT'); return; }
 
       goToStep('RUN');
@@ -581,7 +605,6 @@ export const ZoningWorkspace: React.FC = () => {
                 onDeleteSelected={deleteSelected}
                 entryPointFt={layout.entry_point_ft}
                 exitPointsFt={layout.exit_points_ft}
-                circulationPath={layout.circulation_path}
               />
             </div>
 

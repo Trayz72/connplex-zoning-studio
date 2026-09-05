@@ -804,10 +804,6 @@ def _enrich_layout(project_id: str, layout: dict) -> dict:
     layout["screen_count"] = screen_count
     layout["entry_point_ft"] = entry_point
     layout["exit_points_ft"] = exit_points
-    # Interactive-tool-only walking-path aid (see circulation_path_segments'
-    # own docstring) — never drawn on PDF/DXF exports, which stay faithful
-    # to the real reference convention of showing no circulation arrows.
-    layout["circulation_path"] = layout_engine.circulation_path_segments(layout["rooms"], entry_point)
     return layout
 
 

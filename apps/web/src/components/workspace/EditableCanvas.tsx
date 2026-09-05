@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
-import { LiveRoom, Obstacle, RoomDoor, CirculationPathSegment } from '../../types/live';
+import { LiveRoom, Obstacle, RoomDoor } from '../../types/live';
 import { RawGeometry } from '../../types/live';
 
 interface EditableCanvasProps {
@@ -15,12 +15,6 @@ interface EditableCanvasProps {
    * crashes. */
   entryPointFt?: [number, number] | null;
   exitPointsFt?: [number, number][];
-  /** A real "spine and branches" walking-path aid: entry to Foyer's own
-   * interior point, then out to each screen's own door (see
-   * layout_engine.circulation_path_segments) — drawn as plain muted lines
-   * underneath every room, never an arrow. Edit-canvas-only, not present
-   * on exports. */
-  circulationPath?: CirculationPathSegment[];
   /** Called continuously while dragging/resizing, for live visual feedback only — not persisted. */
   onLiveChange: (rooms: LiveRoom[]) => void;
   /** Called once, at the end of a drag/resize/add/delete, to persist to the server. */
@@ -44,11 +38,18 @@ interface EditableCanvasProps {
   onDeleteSelected?: () => void;
 }
 
-// Deliberately no per-room-type color coding — every room renders as a
-// plain neutral box, distinguished only by its label and selection state.
-// A working CAD drawing reads room identity from its label, not an
-// arbitrary color an architect has to memorize; color here was an
-// editing-convenience decoration, not information.
+// Room-type fill colors — matches export_pdf.py's ROOM_FILL exactly (and,
+// via that, a real Connplex reference zoning sheet: screens in violet,
+// F&B in salmon, washroom in blue, box office in tan/yellow) so the
+// interactive canvas reads the same way as the printed sheet instead of
+// making the architect memorize which plain gray box is which.
+const ROOM_TYPE_FILL: Record<string, string> = {
+  FNB: '#f5c6c6',
+  WASHROOM: '#c9e0f5',
+  BOX_OFFICE: '#f5e6a8',
+  BOH: '#dcdce2',
+  PASSAGE: '#e8e4d8',
+};
 const ROOM_NEUTRAL = 'var(--text-secondary)';
 
 // Just above the largest normal screen's own label size (a big auditorium's
@@ -179,7 +180,7 @@ const HANDLE_DEFS: { id: HandleId; cursor: string; fx: number; fy: number }[] = 
 export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   boundaryPointsFt, obstacles, rooms, selectedRoomId, onSelectRoom, onLiveChange, onCommit, snapToGridFt,
   rawGeometry, showCadLinework = true, showSeatRows = false, drawMode = false, onDrawComplete, onDeleteSelected,
-  entryPointFt, exitPointsFt, circulationPath
+  entryPointFt, exitPointsFt
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragMode>(null);
@@ -515,19 +516,6 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
         )}
         {gridLines}
 
-        {(circulationPath ?? []).length > 0 && (
-          <g pointerEvents="none">
-            {circulationPath!.map((seg, i) => (
-              <line
-                key={`path-${i}`}
-                x1={seg.from[0]} y1={seg.from[1]} x2={seg.to[0]} y2={seg.to[1]}
-                stroke="var(--text-tertiary)" strokeWidth={ftPerHandlePx(1)}
-                strokeDasharray={`${ftPerHandlePx(1)} ${ftPerHandlePx(2.5)}`} opacity={0.5}
-              />
-            ))}
-          </g>
-        )}
-
         {showCadLinework && rawGeometry && (
           <g opacity={0.35} pointerEvents="none">
             {rawGeometry.lines.map((l, i) => (
@@ -583,16 +571,16 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           const isHovered = !isFoyer && room.room_id === hoveredRoomId;
           const isAuditorium = room.room_type.startsWith('AUDITORIUM');
           // Auditoriums get a warm, on-brand tint (they're the room every
-          // reviewer looks at first); every other zone stays the plain
-          // neutral box — a deliberate, minimal distinction, not a full
-          // rainbow color-coded diagram (see ROOM_NEUTRAL's own comment for
-          // why this file avoids that). Foyer gets no fill at all — a real
-          // Connplex reference drawing never renders circulation as a
-          // colored room, only as plain floor space (its area still shows
-          // up in the Area & Seat Chart) — so it reads as background, not a
-          // room competing for attention with the ones actually being
-          // designed.
-          const roomFill = isFoyer ? 'none' : isAuditorium ? 'var(--brand)' : ROOM_NEUTRAL;
+          // reviewer looks at first); every other support zone gets the
+          // same real per-type color a printed sheet and the reference
+          // drawing use (see ROOM_TYPE_FILL), so identity reads from color
+          // at a glance the same way it does on paper. Foyer gets no fill
+          // at all — a real Connplex reference drawing never renders
+          // circulation as a colored room, only as plain floor space (its
+          // area still shows up in the Area & Seat Chart) — so it reads as
+          // background, not a room competing for attention with the ones
+          // actually being designed.
+          const roomFill = isFoyer ? 'none' : isAuditorium ? 'var(--brand)' : (ROOM_TYPE_FILL[room.room_type] ?? ROOM_NEUTRAL);
           const b = polygonBounds(room.geometry_points_ft);
           const w = b.maxX - b.minX, h = b.maxY - b.minY;
           // Capped — an uncapped size scaled a large, non-rectangular room
@@ -789,8 +777,32 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           const glyphs: { pt: [number, number]; color: string; label: string }[] = [];
           if (entryPointFt) glyphs.push({ pt: entryPointFt, color: 'var(--brand-strong)', label: 'ENTRY' });
           (exitPointsFt ?? []).forEach((p, i) => glyphs.push({ pt: p, color: 'var(--danger)', label: `EXIT ${i + 1}` }));
+          // Real, reported bug: entry and exit marked close together (a
+          // real live project had them only 5ft apart) snapped to nearly
+          // the same boundary point, so their glyphs and labels rendered
+          // on top of each other ("ENTREXIT 1", illegible). Nudge each
+          // later glyph along the same wall until it clears a real
+          // door-width-plus-label spacing from every earlier one placed
+          // on that wall — never overlapping again, regardless of how
+          // close the underlying marked points are.
+          const minSpacing = doorWidthFt * 1.8;
+          const placedHits: { snapped: [number, number]; tangent: [number, number]; normal: [number, number] }[] = [];
+          const hits = glyphs.map(g => {
+            let hit = nearestBoundaryEdgePoint(g.pt, boundaryPointsFt);
+            if (!hit) return null;
+            for (const prior of placedHits) {
+              if (Math.abs(prior.tangent[0] - hit.tangent[0]) > 1e-6 || Math.abs(prior.tangent[1] - hit.tangent[1]) > 1e-6) continue;
+              const dist = Math.hypot(hit.snapped[0] - prior.snapped[0], hit.snapped[1] - prior.snapped[1]);
+              if (dist < minSpacing) {
+                const shift = minSpacing - dist;
+                hit = { ...hit, snapped: [hit.snapped[0] + hit.tangent[0] * shift, hit.snapped[1] + hit.tangent[1] * shift] };
+              }
+            }
+            placedHits.push(hit);
+            return hit;
+          });
           return glyphs.map((g, i) => {
-            const hit = nearestBoundaryEdgePoint(g.pt, boundaryPointsFt);
+            const hit = hits[i];
             if (!hit) return null;
             const { snapped: [sx, sy], tangent: [tx, ty], normal: [nx, ny] } = hit;
             const half = doorWidthFt / 2;
