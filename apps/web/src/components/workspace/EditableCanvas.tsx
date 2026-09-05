@@ -352,7 +352,18 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           const w = drag.startRoom.width_ft, h = drag.startRoom.depth_ft;
           updated = {
             ...r, origin_ft: [nx, ny],
-            geometry_points_ft: [[nx, ny], [nx + w, ny], [nx + w, ny + h], [nx, ny + h]]
+            geometry_points_ft: [[nx, ny], [nx + w, ny], [nx + w, ny + h], [nx, ny + h]],
+            // Drop the server-computed label_point_ft rather than carrying
+            // it forward stale — it's an absolute point, not relative to the
+            // room, so leaving it in place made the name/area text stay
+            // frozen at its pre-drag position while the room itself moved
+            // underneath it (reported as "editing is broken"). Clearing it
+            // falls through to the render's own bbox-center fallback (see
+            // EditableCanvas's label_point_ft ?? ... below), which tracks
+            // live and is exactly correct for every draggable room here —
+            // Foyer, the one genuinely non-rectangular room, is never
+            // draggable in the first place.
+            label_point_ft: undefined
           };
         } else {
           const [ox, oy] = drag.startRoom.origin_ft;
@@ -370,7 +381,11 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           if (touchesN) { nh = Math.max(snap(oh - dy, snapToGridFt), minSize); ny = oy + (oh - nh); }
           updated = {
             ...r, origin_ft: [nx, ny], width_ft: nw, depth_ft: nh, area_sqft: Math.round(nw * nh * 100) / 100,
-            geometry_points_ft: [[nx, ny], [nx + nw, ny], [nx + nw, ny + nh], [nx, ny + nh]]
+            geometry_points_ft: [[nx, ny], [nx + nw, ny], [nx + nw, ny + nh], [nx, ny + nh]],
+            // Same reasoning as the 'move' branch above — a resize changes
+            // the room's true center even more directly, so the stale
+            // absolute label_point_ft must be dropped, not kept.
+            label_point_ft: undefined
           };
         }
         return updated;

@@ -836,7 +836,17 @@ def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, co
             for x, y, w, h in free_rectangles.free_rectangles_ft(remaining, bbox, cell_ft=1.0, max_candidates=12):
                 for ox, oy, pw, ph in _split_or_whole_footprints(w, h, min_area_sqft, min_short_side_ft, max_dim_ft):
                     cands.append((x + ox, y + oy, pw, ph, used_fb, remaining))
-        cands.sort(key=lambda c: c[2] * c[3], reverse=True)  # largest real area first, same convention as every other placement here
+        # Strict (column-free) candidates always precede fallback (column-
+        # tolerant) ones, largest-area-first within each tier — the same
+        # "column-free is always preferred when one exists" convention every
+        # other placement path in this module follows (see
+        # _scan_place_ranked_with_fallback's own docstring). A real, reported
+        # defect this fixes: sorting purely by area let a larger
+        # column-tolerant rectangle (unfragmented by the column's own hole)
+        # win over a smaller but genuinely column-free one sitting right next
+        # to it, so a screen would enclose a structural column even when a
+        # clean position was available.
+        cands.sort(key=lambda c: (c[4], -(c[2] * c[3])))
         return cands
 
     def try_candidate(cand):
