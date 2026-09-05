@@ -1,6 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { LiveRoom } from '../../types/live';
 
+interface RoomNameEditorProps {
+  room: LiveRoom;
+  onApply: (displayName: string) => void;
+  applying: boolean;
+}
+
+/** Every room's display_name arrives server-generated ("Screen 1
+ * (Auditorium)", "Food & Beverage / Concession") — real, honest defaults,
+ * but a client-facing sheet often wants the architect's own naming
+ * ("IMAX", "Premium Screen"). Server-side, display_name is stored as
+ * whatever the client sends (see main.py's update_layout — it's never
+ * regenerated on an edit), so this is a plain rename, no backend change
+ * needed. */
+export const RoomNameEditor: React.FC<RoomNameEditorProps> = ({ room, onApply, applying }) => {
+  const [name, setName] = useState(room.display_name);
+  useEffect(() => { setName(room.display_name); }, [room.room_id, room.display_name]);
+  const dirty = name.trim() !== '' && name.trim() !== room.display_name;
+
+  return (
+    <div style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
+      <input
+        type="text" value={name} onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter' && dirty) onApply(name); }}
+        style={{
+          flex: 1, padding: '4px 6px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)',
+          color: 'var(--text-primary)', borderRadius: '4px', fontSize: '0.78rem', fontWeight: 600
+        }}
+      />
+      <button
+        className="btn btn-secondary btn-sm" disabled={!dirty || applying}
+        style={{ opacity: dirty ? 1 : 0.5 }}
+        onClick={() => onApply(name)}
+      >
+        {applying ? '…' : 'Rename'}
+      </button>
+    </div>
+  );
+};
+
 interface RoomDimensionEditorProps {
   room: LiveRoom;
   onApply: (updates: { origin_ft: [number, number]; width_ft: number; depth_ft: number }) => void;

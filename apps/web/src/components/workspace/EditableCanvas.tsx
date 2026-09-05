@@ -36,6 +36,13 @@ interface EditableCanvasProps {
   onDrawComplete?: (points: number[][]) => void;
   /** Delete/Backspace with a room selected — mirrors the toolbar's "Delete Selected" button. */
   onDeleteSelected?: () => void;
+  /** When true (only meaningful with a room selected), the next click
+   * anywhere on the canvas snaps to the nearest wall of the SELECTED room
+   * and adds a real door glyph there (see nearestRoomWallDoor) instead of
+   * selecting/dragging — the same "click to place, just like adding a
+   * component" affordance Add Zone already offers for whole rooms. */
+  addDoorMode?: boolean;
+  onAddDoor?: (door: RoomDoor) => void;
 }
 
 // Room-type fill colors — matches export_pdf.py's ROOM_FILL exactly (and,
@@ -128,6 +135,34 @@ function snap(v: number, grid: number) {
   return grid > 0 ? Math.round(v / grid) * grid : v;
 }
 
+// Manual "Add Door" placement: a click point anywhere near the selected
+// room snaps to whichever of that room's own 4 walls is closest, at the
+// offset along that wall nearest the click — same {kind, wall, offset_ft,
+// width_ft} shape every server-computed door already uses (see
+// doorGlyphPoints above), so a manually added door renders with the exact
+// same glyph, no separate code path. width_ft is a real, generously-sized
+// single-leaf door (capped so it can never exceed the wall's own length),
+// clamped so the opening never spills past the room's own corners.
+function nearestRoomWallDoor(room: LiveRoom, pt: [number, number]): RoomDoor {
+  const [x, y] = room.origin_ft;
+  const w = room.width_ft, h = room.depth_ft;
+  const candidates: { wall: RoomDoor['wall']; dist: number; along: number; wallLen: number }[] = [
+    { wall: 'min_y', dist: Math.abs(pt[1] - y), along: pt[0] - x, wallLen: w },
+    { wall: 'max_y', dist: Math.abs(pt[1] - (y + h)), along: pt[0] - x, wallLen: w },
+    { wall: 'min_x', dist: Math.abs(pt[0] - x), along: pt[1] - y, wallLen: h },
+    { wall: 'max_x', dist: Math.abs(pt[0] - (x + w)), along: pt[1] - y, wallLen: h },
+  ];
+  candidates.sort((a, b) => a.dist - b.dist);
+  const best = candidates[0];
+  const widthFt = Math.max(1.5, Math.min(4, best.wallLen / 2.5));
+  const offsetFt = Math.max(0, Math.min(best.wallLen - widthFt, best.along - widthFt / 2));
+  return {
+    kind: 'ENTRY', wall: best.wall,
+    offset_ft: Math.round(offsetFt * 100) / 100,
+    width_ft: Math.round(widthFt * 100) / 100,
+  };
+}
+
 // Mirrors export_pdf.py's/export_dxf.py's own _nearest_boundary_edge_point
 // exactly — see either module's copy for the full reasoning. Lets the
 // building's own main entrance/exit be drawn as a real opening cut into
@@ -180,7 +215,7 @@ const HANDLE_DEFS: { id: HandleId; cursor: string; fx: number; fy: number }[] = 
 export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   boundaryPointsFt, obstacles, rooms, selectedRoomId, onSelectRoom, onLiveChange, onCommit, snapToGridFt,
   rawGeometry, showCadLinework = true, showSeatRows = false, drawMode = false, onDrawComplete, onDeleteSelected,
-  entryPointFt, exitPointsFt
+  entryPointFt, exitPointsFt, addDoorMode = false, onAddDoor
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragMode>(null);
@@ -393,6 +428,25 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
     setIsPanning(true);
   };
 
+  // Capture phase, so this runs before a room's own onPointerDown (which
+  // would otherwise start a drag) and before the background handler above
+  // (which would otherwise deselect) — addDoorMode owns every click on the
+  // canvas until one lands, the same way drawMode already owns every click
+  // for boundary tracing. Placement itself is computed against whichever
+  // room is currently selected, wherever on the canvas the click actually
+  // lands — a click doesn't have to be pixel-perfect on that room's own
+  // wall, just close enough for nearestRoomWallDoor's own nearest-wall math
+  // to resolve unambiguously.
+  const handleAddDoorPointerDownCapture = (e: React.PointerEvent) => {
+    if (!addDoorMode || !onAddDoor) return;
+    const selected = liveRooms.find(r => r.room_id === selectedRoomId);
+    if (!selected) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const { x, y } = screenToUser(e.clientX, e.clientY);
+    onAddDoor(nearestRoomWallDoor(selected, [x, y]));
+  };
+
   // Mouse-wheel zoom centered on the cursor, not the viewBox's own corner —
   // keeps whatever the user is looking at under their cursor while zooming,
   // the way any map/canvas app behaves. Attached as a real, non-passive
@@ -496,10 +550,11 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
       <svg
         ref={svgRef}
         viewBox={viewBox}
-        style={{ flex: 1, width: '100%', touchAction: 'none', userSelect: 'none', cursor: drawMode ? 'crosshair' : (drag || isPanning) ? 'grabbing' : 'grab' }}
+        style={{ flex: 1, width: '100%', touchAction: 'none', userSelect: 'none', cursor: (drawMode || addDoorMode) ? 'crosshair' : (drag || isPanning) ? 'grabbing' : 'grab' }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerDown={handleBackgroundPointerDown}
+        onPointerDownCapture={handleAddDoorPointerDownCapture}
       >
         <defs>
           {/* Soft depth on placed rooms — constant screen size regardless of
@@ -580,7 +635,7 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           // area still shows up in the Area & Seat Chart) — so it reads as
           // background, not a room competing for attention with the ones
           // actually being designed.
-          const roomFill = isFoyer ? 'none' : isAuditorium ? 'var(--brand)' : (ROOM_TYPE_FILL[room.room_type] ?? ROOM_NEUTRAL);
+          const roomFill = isFoyer ? 'none' : isAuditorium ? '#d9d2f0' : (ROOM_TYPE_FILL[room.room_type] ?? ROOM_NEUTRAL);
           const b = polygonBounds(room.geometry_points_ft);
           const w = b.maxX - b.minX, h = b.maxY - b.minY;
           // Capped — an uncapped size scaled a large, non-rectangular room
@@ -621,12 +676,25 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
               <polygon
                 points={room.geometry_points_ft.map(p => p.join(',')).join(' ')}
                 fill={roomFill}
-                fillOpacity={isFoyer ? 0 : isSelected ? 0.32 : isHovered ? 0.24 : 0.16}
-                // A light dashed outline, not a solid colored one — enough
-                // to see where circulation space is without it visually
-                // competing with the real, named components (see roomFill's
-                // own comment). No shadow filter either, for the same reason.
-                stroke={isFoyer ? 'var(--border-color)' : isSelected ? 'var(--text-primary)' : roomFill}
+                // Solid, not a faint wash — a real, reported defect: at the
+                // old 0.16 base opacity, the raw CAD linework underneath
+                // (dimension callouts from the original uploaded file, up
+                // to ~1.5ft tall text) bled straight through a placed
+                // room's own fill, visually colliding with that room's own
+                // name/area label and reading as if editing had corrupted
+                // it. A solid fill (matching the reference sheet's own
+                // solid room colors) hides that overlap entirely.
+                fillOpacity={isFoyer ? 0 : isSelected ? 0.95 : isHovered ? 0.9 : 0.85}
+                // A dark, neutral outline — matches export_pdf.py's own
+                // black room boundaries (a real CAD sheet outlines every
+                // room in black regardless of its fill color) and stays a
+                // clearly visible edge between two adjacent same-colored
+                // rooms (e.g. two auditoriums sharing a wall), which a
+                // same-as-fill stroke would blend into. Foyer keeps its
+                // own light dashed outline; a light border, not a solid
+                // dark one — enough to see where circulation space is
+                // without it competing with the real, named components.
+                stroke={isFoyer ? 'var(--border-color)' : isSelected ? 'var(--brand-strong)' : 'var(--text-primary)'}
                 strokeWidth={isFoyer ? ftPerHandlePx(0.75) : isSelected ? ftPerHandlePx(1.5) : ftPerHandlePx(1)}
                 strokeDasharray={isFoyer ? `${ftPerHandlePx(5)} ${ftPerHandlePx(4)}` : undefined}
                 filter={isFoyer ? undefined : "url(#roomShadow)"}
