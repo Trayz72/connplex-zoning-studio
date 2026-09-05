@@ -666,6 +666,32 @@ def test_custom_fit_backtracking_can_relax_the_position_gate_when_explicitly_ask
     assert len(results) == 1, "expected the custom-fit screen to tolerate a dead-center column under the relaxed gate"
 
 
+def test_column_edge_split_footprints_recurses_past_a_second_stranded_column():
+    """Real, measured limitation this recursion exists to fix: a free
+    rectangle with TWO separate interior-violating columns needed two
+    separate cuts before any resulting piece was actually clean — cutting
+    at the first column's edges alone still left a piece containing the
+    second column, stranded just as deep in the piece's own interior as it
+    was in the original rectangle. A 60x30 rect with columns at x=15 and
+    x=35 (both >2ft from every wall): a single cut (max_depth=1) at the
+    x=15 column's edges leaves a ~44ft-wide remainder that still contains
+    the x=35 column just as deep inside it — zero clean candidates. A
+    second cut (max_depth=2) at that second column's own edges finally
+    isolates a genuinely clean ~25ft-wide piece to its right."""
+    from shapely.geometry import box
+    col_a = box(14.5, 14, 15.5, 16)
+    col_b = box(34.5, 14, 35.5, 16)
+    column_polys = [col_a, col_b]
+
+    one_cut = layout_engine._column_edge_split_footprints(0, 0, 60, 30, column_polys, 700, 24, 80.0, 2.0, max_depth=1)
+    assert one_cut == [], "expected a single cut to be insufficient with two separately-stranded columns"
+
+    two_cuts = layout_engine._column_edge_split_footprints(0, 0, 60, 30, column_polys, 700, 24, 80.0, 2.0, max_depth=2)
+    assert two_cuts, "expected a second cut to isolate a clean piece past the second column"
+    for ox, oy, pw, ph in two_cuts:
+        assert layout_engine._deepest_interior_column(ox, oy, pw, ph, column_polys, 2.0) is None
+
+
 def test_custom_fit_backtracking_prefers_a_column_free_candidate_over_a_larger_column_tolerant_one():
     """Real, reported defect: a client-facing live project showed screens
     enclosing structural columns even though clean, column-free positions
