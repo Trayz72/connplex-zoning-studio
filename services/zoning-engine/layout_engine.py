@@ -756,6 +756,52 @@ def _build_auditorium_room(x, y, w, h, index, used_preset, used_fallback, column
     return room
 
 
+MAX_CUSTOM_SCREEN_ASPECT_RATIO = 2.5
+
+
+def _split_or_whole_footprints(w, h, min_area_sqft, min_short_side_ft, max_dim_ft):
+    """One free rectangle's own custom-fit footprint options: either the
+    whole thing (capped per-axis at max_dim_ft, as always), or — when its
+    aspect ratio is unrealistically elongated (a real, measured case: a
+    70.8x13.8ft "screen," aspect 5.1, no human would draw) — two roughly
+    equal footprints split along its longer axis instead, the same way a
+    real architect turns one oversized leftover area into two properly-
+    proportioned screens (confirmed against a real Connplex reference
+    zoning sheet: two stacked, similarly-sized screens sharing one long
+    wall, not one elongated room). The split is offered INSTEAD of the
+    whole rectangle, never in addition — this is a shape preference for
+    the same footprint, not a second, competing candidate.
+
+    Every configured preset's own aspect ratio sits well under
+    MAX_CUSTOM_SCREEN_ASPECT_RATIO (roughly 1.25-1.7), so this only
+    engages for a genuinely oversized/misshapen leftover, never a normal
+    room-sized rectangle. Each half is independently checked against the
+    same min_area_sqft/min_short_side_ft floor as a whole candidate would
+    be — a split that would produce a floor-violating sliver on either
+    side falls back to the whole rectangle instead (still floor-checked
+    itself) rather than forcing an even worse shape.
+
+    Returns a list of (x_offset, y_offset, w, h) tuples relative to the
+    rectangle's own (0, 0) corner — either one entry (whole) or two
+    (split), or an empty list when neither the whole rectangle nor a
+    split clears the floor at all."""
+    cw, ch = min(w, max_dim_ft), min(h, max_dim_ft)
+    whole_ok = cw * ch >= min_area_sqft and min(cw, ch) >= min_short_side_ft
+    long_side, short_side = max(cw, ch), min(cw, ch)
+    if short_side <= 0 or long_side / short_side <= MAX_CUSTOM_SCREEN_ASPECT_RATIO:
+        return [(0, 0, cw, ch)] if whole_ok else []
+
+    if w >= h:
+        half = min(w / 2, max_dim_ft)
+        pieces = [(0, 0, half, ch), (w / 2, 0, half, ch)]
+    else:
+        half = min(h / 2, max_dim_ft)
+        pieces = [(0, 0, cw, half), (0, h / 2, cw, half)]
+    if all(pw * ph >= min_area_sqft and min(pw, ph) >= min_short_side_ft for _, _, pw, ph in pieces):
+        return pieces
+    return [(0, 0, cw, ch)] if whole_ok else []
+
+
 def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, column_polys, bbox,
                                                     placed_polys, placed_types, remaining_slots,
                                                     min_area_sqft, aud_column_cap, flip_x, flip_y,
@@ -788,12 +834,8 @@ def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, co
             if remaining.is_empty:
                 continue
             for x, y, w, h in free_rectangles.free_rectangles_ft(remaining, bbox, cell_ft=1.0, max_candidates=12):
-                cw, ch = min(w, max_dim_ft), min(h, max_dim_ft)
-                if min(cw, ch) < min_short_side_ft:
-                    continue
-                if cw * ch < min_area_sqft:
-                    continue
-                cands.append((x, y, cw, ch, used_fb, remaining))
+                for ox, oy, pw, ph in _split_or_whole_footprints(w, h, min_area_sqft, min_short_side_ft, max_dim_ft):
+                    cands.append((x + ox, y + oy, pw, ph, used_fb, remaining))
         cands.sort(key=lambda c: c[2] * c[3], reverse=True)  # largest real area first, same convention as every other placement here
         return cands
 
@@ -931,6 +973,22 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
     aud_edge_tolerance_ft = rules_registry.planning_norm("AUDITORIUM_COLUMN_EDGE_TOLERANCE_FT")
     if aud_edge_tolerance_ft is None:
         aud_edge_tolerance_ft = 2.0
+    # A custom-fit room already carries its own "no standard preset fit —
+    # review before finalizing" note (see _build_auditorium_room), unlike a
+    # preset match which promises a clean SOP bowl shape. A real architect
+    # tolerates a structural column somewhere inside a large custom seating
+    # field by adjusting the seat plan around it, rather than refusing the
+    # whole room shape the way the preset-level interior-position gate
+    # does — confirmed against a real Connplex reference floor plan where
+    # exactly this happens. Real, measured case this exists to fix: a
+    # 2,542 sqft, well-proportioned (aspect 1.5) rectangle was rejected
+    # outright for enclosing a column just 0.95% of its own area, only
+    # because that column sat a few feet past the strict 2ft-from-any-wall
+    # band — while a real cinema would simply route around it. Custom-fit
+    # placement uses this more permissive ratio and skips the
+    # interior-position gate entirely (edge_tolerance_ft=None); presets
+    # keep the strict pair above, unchanged.
+    custom_fit_column_cap = 0.05
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
     min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
     min_short_side_ft = min((p["width_min_ft"] for p in presets), default=0)
@@ -1013,8 +1071,8 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
     if remaining_slots > 0:
         backtrack_results = _fill_remaining_auditoriums_with_backtracking(
             scan_usable, scan_fallback, column_polys, bbox, scan_placed_polys, scan_placed_types,
-            remaining_slots, min_preset_area_sqft, aud_column_cap, flip_x, flip_y,
-            aud_edge_tolerance_ft=aud_edge_tolerance_ft, min_short_side_ft=min_short_side_ft
+            remaining_slots, min_preset_area_sqft, custom_fit_column_cap, flip_x, flip_y,
+            aud_edge_tolerance_ft=None, min_short_side_ft=min_short_side_ft
         )
         for sx, sy, w, h, used_fallback in backtrack_results:
             scan_placed_polys.append(_rect(sx, sy, w, h))
@@ -1039,8 +1097,8 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
         if remaining_after_realistic > 0 and min_short_side_ft > 0:
             narrow_results = _fill_remaining_auditoriums_with_backtracking(
                 scan_usable, scan_fallback, column_polys, bbox, scan_placed_polys, scan_placed_types,
-                remaining_after_realistic, min_preset_area_sqft, aud_column_cap, flip_x, flip_y,
-                aud_edge_tolerance_ft=aud_edge_tolerance_ft, min_short_side_ft=0.0
+                remaining_after_realistic, min_preset_area_sqft, custom_fit_column_cap, flip_x, flip_y,
+                aud_edge_tolerance_ft=None, min_short_side_ft=0.0
             )
             for sx, sy, w, h, used_fallback in narrow_results:
                 scan_placed_polys.append(_rect(sx, sy, w, h))
@@ -1226,7 +1284,12 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
                 usable_poly, fallback_poly, placed_polys, placed_types, bbox,
                 min_preset_area_sqft, min_short_side_ft=min_short_side_ft
             )
-            if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, False, False, column_polys, aud_column_cap, aud_edge_tolerance_ft):
+            # Same relaxed custom-fit column tolerance as the auto-layout
+            # path (see _place_auditoriums_inner's own comment) — a
+            # manually-added custom-fit screen already carries the same
+            # "review before finalizing" note, so it shouldn't be held to
+            # the stricter preset-level column gate either.
+            if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, False, False, column_polys, 0.05, None):
                 custom_result = None
             if custom_result:
                 result = custom_result
@@ -1570,7 +1633,16 @@ def _build_foyer_room(fallback_poly, placed_polys, placed_rooms_for_doors, entry
         "width_ft": round(b[2] - b[0], 2),  # bounding box only — true shape is geometry_points_ft, which may be non-rectangular
         "depth_ft": round(b[3] - b[1], 2),
         "origin_ft": [round(b[0], 2), round(b[1], 2)],
-        "geometry_points_ft": [[round(px, 2), round(py, 2)] for px, py in coords],
+        # 4 decimals, not the usual 2 — Foyer's shape traces a real uploaded
+        # boundary's own jagged edge (sub-hundredth-foot jogs are common in
+        # a real CAD file), and rounding each vertex independently at only
+        # 2 decimals can nudge a point that sat exactly on that edge
+        # fractionally outside it. A real, measured case: 1.2 sqft of
+        # scattered slivers (each a rounding-scale sub-0.01ft strip) tipped
+        # a live project's Foyer over the OUTSIDE_BOUNDARY validation
+        # threshold. Every other room here is an axis-aligned rectangle
+        # with clean dimensions, so this doesn't affect them.
+        "geometry_points_ft": [[round(px, 4), round(py, 4)] for px, py in coords],
         "label_point_ft": [round(label_pt.x, 2), round(label_pt.y, 2)],
         "doors": [],
         "area_basis_note": "Computed as the real contiguous leftover usable area after screens and all other "

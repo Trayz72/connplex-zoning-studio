@@ -86,6 +86,14 @@ def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
     candidates = []
     seen = set()
     min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
+    # Same relaxation layout_engine._place_auditoriums_inner's greedy custom-
+    # fit backtracking uses (see that module's own comment for the full
+    # reasoning and the real, measured case it fixes): a custom-fit room
+    # already carries its own "review before finalizing" note, so it can
+    # tolerate a bit more real structural column presence — and skip the
+    # preset-only interior-position gate entirely — without the solver's
+    # own candidate pool becoming a worse choice than greedy's.
+    custom_fit_column_cap = 0.05
 
     for poly, used_fallback in ((usable_poly, False), (fallback_poly, True)):
         if poly is None or (used_fallback and poly is usable_poly):
@@ -100,7 +108,7 @@ def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
                         continue
                     seen.add(key)
                     enclosed_ratio = column_enclosure.enclosed_ratio(ax, ay, cw, ch, column_polys) if used_fallback else 0.0
-                    if used_fallback and not column_enclosure.enclosure_ok(ax, ay, cw, ch, column_polys, aud_column_cap, aud_edge_tolerance_ft):
+                    if used_fallback and not column_enclosure.enclosure_ok(ax, ay, cw, ch, column_polys, custom_fit_column_cap, None):
                         continue
                     enclosed_area = enclosed_ratio * cw * ch
                     seat_config, seat_est = seat_engine.best_seat_estimate(
