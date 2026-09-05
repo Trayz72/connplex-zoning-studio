@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
-import { LiveRoom, Obstacle, RoomDoor, FlowSegment } from '../../types/live';
+import { LiveRoom, Obstacle, RoomDoor } from '../../types/live';
 import { RawGeometry } from '../../types/live';
 
 interface EditableCanvasProps {
@@ -8,14 +8,13 @@ interface EditableCanvasProps {
   rooms: LiveRoom[];
   selectedRoomId: string | null;
   onSelectRoom: (roomId: string | null) => void;
-  /** The marked main entrance/exit and the derived common-path flow
-   * arrows (see layout_engine._entry_exit_flow_segments) — real CAD-sheet
-   * style indication, distinct from each room's own door glyphs. Both
-   * optional/empty whenever nothing is marked yet (a real, honest case on
-   * at least one live project) — renders nothing, never crashes. */
+  /** The marked main entrance/exit, drawn as a real door-in-the-wall glyph
+   * (opening + swung leaf + label) — the same convention as each room's own
+   * door glyphs. Optional/empty whenever nothing is marked yet (a real,
+   * honest case on at least one live project) — renders nothing, never
+   * crashes. */
   entryPointFt?: [number, number] | null;
   exitPointsFt?: [number, number][];
-  flowSegments?: FlowSegment[];
   /** Called continuously while dragging/resizing, for live visual feedback only — not persisted. */
   onLiveChange: (rooms: LiveRoom[]) => void;
   /** Called once, at the end of a drag/resize/add/delete, to persist to the server. */
@@ -174,7 +173,7 @@ const HANDLE_DEFS: { id: HandleId; cursor: string; fx: number; fy: number }[] = 
 export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   boundaryPointsFt, obstacles, rooms, selectedRoomId, onSelectRoom, onLiveChange, onCommit, snapToGridFt,
   rawGeometry, showCadLinework = true, showSeatRows = false, drawMode = false, onDrawComplete, onDeleteSelected,
-  entryPointFt, exitPointsFt, flowSegments
+  entryPointFt, exitPointsFt
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragMode>(null);
@@ -755,24 +754,6 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                   </g>
                 );
               })}
-            </g>
-          );
-        })}
-        {(flowSegments ?? []).map((seg, i) => {
-          // The "common path" indication (see layout_engine._entry_exit_flow_segments
-          // for why a simple two-point dashed line is a real, honest
-          // simplification here) — colored to match which end it belongs
-          // to, same convention EntryExitMarkers uses.
-          const color = seg.kind === 'ENTRY' ? 'var(--brand-strong)' : 'var(--danger)';
-          const [x1, y1] = seg.from, [x2, y2] = seg.to;
-          const ang = Math.atan2(y2 - y1, x2 - x1);
-          const head = entryExitMarkerR * 0.7;
-          const hx1 = x2 - head * Math.cos(ang - Math.PI / 7), hy1 = y2 - head * Math.sin(ang - Math.PI / 7);
-          const hx2 = x2 - head * Math.cos(ang + Math.PI / 7), hy2 = y2 - head * Math.sin(ang + Math.PI / 7);
-          return (
-            <g key={`flow-${i}`} pointerEvents="none">
-              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth={ftPerHandlePx(2)} strokeDasharray={`${ftPerHandlePx(6)} ${ftPerHandlePx(4)}`} opacity={0.75} />
-              <polygon points={`${x2},${y2} ${hx1},${hy1} ${hx2},${hy2}`} fill={color} opacity={0.85} />
             </g>
           );
         })}

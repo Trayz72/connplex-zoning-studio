@@ -367,12 +367,6 @@ export interface ZoningRunResult {
   created_at: string;
 }
 
-export interface FlowSegment {
-  from: [number, number];
-  to: [number, number];
-  kind: 'ENTRY' | 'EXIT';
-}
-
 export interface EditableLayout {
   region_id: string;
   source_candidate_id: string;
@@ -390,13 +384,10 @@ export interface EditableLayout {
   area_seat_chart: AreaSeatChart;
   total_seats: number;
   screen_count: number;
-  // The marked main entrance/exit (Requirements) and the derived common-
-  // path flow arrows drawn from them — see layout_engine._entry_exit_flow_segments.
-  // null/empty whenever nothing is marked yet (a real, honest case), never
-  // a crash.
+  // The marked main entrance/exit (Requirements) — null/empty whenever
+  // nothing is marked yet (a real, honest case), never a crash.
   entry_point_ft?: [number, number] | null;
   exit_points_ft?: [number, number][];
-  flow_segments?: FlowSegment[];
 }
 
 export interface ValidationError {

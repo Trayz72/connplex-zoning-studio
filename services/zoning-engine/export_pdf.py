@@ -500,36 +500,8 @@ def _draw_entry_exit_markers(c, entry_point_ft, exit_points_ft, boundary_points_
         draw_one(ep, _EXIT_COLOR, f"EXIT {i}")
 
 
-def _draw_flow_segments(c, flow_segments, tx, marker_r):
-    """The "common path" indication: a dashed desire-line arrow per segment
-    (see layout_engine._entry_exit_flow_segments's own docstring for why a
-    simple two-point line is a real, honest simplification here, not a
-    fully routed corridor) — colored to match which end it belongs to
-    (entry-green or exit-red), with a small arrowhead showing flow
-    direction, so it reads as a real circulation indicator, never mistaken
-    for a wall."""
-    for seg in flow_segments or []:
-        color = _ENTRY_COLOR if seg["kind"] == "ENTRY" else _EXIT_COLOR
-        x1, y1 = tx(seg["from"])
-        x2, y2 = tx(seg["to"])
-        c.setStrokeColor(color)
-        c.setLineWidth(1.1)
-        c.setDash([4, 3])
-        c.line(x1, y1, x2, y2)
-        c.setDash([])
-        ang = math.atan2(y2 - y1, x2 - x1)
-        head = marker_r * 0.7
-        c.setFillColor(color)
-        p = c.beginPath()
-        p.moveTo(x2, y2)
-        p.lineTo(x2 - head * math.cos(ang - math.pi / 7), y2 - head * math.sin(ang - math.pi / 7))
-        p.lineTo(x2 - head * math.cos(ang + math.pi / 7), y2 - head * math.sin(ang + math.pi / 7))
-        p.close()
-        c.drawPath(p, stroke=0, fill=1)
-
-
 def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h, sheet_type="Zoning Layout",
-                      entry_point_ft=None, exit_points_ft=None, flow_segments=None):
+                      entry_point_ft=None, exit_points_ft=None):
     if not boundary_points_ft:
         return
     xs = [p[0] for p in boundary_points_ft]
@@ -786,8 +758,6 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
         c.setFillColor(HexColor("#c0392b"))
         c.drawCentredString(label_x, label_y - 1, label)
 
-    marker_r = max(bw, bh) * 0.018 * scale
-    _draw_flow_segments(c, flow_segments, tx, marker_r)
     _draw_entry_exit_markers(c, entry_point_ft, exit_points_ft, boundary_points_ft, tx, scale)
 
     # Overall dimension line under the drawing — real bounding-box size of the
@@ -858,7 +828,7 @@ def _draw_feasibility_block(c, x, y_top, w, feasibility):
 
 def render_pdf(project_meta: dict, boundary_points_ft, rooms, chart: dict, feasibility: dict, out_path: str,
                 sheet_type="Zoning Layout", obstacles=None, region_meta=None,
-                entry_point_ft=None, exit_points_ft=None, flow_segments=None):
+                entry_point_ft=None, exit_points_ft=None):
     region_meta = region_meta or {}
     page_w, page_h = PAGE_SIZE
     c = pdfcanvas.Canvas(out_path, pagesize=PAGE_SIZE)
@@ -869,7 +839,7 @@ def render_pdf(project_meta: dict, boundary_points_ft, rooms, chart: dict, feasi
     plan_h = page_h - 2 * MARGIN
 
     _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, plan_w, plan_h, sheet_type,
-                      entry_point_ft=entry_point_ft, exit_points_ft=exit_points_ft, flow_segments=flow_segments)
+                      entry_point_ft=entry_point_ft, exit_points_ft=exit_points_ft)
     c.setStrokeColor(black)
     c.setLineWidth(1)
     c.rect(plan_x, plan_y, plan_w, plan_h, stroke=1, fill=0)
