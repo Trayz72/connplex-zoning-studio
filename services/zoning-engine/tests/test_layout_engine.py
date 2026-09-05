@@ -200,13 +200,16 @@ def test_auditorium_rejects_column_enclosure_above_tolerance():
     assert warning and "No space" in warning
 
 
-def test_auditorium_accepts_small_column_within_tolerance():
-    """The mirror case: a small column, comfortably under the 2% cap AND
-    within AUDITORIUM_COLUMN_EDGE_TOLERANCE_FT of a wall (near the left
-    wall here), should still be accepted via the column-tolerant fallback
-    tier — the cap/edge rule must not have been set so aggressively it
-    breaks the existing "an auditorium may enclose a small, wall-adjacent
-    column" behavior."""
+def test_auditorium_never_encloses_even_a_small_wall_adjacent_column():
+    """Client-facing policy change (superseding the old ratio-tolerant
+    design): a screen must never enclose a confirmed column at all, no
+    matter how small or how close to a wall — a real, direct client
+    rejection of the earlier "tolerate up to 2%, near a wall" behavior,
+    which read as an obviously broken layout regardless of the underlying
+    seat-count math. Boundary is sized so exactly one 35_SEAT preset fits
+    with zero slack, and the only column-free position for it is blocked by
+    even a tiny 1 sqft column — place_single_zone must honestly report no
+    space rather than placing a screen over the column."""
     boundary = [[0, 0], [24, 0], [24, 35], [0, 35], [0, 0]]
     small_column = {
         "points_ft": [[0.5, 17], [1.5, 17], [1.5, 18], [0.5, 18]],  # 1 sqft, ~0.5ft from the x=0 wall
@@ -218,8 +221,8 @@ def test_auditorium_accepts_small_column_within_tolerance():
     room, warning = layout_engine.place_single_zone(
         usable, fallback, column_polys, [], [], (0, 0, 24, 35), "AUDITORIUM", {}
     )
-    assert room is not None, warning
-    assert "obstacle_note" in room
+    assert room is None
+    assert warning and "No space" in warning
 
 
 def test_auditorium_rejects_interior_column_even_under_area_ratio_cap():
@@ -706,17 +709,27 @@ def test_custom_fit_backtracking_prefers_a_column_free_candidate_over_a_larger_c
     assert placed_rect.intersection(column_poly).area < 1e-6, "placed screen must not enclose the column at all"
 
 
-def test_generate_candidate_wires_the_relaxed_custom_fit_gate_through_auto_layout():
-    """Integration check that _place_auditoriums_inner actually PASSES the
-    relaxed custom-fit column tolerance down to its own backtracking call
-    — the unit test above proves _fill_remaining_auditoriums_with_backtracking
-    itself can honor a relaxed gate when asked, but not that the auto-
-    layout path actually asks for one. A boundary too small for any
-    preset (forcing custom-fit) with the same dead-center column: must
-    still place a screen through the full generate_candidate path."""
+def test_generate_candidate_never_lets_a_screen_enclose_a_column_through_auto_layout():
+    """Integration check for the client-facing policy change superseding
+    the old relaxed custom-fit column tolerance: _place_auditoriums_inner
+    must never let a screen enclose a column, not even through its own
+    backtracking-based custom-fit filler. A dead-center column on a 40x40
+    boundary blocks every possible position (any preset, and any custom-fit
+    footprint big enough to matter, is wider/taller than half the
+    boundary) — the auto-layout path must honestly place ZERO auditoriums
+    here rather than fabricate a column-enclosing one, matching Product
+    Principle #4 (never invent a placement that doesn't really fit the
+    real constraint)."""
     boundary = [[0, 0], [40, 0], [40, 40], [0, 40], [0, 0]]
     column = {"points_ft": [[19.5, 19.5], [20.5, 19.5], [20.5, 20.5], [19.5, 20.5]], "classification": "COLUMN"}
     usable = layout_engine.compute_usable_area(boundary, [column])
     candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 1}, [column])
     aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
-    assert len(aud_rooms) == 1, f"expected a custom-fit screen to tolerate the dead-center column, got {candidate['warnings']}"
+    assert len(aud_rooms) == 0, "expected no screen to be placed rather than one enclosing the dead-center column"
+    # Foyer (the leftover remainder) is allowed to contain the column — only
+    # auditoriums are held to the "never enclose a column" rule; there are
+    # none here, so this is vacuously true, but spelled out for clarity.
+    column_poly = layout_engine.poly_from_points(column["points_ft"])
+    for room in aud_rooms:
+        room_poly = layout_engine.poly_from_points(room["geometry_points_ft"])
+        assert room_poly.intersection(column_poly).area < 1e-6, f"{room['room_type']} must not enclose the column"
