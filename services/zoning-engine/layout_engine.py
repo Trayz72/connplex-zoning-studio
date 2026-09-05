@@ -802,6 +802,94 @@ def _split_or_whole_footprints(w, h, min_area_sqft, min_short_side_ft, max_dim_f
     return [(0, 0, cw, ch)] if whole_ok else []
 
 
+def _deepest_interior_column(rx, ry, rw, rh, column_polys, edge_tolerance_ft):
+    """The column (if any) whose bounds fall inside (rx, ry, rw, rh) AND
+    whose centroid sits farther than edge_tolerance_ft from every one of
+    the rect's own 4 walls — i.e. an actual position-gate violator, not
+    just any column that happens to overlap the rect (one already near a
+    wall needs no cut). Returns the column's shapely bounds, or None."""
+    worst = None
+    worst_dist = edge_tolerance_ft
+    for cp in column_polys:
+        cminx, cminy, cmaxx, cmaxy = cp.bounds
+        if cmaxx <= rx or cminx >= rx + rw or cmaxy <= ry or cminy >= ry + rh:
+            continue
+        ccx, ccy = (cminx + cmaxx) / 2, (cminy + cmaxy) / 2
+        dist = min(ccx - rx, (rx + rw) - ccx, ccy - ry, (ry + rh) - ccy)
+        if dist > worst_dist:
+            worst_dist = dist
+            worst = (cminx, cminy, cmaxx, cmaxy)
+    return worst
+
+
+def _column_edge_split_footprints(x, y, w, h, column_polys, min_area_sqft, min_short_side_ft,
+                                   max_dim_ft, edge_tolerance_ft, max_depth=3, max_results=40):
+    """Additional custom-fit footprint options for a free rectangle that
+    contains one or more columns stranded well inside it (farther than the
+    column-position gate's edge_tolerance_ft from every wall) — real,
+    reported client defect this exists to fix: without this, the ONLY
+    options for such a rectangle were "take the whole thing" (rejected by
+    the position gate once that gate is actually enforced — see
+    _column_enclosure_ok/has_interior_column_violation) or "give up and
+    leave it as Foyer," both of which lost real usable screen area a human
+    architect would actually build on. A real architect facing a column
+    mid-floor draws a wall RIGHT AT the column instead — turning "column
+    9ft inside a 30ft-deep room" into "column flush against a 9ft-deep
+    room's own edge," satisfying the exact same edge-tolerance rule the
+    engine already enforces, just by resizing the room to fit the real
+    obstacle instead of the other way around.
+
+    Recursive: finds the single worst (farthest-from-any-wall) violating
+    column via _deepest_interior_column and cuts the rectangle at each of
+    that column's own 4 edges (its min/max x and min/max y), yielding up
+    to 4 sub-rectangles; each is either accepted immediately (already
+    clean — no more interior violation) or recursed into again (up to
+    max_depth), bounded by max_results to keep the candidate pool sane. A
+    real, measured case this recursion exists for: a real free rectangle
+    with 3 columns scattered through it needed 2 separate cuts before any
+    resulting piece was actually clean — a single, non-recursive cut left
+    every piece still containing at least one other stranded column and
+    produced zero usable candidates.
+
+    Offered IN ADDITION to _split_or_whole_footprints's own whole/aspect-
+    split options (not instead of them) — the backtracking search's own
+    largest-first, strict-then-fallback candidate ordering decides which
+    one actually wins for a given slot."""
+    if not column_polys or edge_tolerance_ft is None:
+        return []
+    results = []
+    seen = set()
+
+    def recurse(rx, ry, rw, rh, depth):
+        if len(results) >= max_results:
+            return
+        cw, ch = min(rw, max_dim_ft), min(rh, max_dim_ft)
+        if cw * ch >= min_area_sqft and min(cw, ch) >= min_short_side_ft:
+            if _deepest_interior_column(rx, ry, cw, ch, column_polys, edge_tolerance_ft) is None:
+                key = (round(rx, 2), round(ry, 2), round(cw, 2), round(ch, 2))
+                if key not in seen:
+                    seen.add(key)
+                    results.append((rx - x, ry - y, cw, ch))
+                return
+        if depth >= max_depth:
+            return
+        worst = _deepest_interior_column(rx, ry, rw, rh, column_polys, edge_tolerance_ft)
+        if worst is None:
+            return
+        cminx, cminy, cmaxx, cmaxy = worst
+        for cut_x in (cminx, cmaxx):
+            if rx < cut_x < rx + rw:
+                recurse(rx, ry, cut_x - rx, rh, depth + 1)
+                recurse(cut_x, ry, (rx + rw) - cut_x, rh, depth + 1)
+        for cut_y in (cminy, cmaxy):
+            if ry < cut_y < ry + rh:
+                recurse(rx, ry, rw, cut_y - ry, depth + 1)
+                recurse(rx, cut_y, rw, (ry + rh) - cut_y, depth + 1)
+
+    recurse(x, y, w, h, 0)
+    return results
+
+
 def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, column_polys, bbox,
                                                     placed_polys, placed_types, remaining_slots,
                                                     min_area_sqft, aud_column_cap, flip_x, flip_y,
@@ -836,6 +924,13 @@ def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, co
             for x, y, w, h in free_rectangles.free_rectangles_ft(remaining, bbox, cell_ft=1.0, max_candidates=12):
                 for ox, oy, pw, ph in _split_or_whole_footprints(w, h, min_area_sqft, min_short_side_ft, max_dim_ft):
                     cands.append((x + ox, y + oy, pw, ph, used_fb, remaining))
+                # Column-tolerant tier only: a column-free (strict) free
+                # rectangle never contains a column at all (that's what
+                # made it strict), so these extra candidates only matter
+                # here — see _column_edge_split_footprints's own docstring.
+                if used_fb:
+                    for ox, oy, pw, ph in _column_edge_split_footprints(x, y, w, h, column_polys, min_area_sqft, min_short_side_ft, max_dim_ft, aud_edge_tolerance_ft):
+                        cands.append((x + ox, y + oy, pw, ph, used_fb, remaining))
         # Strict (column-free) candidates always precede fallback (column-
         # tolerant) ones, largest-area-first within each tier — the same
         # "column-free is always preferred when one exists" convention every
