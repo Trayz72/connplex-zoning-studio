@@ -610,3 +610,74 @@ def test_auto_layout_places_a_below_floor_screen_when_nothing_wider_fits_anywher
     assert any("SOP adjustment" in w for w in candidate["warnings"]), (
         f"expected a disclosed SOP-adjustment warning for the below-floor screen, got {candidate['warnings']}"
     )
+
+
+# ---------- multi-screen partition split + relaxed custom-fit column tolerance (gap-closing round) ----------
+
+def test_split_or_whole_footprints_keeps_a_well_proportioned_rectangle_whole():
+    pieces = layout_engine._split_or_whole_footprints(30, 45, min_area_sqft=900, min_short_side_ft=24, max_dim_ft=80)
+    assert pieces == [(0, 0, 30, 45)]
+
+
+def test_split_or_whole_footprints_splits_an_elongated_rectangle_when_both_halves_clear_the_floor():
+    """The real, measured case this exists to fix: a human architect turns
+    one oversized, oddly-elongated leftover area into two properly-
+    proportioned screens sharing a wall, instead of one long corridor-
+    shaped room (a real live project's own 70.8x13.8ft "screen", aspect
+    5.1 — no human would draw that). 80x30 (aspect 2.67, over the 2.5
+    threshold) splits along its longer (80ft) axis into two 40x30 halves —
+    each independently well within the realism floor."""
+    pieces = layout_engine._split_or_whole_footprints(80, 30, min_area_sqft=900, min_short_side_ft=24, max_dim_ft=80)
+    assert pieces == [(0, 0, 40, 30), (40, 0, 40, 30)]
+
+
+def test_split_or_whole_footprints_falls_back_to_whole_when_the_split_would_violate_the_floor():
+    """80x20 (aspect 4.0) is elongated enough to trigger a split attempt,
+    but each 40x20 half would have a 20ft short side — below the 24ft
+    floor. Never force a worse shape than the original: fall back to the
+    whole rectangle (also floor-checked in its own right)."""
+    pieces = layout_engine._split_or_whole_footprints(80, 20, min_area_sqft=900, min_short_side_ft=24, max_dim_ft=80)
+    assert pieces == []  # the whole itself also fails the 24ft floor (short side 20)
+    pieces_no_floor = layout_engine._split_or_whole_footprints(80, 20, min_area_sqft=900, min_short_side_ft=0, max_dim_ft=80)
+    assert pieces_no_floor == [(0, 0, 80, 20)]  # with no floor, the whole rectangle is offered instead of a bad split
+
+
+def test_custom_fit_backtracking_tolerates_interior_column_via_relaxed_gate():
+    """A custom-fit screen already carries its own "review before
+    finalizing" note (see _build_auditorium_room) — unlike a preset match,
+    which must guarantee a clean SOP bowl shape, it isn't held to the
+    preset-level interior-position gate either. Real, measured fix: a
+    2,542 sqft, well-proportioned (aspect 1.5) rectangle on a live project
+    was rejected outright for enclosing a column just 0.95% of its own
+    area, purely because that column sat past the strict 2ft-from-any-wall
+    band. A tiny column dead-center of an otherwise-viable 40x40
+    rectangle — far from every wall — must still be usable here, with the
+    interior-position gate fully relaxed (edge_tolerance_ft=None) and only
+    the wider 5% area-ratio cap enforced."""
+    boundary = [[0, 0], [40, 0], [40, 40], [0, 40], [0, 0]]
+    column = {"points_ft": [[19.5, 19.5], [20.5, 19.5], [20.5, 20.5], [19.5, 20.5]], "classification": "COLUMN"}
+    usable = layout_engine.compute_usable_area(boundary, [column])
+    fallback = layout_engine.compute_usable_area(boundary, [column], exclude_classifications=("COLUMN",))
+    column_polys = [layout_engine.poly_from_points(column["points_ft"])]
+    bbox = (0, 0, 40, 40)
+    results = layout_engine._fill_remaining_auditoriums_with_backtracking(
+        usable, fallback, column_polys, bbox, [], [], 1, 900, 0.05, False, False,
+        aud_edge_tolerance_ft=None, min_short_side_ft=24
+    )
+    assert len(results) == 1, "expected the custom-fit screen to tolerate a dead-center column under the relaxed gate"
+
+
+def test_generate_candidate_wires_the_relaxed_custom_fit_gate_through_auto_layout():
+    """Integration check that _place_auditoriums_inner actually PASSES the
+    relaxed custom-fit column tolerance down to its own backtracking call
+    — the unit test above proves _fill_remaining_auditoriums_with_backtracking
+    itself can honor a relaxed gate when asked, but not that the auto-
+    layout path actually asks for one. A boundary too small for any
+    preset (forcing custom-fit) with the same dead-center column: must
+    still place a screen through the full generate_candidate path."""
+    boundary = [[0, 0], [40, 0], [40, 40], [0, 40], [0, 0]]
+    column = {"points_ft": [[19.5, 19.5], [20.5, 19.5], [20.5, 20.5], [19.5, 20.5]], "classification": "COLUMN"}
+    usable = layout_engine.compute_usable_area(boundary, [column])
+    candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 1}, [column])
+    aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+    assert len(aud_rooms) == 1, f"expected a custom-fit screen to tolerate the dead-center column, got {candidate['warnings']}"

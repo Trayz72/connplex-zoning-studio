@@ -129,3 +129,26 @@ def test_generate_candidates_includes_custom_fit_options_for_narrow_strips_no_pr
         f"optimizer must never do worse once it can also propose custom-fit candidates"
     )
     assert any(c["preset"] is None for c in selected), "expected the optimizer to actually select a custom-fit room here"
+
+
+def test_generate_candidates_custom_fit_tolerates_interior_column():
+    """Parity with layout_engine's own relaxed custom-fit column gate (see
+    that module's _place_auditoriums_inner comment): a custom-fit
+    candidate already carries its own "review before finalizing" note, so
+    the solver's own candidate pool shouldn't reject one just because an
+    enclosed column sits past the strict preset-level 2ft-from-any-wall
+    band, the same real, measured case (a 2,542 sqft, well-proportioned
+    rectangle rejected for a column 0.95% of its own area) that motivated
+    the greedy-path fix. A tiny column dead-center of an otherwise-viable
+    40x40 boundary blocks every possible preset position (any preset is
+    wider/taller than half the boundary), so the ONLY way to get a
+    candidate here at all is the relaxed custom-fit gate."""
+    boundary = [[0, 0], [40, 0], [40, 40], [0, 40], [0, 0]]
+    column = box(19.5, 19.5, 20.5, 20.5)
+    column_obstacle = {"points_ft": list(column.exterior.coords), "classification": "COLUMN"}
+    usable = layout_engine.compute_usable_area(boundary, [column_obstacle])
+    fallback = layout_engine.compute_usable_area(boundary, [column_obstacle], exclude_classifications=("COLUMN",))
+    bbox = layout_engine.poly_from_points(boundary).bounds
+    presets = rules_registry.auditorium_presets()
+    cands = solver.generate_candidates(usable, fallback, [column], bbox, presets, 0.02, None, aud_edge_tolerance_ft=2.0)
+    assert any(c["preset"] is None for c in cands), "expected a custom-fit candidate to tolerate the dead-center column"
