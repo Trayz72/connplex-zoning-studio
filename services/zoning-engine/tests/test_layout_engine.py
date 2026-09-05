@@ -642,18 +642,17 @@ def test_split_or_whole_footprints_falls_back_to_whole_when_the_split_would_viol
     assert pieces_no_floor == [(0, 0, 80, 20)]  # with no floor, the whole rectangle is offered instead of a bad split
 
 
-def test_custom_fit_backtracking_tolerates_interior_column_via_relaxed_gate():
-    """A custom-fit screen already carries its own "review before
-    finalizing" note (see _build_auditorium_room) — unlike a preset match,
-    which must guarantee a clean SOP bowl shape, it isn't held to the
-    preset-level interior-position gate either. Real, measured fix: a
-    2,542 sqft, well-proportioned (aspect 1.5) rectangle on a live project
-    was rejected outright for enclosing a column just 0.95% of its own
-    area, purely because that column sat past the strict 2ft-from-any-wall
-    band. A tiny column dead-center of an otherwise-viable 40x40
-    rectangle — far from every wall — must still be usable here, with the
-    interior-position gate fully relaxed (edge_tolerance_ft=None) and only
-    the wider 5% area-ratio cap enforced."""
+def test_custom_fit_backtracking_can_relax_the_position_gate_when_explicitly_asked():
+    """Unit-level coverage of _fill_remaining_auditoriums_with_backtracking's
+    OWN capability to fully relax the interior-position gate when a caller
+    explicitly passes edge_tolerance_ft=None — no real call site actually
+    does this anymore for auditoriums (see _place_auditoriums_inner and
+    place_single_zone, which both always pass a real aud_edge_tolerance_ft
+    now — a real client-reported defect where a custom-fit screen silently
+    swallowed columns scattered anywhere in its interior). This test
+    exercises the raw function directly with the gate off, to prove the
+    capability still exists at that level should a future caller need it,
+    not that any current code path uses it."""
     boundary = [[0, 0], [40, 0], [40, 40], [0, 40], [0, 0]]
     column = {"points_ft": [[19.5, 19.5], [20.5, 19.5], [20.5, 20.5], [19.5, 20.5]], "classification": "COLUMN"}
     usable = layout_engine.compute_usable_area(boundary, [column])
@@ -706,17 +705,24 @@ def test_custom_fit_backtracking_prefers_a_column_free_candidate_over_a_larger_c
     assert placed_rect.intersection(column_poly).area < 1e-6, "placed screen must not enclose the column at all"
 
 
-def test_generate_candidate_wires_the_relaxed_custom_fit_gate_through_auto_layout():
-    """Integration check that _place_auditoriums_inner actually PASSES the
-    relaxed custom-fit column tolerance down to its own backtracking call
-    — the unit test above proves _fill_remaining_auditoriums_with_backtracking
-    itself can honor a relaxed gate when asked, but not that the auto-
-    layout path actually asks for one. A boundary too small for any
-    preset (forcing custom-fit) with the same dead-center column: must
-    still place a screen through the full generate_candidate path."""
+def test_generate_candidate_never_places_a_screen_over_an_interior_column_through_auto_layout():
+    """Integration check for the client-facing policy this round enforces
+    uniformly: a custom-fit screen may tolerate a bit more column AREA than
+    a preset match (custom_fit_column_cap, see _place_auditoriums_inner's
+    own comment), but the POSITION gate (aud_edge_tolerance_ft) is never
+    relaxed for it — a column stranded in the room's interior, not near any
+    wall, must still be rejected. Real, reported defect this guards
+    against: a custom-fit screen was silently swallowing an entire floor's
+    worth of columns scattered through its interior, because only the area
+    ratio was ever checked for custom-fit rooms. A dead-center column on a
+    40x40 boundary blocks every possible position (any preset, and any
+    custom-fit footprint big enough to matter, is wider/taller than half
+    the boundary, so it can't clear the column while also reaching every
+    wall) — the auto-layout path must honestly place ZERO auditoriums here
+    rather than fabricate one enclosing the column."""
     boundary = [[0, 0], [40, 0], [40, 40], [0, 40], [0, 0]]
     column = {"points_ft": [[19.5, 19.5], [20.5, 19.5], [20.5, 20.5], [19.5, 20.5]], "classification": "COLUMN"}
     usable = layout_engine.compute_usable_area(boundary, [column])
     candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 1}, [column])
     aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
-    assert len(aud_rooms) == 1, f"expected a custom-fit screen to tolerate the dead-center column, got {candidate['warnings']}"
+    assert len(aud_rooms) == 0, "expected no screen to be placed rather than one enclosing the dead-center column"

@@ -131,18 +131,19 @@ def test_generate_candidates_includes_custom_fit_options_for_narrow_strips_no_pr
     assert any(c["preset"] is None for c in selected), "expected the optimizer to actually select a custom-fit room here"
 
 
-def test_generate_candidates_custom_fit_tolerates_interior_column():
-    """Parity with layout_engine's own relaxed custom-fit column gate (see
-    that module's _place_auditoriums_inner comment): a custom-fit
-    candidate already carries its own "review before finalizing" note, so
-    the solver's own candidate pool shouldn't reject one just because an
-    enclosed column sits past the strict preset-level 2ft-from-any-wall
-    band, the same real, measured case (a 2,542 sqft, well-proportioned
-    rectangle rejected for a column 0.95% of its own area) that motivated
-    the greedy-path fix. A tiny column dead-center of an otherwise-viable
-    40x40 boundary blocks every possible preset position (any preset is
-    wider/taller than half the boundary), so the ONLY way to get a
-    candidate here at all is the relaxed custom-fit gate."""
+def test_generate_candidates_rejects_a_custom_fit_candidate_over_an_interior_column():
+    """Parity with layout_engine's own custom-fit column gate (see that
+    module's _place_auditoriums_inner comment): a custom-fit candidate gets
+    a wider AREA ratio cap than a preset match (custom_fit_column_cap), but
+    the POSITION gate (edge_tolerance_ft) is never relaxed for it — a real,
+    reported client defect this guards against: the solver's own candidate
+    pool was accepting a custom-fit rectangle covering a column stranded
+    dead-center in its interior, using only the area-ratio check
+    (enclosure_ok was being called with edge_tolerance_ft hardcoded to
+    None regardless of what the caller passed in). A tiny column dead-
+    center of an otherwise-viable 40x40 boundary is farther than
+    aud_edge_tolerance_ft from every wall of the only rectangle that could
+    cover it, so no custom-fit candidate should be generated there at all."""
     boundary = [[0, 0], [40, 0], [40, 40], [0, 40], [0, 0]]
     column = box(19.5, 19.5, 20.5, 20.5)
     column_obstacle = {"points_ft": list(column.exterior.coords), "classification": "COLUMN"}
@@ -151,4 +152,4 @@ def test_generate_candidates_custom_fit_tolerates_interior_column():
     bbox = layout_engine.poly_from_points(boundary).bounds
     presets = rules_registry.auditorium_presets()
     cands = solver.generate_candidates(usable, fallback, [column], bbox, presets, 0.02, None, aud_edge_tolerance_ft=2.0)
-    assert any(c["preset"] is None for c in cands), "expected a custom-fit candidate to tolerate the dead-center column"
+    assert not any(c["preset"] is None for c in cands), "expected no custom-fit candidate to tolerate the dead-center column"
