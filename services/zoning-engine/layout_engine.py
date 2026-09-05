@@ -243,7 +243,7 @@ def _fits_with_clearance(cand, placed_polys, placed_types, candidate_type):
     return True
 
 
-def _scan_axis_positions(minv, maxv, min_extent, step, grid_lines):
+def _scan_axis_positions(minv, maxv, min_extent, step, grid_lines, extra_lines=None):
     """Candidate scan start-positions along one axis: the plain fixed-step
     sequence used everywhere before column-grid-awareness existed, unless
     real structural grid lines are known for this axis (see
@@ -252,15 +252,24 @@ def _scan_axis_positions(minv, maxv, min_extent, step, grid_lines):
     building's own bay lines, not an arbitrary 2ft scan step. minv itself is
     always included alongside the grid lines: the boundary's own edge
     frequently doesn't sit exactly on the innermost column line, and a real
-    design is free to start there too."""
+    design is free to start there too.
+
+    extra_lines (e.g. _room_edge_alignment_lines' output) are unioned in on
+    top of whichever base sequence above already applies — purely additive,
+    never narrows what was already tried, so support-zone placement can
+    offer positions flush with an already-placed room's own edge without
+    losing any position the plain scan or column grid already covered."""
     if not grid_lines:
         vals = []
         v = minv
         while v + min_extent <= maxv:
             vals.append(v)
             v += step
-        return vals
-    return sorted(v for v in set([minv] + list(grid_lines)) if minv <= v and v + min_extent <= maxv)
+    else:
+        vals = [minv] + list(grid_lines)
+    if extra_lines:
+        vals = list(vals) + list(extra_lines)
+    return sorted(v for v in set(vals) if minv <= v and v + min_extent <= maxv)
 
 
 def _scan_place(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True,
@@ -305,7 +314,7 @@ def _has_sightline(usable_poly, placed_polys, from_point, rect):
 
 
 def _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True, score_fn=None, prefer_fn=None, max_candidates=80,
-                        grid_lines_x=None, grid_lines_y=None):
+                        grid_lines_x=None, grid_lines_y=None, extra_lines_x=None, extra_lines_y=None):
     """Same first-fit grid scan as _scan_place, but collects up to
     max_candidates valid positions and returns the FULL best-first ranked
     list — [(x, y, ow, oh), satisfied_preference), ...] — instead of
@@ -315,7 +324,8 @@ def _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, 
     see placement/connectivity.py) can fall through to the next-best
     position instead of failing outright. _scan_place_best below is just
     ranked[0] of this — same selection logic, unchanged behavior.
-    grid_lines_x/grid_lines_y: see _scan_place."""
+    grid_lines_x/grid_lines_y: see _scan_place. extra_lines_x/extra_lines_y:
+    see _scan_axis_positions."""
     minx, miny, maxx, maxy = bbox
     step = _grid_step_for_bbox(bbox)
     orientations = [(w, h)]
@@ -324,10 +334,10 @@ def _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, 
     min_extent = min(h, w)
 
     candidates = []
-    for y in _scan_axis_positions(miny, maxy, min_extent, step, grid_lines_y):
+    for y in _scan_axis_positions(miny, maxy, min_extent, step, grid_lines_y, extra_lines_y):
         if len(candidates) >= max_candidates:
             break
-        for x in _scan_axis_positions(minx, maxx, min_extent, step, grid_lines_x):
+        for x in _scan_axis_positions(minx, maxx, min_extent, step, grid_lines_x, extra_lines_x):
             if len(candidates) >= max_candidates:
                 break
             for ow, oh in orientations:
@@ -400,7 +410,8 @@ def _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_t
 
 
 def _scan_place_ranked_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True,
-                                      score_fn=None, prefer_fn=None, top_k=1, max_candidates=80, grid_lines_x=None, grid_lines_y=None):
+                                      score_fn=None, prefer_fn=None, top_k=1, max_candidates=80, grid_lines_x=None, grid_lines_y=None,
+                                      extra_lines_x=None, extra_lines_y=None):
     """Ranked strict-then-column-tolerant retry: strict-tier ranked
     candidates always precede fallback-tier ones (a column-free placement
     beats a column-tolerant one regardless of score), each tagged with
@@ -409,12 +420,13 @@ def _scan_place_ranked_with_fallback(usable_poly, fallback_poly, placed_polys, p
     candidates — same laziness _scan_place_best_with_fallback (now just
     ranked[0] of this, top_k=1) always had: a column-tolerant scan is never
     even attempted when the strict tier already has enough to work with.
+    extra_lines_x/extra_lines_y: see _scan_axis_positions.
     Returns [((x, y, ow, oh), satisfied_preference, used_fallback), ...]."""
     ranked = [(c, satisfied, False) for c, satisfied in
-              _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y)]
+              _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y, extra_lines_x, extra_lines_y)]
     if len(ranked) < top_k and fallback_poly is not None and fallback_poly is not usable_poly:
         ranked += [(c, satisfied, True) for c, satisfied in
-                   _scan_place_ranked(fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y)]
+                   _scan_place_ranked(fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y, extra_lines_x, extra_lines_y)]
     return ranked[:top_k]
 
 
@@ -469,6 +481,68 @@ def _column_grid_lines(column_polys, cluster_tolerance_ft=1.0):
     x_lines = _cluster_axis_lines([c[0] for c in centroids], cluster_tolerance_ft)
     y_lines = _cluster_axis_lines([c[1] for c in centroids], cluster_tolerance_ft)
     return (x_lines if len(x_lines) >= 2 else None), (y_lines if len(y_lines) >= 2 else None)
+
+
+def _room_edge_alignment_lines(placed_polys, cluster_tolerance_ft=1.0):
+    """Every already-placed room's own x/y bounding edges, clustered the
+    same way _column_grid_lines clusters column centroids — a real human
+    layout lines a support zone's wall up with whatever's already there (an
+    auditorium's side wall, another support zone's own edge) instead of
+    leaving it at whatever arbitrary offset a heuristic scan happened to hit
+    first (the confirmed defect this exists to fix: Box Office/Washroom/F&B
+    landing at unrelated x/y offsets that read as scattered, not designed).
+    Fed into _scan_axis_positions' extra_lines param, which only ADDS
+    candidate positions — never narrows what a plain scan already finds —
+    so this can only ever offer a better-aligned option, not lose a
+    placement that exists today. Unlike _column_grid_lines, no minimum line
+    count is required: even a single already-placed room is worth lining
+    the next one up against."""
+    if not placed_polys:
+        return [], []
+    xs, ys = [], []
+    for p in placed_polys:
+        minx, miny, maxx, maxy = p.bounds
+        xs += [minx, maxx]
+        ys += [miny, maxy]
+    return _cluster_axis_lines(xs, cluster_tolerance_ft), _cluster_axis_lines(ys, cluster_tolerance_ft)
+
+
+def _edge_alignment_score(rect, placed_polys, tolerance_ft=1.0):
+    """How well rect reads as belonging to the same designed layout as
+    whatever's already placed — negated, so sorting ascending puts the
+    best-aligned candidate first. A pure tie-break: two candidates that are
+    otherwise equally good per a room type's own score_fn/prefer_fn (see
+    _support_zone_heuristic) now resolve in favor of whichever one a human
+    architect's eye would settle on. Two components:
+
+    1. Shared wall lines — how many of rect's own 4 bounding edges land
+       within tolerance_ft of some already-placed room's matching edge.
+    2. Orientation consistency — support zones of near-identical footprint
+       (e.g. Box Office and Washroom, both sized off the same generic
+       aspect=1.6 rule — see _support_zone_dims) get scanned in both
+       orientations with no preference between them; without this, one can
+       land landscape and the other portrait purely by which happened to
+       fit first, which is exactly the "Box Office and Washroom don't read
+       as a matched pair" defect a real reference layout never has. Counted
+       double a shared-edge match: getting the whole footprint's proportions
+       right instead of one accidental wall line matters more."""
+    minx, miny, maxx, maxy = rect.bounds
+    w, h = maxx - minx, maxy - miny
+    count = 0
+    for p in placed_polys:
+        pminx, pminy, pmaxx, pmaxy = p.bounds
+        if abs(minx - pminx) <= tolerance_ft or abs(minx - pmaxx) <= tolerance_ft:
+            count += 1
+        if abs(maxx - pminx) <= tolerance_ft or abs(maxx - pmaxx) <= tolerance_ft:
+            count += 1
+        if abs(miny - pminy) <= tolerance_ft or abs(miny - pmaxy) <= tolerance_ft:
+            count += 1
+        if abs(maxy - pminy) <= tolerance_ft or abs(maxy - pmaxy) <= tolerance_ft:
+            count += 1
+        pw, ph = pmaxx - pminx, pmaxy - pminy
+        if abs(w - pw) <= tolerance_ft and abs(h - ph) <= tolerance_ft:
+            count += 2
+    return -count
 
 
 def _mirror_axis_values(values, minv, maxv, flip):
@@ -1231,8 +1305,17 @@ def _place_single_support_zone_connectivity_aware(usable_poly, fallback_poly, co
     used_fallback), shrink_note_or_None) or (None, None) if nothing fits
     anywhere without blocking the common path."""
     grid_lines_x, grid_lines_y = _column_grid_lines(column_polys)
+    edge_lines_x, edge_lines_y = _room_edge_alignment_lines(placed_polys)
     score_fn, prefer_fn = _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly, fallback_poly,
                                                     placed_polys, placed_types, None)
+    # Wraps whatever score this room type already used (or none) with an
+    # alignment tie-break — see _edge_alignment_score's own docstring —
+    # applied unconditionally so even a room type with no score_fn of its
+    # own (today: FNB/WASHROOM, which rely on prefer_fn alone) still prefers
+    # the best-aligned position among whichever candidates already satisfy
+    # its real placement heuristic.
+    def ranking_score(c):
+        return (_edge_alignment_score(_rect(*c), placed_polys), score_fn(c) if score_fn else 0)
 
     ref_points = ([entry_point] if entry_point else []) + [
         connectivity.door_outside_point(r, d) for r in placed_rooms_for_doors for d in r.get("doors", [])
@@ -1242,8 +1325,9 @@ def _place_single_support_zone_connectivity_aware(usable_poly, fallback_poly, co
     def try_at(w, h):
         ranked = _scan_place_ranked_with_fallback(
             usable_poly, fallback_poly, placed_polys, placed_types, room_type, w, h, bbox,
-            score_fn=score_fn, prefer_fn=prefer_fn, top_k=SUPPORT_ZONE_CONNECTIVITY_TOP_K,
-            grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y
+            score_fn=ranking_score, prefer_fn=prefer_fn, top_k=SUPPORT_ZONE_CONNECTIVITY_TOP_K,
+            grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y,
+            extra_lines_x=edge_lines_x, extra_lines_y=edge_lines_y
         )
         for (x, y, ow, oh), satisfied, used_fallback in ranked:
             if used_fallback and not _column_enclosure_ok((x, y, ow, oh), bbox, False, False, column_polys, support_column_cap):
@@ -1436,40 +1520,6 @@ def _place_support_zones_and_foyer(usable_poly, fallback_poly, column_polys, bbo
     return support_rooms, foyer_room, leftover_slack, warnings
 
 
-def _entry_exit_flow_segments(rooms, entry_point, exit_points_ft):
-    """A real, honest "common path" indication without full pathfinding:
-    Foyer's connectivity to every door is already geometrically guaranteed
-    by construction (this session's connectivity-gated support-zone
-    placement), so a simple two-point flow line — the marked entry point
-    straight to each auditorium's own ENTRY door, and each auditorium's
-    EXIT door straight to the nearest marked exit point — is a real,
-    honest simplification of circulation flow, the same convention real
-    CAD zoning sheets use (a dashed desire-line arrow through open floor,
-    not a fully routed corridor). Reuses connectivity.door_outside_point
-    for the door-side endpoint — the exact same "just outside this door,
-    in real open floor space" point this session's connectivity gate
-    already computes and trusts.
-
-    Returns a list of {"from": [x, y], "to": [x, y], "kind": "ENTRY"|"EXIT"}
-    dicts — empty wherever the data to draw it isn't marked (no entry
-    point, no exit points, or a room with no matching door), a real,
-    confirmed case on at least one live project, never a crash."""
-    segments = []
-    for room in rooms:
-        if not room["room_type"].startswith("AUDITORIUM"):
-            continue
-        for door in room.get("doors", []):
-            outside_pt = connectivity.door_outside_point(room, door)
-            if door.get("kind") == "ENTRY" and entry_point is not None:
-                segments.append({"from": [round(entry_point[0], 2), round(entry_point[1], 2)],
-                                  "to": [round(outside_pt[0], 2), round(outside_pt[1], 2)], "kind": "ENTRY"})
-            elif door.get("kind") == "EXIT" and exit_points_ft:
-                nearest = min(exit_points_ft, key=lambda ep: (ep[0] - outside_pt[0]) ** 2 + (ep[1] - outside_pt[1]) ** 2)
-                segments.append({"from": [round(outside_pt[0], 2), round(outside_pt[1], 2)],
-                                  "to": [round(nearest[0], 2), round(nearest[1], 2)], "kind": "EXIT"})
-    return segments
-
-
 def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requirements: dict, confirmed_obstacles: list = None) -> dict:
     # True boundary bbox, not usable_poly's — obstacle subtraction almost
     # never shrinks the bounding box (obstacles are interior), but computing
@@ -1588,7 +1638,6 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
         "total_seats": total_seats,
         "screen_count": screen_count,
         "seats_per_screen": seats_per_screen,
-        "flow_segments": _entry_exit_flow_segments(auditoriums, entry_point, exit_points_ft),
         "warnings": aud_warnings + notes
     }
 
@@ -1691,7 +1740,6 @@ def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: 
         "total_seats": total_seats,
         "screen_count": screen_count,
         "seats_per_screen": seats_per_screen,
-        "flow_segments": _entry_exit_flow_segments(auditoriums, entry_point, exit_points_ft),
         "warnings": notes
     }
 

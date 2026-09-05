@@ -139,17 +139,8 @@ def _draw_entry_exit_markers(msp, entry_point_ft, exit_points_ft, boundary_point
         draw_one(ep, _EXIT_ACI, f"EXIT {i}")
 
 
-def _draw_flow_segments(msp, flow_segments):
-    """The "common path" indication (see layout_engine._entry_exit_flow_segments
-    and export_pdf.py's own _draw_flow_segments for the full reasoning) —
-    a real, honest desire-line, colored to match which end it belongs to."""
-    for seg in flow_segments or []:
-        color = _ENTRY_ACI if seg["kind"] == "ENTRY" else _EXIT_ACI
-        msp.add_line(_flip(seg["from"]), _flip(seg["to"]), dxfattribs={"layer": "ANNOTATION-ENTRY-EXIT", "color": color})
-
-
 def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, rooms, out_path: str, also_dwg: bool = True,
-                          entry_point_ft=None, exit_points_ft=None, flow_segments=None) -> dict:
+                          entry_point_ft=None, exit_points_ft=None) -> dict:
     doc = ezdxf.new("R2018")
     doc.header["$INSUNITS"] = 2  # feet, matches this app's internal canonical unit
     _ensure_layers(doc)
@@ -193,7 +184,6 @@ def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, room
             msp.add_line(_flip(p1), _flip(leaf_end), dxfattribs={"layer": "ANNOTATION-DOOR"})
 
     if boundary_points_ft:
-        _draw_flow_segments(msp, flow_segments)
         _draw_entry_exit_markers(msp, entry_point_ft, exit_points_ft, boundary_points_ft)
 
     title = project_meta.get("property_name") or "Untitled Project"
