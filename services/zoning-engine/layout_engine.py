@@ -245,30 +245,33 @@ def _fits_with_clearance(cand, placed_polys, placed_types, candidate_type):
 
 def _scan_axis_positions(minv, maxv, min_extent, step, grid_lines, extra_lines=None):
     """Candidate scan start-positions along one axis: the plain fixed-step
-    sequence used everywhere before column-grid-awareness existed, unless
-    real structural grid lines are known for this axis (see
-    _column_grid_lines) — in which case candidates are those grid-line
-    coordinates instead, since a real architect's room edges land on the
-    building's own bay lines, not an arbitrary 2ft scan step. minv itself is
-    always included alongside the grid lines: the boundary's own edge
-    frequently doesn't sit exactly on the innermost column line, and a real
-    design is free to start there too.
+    sequence, always run, PLUS real structural grid-line coordinates (see
+    _column_grid_lines) and/or extra_lines (e.g. _room_edge_alignment_lines'
+    output) unioned on top when given — a real architect's room edges often
+    land on the building's own bay lines, not an arbitrary 2ft scan step,
+    so those are offered as extra candidates worth preferring, never as a
+    replacement for full coverage.
 
-    extra_lines (e.g. _room_edge_alignment_lines' output) are unioned in on
-    top of whichever base sequence above already applies — purely additive,
-    never narrows what was already tried, so support-zone placement can
-    offer positions flush with an already-placed room's own edge without
-    losing any position the plain scan or column grid already covered."""
-    if not grid_lines:
-        vals = []
-        v = minv
-        while v + min_extent <= maxv:
-            vals.append(v)
-            v += step
-    else:
-        vals = [minv] + list(grid_lines)
+    Grid lines used to REPLACE the plain step scan once >=2 were detected —
+    a real, confirmed defect: a real uploaded floor plan's individual,
+    non-grid columns (not a true structural bay grid, just several
+    scattered columns near fixtures) got misread as "a grid" by the same
+    >=2-clustered-values test every real grid also satisfies, and
+    restricting every candidate position to just those few coordinates made
+    an entire auditorium preset tier read as "nothing fits" even with
+    thousands of sqft of open floor two feet away from the nearest column.
+    Additive avoids ever needing to tell a genuine grid apart from a
+    coincidental scatter — a real grid's lines still get offered and, being
+    tried in the same sorted order as everything else, still win any tie."""
+    vals = []
+    v = minv
+    while v + min_extent <= maxv:
+        vals.append(v)
+        v += step
+    if grid_lines:
+        vals = vals + list(grid_lines)
     if extra_lines:
-        vals = list(vals) + list(extra_lines)
+        vals = vals + list(extra_lines)
     return sorted(v for v in set(vals) if minv <= v and v + min_extent <= maxv)
 
 
@@ -649,18 +652,25 @@ def _find_largest_fitting_custom_screen(usable_poly, fallback_poly, placed_polys
     return None, False
 
 
+_OPPOSITE_WALL = {"min_y": "max_y", "max_y": "min_y", "min_x": "max_x", "max_x": "min_x"}
+
+
 def _screen_wall_for_rect(x, y, w, h, entry_point):
-    """Which edge of a placed auditorium rect is the screen wall —
+    """Which edge of a placed rect is nearest the marked entry point —
     geometry-relative labels (never compass directions: this project has
     already shipped one real Y-axis orientation bug this session, and
     reusing N/S/E/W on top of a codebase with a documented history of
-    Y-flip confusion is asking for a repeat). Chosen as the edge nearest the
-    marked entry point — real cinema design puts the entry/exit doors on
-    the screen-adjacent wall (confirmed against two real Connplex reference
-    floor plans during this feature's design pass: the projector booth,
-    which must face the screen from the opposite end of the room, sits at
-    the true building perimeter, while entry/exit are on the wall nearest
-    the shared circulation core). Defaults to "min_y" — today's hardcoded
+    Y-flip confusion is asking for a repeat). Despite the name (kept for
+    the support-zone call site, where this near-entry wall genuinely IS the
+    door wall — a Box Office/Washroom/etc has no screen), an AUDITORIUM
+    must NOT put its own doors on this wall and call it done: real cinema
+    design mounts the projection screen on the FAR wall from the entrance
+    and doors on the NEAR one, so patrons walk in from the back and the
+    screen is what they see at the front — never sharing a wall with the
+    door they just walked through. _build_auditorium_room/place_single_zone's
+    AUDITORIUM branch both flip this via _OPPOSITE_WALL to get the true
+    screen wall; only the door wall (this function's raw return value) goes
+    to _doors_for_screen_wall. Defaults to "min_y" — today's hardcoded
     frontend assumption — when no entry point is marked, so existing
     layouts render identically to before this field existed."""
     if entry_point is None:
@@ -709,7 +719,15 @@ def _build_auditorium_room(x, y, w, h, index, used_preset, used_fallback, column
     rect = _rect(x, y, w, h)
     enclosed_area = _enclosed_obstacle_area(rect, column_polys) if used_fallback else 0.0
     seat_config, seat_est = _best_seat_estimate(used_preset, w, h, enclosed_area, screen_width_ft)
-    screen_wall = _screen_wall_for_rect(x, y, w, h, entry_point)
+    # door_wall (nearest the entry) and screen_wall (its opposite, the real
+    # projection-screen wall) are deliberately different — see
+    # _screen_wall_for_rect's own docstring for why conflating them was a
+    # real, reported defect (a room's own doors cut into the same wall as
+    # its screen, which no cinema does). No real entry point to reason from:
+    # keep both the same "min_y" default this field has always had, rather
+    # than opposite-flipping an arbitrary guess.
+    door_wall = _screen_wall_for_rect(x, y, w, h, entry_point)
+    screen_wall = _OPPOSITE_WALL[door_wall] if entry_point is not None else door_wall
     room = {
         "room_id": f"auditorium-{uuid.uuid4().hex[:8]}",
         "room_type": f"AUDITORIUM_{index}",
@@ -725,7 +743,7 @@ def _build_auditorium_room(x, y, w, h, index, used_preset, used_fallback, column
         "seat_estimate": seat_est,
         "seat_config": seat_config,
         "screen_wall": screen_wall,
-        "doors": _doors_for_screen_wall(w, h, screen_wall, door_width_ft)
+        "doors": _doors_for_screen_wall(w, h, door_wall, door_width_ft)
     }
     if used_preset is None:
         room["area_basis_note"] = (
@@ -849,6 +867,32 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
     return placed, placed_polys, warnings, undersized_count
 
 
+def _try_place_auditorium_with_column_check(usable_poly, fallback_poly, placed_polys, placed_types, w, h, bbox,
+                                             grid_lines_x, grid_lines_y, column_polys, aud_column_cap,
+                                             aud_edge_tolerance_ft, flip_x, flip_y, top_k=12):
+    """Same strict-then-column-tolerant scan every auditorium placement
+    already used, but tries up to top_k ranked candidates instead of
+    stopping at the single first-fit one — a real, confirmed defect this
+    fixes: on a real uploaded file with several individual (non-grid)
+    columns, the very first geometrically-valid candidate can enclose too
+    much of one column and get rejected by the column-enclosure gate, and
+    with no retry, that preset size (and via Phase 1's own "stop the
+    instant one preset fails everywhere" logic, the ENTIRE preset tier)
+    reads as "nothing fits" even though a column-clear position exists two
+    feet away — this is exactly what made a real live project's 7,000+ sqft
+    floor plate place only 1 of a possible 4 screens. Returns (x, y, w, h,
+    used_fallback) or None."""
+    ranked = _scan_place_ranked_with_fallback(
+        usable_poly, fallback_poly, placed_polys, placed_types, "AUDITORIUM", w, h, bbox,
+        top_k=top_k, grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y
+    )
+    for (x, y, ow, oh), _satisfied, used_fallback in ranked:
+        if used_fallback and not _column_enclosure_ok((x, y, ow, oh), bbox, flip_x, flip_y, column_polys, aud_column_cap, aud_edge_tolerance_ft):
+            continue
+        return x, y, ow, oh, used_fallback
+    return None
+
+
 def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, presets, max_count, preset_order,
                               entry_point=None, exit_points_ft=None, screen_width_ft=None):
     placed = []
@@ -912,26 +956,25 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
             # both seats (the locked v1 objective) and area utilization.
             w_max = preset.get("width_max_ft", preset["width_min_ft"])
             h_max = preset.get("length_max_ft", preset["length_min_ft"])
-            result, used_fallback = _scan_place_with_fallback(scan_usable, scan_fallback, scan_placed_polys, scan_placed_types, "AUDITORIUM", w_max, h_max, bbox,
-                                                                grid_lines_x=scan_grid_x, grid_lines_y=scan_grid_y)
-            # A fallback (column-tolerant) placement is only acceptable if the
-            # enclosed column stays within the auditorium's own, much
-            # stricter tolerance (see AUDITORIUM_MAX_ENCLOSED_COLUMN_RATIO) —
-            # a column mid-seating-bowl is a real defect, not something to
-            # silently absorb the way a foyer wraps one. Rejecting here just
-            # falls through to the next (smaller) footprint/preset below,
-            # same as a genuine no-fit — this v1 only retries the preset's
-            # own two declared footprints, not every other position the
-            # fallback polygon might offer; a real but bounded scope cut.
-            if result and used_fallback and not _column_enclosure_ok(result, bbox, flip_x, flip_y, column_polys, aud_column_cap, aud_edge_tolerance_ft):
-                result = None
+            # Ranked, column-check-aware scan (see
+            # _try_place_auditorium_with_column_check's own docstring) —
+            # retries other real candidate positions before giving up on
+            # this footprint, rather than rejecting the whole preset tier
+            # because the single first-fit position happened to cover too
+            # much of a column.
+            result = _try_place_auditorium_with_column_check(
+                scan_usable, scan_fallback, scan_placed_polys, scan_placed_types, w_max, h_max, bbox,
+                scan_grid_x, scan_grid_y, column_polys, aud_column_cap, aud_edge_tolerance_ft, flip_x, flip_y
+            )
             if not result and (w_max, h_max) != (preset["width_min_ft"], preset["length_min_ft"]):
-                result, used_fallback = _scan_place_with_fallback(scan_usable, scan_fallback, scan_placed_polys, scan_placed_types, "AUDITORIUM", preset["width_min_ft"], preset["length_min_ft"], bbox,
-                                                                    grid_lines_x=scan_grid_x, grid_lines_y=scan_grid_y)
-                if result and used_fallback and not _column_enclosure_ok(result, bbox, flip_x, flip_y, column_polys, aud_column_cap, aud_edge_tolerance_ft):
-                    result = None
+                result = _try_place_auditorium_with_column_check(
+                    scan_usable, scan_fallback, scan_placed_polys, scan_placed_types,
+                    preset["width_min_ft"], preset["length_min_ft"], bbox,
+                    scan_grid_x, scan_grid_y, column_polys, aud_column_cap, aud_edge_tolerance_ft, flip_x, flip_y
+                )
             if result:
-                placement = result
+                placement = result[:4]
+                used_fallback = result[4]
                 used_preset = preset
                 break
 
@@ -966,6 +1009,7 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
     # area untouched this way) motivated both this and the free-rectangle
     # search it's built on.
     remaining_slots = max_count - len(placed)
+    narrow_results = []
     if remaining_slots > 0:
         backtrack_results = _fill_remaining_auditoriums_with_backtracking(
             scan_usable, scan_fallback, column_polys, bbox, scan_placed_polys, scan_placed_types,
@@ -979,7 +1023,41 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
             placed_polys.append(_rect(x, y, w, h))
             placed.append(_build_auditorium_room(x, y, w, h, len(placed) + 1, None, used_fallback,
                                                   column_polys, screen_width_ft, entry_point, door_width_ft))
-        if not backtrack_results and presets_exhausted:
+
+        # A real, disclosed SOP adjustment: the min_short_side_ft realism
+        # floor (see _find_largest_fitting_custom_screen's own docstring —
+        # it exists to stop a genuinely unrealistic sliver screen) can, on a
+        # floor plate with a dense, irregular confirmed column layout,
+        # leave NO rectangle anywhere wide enough to clear it — a real,
+        # measured case: a live project's 7,000+ sqft confirmed boundary
+        # placed only 1 of a possible 4 screens this way, with thousands of
+        # sqft of real leftover area. Retrying once without the floor for
+        # whatever slots are still open trades a narrower, non-standard
+        # screen the architect must review for actually using that space,
+        # rather than silently leaving it as unlabeled Foyer slack.
+        remaining_after_realistic = max_count - len(placed)
+        if remaining_after_realistic > 0 and min_short_side_ft > 0:
+            narrow_results = _fill_remaining_auditoriums_with_backtracking(
+                scan_usable, scan_fallback, column_polys, bbox, scan_placed_polys, scan_placed_types,
+                remaining_after_realistic, min_preset_area_sqft, aud_column_cap, flip_x, flip_y,
+                aud_edge_tolerance_ft=aud_edge_tolerance_ft, min_short_side_ft=0.0
+            )
+            for sx, sy, w, h, used_fallback in narrow_results:
+                scan_placed_polys.append(_rect(sx, sy, w, h))
+                scan_placed_types.append("AUDITORIUM")
+                x, y = _unmirror_rect(sx, sy, w, h, bbox, flip_x, flip_y)
+                placed_polys.append(_rect(x, y, w, h))
+                placed.append(_build_auditorium_room(x, y, w, h, len(placed) + 1, None, used_fallback,
+                                                      column_polys, screen_width_ft, entry_point, door_width_ft))
+            if narrow_results:
+                warnings.append(
+                    f"Placed {len(narrow_results)} additional screen(s) narrower than the usual "
+                    f"{min_short_side_ft:.0f}ft realism floor — the confirmed column layout left no wider "
+                    "rectangle anywhere on this floor plate (SOP adjustment). Review these shapes manually "
+                    "before finalizing."
+                )
+
+        if not backtrack_results and not narrow_results and presets_exhausted:
             warnings.append(f"Could not fit another auditorium after placing {len(placed)} — no remaining preset or custom-fit footprint fits available usable space.")
 
     return placed, placed_polys, warnings, undersized_count
@@ -1165,7 +1243,10 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
             None if used_custom_fit else matched_preset, w, h, enclosed_area, screen_width_ft
         )
         existing_screens = sum(1 for t in placed_types if t == "AUDITORIUM")
-        screen_wall = _screen_wall_for_rect(x, y, w, h, entry_point)
+        # See _build_auditorium_room's identical split — door_wall (nearest
+        # entry) and screen_wall (its opposite) must not be the same wall.
+        door_wall = _screen_wall_for_rect(x, y, w, h, entry_point)
+        screen_wall = _OPPOSITE_WALL[door_wall] if entry_point is not None else door_wall
         room = {
             "room_id": f"auditorium-{uuid.uuid4().hex[:8]}",
             "room_type": f"AUDITORIUM_{existing_screens + 1}",
@@ -1179,7 +1260,7 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
             "seat_estimate": seat_est,
             "seat_config": seat_config,
             "screen_wall": screen_wall,
-            "doors": _doors_for_screen_wall(w, h, screen_wall, door_width_ft)
+            "doors": _doors_for_screen_wall(w, h, door_wall, door_width_ft)
         }
         if used_custom_fit:
             room["area_basis_note"] = (
