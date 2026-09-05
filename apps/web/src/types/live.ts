@@ -367,11 +367,6 @@ export interface ZoningRunResult {
   created_at: string;
 }
 
-export interface CirculationPathSegment {
-  from: [number, number];
-  to: [number, number];
-}
-
 export interface EditableLayout {
   region_id: string;
   source_candidate_id: string;
@@ -393,12 +388,6 @@ export interface EditableLayout {
   // nothing is marked yet (a real, honest case), never a crash.
   entry_point_ft?: [number, number] | null;
   exit_points_ft?: [number, number][];
-  // A real "spine and branches" walking-path aid for the Edit canvas only
-  // (see layout_engine.circulation_path_segments) — never present on
-  // exported PDF/DXF, which stay faithful to the real reference
-  // convention of drawing no circulation arrows. Empty whenever there's
-  // nothing to draw (no marked entry, or no Foyer yet).
-  circulation_path?: CirculationPathSegment[];
 }
 
 export interface ValidationError {

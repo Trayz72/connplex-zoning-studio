@@ -118,11 +118,27 @@ def _draw_entry_exit_markers(msp, entry_point_ft, exit_points_ft, boundary_point
     line swung inward, same construction as every room's own
     _door_glyph_points_ft, on their own layer so an architect can toggle
     them independently of room/door annotation."""
+    # Real, reported bug: entry and exit marked close together (a real live
+    # project had them only 5ft apart) snapped to nearly the same boundary
+    # point, overlapping the glyphs and labels. Nudge each later glyph
+    # along the same wall until it clears a real door-width-plus-label
+    # spacing from every earlier one already placed there.
+    min_spacing = door_width_ft * 1.8
+    placed_hits = []
+
     def draw_one(pt, color, label):
         hit = _nearest_boundary_edge_point(pt, boundary_points_ft)
         if hit is None:
             return
         (sx, sy), (tx, ty), (nx, ny) = hit
+        for (psx, psy), (ptx, pty), _ in placed_hits:
+            if abs(ptx - tx) > 1e-6 or abs(pty - ty) > 1e-6:
+                continue
+            dist = math.hypot(sx - psx, sy - psy)
+            if dist < min_spacing:
+                shift = min_spacing - dist
+                sx, sy = sx + tx * shift, sy + ty * shift
+        placed_hits.append(((sx, sy), (tx, ty), (nx, ny)))
         half = door_width_ft / 2
         p1 = (sx - tx * half, sy - ty * half)
         p2 = (sx + tx * half, sy + ty * half)
