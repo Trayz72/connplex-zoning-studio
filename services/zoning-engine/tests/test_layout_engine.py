@@ -143,23 +143,23 @@ def test_validate_rooms_accepts_real_non_overlapping_layout():
 # ---------- screen_wall / doors (component-placement upgrade) ----------
 
 def test_screen_wall_and_doors_derived_from_entry_point():
-    """An auditorium placed with a marked entry point should get its
-    screen_wall on the edge nearest that entry point (see
-    layout_engine._screen_wall_for_rect), with one ENTRY + one EXIT door on
-    that same wall — matching the real reference floor plans this feature
-    was designed against, where every auditorium's entry/exit cluster sits
-    on the screen-adjacent wall."""
+    """An auditorium placed with a marked entry point should get its doors
+    on the edge nearest that entry point, and its actual projection screen
+    on the OPPOSITE wall — a real, reported defect this guards against: an
+    earlier version put both on the same wall, meaning a patron would have
+    to walk in right next to the screen. Real cinema design has patrons
+    enter from the back/near wall and see the screen at the far end."""
     usable = _usable()
     requirements = {"entry_point_ft": [0, 30]}  # far left, mid-height
     room, warning = layout_engine.place_single_zone(
         usable, usable, [], [], [], (0, 0, 100, 60), "AUDITORIUM", requirements
     )
     assert room is not None, warning
-    assert room["screen_wall"] == "min_x"
+    assert room["screen_wall"] == "max_x", "screen should be on the FAR wall from the entry, not the near one"
     kinds = sorted(d["kind"] for d in room["doors"])
     assert kinds == ["ENTRY", "EXIT"]
     for door in room["doors"]:
-        assert door["wall"] == "min_x"
+        assert door["wall"] == "min_x", "doors belong on the near-entry wall, never the screen wall"
         assert door["width_ft"] > 0
 
 
@@ -592,3 +592,48 @@ def test_circulation_path_empty_without_entry_or_foyer():
     foyer = {"room_type": "FOYER", "label_point_ft": [5, 0]}
     assert layout_engine.circulation_path_segments([room], entry) == []
     assert layout_engine.circulation_path_segments([foyer, room], None) == []
+
+
+# ---------- scan candidate coverage / narrow-screen SOP adjustment (real-file remediation round) ----------
+
+def test_scan_axis_positions_grid_lines_are_additive_not_exclusive():
+    """A real, confirmed defect: detected column-grid lines used to REPLACE
+    the plain fixed-step scan once >=2 clustered values existed on an axis,
+    so a genuine open position away from those specific lines could be
+    missed entirely — this happened on a real uploaded floor plan where
+    several individual, non-grid columns (not a true structural bay grid)
+    got misread as "a grid" by the same >=2-clustered-values test any real
+    grid also satisfies, and starved auditorium placement of every valid
+    position across an entire 7,000+ sqft wing. Grid lines (and extra_lines)
+    must only ADD candidates, never remove the ones the plain step scan
+    already offers."""
+    positions = layout_engine._scan_axis_positions(0, 100, 10, 10, grid_lines=[5, 95])
+    for expected in range(0, 91, 10):
+        assert expected in positions, f"{expected} missing — grid lines wrongly replaced the plain step scan"
+    assert 5 in positions, "grid line itself should still be offered as a bonus candidate"
+
+
+def test_auto_layout_places_a_below_floor_screen_when_nothing_wider_fits_anywhere():
+    """SOP-adjustment path, mirroring the entry-vestibule fallback: the
+    min_short_side_ft realism floor (24ft — see
+    _find_largest_fitting_custom_screen's own docstring) can leave a real,
+    disconnected leftover block with NO way to ever clear it — unlike a
+    preset ladder that can retry a smaller footprint within the SAME area,
+    each free rectangle here is independently fixed-size, so a rectangle
+    below the floor would otherwise never contribute a screen at all. A
+    dumbbell boundary: a 28x33 block (clears the floor) and a 45x20 block
+    (900 sqft, exactly the minimum preset area, but short side 20 < 24ft)
+    joined by a thin bridge too narrow to merge them. Must place BOTH as
+    custom-fit screens and disclose the narrower one as an SOP adjustment,
+    not silently drop 900 real sqft on the floor."""
+    boundary = [(0, 0), (28, 0), (48, 0), (93, 0), (93, 20), (48, 20),
+                (48, 2), (28, 2), (28, 33), (0, 33), (0, 0)]
+    usable = layout_engine.compute_usable_area(boundary, [])
+    candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 2}, [])
+    aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+    assert len(aud_rooms) == 2, f"expected both blocks to be used as screens, got {[(r['area_sqft']) for r in aud_rooms]}"
+    areas = sorted(r["area_sqft"] for r in aud_rooms)
+    assert areas == [900.0, 924.0]
+    assert any("SOP adjustment" in w for w in candidate["warnings"]), (
+        f"expected a disclosed SOP-adjustment warning for the below-floor screen, got {candidate['warnings']}"
+    )

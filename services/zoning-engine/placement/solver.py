@@ -56,15 +56,24 @@ def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
     finished with fewer total seats than greedy despite being a strictly
     more powerful search.
 
-    That fix still has a floor, though: a custom-fit candidate's own short
-    side must clear min_short_side_ft (the smallest configured preset's own
-    width_min_ft) — a strip narrower than that produced architecturally
-    absurd "screens" (a real, measured case: 70.8x13.8ft) no human would
-    ever draw. Rejecting it here is safe, not just a shape preference: the
-    strip's area doesn't vanish, it becomes real Foyer/circulation space
-    instead once layout_engine's post-auditorium pass runs (see
-    _build_foyer_room) — never silently lost usable area the way it would
-    have been before that existed.
+    A custom-fit candidate's short side is preferred to clear
+    min_short_side_ft (the smallest configured preset's own width_min_ft)
+    — a strip narrower than that produces an architecturally unusual
+    "screen" (a real, measured case: 70.8x13.8ft) no human would draw by
+    choice. But since each free rectangle here is independent and already
+    at its own maximal size (not a range to shrink within, the way
+    greedy's preset ladder can retry a smaller footprint), a rectangle
+    whose short side never clears the floor would otherwise contribute
+    ZERO candidates forever — a real, measured case on a real uploaded
+    file with a dense, irregular confirmed column layout, where an entire
+    wing of a 7,000+ sqft floor plate produced no candidate at all this
+    way. So a below-floor rectangle still gets its own full-extent
+    candidate (same SOP-adjustment trade layout_engine._place_auditoriums_inner's
+    own two-tier backtracking retry makes) — real usable area is never
+    silently contributed zero candidates just because it's narrower than
+    ideal; every custom-fit room still carries its "review before
+    finalizing" note regardless of which path produced it (see
+    _build_auditorium_room).
 
     Returns a list of dicts: {x, y, w, h, preset,
     used_fallback, seat_config, seat_estimate} — preset is None for a
@@ -73,7 +82,6 @@ def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
     candidates = []
     seen = set()
     min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
-    min_short_side_ft = min((p["width_min_ft"] for p in presets), default=0)
 
     for poly, used_fallback in ((usable_poly, False), (fallback_poly, True)):
         if poly is None or (used_fallback and poly is usable_poly):
@@ -81,7 +89,7 @@ def generate_candidates(usable_poly, fallback_poly, column_polys, bbox, presets,
         rects = free_rectangles.free_rectangles_ft(poly, bbox, cell_ft=1.0, max_candidates=max_free_rects)
         for rx, ry, rw, rh in rects:
             cw, ch = min(rw, max_dim_ft), min(rh, max_dim_ft)
-            if cw * ch >= min_preset_area_sqft and min(cw, ch) >= min_short_side_ft:
+            if cw * ch >= min_preset_area_sqft:
                 for ax, ay in ((rx, ry), (rx + rw - cw, ry + rh - ch)):
                     key = (round(ax, 2), round(ay, 2), round(cw, 2), round(ch, 2))
                     if key in seen:
