@@ -35,7 +35,7 @@ Both are genuinely different placements, scored the same way as the M8 rescoring
 import math
 import uuid
 
-from shapely.geometry import Polygon, box
+from shapely.geometry import Polygon, box, Point
 from shapely.ops import unary_union
 from shapely.affinity import rotate as shapely_rotate
 from shapely.affinity import scale as shapely_scale
@@ -793,12 +793,41 @@ def _fill_remaining_auditoriums_with_backtracking(usable_poly, fallback_poly, co
     )
 
 
+def _reserve_entry_vestibule(usable_poly, fallback_poly, entry_point):
+    """Real human zoning always leaves a walkable buffer just inside the
+    entrance — never a wall a customer would bump into on pushing the door
+    open. Without this, nothing stops an auditorium (the only room type
+    placed before an entry point has anywhere to receive a customer) from
+    landing within inches of the marked entry point, which is exactly what
+    a real live project did: a custom-fit screen's own wall sat 0.56ft from
+    the entry, leaving no real Foyer space to walk into and pushing Box
+    Office — scored to minimize distance to entry — to the opposite side of
+    the building because the one place it should have landed was already a
+    wall. Carves a real disk of radius EGRESS_PASSAGE_MIN_WIDTH_FT (the same
+    real SOP passage-width norm _support_zone_dims already uses for
+    PASSAGE, reused here instead of inventing a second magic number) out of
+    whichever polygons auditorium placement scans against — guaranteed by
+    geometry, not just discouraged by a heuristic. Deliberately NOT applied
+    to the usable_poly/fallback_poly support-zone placement receives
+    afterward: Box Office and Foyer are supposed to claim this reserved
+    space, not be denied it too. Exit points are left alone on purpose — a
+    marked building exit is routinely an auditorium's own fire-exit wall in
+    a real cinema, not a reception space that needs clearing."""
+    if entry_point is None:
+        return usable_poly, fallback_poly
+    clearance_ft = rules_registry.planning_norm("EGRESS_PASSAGE_MIN_WIDTH_FT") or 8.25
+    vestibule = Point(entry_point).buffer(clearance_ft)
+    return usable_poly.difference(vestibule), fallback_poly.difference(vestibule)
+
+
 def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, max_count, preset_order,
                         entry_point=None, exit_points_ft=None, screen_width_ft=None):
     placed = []
     placed_polys = []           # real-space, returned to the caller
     warnings = []
     undersized_count = 0  # how many auditoriums couldn't get this strategy's most-preferred preset tier — real evidence for the utilization warning below, not a guess
+
+    usable_poly, fallback_poly = _reserve_entry_vestibule(usable_poly, fallback_poly, entry_point)
 
     # See _entry_exit_scan_flip's own docstring: this is what makes screen
     # placement actually start near the entrance and proceed toward the
@@ -1400,7 +1429,6 @@ def _build_foyer_room(fallback_poly, placed_polys, placed_rooms_for_doors, entry
     not) — every other piece's area is reported as leftover slack, never
     promoted to a second Foyer room. Returns (foyer_room_or_None,
     leftover_slack_sqft)."""
-    from shapely.geometry import Point
     remainder = fallback_poly.difference(unary_union(placed_polys)) if placed_polys else fallback_poly
     if remainder.is_empty:
         return None, 0.0
@@ -1683,10 +1711,16 @@ def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: 
         aud_edge_tolerance_ft = 2.0
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
 
+    # Same entry-vestibule reservation _place_auditoriums uses — applied
+    # only to the solver's own candidate pool, not to usable_poly/
+    # fallback_poly themselves (those still go to _place_support_zones_and_foyer
+    # below unreserved, exactly as before): Box Office/Foyer are supposed to
+    # claim this space, only the solver's screen candidates are denied it.
+    solver_usable, solver_fallback = _reserve_entry_vestibule(usable_poly, fallback_poly, entry_point)
     solve_kwargs = {}
     if time_limit_seconds is not None:
         solve_kwargs["time_limit_seconds"] = time_limit_seconds
-    selected, status = solver.solve(usable_poly, fallback_poly, column_polys, bbox, presets, max_auditoriums,
+    selected, status = solver.solve(solver_usable, solver_fallback, column_polys, bbox, presets, max_auditoriums,
                                      aud_column_cap, screen_width_ft, aud_edge_tolerance_ft=aud_edge_tolerance_ft,
                                      **solve_kwargs)
 
