@@ -667,6 +667,45 @@ def test_custom_fit_backtracking_tolerates_interior_column_via_relaxed_gate():
     assert len(results) == 1, "expected the custom-fit screen to tolerate a dead-center column under the relaxed gate"
 
 
+def test_custom_fit_backtracking_prefers_a_column_free_candidate_over_a_larger_column_tolerant_one():
+    """Real, reported defect: a client-facing live project showed screens
+    enclosing structural columns even though clean, column-free positions
+    were available right next to them. Root cause — candidates_for_slot
+    (inside _fill_remaining_auditoriums_with_backtracking) mixed strict
+    (column-free) and fallback (column-tolerant) candidates into one list
+    sorted purely by area, so a bigger fallback rectangle (unfragmented by
+    the column's own hole) could win over a smaller-but-clean strict one,
+    even though every OTHER placement path in this module deliberately
+    tries column-free positions first regardless of size (see
+    _scan_place_ranked_with_fallback's own docstring).
+
+    Here a small column sits near the right edge of a 60x24 boundary. The
+    fallback (column-ignored) polygon offers the WHOLE 60x24 rectangle
+    (1440 sqft) as one candidate; the strict (column-subtracted) polygon
+    can only offer the clean 45x24 area to the column's left (1080 sqft) —
+    smaller, but genuinely column-free. The filler must pick the clean,
+    smaller one over the bigger, column-enclosing one."""
+    boundary = [[0, 0], [60, 0], [60, 24], [0, 24], [0, 0]]
+    column = {"points_ft": [[46, 11], [48, 11], [48, 13], [46, 13]], "classification": "COLUMN"}
+    usable = layout_engine.compute_usable_area(boundary, [column])
+    fallback = layout_engine.compute_usable_area(boundary, [column], exclude_classifications=("COLUMN",))
+    column_polys = [layout_engine.poly_from_points(column["points_ft"])]
+    bbox = (0, 0, 60, 24)
+    results = layout_engine._fill_remaining_auditoriums_with_backtracking(
+        usable, fallback, column_polys, bbox, [], [], 1, 900, 0.05, False, False,
+        aud_edge_tolerance_ft=None, min_short_side_ft=24
+    )
+    assert len(results) == 1
+    x, y, w, h, used_fallback = results[0]
+    assert used_fallback is False, (
+        f"expected the column-free 45x24 area to be picked over the bigger column-enclosing 60x24 one, "
+        f"got {results[0]}"
+    )
+    placed_rect = layout_engine._rect(x, y, w, h)
+    column_poly = column_polys[0]
+    assert placed_rect.intersection(column_poly).area < 1e-6, "placed screen must not enclose the column at all"
+
+
 def test_generate_candidate_wires_the_relaxed_custom_fit_gate_through_auto_layout():
     """Integration check that _place_auditoriums_inner actually PASSES the
     relaxed custom-fit column tolerance down to its own backtracking call
