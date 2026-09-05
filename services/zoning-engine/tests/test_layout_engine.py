@@ -500,3 +500,50 @@ def test_multiple_custom_fit_screens_place_in_one_auto_layout_run():
         f"{[(r['preset_id'], r['area_sqft']) for r in aud_rooms]}"
     )
     assert all(r["area_sqft"] >= 900 for r in custom_fit_rooms)
+
+
+# ---------- entry vestibule reservation (component-placement upgrade) ----------
+
+def test_reserve_entry_vestibule_shrinks_usable_area_around_the_entry_point():
+    usable = _usable()
+    entry = (0, 30)
+    reserved_usable, reserved_fallback = layout_engine._reserve_entry_vestibule(usable, usable, entry)
+    assert reserved_usable.area < usable.area
+    assert reserved_fallback.area < usable.area
+    from shapely.geometry import Point
+    clearance_ft = layout_engine.rules_registry.planning_norm("EGRESS_PASSAGE_MIN_WIDTH_FT") or 8.25
+    assert not reserved_usable.contains(Point(entry).buffer(1))
+    # A point well clear of the entry keeps its area untouched.
+    assert reserved_usable.contains(Point(50, 30))
+
+
+def test_reserve_entry_vestibule_is_a_noop_without_a_marked_entry():
+    usable = _usable()
+    reserved_usable, reserved_fallback = layout_engine._reserve_entry_vestibule(usable, usable, None)
+    assert reserved_usable is usable
+    assert reserved_fallback is usable
+
+
+def test_auto_layout_keeps_auditoriums_clear_of_the_marked_entry():
+    """The real, live-project defect this exists to fix: a custom-fit
+    screen's own wall landed 0.56ft from the marked entry point, leaving no
+    real Foyer space to walk into. No auditorium's own rectangle should
+    come closer than the real SOP passage-width clearance to the entry —
+    guaranteed by geometry (_reserve_entry_vestibule), not just discouraged."""
+    boundary = RECT_BOUNDARY
+    usable = layout_engine.compute_usable_area(boundary, [])
+    entry = (0, 30)
+    candidate = layout_engine.generate_candidate(
+        usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 4, "entry_point_ft": list(entry)}, []
+    )
+    clearance_ft = layout_engine.rules_registry.planning_norm("EGRESS_PASSAGE_MIN_WIDTH_FT") or 8.25
+    from shapely.geometry import Point
+    entry_pt = Point(entry)
+    for room in candidate["rooms"]:
+        if not room["room_type"].startswith("AUDITORIUM"):
+            continue
+        room_poly = layout_engine.poly_from_points(room["geometry_points_ft"])
+        assert room_poly.distance(entry_pt) >= clearance_ft - 1e-6, (
+            f"{room['room_type']} sits {room_poly.distance(entry_pt):.2f}ft from the marked entry, "
+            f"closer than the required {clearance_ft}ft clearance"
+        )
