@@ -985,19 +985,22 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
         aud_edge_tolerance_ft = 2.0
     # A custom-fit room already carries its own "no standard preset fit —
     # review before finalizing" note (see _build_auditorium_room), unlike a
-    # preset match which promises a clean SOP bowl shape. A real architect
-    # tolerates a structural column somewhere inside a large custom seating
-    # field by adjusting the seat plan around it, rather than refusing the
-    # whole room shape the way the preset-level interior-position gate
-    # does — confirmed against a real Connplex reference floor plan where
-    # exactly this happens. Real, measured case this exists to fix: a
-    # 2,542 sqft, well-proportioned (aspect 1.5) rectangle was rejected
-    # outright for enclosing a column just 0.95% of its own area, only
-    # because that column sat a few feet past the strict 2ft-from-any-wall
-    # band — while a real cinema would simply route around it. Custom-fit
-    # placement uses this more permissive ratio and skips the
-    # interior-position gate entirely (edge_tolerance_ft=None); presets
-    # keep the strict pair above, unchanged.
+    # preset match which promises a clean SOP bowl shape, so it gets a wider
+    # AREA ratio cap (5% vs presets' 2%) — a real architect tolerates a bit
+    # more structural column presence in a large custom seating field.
+    # real, measured case this cap exists to fix: a 2,542 sqft, well-
+    # proportioned (aspect 1.5) rectangle was rejected outright for
+    # enclosing a column just 0.95% of its own area.
+    #
+    # The POSITION gate (edge_tolerance_ft — a column must sit within that
+    # distance of one of the room's own walls, not stranded in the
+    # interior) is NOT relaxed, though — direct, reported client feedback:
+    # a custom-fit room was swallowing an entire floor's worth of columns
+    # scattered through its interior (only the area ratio was checked),
+    # producing an obviously-broken-looking screen with columns dead-center
+    # in the seating field. Real cinema design only tolerates a column near
+    # a wall/aisle, never in the middle of a row — same rule presets
+    # already enforce, now applied identically here.
     custom_fit_column_cap = 0.05
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
     min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
@@ -1082,7 +1085,7 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
         backtrack_results = _fill_remaining_auditoriums_with_backtracking(
             scan_usable, scan_fallback, column_polys, bbox, scan_placed_polys, scan_placed_types,
             remaining_slots, min_preset_area_sqft, custom_fit_column_cap, flip_x, flip_y,
-            aud_edge_tolerance_ft=None, min_short_side_ft=min_short_side_ft
+            aud_edge_tolerance_ft=aud_edge_tolerance_ft, min_short_side_ft=min_short_side_ft
         )
         for sx, sy, w, h, used_fallback in backtrack_results:
             scan_placed_polys.append(_rect(sx, sy, w, h))
@@ -1108,7 +1111,7 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
             narrow_results = _fill_remaining_auditoriums_with_backtracking(
                 scan_usable, scan_fallback, column_polys, bbox, scan_placed_polys, scan_placed_types,
                 remaining_after_realistic, min_preset_area_sqft, custom_fit_column_cap, flip_x, flip_y,
-                aud_edge_tolerance_ft=None, min_short_side_ft=0.0
+                aud_edge_tolerance_ft=aud_edge_tolerance_ft, min_short_side_ft=0.0
             )
             for sx, sy, w, h, used_fallback in narrow_results:
                 scan_placed_polys.append(_rect(sx, sy, w, h))
@@ -1294,12 +1297,13 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
                 usable_poly, fallback_poly, placed_polys, placed_types, bbox,
                 min_preset_area_sqft, min_short_side_ft=min_short_side_ft
             )
-            # Same relaxed custom-fit column tolerance as the auto-layout
-            # path (see _place_auditoriums_inner's own comment) — a
-            # manually-added custom-fit screen already carries the same
-            # "review before finalizing" note, so it shouldn't be held to
-            # the stricter preset-level column gate either.
-            if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, False, False, column_polys, 0.05, None):
+            # Same relaxed custom-fit column AREA tolerance as the auto-
+            # layout path (see _place_auditoriums_inner's own comment) —
+            # wider ratio cap, but the interior-position gate stays fully
+            # enforced (aud_edge_tolerance_ft, not None): a manually-added
+            # screen must not swallow a column stranded in its interior any
+            # more than an auto-placed one may.
+            if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, False, False, column_polys, 0.05, aud_edge_tolerance_ft):
                 custom_result = None
             if custom_result:
                 result = custom_result
