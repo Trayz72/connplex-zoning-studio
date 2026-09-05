@@ -581,6 +581,7 @@ export const ZoningWorkspace: React.FC = () => {
                 onDeleteSelected={deleteSelected}
                 entryPointFt={layout.entry_point_ft}
                 exitPointsFt={layout.exit_points_ft}
+                circulationPath={layout.circulation_path}
               />
             </div>
 

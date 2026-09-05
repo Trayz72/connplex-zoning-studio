@@ -547,3 +547,48 @@ def test_auto_layout_keeps_auditoriums_clear_of_the_marked_entry():
             f"{room['room_type']} sits {room_poly.distance(entry_pt):.2f}ft from the marked entry, "
             f"closer than the required {clearance_ft}ft clearance"
         )
+
+
+def test_place_auditoriums_falls_back_without_vestibule_when_it_starves_all_placement():
+    """SOP-adjustment path: a floor plate exactly the size of the smallest
+    auditorium preset (35_SEAT: 24x35ft), with the entry marked right at
+    the corner that preset needs — reserving the walkable buffer there
+    would leave no room for any screen at all. Must fall back to placing
+    without the buffer rather than silently returning zero auditoriums,
+    and must disclose the adjustment as a warning (never a silent SOP
+    override — see _place_auditoriums' own docstring)."""
+    boundary = [[0, 0], [24, 0], [24, 35], [0, 35], [0, 0]]
+    usable = layout_engine.compute_usable_area(boundary, [])
+    presets = layout_engine.rules_registry.auditorium_presets()
+    placed, placed_polys, warnings, undersized = layout_engine._place_auditoriums(
+        usable, usable, [], (0, 0, 24, 35), presets, 1, lambda p: p, entry_point=(0, 0)
+    )
+    assert len(placed) == 1, f"expected the fallback to still place one screen, got {len(placed)}"
+    assert any("SOP adjustment" in w for w in warnings), f"expected a disclosed SOP-adjustment warning, got {warnings}"
+
+
+# ---------- circulation path (component-placement upgrade) ----------
+
+def _aud_room_with_door(x, y, w, h, doors):
+    return {"room_type": "AUDITORIUM_1", "origin_ft": [x, y], "width_ft": w, "depth_ft": h, "doors": doors}
+
+
+def test_circulation_path_routes_entry_through_foyer_hub_to_each_screen_door():
+    entry = (5, -10)
+    foyer = {"room_type": "FOYER", "label_point_ft": [5, 0]}
+    room = _aud_room_with_door(0, 0, 24, 40, [{"kind": "ENTRY", "wall": "min_y", "offset_ft": 2, "width_ft": 3.5}])
+    segments = layout_engine.circulation_path_segments([foyer, room], entry)
+    assert len(segments) == 2
+    assert segments[0]["from"] == [5, -10]
+    assert segments[0]["to"] == [5, 0]
+    assert segments[1]["from"] == [5, 0]
+    # The door-side endpoint is just outside the min_y wall (y slightly < 0).
+    assert segments[1]["to"][1] < 0
+
+
+def test_circulation_path_empty_without_entry_or_foyer():
+    entry = (5, -10)
+    room = _aud_room_with_door(0, 0, 24, 40, [{"kind": "ENTRY", "wall": "min_y", "offset_ft": 2, "width_ft": 3.5}])
+    foyer = {"room_type": "FOYER", "label_point_ft": [5, 0]}
+    assert layout_engine.circulation_path_segments([room], entry) == []
+    assert layout_engine.circulation_path_segments([foyer, room], None) == []
