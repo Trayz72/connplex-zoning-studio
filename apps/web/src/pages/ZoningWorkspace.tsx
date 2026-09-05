@@ -3,7 +3,7 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { getProject, Project } from '../api';
 import * as engine from '../services/zoningEngineApi';
 import { ValidationRejectedError } from '../services/zoningEngineApi';
-import { GeometryResult, GeometryRegion, Requirements, EditableLayout, LiveRoom, LiveCandidate, ValidationError, SelectableSeatType, SeatConfig } from '../types/live';
+import { GeometryResult, GeometryRegion, Requirements, EditableLayout, LiveRoom, LiveCandidate, ValidationError, SelectableSeatType, SeatConfig, RoomDoor } from '../types/live';
 import { UploadStep } from '../components/workspace/UploadStep';
 import { BoundaryStudio } from '../components/workspace/BoundaryStudio';
 import { GeometryReviewStep } from '../components/workspace/GeometryReviewStep';
@@ -12,7 +12,7 @@ import { RunStep } from '../components/workspace/RunStep';
 import { EditableCanvas } from '../components/workspace/EditableCanvas';
 import { ExportPanel } from '../components/workspace/ExportPanel';
 import { SeatConfigPanel } from '../components/workspace/SeatConfigPanel';
-import { RoomDimensionEditor } from '../components/workspace/RoomDimensionEditor';
+import { RoomDimensionEditor, RoomNameEditor } from '../components/workspace/RoomDimensionEditor';
 import { ShortcutsHelp, hasSeenEditOnboarding } from '../components/workspace/ShortcutsHelp';
 import { ThemeToggle } from '../components/ThemeToggle';
 
@@ -381,6 +381,33 @@ export const ZoningWorkspace: React.FC = () => {
     setApplyingDimensions(false);
   };
 
+  const [applyingRename, setApplyingRename] = useState(false);
+  const applyRename = async (displayName: string) => {
+    if (!layout || !selectedRoomId || !displayName.trim()) return;
+    setApplyingRename(true);
+    const rooms = layout.rooms.map(r => r.room_id === selectedRoomId ? { ...r, display_name: displayName.trim() } : r);
+    await persistLayout(rooms);
+    setApplyingRename(false);
+  };
+
+  // Add Door: one-shot mode (see EditableCanvas's own addDoorMode/onAddDoor
+  // comments) — the next click on the canvas places a door on whichever
+  // wall of the selected room it lands nearest, then immediately turns
+  // itself back off, the same "click once, get one placement" feel Add
+  // Zone already has for whole rooms.
+  const [addDoorMode, setAddDoorMode] = useState(false);
+  // Selection changing out from under an armed "+ Door" click (a different
+  // room picked, or deselected entirely) must disarm it — otherwise the
+  // next click could silently add a door to a room the architect isn't
+  // even looking at anymore.
+  useEffect(() => { setAddDoorMode(false); }, [selectedRoomId]);
+  const applyAddDoor = async (door: RoomDoor) => {
+    if (!layout || !selectedRoomId) return;
+    setAddDoorMode(false);
+    const rooms = layout.rooms.map(r => r.room_id === selectedRoomId ? { ...r, doors: [...(r.doors ?? []), door] } : r);
+    await persistLayout(rooms);
+  };
+
   // Restores one snapshot exactly (rooms + boundary_points_ft + obstacles +
   // circulation_area_sqft, all four, explicitly from the snapshot itself —
   // not persistLayout's own PUT, which pulls boundary_points_ft/obstacles
@@ -561,6 +588,16 @@ export const ZoningWorkspace: React.FC = () => {
                   Fill Standard Zones
                 </button>
                 {selectedRoomId && <button className="btn btn-danger btn-sm" disabled={saving} onClick={deleteSelected}>Delete Selected</button>}
+                {selectedRoomId && (
+                  <button
+                    className={addDoorMode ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+                    disabled={saving}
+                    onClick={() => setAddDoorMode(m => !m)}
+                    title="Click a wall of the selected room to add a door there"
+                  >
+                    {addDoorMode ? 'Click a wall…' : '+ Door'}
+                  </button>
+                )}
                 <button className="btn btn-secondary btn-sm" disabled={saving || history.length === 0} onClick={undo} title="Undo (Ctrl/Cmd+Z)">↶ Undo</button>
                 <button className="btn btn-secondary btn-sm" disabled={saving || future.length === 0} onClick={redo} title="Redo (Ctrl/Cmd+Shift+Z)">↷ Redo</button>
                 <label className="checkbox-label" style={{ marginLeft: 'auto' }}>
@@ -617,6 +654,8 @@ export const ZoningWorkspace: React.FC = () => {
                 onDeleteSelected={deleteSelected}
                 entryPointFt={layout.entry_point_ft}
                 exitPointsFt={layout.exit_points_ft}
+                addDoorMode={addDoorMode}
+                onAddDoor={applyAddDoor}
               />
             </div>
 
@@ -672,13 +711,14 @@ export const ZoningWorkspace: React.FC = () => {
 
               {selectedRoom && selectedRoom.room_type.startsWith('AUDITORIUM') && seatTypes.length > 0 && (
                 <div className="panel" style={{ marginBottom: '16px' }}>
+                  <RoomNameEditor room={selectedRoom} onApply={applyRename} applying={applyingRename} />
                   <SeatConfigPanel room={selectedRoom} seatTypes={seatTypes} onApply={applySeatConfig} applying={applyingSeatConfig} embedded />
                   <RoomDimensionEditor room={selectedRoom} onApply={applyDimensions} applying={applyingDimensions} />
                 </div>
               )}
               {selectedRoom && !selectedRoom.room_type.startsWith('AUDITORIUM') && (
                 <div className="panel" style={{ marginBottom: '16px' }}>
-                  <div className="panel-label" style={{ marginBottom: '8px' }}>{selectedRoom.display_name}</div>
+                  <RoomNameEditor room={selectedRoom} onApply={applyRename} applying={applyingRename} />
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-primary)' }} className="font-mono">{selectedRoom.area_sqft} sqft ({selectedRoom.width_ft} × {selectedRoom.depth_ft} ft)</div>
                   <RoomDimensionEditor room={selectedRoom} onApply={applyDimensions} applying={applyingDimensions} />
                 </div>
