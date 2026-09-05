@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
-import { LiveRoom, Obstacle, RoomDoor } from '../../types/live';
+import { LiveRoom, Obstacle, RoomDoor, CirculationPathSegment } from '../../types/live';
 import { RawGeometry } from '../../types/live';
 
 interface EditableCanvasProps {
@@ -15,6 +15,12 @@ interface EditableCanvasProps {
    * crashes. */
   entryPointFt?: [number, number] | null;
   exitPointsFt?: [number, number][];
+  /** A real "spine and branches" walking-path aid: entry to Foyer's own
+   * interior point, then out to each screen's own door (see
+   * layout_engine.circulation_path_segments) — drawn as plain muted lines
+   * underneath every room, never an arrow. Edit-canvas-only, not present
+   * on exports. */
+  circulationPath?: CirculationPathSegment[];
   /** Called continuously while dragging/resizing, for live visual feedback only — not persisted. */
   onLiveChange: (rooms: LiveRoom[]) => void;
   /** Called once, at the end of a drag/resize/add/delete, to persist to the server. */
@@ -173,7 +179,7 @@ const HANDLE_DEFS: { id: HandleId; cursor: string; fx: number; fy: number }[] = 
 export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   boundaryPointsFt, obstacles, rooms, selectedRoomId, onSelectRoom, onLiveChange, onCommit, snapToGridFt,
   rawGeometry, showCadLinework = true, showSeatRows = false, drawMode = false, onDrawComplete, onDeleteSelected,
-  entryPointFt, exitPointsFt
+  entryPointFt, exitPointsFt, circulationPath
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragMode>(null);
@@ -508,6 +514,19 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
           <polygon points={boundaryPointsFt.map(p => p.join(',')).join(' ')} fill="var(--bg-secondary)" stroke="var(--text-primary)" strokeWidth={0.15} />
         )}
         {gridLines}
+
+        {(circulationPath ?? []).length > 0 && (
+          <g pointerEvents="none">
+            {circulationPath!.map((seg, i) => (
+              <line
+                key={`path-${i}`}
+                x1={seg.from[0]} y1={seg.from[1]} x2={seg.to[0]} y2={seg.to[1]}
+                stroke="var(--text-tertiary)" strokeWidth={ftPerHandlePx(1)}
+                strokeDasharray={`${ftPerHandlePx(1)} ${ftPerHandlePx(2.5)}`} opacity={0.5}
+              />
+            ))}
+          </g>
+        )}
 
         {showCadLinework && rawGeometry && (
           <g opacity={0.35} pointerEvents="none">

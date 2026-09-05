@@ -822,12 +822,39 @@ def _reserve_entry_vestibule(usable_poly, fallback_poly, entry_point):
 
 def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, max_count, preset_order,
                         entry_point=None, exit_points_ft=None, screen_width_ft=None):
+    """Thin wrapper around _place_auditoriums_inner that reserves the entry
+    vestibule first (see _reserve_entry_vestibule) — except on a floor plate
+    tight enough that the reservation itself leaves no room for even one
+    auditorium, a real possible case on a small confirmed boundary. Rather
+    than silently returning zero screens because of a buffer this session
+    added, it retries once against the unreserved polygons and says so in
+    the returned warnings — an honest SOP trade disclosed in the same
+    Warnings & Notes panel every other placement compromise already reaches,
+    never a silent override."""
+    reserved_usable, reserved_fallback = _reserve_entry_vestibule(usable_poly, fallback_poly, entry_point)
+    placed, placed_polys, warnings, undersized_count = _place_auditoriums_inner(
+        reserved_usable, reserved_fallback, column_polys, bbox, presets, max_count, preset_order,
+        entry_point=entry_point, exit_points_ft=exit_points_ft, screen_width_ft=screen_width_ft
+    )
+    if not placed and entry_point is not None and reserved_usable is not usable_poly:
+        placed, placed_polys, warnings, undersized_count = _place_auditoriums_inner(
+            usable_poly, fallback_poly, column_polys, bbox, presets, max_count, preset_order,
+            entry_point=entry_point, exit_points_ft=exit_points_ft, screen_width_ft=screen_width_ft
+        )
+        warnings = warnings + [
+            "Reserving a walkable buffer around the marked entrance left no room for any auditorium on this "
+            "floor plate — proceeded without that buffer (SOP adjustment). Verify a real walkable path to the "
+            "entrance manually before finalizing."
+        ]
+    return placed, placed_polys, warnings, undersized_count
+
+
+def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, presets, max_count, preset_order,
+                              entry_point=None, exit_points_ft=None, screen_width_ft=None):
     placed = []
     placed_polys = []           # real-space, returned to the caller
     warnings = []
     undersized_count = 0  # how many auditoriums couldn't get this strategy's most-preferred preset tier — real evidence for the utilization warning below, not a guess
-
-    usable_poly, fallback_poly = _reserve_entry_vestibule(usable_poly, fallback_poly, entry_point)
 
     # See _entry_exit_scan_flip's own docstring: this is what makes screen
     # placement actually start near the entrance and proceed toward the
@@ -1471,6 +1498,44 @@ def _build_foyer_room(fallback_poly, placed_polys, placed_rooms_for_doors, entry
     return room, leftover_slack
 
 
+def circulation_path_segments(rooms, entry_point):
+    """A real 'spine and branches' walking-path indication for the Edit
+    canvas — the marked entry straight to Foyer's own real interior point
+    (its label_point_ft, guaranteed inside the true polygon by
+    _build_foyer_room's representative_point()), then out from that same
+    hub to each auditorium's own ENTRY door. Deliberately NOT a separate
+    ray from the raw entry point to every door — an earlier version of this
+    feature drew exactly that and was removed after live feedback that it
+    read as a chaotic starburst rather than a real path. Routing every
+    branch through the actual open Foyer space instead is what a human-
+    drawn circulation diagram looks like: one main line into the lobby,
+    then short spurs into rooms — not everything converging on the doorway
+    itself. Interactive-tool aid only (see main.py's _enrich_layout) — not
+    drawn on PDF/DXF exports, which stay faithful to the real Connplex
+    reference convention of showing no circulation arrows at all. Returns
+    [] whenever there's nothing to draw (no marked entry, or no Foyer in
+    this layout — a real, honest case on at least one live project), never
+    a crash."""
+    if entry_point is None:
+        return []
+    foyer = next((r for r in rooms if r["room_type"] == "FOYER"), None)
+    if foyer is None or "label_point_ft" not in foyer:
+        return []
+    hub = foyer["label_point_ft"]
+    segments = [{"from": [round(entry_point[0], 2), round(entry_point[1], 2)],
+                 "to": [round(hub[0], 2), round(hub[1], 2)]}]
+    for room in rooms:
+        if not room["room_type"].startswith("AUDITORIUM"):
+            continue
+        for door in room.get("doors", []):
+            if door.get("kind") != "ENTRY":
+                continue
+            outside_pt = connectivity.door_outside_point(room, door)
+            segments.append({"from": [round(hub[0], 2), round(hub[1], 2)],
+                              "to": [round(outside_pt[0], 2), round(outside_pt[1], 2)]})
+    return segments
+
+
 def _place_support_zones_and_foyer(usable_poly, fallback_poly, column_polys, bbox,
                                     auditorium_rooms, auditorium_polys, requirements,
                                     franchise_tier_id=None):
@@ -1723,6 +1788,19 @@ def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: 
     selected, status = solver.solve(solver_usable, solver_fallback, column_polys, bbox, presets, max_auditoriums,
                                      aud_column_cap, screen_width_ft, aud_edge_tolerance_ft=aud_edge_tolerance_ft,
                                      **solve_kwargs)
+    vestibule_note = None
+    if status == "NO_CANDIDATES" and entry_point is not None and solver_usable is not usable_poly:
+        # Same graceful fallback _place_auditoriums uses: a floor plate
+        # tight enough that the entry buffer alone starves the solver of
+        # any candidate at all should still produce a real plan, disclosed
+        # as an SOP adjustment rather than silently returning nothing.
+        selected, status = solver.solve(usable_poly, fallback_poly, column_polys, bbox, presets, max_auditoriums,
+                                         aud_column_cap, screen_width_ft, aud_edge_tolerance_ft=aud_edge_tolerance_ft,
+                                         **solve_kwargs)
+        if selected:
+            vestibule_note = ("Reserving a walkable buffer around the marked entrance left no candidate placement "
+                               "for the optimizer on this floor plate — proceeded without that buffer (SOP "
+                               "adjustment). Verify a real walkable path to the entrance manually before finalizing.")
 
     auditoriums = []
     aud_polys = []
@@ -1758,6 +1836,8 @@ def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: 
             f"plus {len(support_rooms)} support zone(s)" + (" and a Foyer" if foyer_room else "") +
             f". {round(circulation_area):,} sqft of leftover slack remains."
         ]
+        if vestibule_note:
+            notes.append(vestibule_note)
     elif status == "NO_CANDIDATES":
         notes = ["The optimizer found no real candidate auditorium placement anywhere in the usable area."]
     else:
