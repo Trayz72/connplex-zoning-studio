@@ -122,6 +122,11 @@ export const ZoningWorkspace: React.FC = () => {
   const [snapFt, setSnapFt] = useState(1);
   const [showCadLinework, setShowCadLinework] = useState(true);
   const [showSeatRows, setShowSeatRows] = useState(false);
+  // Layout Strategy / Feasibility / Warnings & Notes / Area & Seat Chart /
+  // Export all live in one right-hand panel — hiding it gives the canvas
+  // the full width back, useful when the architect just wants to focus on
+  // the floor plan itself rather than the surrounding data.
+  const [showSidePanel, setShowSidePanel] = useState(true);
   const [saving, setSaving] = useState(false);
   const [seatTypes, setSeatTypes] = useState<SelectableSeatType[]>([]);
   const [applyingSeatConfig, setApplyingSeatConfig] = useState(false);
@@ -577,6 +582,13 @@ export const ZoningWorkspace: React.FC = () => {
                 </label>
                 {saving && <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Saving…</span>}
                 <button
+                  className="btn btn-secondary btn-sm"
+                  title={showSidePanel ? 'Hide the strategy/feasibility/warnings panel and use the full width for the floor plan' : 'Show the strategy/feasibility/warnings panel'}
+                  onClick={() => setShowSidePanel(s => !s)}
+                >
+                  {showSidePanel ? 'Hide Panel' : 'Show Panel'}
+                </button>
+                <button
                   className="btn btn-secondary btn-sm" title="Keyboard & mouse shortcuts"
                   onClick={() => { setHelpIsFirstRun(false); setShowHelp(true); }}
                 >
@@ -608,6 +620,7 @@ export const ZoningWorkspace: React.FC = () => {
               />
             </div>
 
+            {showSidePanel && (
             <div style={{ width: '360px', borderLeft: '1px solid var(--border-color)', padding: '12px', overflowY: 'auto' }}>
               {alternateCandidates.length > 1 && (
                 <div className="panel" style={{ marginBottom: '16px' }}>
@@ -706,6 +719,7 @@ export const ZoningWorkspace: React.FC = () => {
                 />
               )}
             </div>
+            )}
           </div>
         )}
       </div>
