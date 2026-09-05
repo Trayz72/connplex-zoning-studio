@@ -963,7 +963,25 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
     # place_single_zone).
     flip_x, flip_y = _entry_exit_scan_flip(bbox, entry_point, exit_points_ft)
     scan_usable = _mirror_for_scan(usable_poly, bbox, flip_x, flip_y)
-    scan_fallback = _mirror_for_scan(fallback_poly, bbox, flip_x, flip_y)
+    # A screen must NEVER enclose a confirmed structural column, full stop —
+    # a real, direct client rejection of the earlier "tolerate up to 5% of a
+    # screen's area, ratio-checked" design (see the now-superseded
+    # custom_fit_column_cap comment below): even a small, ratio-acceptable
+    # column reads as a broken/obviously-wrong layout to someone reviewing
+    # the drawing rather than the seat-count math, and this is what actually
+    # gets shown to a client. Aliasing scan_fallback to scan_usable (the
+    # SAME object) disables every column-tolerant candidate downstream —
+    # every `poly is not usable_poly` / `used_fb and poly is usable_poly`
+    # check in _scan_place_ranked_with_fallback, _fill_remaining_auditoriums_
+    # with_backtracking and _find_largest_fitting_custom_screen is an
+    # identity check, so this one alias turns off fallback placement for
+    # every auditorium call site in this function without touching any of
+    # them individually. Support zones (Box Office/F&B/Washroom/BOH) keep
+    # their own separate, still-permissive SUPPORT_ZONE_MAX_ENCLOSED_COLUMN_
+    # RATIO — a non-seating room grazing a column is a materially smaller
+    # visual/functional problem than a screen doing so, and isn't what was
+    # reported.
+    scan_fallback = scan_usable
     scan_placed_polys = []      # mirrored-space, used only for the scan's own collision checks
     scan_placed_types = []      # parallel to scan_placed_polys — every entry is "AUDITORIUM" here, so
                                  # _neighbor_gap_ft lets consecutive screens sit with zero gap (shared wall)
@@ -1267,6 +1285,15 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
 
     if room_type == "AUDITORIUM":
+        # A screen must never enclose a confirmed column, full stop — see
+        # _place_auditoriums_inner's identical scan_fallback aliasing for the
+        # full reasoning (a real, direct client rejection of the previous
+        # ratio-tolerant design). Shadowing fallback_poly with usable_poly
+        # HERE, local to this branch only, disables column-tolerant
+        # placement for every call below without touching the support-zone
+        # branch further down, which keeps its own separate, still-permissive
+        # SUPPORT_ZONE_MAX_ENCLOSED_COLUMN_RATIO.
+        fallback_poly = usable_poly
         presets = rules_registry.auditorium_presets()  # largest-first
         matched_preset = None
         for preset in presets:
@@ -1294,11 +1321,6 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
                 usable_poly, fallback_poly, placed_polys, placed_types, bbox,
                 min_preset_area_sqft, min_short_side_ft=min_short_side_ft
             )
-            # Same relaxed custom-fit column tolerance as the auto-layout
-            # path (see _place_auditoriums_inner's own comment) — a
-            # manually-added custom-fit screen already carries the same
-            # "review before finalizing" note, so it shouldn't be held to
-            # the stricter preset-level column gate either.
             if custom_result and custom_used_fallback and not _column_enclosure_ok(custom_result, bbox, False, False, column_polys, 0.05, None):
                 custom_result = None
             if custom_result:
@@ -1910,7 +1932,16 @@ def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: 
     solve_kwargs = {}
     if time_limit_seconds is not None:
         solve_kwargs["time_limit_seconds"] = time_limit_seconds
-    selected, status = solver.solve(solver_usable, solver_fallback, column_polys, bbox, presets, max_auditoriums,
+    # A screen must never enclose a confirmed column, full stop — parity
+    # with the greedy path's own hard rule (see _place_auditoriums_inner's
+    # scan_fallback aliasing for the full reasoning: a real, direct client
+    # rejection of the previous ratio-tolerant design). Passing solver_usable
+    # in place of solver_fallback disables every used_fallback candidate in
+    # placement/solver.py's generate_candidates via its own identity checks —
+    # fallback_poly itself (the real column-tolerant polygon) is left
+    # untouched for _place_support_zones_and_foyer below, which keeps its
+    # own separate, still-permissive SUPPORT_ZONE_MAX_ENCLOSED_COLUMN_RATIO.
+    selected, status = solver.solve(solver_usable, solver_usable, column_polys, bbox, presets, max_auditoriums,
                                      aud_column_cap, screen_width_ft, aud_edge_tolerance_ft=aud_edge_tolerance_ft,
                                      **solve_kwargs)
     vestibule_note = None
@@ -1918,8 +1949,10 @@ def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: 
         # Same graceful fallback _place_auditoriums uses: a floor plate
         # tight enough that the entry buffer alone starves the solver of
         # any candidate at all should still produce a real plan, disclosed
-        # as an SOP adjustment rather than silently returning nothing.
-        selected, status = solver.solve(usable_poly, fallback_poly, column_polys, bbox, presets, max_auditoriums,
+        # as an SOP adjustment rather than silently returning nothing. Still
+        # column-free-only for auditoriums (usable_poly for both args), same
+        # reasoning as above.
+        selected, status = solver.solve(usable_poly, usable_poly, column_polys, bbox, presets, max_auditoriums,
                                          aud_column_cap, screen_width_ft, aud_edge_tolerance_ft=aud_edge_tolerance_ft,
                                          **solve_kwargs)
         if selected:
