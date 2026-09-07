@@ -6,7 +6,8 @@
   "sources": [
     { "id": "SOP", "name": "CCL_ZONING_SOP_26.05.2026.pdf", "org": "Connplex Cinemas Limited", "note": "Image-based PDF; exact figures should be re-verified against the scan before promoting a value to a stricter status." },
     { "id": "FEASIBILITY_MANUAL", "name": "CONNPLEX Cinemas - PRE-DEAL FEASIBILITY CRITERIA MANUAL.pdf", "org": "Connplex Cinemas Limited" },
-    { "id": "SPEC", "name": "Connplex_Zoning_Studio_Spec.pdf", "org": "Connplex Cinemas Limited / project spec v1.0", "note": "Reconciled/derived from SOP + Feasibility Manual + franchise brochure + ROI sheet." }
+    { "id": "SPEC", "name": "Connplex_Zoning_Studio_Spec.pdf", "org": "Connplex Cinemas Limited / project spec v1.0", "note": "Reconciled/derived from SOP + Feasibility Manual + franchise brochure + ROI sheet." },
+    { "id": "THEATER_STD_CSV", "name": "theater_architecture_complete_standards.csv (user-supplied, sourced from the public internet)", "org": "Not Connplex-specific — cites SMPTE ST 290, THX Architecture Guidelines, British Standards BS 5588, ASHRAE, and several U.S. legal codes (IBC, NFPA 101, ADA, IPC)", "note": "The U.S. legal-code citations (IBC/NFPA/ADA/IPC) are NOT verified against India's National Building Code or the local cinema-licensing rules that actually govern Connplex's real projects (Gujarat, Maharashtra per this app's own project records) — only jurisdiction-agnostic engineering/design conventions from this source were wired in as rules; the rest are listed in not_evaluable_today with the reason." }
   ],
 
   "seat_types": [
@@ -270,12 +271,16 @@
     { "rule_id": "VR_SIDE_MARGIN_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "side_margin_m", "operator": ">=", "threshold": 6, "unit": "m", "severity": "SOFT", "message_template": "Side margin below 6 m minimum — must be verified against applicable local DCR.", "source": "FEASIBILITY_MANUAL", "source_section": "§2.2", "approval_status": "SOURCE_BACKED" },
     { "rule_id": "VR_BUILDING_HEIGHT_MAX_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "building_height_ft", "operator": "<=", "threshold": 50, "unit": "ft", "severity": "SOFT", "message_template": "Building height exceeds 50 ft (15.24 m) — requires DCR permission or competent-authority approval.", "source": "FEASIBILITY_MANUAL", "source_section": "§2.4", "approval_status": "SOURCE_BACKED" },
     { "rule_id": "VR_PASSENGER_LIFTS_MIN_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "passenger_lift_count", "operator": ">=", "threshold": 2, "unit": "count", "severity": "HARD", "source": "FEASIBILITY_MANUAL", "source_section": "§2.3", "approval_status": "SOURCE_BACKED", "evaluable": false },
-    { "rule_id": "VR_DG_BACKUP_MANDATORY_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "dg_backup_present", "operator": "==", "threshold": true, "severity": "HARD", "source": "FEASIBILITY_MANUAL", "source_section": "§2.5", "approval_status": "SOURCE_BACKED", "evaluable": false }
+    { "rule_id": "VR_DG_BACKUP_MANDATORY_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "dg_backup_present", "operator": "==", "threshold": true, "severity": "HARD", "source": "FEASIBILITY_MANUAL", "source_section": "§2.5", "approval_status": "SOURCE_BACKED", "evaluable": false },
+    { "rule_id": "VR_LAST_ROW_DISTANCE", "property_type_scope": "ANY", "metric": "last_row_distance_ft", "operator": "<=", "threshold": 120, "unit": "ft", "severity": "WARNING", "message_template": "Back row is more than 120 ft from the screen — facial expression/legibility degrades past this distance.", "source": "THEATER_STD_CSV", "source_section": "Screen Placement & Layout / Last Row Distance", "approval_status": "REQUIRES_APPROVAL" }
   ],
 
   "not_evaluable_today": [
     "clear_height_ft (not present in the current CAD extraction — intake field only, not geometry-derived)",
     "column_grid_width_ft / column_grid_length_ft (structural grid spacing is not yet computed from extracted StructuralElement column positions)",
-    "fire_escape_staircase_count, passenger_lift_count, dg_backup_present (no CAD classification for these object types yet)"
+    "fire_escape_staircase_count, passenger_lift_count, dg_backup_present (no CAD classification for these object types yet)",
+    "screen_bottom_elevation_ft, screen_curvature, sightline_c_value_in, floor_slope_pct (theater_architecture_complete_standards.csv, Screen Placement/Sightlines rows) — this app draws a 2D floor plan only; none of these are elevation/section quantities it computes or has any geometry for",
+    "noise_criterion_nc, wall_stc_rating, hvac_air_velocity_fpm (theater_architecture_complete_standards.csv, Acoustics & Isolation rows) — acoustic/MEP design values with no relationship to floor-plan geometry; out of this app's scope entirely",
+    "exit_count_vs_occupancy, egress_travel_distance_ft, restroom_fixture_ratio, ada_wheelchair_seat_pct (theater_architecture_complete_standards.csv, Entry & Exit / Amenities rows) — real, implementable checks in principle, but every cited source (IBC, NFPA 101, ADA, IPC) is a U.S. legal code; withheld pending confirmation these match (or should be replaced by) the actual code governing Connplex's real project locations before being wired in as feasibility gates"
   ]
 }
