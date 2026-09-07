@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { GeometryResult, GeometryRegion, RawClosedShape, RawSegment, FullRawGeometry } from '../../types/live';
 import * as engine from '../../services/zoningEngineApi';
 import { ArrowRightIcon, RefreshIcon, WarningIcon } from '../Icons';
@@ -213,10 +213,23 @@ const REGION_LIST_COMPACT_THRESHOLD = 8;
 const RegionCandidateButton: React.FC<{ region: GeometryRegion; index: number; onChoose: (regionId: string) => void }> = ({ region, index, onChoose }) => (
   <button
     className="btn btn-secondary"
-    style={{ fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left', display: 'flex', justifyContent: 'space-between', width: '100%' }}
+    style={{ fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', width: '100%' }}
     onClick={() => onChoose(region.region_id)}
   >
-    <span>Region {index + 1} — {region.boundary.area_sqft.toLocaleString()} sqft</span>
+    <span style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+      Region {index + 1} — {region.boundary.area_sqft.toLocaleString()} sqft
+      {region.boundary.is_net_usage_hatch && (
+        <span
+          title="This candidate's shape comes from a hatched (slant-line) fill in the source drawing — the standard convention for marking net usage area."
+          style={{
+            fontSize: '0.64rem', color: 'var(--success)', border: '1px solid var(--success)',
+            borderRadius: 'var(--radius-sm)', padding: '1px 5px', whiteSpace: 'nowrap', flexShrink: 0,
+          }}
+        >
+          hatched
+        </span>
+      )}
+    </span>
     <ArrowRightIcon size={13} />
   </button>
 );
@@ -262,6 +275,7 @@ const RegionCandidateList: React.FC<{ geometry: GeometryResult; onChoose: (regio
 export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geometry, onGeometryUpdated, onBoundaryChosen, onStartOver }) => {
   const raw = geometry.full_raw_geometry;
   const svgRef = useRef<SVGSVGElement>(null);
+  const autoModeHatchId = useId();
   const [tool, setTool] = useState<Tool>('browse');
   const [zoom, setZoom] = useState(1);
   // The real (x, y) point, in feet, currently at the center of the
@@ -831,6 +845,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                 exitValues={pendingExits}
                 onExitChange={setPendingExits}
                 height={480}
+                isNetUsageHatch={chosenRegion?.boundary.is_net_usage_hatch ?? false}
               />
             )}
           </div>
@@ -870,6 +885,14 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ flex: 1, position: 'relative', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
             <svg viewBox={viewBox} style={{ width: '100%', height: '100%' }}>
+              {bestRegion.boundary.is_net_usage_hatch && (
+                <defs>
+                  <pattern id={autoModeHatchId} patternUnits="userSpaceOnUse" width={toleranceFt() * 1.4} height={toleranceFt() * 1.4}>
+                    <rect width={toleranceFt() * 1.4} height={toleranceFt() * 1.4} fill="var(--success)" fillOpacity={0.1} />
+                    <path d={`M0,${toleranceFt() * 1.4} L${toleranceFt() * 1.4},0`} stroke="var(--success)" strokeWidth={toleranceFt() * 0.15} />
+                  </pattern>
+                </defs>
+              )}
               <g opacity={0.5}>
                 {raw.lines.map(ln => (
                   <line
@@ -881,7 +904,9 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               </g>
               <polygon
                 points={bestRegion.boundary.points_ft.map(p => p.join(',')).join(' ')}
-                fill="var(--success)" fillOpacity={0.18} stroke="var(--success)" strokeWidth={toleranceFt() * 0.15}
+                fill={bestRegion.boundary.is_net_usage_hatch ? `url(#${autoModeHatchId})` : 'var(--success)'}
+                fillOpacity={bestRegion.boundary.is_net_usage_hatch ? 1 : 0.18}
+                stroke="var(--success)" strokeWidth={toleranceFt() * 0.15}
               />
             </svg>
           </div>
@@ -892,6 +917,14 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
             <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '4px' }} className="font-mono">
               Floor boundary — {bestRegion.boundary.area_sqft.toLocaleString()} sqft
             </div>
+            {bestRegion.boundary.is_net_usage_hatch && (
+              <div style={{
+                fontSize: '0.7rem', color: 'var(--success)', border: '1px solid var(--success)',
+                borderRadius: 'var(--radius-sm)', padding: '3px 8px', display: 'inline-block', marginBottom: '8px',
+              }}>
+                Matches this drawing's own net-usage-area hatch
+              </div>
+            )}
             <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
               {geometry.regions.length > 1 ? `Largest of ${geometry.regions.length} candidate regions — continuing automatically…` : 'The only candidate region found — continuing automatically…'}
             </div>

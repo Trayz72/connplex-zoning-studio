@@ -38,6 +38,15 @@ export interface Boundary {
   area_sqft: number;
   points_ft: number[][];
   bounding_box_ft: { min_x: number; min_y: number; max_x: number; max_y: number };
+  /** The DXF HATCH pattern name this boundary's own shape came from (e.g.
+   * "ANSI31"), or null when it wasn't hatch-derived at all. */
+  hatch_pattern: string | null;
+  /** True when this boundary is a real, non-solid line-pattern hatch (not a
+   * flat "SOLID" fill) — the standard architectural convention for marking
+   * "net usage area" as a closed shape covered in repeated slant lines.
+   * Confirming evidence, not a caution — kept separate from `note`, which
+   * BoundaryStudio treats as a warning that blocks auto-advance. */
+  is_net_usage_hatch: boolean;
   confidence: 'high' | 'medium' | 'low';
   /** Set when this boundary needs a second look before confirming — e.g.
    * reconstructed from discrete wall segments rather than one explicit
