@@ -66,6 +66,28 @@ MIN_BOUNDARY_AREA_SQFT = 150.0     # below this, a closed shape is furniture/fix
 # loop below) no longer allowed to swallow smaller real candidates nested
 # inside it.
 MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT = 500000.0
+
+# A legal plot/site-boundary line (a surveyed property line, usually drawn as
+# a plain rectangle on AutoCAD's meaningless default layer "0" or similar)
+# can sit in the same file as the real, smaller building footprint, and both
+# are well under MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT above — so that check alone
+# never catches this. Found via a real file ("CHAUDHARY ,palanpur gujrat @
+# COMPLEX 30.05.26 final.dxf"): a 151,899 sqft, 5-point rectangle on layer
+# "0" (no naming evidence, ~100% fill of its own bounding box) sorted ahead
+# of an 8,552 sqft, 30-point irregular outline on "AH Hatches WALL" (the
+# file's real wall-hatch layer) — the actual building footprint. This is a
+# distinct CAD-drafting-convention signal, like MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT
+# itself, not a business rule, so a documented constant here (not a business-
+# rule number) is the right tool: a plot boundary is a plain, near-total-fill
+# rectangle with almost no vertices, on a layer with no wall/boundary naming
+# evidence, that is substantially larger than some other candidate in the
+# same file that *does* carry that evidence. All three signals are required
+# together — any one alone is common in legitimate real building outlines
+# too (a genuine floor can be roughly rectangular, or sit on an unhelpfully
+# named layer, without being a plot line).
+SUSPECTED_PLOT_BOUNDARY_MAX_VERTICES = 5          # a simple 4-corner rectangle (closing point included in points_ft)
+SUSPECTED_PLOT_BOUNDARY_BBOX_FILL_MIN = 0.97      # area / own-bounding-box-area — "essentially a rectangle"
+SUSPECTED_PLOT_BOUNDARY_MIN_AREA_MULTIPLE = 2.0   # must be at least this many times larger than the smallest wall-hinted candidate elsewhere in the file
 MAX_OBSTACLE_AREA_RATIO = 0.10     # an "obstacle" larger than 10% of its boundary's area is probably itself a room, not a column
 # ezdxf.path.Path.flattening(distance, segments) — segments is a per-curve
 # minimum that dominates in practice, so this stays reasonable across the
@@ -1147,6 +1169,27 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
         h = _handle_of(e, i)
         if t == "HATCH":
             try:
+                # A "solid_fill" hatch (DXF's own flag) is a flat color fill —
+                # not lines at all. A real pattern hatch (solid_fill == 0) with
+                # a genuine line pattern (ANSI31/ANSI32/ANGLE/etc — never
+                # hardcoded by name, since firms use many pattern names for
+                # the same convention) IS the standard architectural
+                # convention for marking a "net usage area" callout: a closed
+                # shape covered edge-to-edge in repeated slant lines. Found via
+                # a real client file where the true, human-labeled net-usage
+                # shape and an unrelated nearby duplicate were BOTH real
+                # ANSI31 hatches (so pattern alone can't always pick the one
+                # true candidate when a file has more than one), but every
+                # non-hatch, plain closed polyline in that same file was
+                # either the site's own plot-boundary line or a tiny fixture —
+                # never the real usable floor area. This is real, useful,
+                # generalizable evidence, captured here per hatch-derived
+                # shape rather than discarded, so later code (and eventually
+                # the frontend) can recognize and render it distinctly instead
+                # of treating a hatch-filled region the same as any other
+                # closed shape.
+                pattern_name = str(getattr(e.dxf, "pattern_name", "") or "")
+                is_line_hatch = not bool(getattr(e.dxf, "solid_fill", 0)) and pattern_name.upper() not in ("", "SOLID")
                 for path in e.paths:
                     pts = _hatch_path_points(path, tf)
                     if len(pts) < 3:
@@ -1157,7 +1200,8 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
                     closed_shapes.append({
                         "handle": h, "layer": str(e.dxf.layer), "dxftype": "HATCH", "source": "hatch",
                         "polygon": poly, "area_sqft": poly.area * (scale ** 2),
-                        "points_ft": [[round(x * scale, 3), round(y * scale, 3)] for x, y in poly.exterior.coords]
+                        "points_ft": [[round(x * scale, 3), round(y * scale, 3)] for x, y in poly.exterior.coords],
+                        "hatch_pattern": pattern_name or None, "is_line_hatch": is_line_hatch
                     })
             except Exception:
                 pass
@@ -1210,21 +1254,52 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
         reverse=True
     )
 
+    # See SUSPECTED_PLOT_BOUNDARY_* above — computed here, over the FULL
+    # candidate list, before the nesting-collapse pass below runs, so a
+    # plot/site-boundary candidate can be exempted from swallowing a real
+    # nested candidate during collapse itself (not just flagged with a note
+    # afterward). Found via a real file (the same "CHAUDHARY ,palanpur
+    # gujrat @ COMPLEX 30.05.26 final.dxf"): the file's real 8,297 sqft
+    # building (on "AH Hatches WALL", exactly matching that building's own
+    # "NET USAGE AREA 8297 SQ. FT." text label) sat >60% inside the 151,899
+    # sqft plot-boundary rectangle — well under MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT,
+    # so the old exception never applied, and the real building was silently
+    # swallowed into being just one more "obstacle" of the plot line, never
+    # offered as its own selectable region at all (not merely mis-ranked —
+    # genuinely unreachable from the UI). The flag is stored directly on each
+    # candidate dict (mutated in place) so both this pass and the per-region
+    # loop below share one computation instead of two that could drift.
+    wall_hinted_areas = [c["area_sqft"] for c in boundary_candidates if _layer_hint_score(c["layer"], BOUNDARY_LAYER_HINTS)]
+    smallest_wall_hinted_area = min(wall_hinted_areas) if wall_hinted_areas else None
+    for cand in boundary_candidates:
+        cminx, cminy, cmaxx, cmaxy = cand["polygon"].bounds
+        cbbox_area = (cmaxx - cminx) * (cmaxy - cminy)
+        cand["_is_suspected_plot_boundary"] = (
+            cand["area_sqft"] <= MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT
+            and not _layer_hint_score(cand["layer"], BOUNDARY_LAYER_HINTS)
+            and len(cand["points_ft"]) <= SUSPECTED_PLOT_BOUNDARY_MAX_VERTICES
+            and cbbox_area > 0
+            and (cand["polygon"].area / cbbox_area) >= SUSPECTED_PLOT_BOUNDARY_BBOX_FILL_MIN
+            and smallest_wall_hinted_area is not None
+            and smallest_wall_hinted_area * SUSPECTED_PLOT_BOUNDARY_MIN_AREA_MULTIPLE <= cand["area_sqft"]
+        )
+
     # Collapse nested/overlapping candidates: keep the largest in each disjoint cluster
     # as a boundary; anything mostly-contained inside an already-picked boundary is not
     # itself a separate boundary (it becomes an obstacle/room candidate in pass 3).
     #
     # Exception: an implausibly large candidate (see MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT —
-    # almost always a sheet-border/title-block frame, not a real floor) does not get to
-    # swallow whatever real candidate is nested inside it. Without this, a file with a
-    # frame drawn around the actual building outline would silently lose that real
-    # boundary entirely — demoted to an "obstacle" of the frame instead of being
+    # almost always a sheet-border/title-block frame, not a real floor) or a suspected
+    # plot/site-boundary line (see above) does not get to swallow whatever real candidate
+    # is nested inside it. Without this, a file with a frame — or a plot line — drawn
+    # around the actual building outline would silently lose that real boundary
+    # entirely — demoted to an "obstacle" of the frame/plot line instead of being
     # offered as its own selectable region.
     chosen_boundaries = []
     for cand in boundary_candidates:
         nested_in_existing = False
         for b in chosen_boundaries:
-            if b["area_sqft"] > MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT:
+            if b["area_sqft"] > MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT or b["_is_suspected_plot_boundary"]:
                 continue
             inter = cand["polygon"].intersection(b["polygon"]).area
             if cand["polygon"].area > 0 and inter / cand["polygon"].area > CONTAINMENT_THRESHOLD:
@@ -1266,6 +1341,7 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
     shape_tree = STRtree(shape_polys) if shape_polys else None
 
     regions = []
+    suspected_plot_boundary_flags = []
     for boundary in chosen_boundaries:
         b_poly = boundary["polygon"]
         b_area = boundary["area_sqft"]
@@ -1340,6 +1416,35 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
         else:
             plausibility_note = None
 
+        # See SUSPECTED_PLOT_BOUNDARY_* above — already computed once, over
+        # the full pre-collapse candidate list, right before the nesting-
+        # collapse pass earlier in this function (so a suspected plot line
+        # can also be exempted from swallowing a real nested candidate
+        # during collapse itself, not just flagged here afterward). Reused
+        # here rather than recomputed so both places can never drift.
+        is_suspected_plot_boundary = boundary["_is_suspected_plot_boundary"]
+        if is_suspected_plot_boundary:
+            boundary_layer_conf = "low"
+            plot_boundary_note = (
+                f"This looks like a plot/site boundary line, not the building footprint — a "
+                f"plain rectangle on layer \"{boundary['layer']}\" (no wall/boundary naming "
+                f"evidence), while a smaller, more detailed candidate exists elsewhere in this "
+                f"file on a wall-hinted layer. Check the other candidate regions below before "
+                f"confirming this one."
+            )
+        else:
+            plot_boundary_note = None
+
+        # See the HATCH-handling comment in Pass 1 above: a boundary built
+        # from a real line-pattern hatch (not a flat "SOLID" fill) matches
+        # this drafting convention's own way of marking net usable area.
+        # Exposed as its own field (never folded into `note`, which the
+        # frontend's own boundaryIsClean check treats as a WARNING that
+        # blocks auto-advance — this is confirming evidence, not a caution).
+        hatch_pattern = boundary.get("hatch_pattern")
+        is_net_usage_hatch = boundary.get("source") == "hatch" and bool(boundary.get("is_line_hatch"))
+
+        suspected_plot_boundary_flags.append(is_suspected_plot_boundary)
         regions.append({
             "region_id": f"region-{uuid.uuid4().hex[:8]}",
             "boundary": {
@@ -1352,12 +1457,15 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
                     "min_x": round(minx * scale, 2), "min_y": round(miny * scale, 2),
                     "max_x": round(maxx * scale, 2), "max_y": round(maxy * scale, 2)
                 },
+                "hatch_pattern": hatch_pattern,
+                "is_net_usage_hatch": is_net_usage_hatch,
                 "confidence": boundary_layer_conf,
                 "note": " ".join(filter(None, [
                     ("Reconstructed from discrete wall line segments — not one explicit closed "
                      "polyline in the source file. Verify this boundary carefully before confirming."
                      if is_reconstructed else None),
-                    plausibility_note
+                    plausibility_note,
+                    plot_boundary_note
                 ])) or None,
                 "status": "PROPOSED"
             },
@@ -1366,15 +1474,20 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
             "raw_geometry": _region_raw_geometry(full_raw_geometry, minx * scale, miny * scale, maxx * scale, maxy * scale)
         })
 
-    # Plausible-sized regions first (largest among them first, same as before),
-    # implausibly-large ones (see MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT) pushed to the
-    # end — the frontend defaults to reviewing regions[0], so an oversized
-    # sheet-border/frame candidate should never be what an architect lands on
-    # first by default.
-    regions.sort(key=lambda r: (
-        r["boundary"]["area_sqft"] > MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT,
-        -r["boundary"]["area_sqft"]
+    # Plausible-sized, not-suspected-plot-boundary regions first (largest
+    # among them first, same as before); implausibly-large ones (see
+    # MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT) pushed to the very end; suspected
+    # plot/site-boundary lines (see SUSPECTED_PLOT_BOUNDARY_* above) pushed
+    # just ahead of those — the frontend defaults to reviewing regions[0], so
+    # neither an oversized sheet-border/frame nor a plot-line rectangle
+    # should ever be what an architect lands on first by default when a more
+    # plausible building-footprint candidate exists.
+    order = sorted(range(len(regions)), key=lambda i: (
+        regions[i]["boundary"]["area_sqft"] > MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT,
+        suspected_plot_boundary_flags[i],
+        -regions[i]["boundary"]["area_sqft"]
     ))
+    regions = [regions[i] for i in order]
 
     return {
         "schema_version": "1.1",

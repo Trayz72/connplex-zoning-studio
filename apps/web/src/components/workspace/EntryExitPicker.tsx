@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { EntryExitMarkers } from './EntryExitMarkers';
 
 interface EntryExitPickerProps {
@@ -10,6 +10,13 @@ interface EntryExitPickerProps {
   /** Fixed pixel height for the SVG — callers embed this at different sizes
    * (a compact review widget vs. the primary full-width capture step). */
   height?: number;
+  /** True when this boundary is a real, non-solid line-pattern hatch in the
+   * source DXF (cad_extraction.py's Boundary.is_net_usage_hatch) — the
+   * standard architectural convention for marking "net usage area" as a
+   * closed shape covered in repeated slant lines. Renders the same visual
+   * convention here instead of a flat fill, so the app's own preview reads
+   * the same way the source drawing does. */
+  isNetUsageHatch?: boolean;
 }
 
 /** Click-to-mark the main entrance and zero or more exits on the real
@@ -22,9 +29,10 @@ interface EntryExitPickerProps {
  * "advisory, never a silent blocker" stance as everything else here (see
  * layout_engine.py's own honest-skip behavior when neither is marked). */
 export const EntryExitPicker: React.FC<EntryExitPickerProps> = ({
-  boundaryPointsFt, entryValue, onEntryChange, exitValues, onExitChange, height = 260,
+  boundaryPointsFt, entryValue, onEntryChange, exitValues, onExitChange, height = 260, isNetUsageHatch = false,
 }) => {
   const [mode, setMode] = useState<'entry' | 'exit'>(entryValue ? 'exit' : 'entry');
+  const hatchId = useId();
 
   const xs = boundaryPointsFt.map(p => p[0]);
   const ys = boundaryPointsFt.map(p => p[1]);
@@ -34,6 +42,7 @@ export const EntryExitPicker: React.FC<EntryExitPickerProps> = ({
   const pad = Math.max(w, h) * 0.06;
   const viewBox = `${minX - pad} ${minY - pad} ${w + pad * 2} ${h + pad * 2}`;
   const markerR = Math.max(w, h) * 0.018;
+  const hatchSpacing = Math.max(w, h) * 0.02;
 
   const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
     const svg = e.currentTarget;
@@ -53,7 +62,7 @@ export const EntryExitPicker: React.FC<EntryExitPickerProps> = ({
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+      <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', alignItems: 'center' }}>
         <button
           type="button"
           className={mode === 'entry' ? 'btn btn-primary' : 'btn btn-secondary'}
@@ -70,6 +79,17 @@ export const EntryExitPicker: React.FC<EntryExitPickerProps> = ({
         >
           Add Exit Point
         </button>
+        {isNetUsageHatch && (
+          <span
+            title="This boundary's shape comes from a hatched (slant-line) fill in the source drawing — the standard convention for marking net usage area."
+            style={{
+              fontSize: '0.68rem', color: 'var(--success)', border: '1px solid var(--success)',
+              borderRadius: 'var(--radius-sm)', padding: '2px 7px', marginLeft: 'auto', whiteSpace: 'nowrap',
+            }}
+          >
+            Matches drawing's net-usage hatch
+          </span>
+        )}
       </div>
 
       <svg
@@ -77,9 +97,18 @@ export const EntryExitPicker: React.FC<EntryExitPickerProps> = ({
         style={{ width: '100%', height: `${height}px`, background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', cursor: 'crosshair' }}
         onClick={handleClick}
       >
+        {isNetUsageHatch && (
+          <defs>
+            <pattern id={hatchId} patternUnits="userSpaceOnUse" width={hatchSpacing} height={hatchSpacing}>
+              <rect width={hatchSpacing} height={hatchSpacing} fill="var(--bg-secondary)" />
+              <path d={`M0,${hatchSpacing} L${hatchSpacing},0`} stroke="var(--success)" strokeWidth={hatchSpacing * 0.12} />
+            </pattern>
+          </defs>
+        )}
         <polygon
           points={boundaryPointsFt.map(p => p.join(',')).join(' ')}
-          fill="var(--bg-secondary)" stroke="var(--border-strong)" strokeWidth={w * 0.004}
+          fill={isNetUsageHatch ? `url(#${hatchId})` : 'var(--bg-secondary)'}
+          stroke="var(--border-strong)" strokeWidth={w * 0.004}
         />
         <EntryExitMarkers entryPointFt={entryValue} exitPointsFt={exitValues} markerR={markerR} />
       </svg>

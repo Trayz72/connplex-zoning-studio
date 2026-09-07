@@ -106,7 +106,8 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
       boundary: {
         source_handle: 'manual', layer: 'manual', source: 'explicit',
         area_sqft: polygonAreaSqft(points), points_ft: points,
-        bounding_box_ft: boundingBox(points), confidence: 'high', note: null, status: 'PROPOSED',
+        bounding_box_ft: boundingBox(points), hatch_pattern: null, is_net_usage_hatch: false,
+        confidence: 'high', note: null, status: 'PROPOSED',
       },
       obstacles: [],
       text_labels: [],
