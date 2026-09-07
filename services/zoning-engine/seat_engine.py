@@ -88,7 +88,7 @@ def _pack_band(usable_width_ft, band_depth_ft, seat_type_id, central_aisle_ft):
     seat = rules_registry.seat_type(seat_type_id)
     seat_width_ft, row_step_ft = _seat_geometry(seat)
     if seat_width_ft is None or band_depth_ft <= 0 or usable_width_ft <= 0:
-        return 0, 0, 0
+        return 0, 0, 0, 0.0
 
     rows = max(math.floor(band_depth_ft / row_step_ft), 0)
     if usable_width_ft > central_aisle_ft + (2 * seat_width_ft):
@@ -96,7 +96,13 @@ def _pack_band(usable_width_ft, band_depth_ft, seat_type_id, central_aisle_ft):
     else:
         seatable_width_ft = usable_width_ft
     seats_per_row = max(math.floor(seatable_width_ft / seat_width_ft), 0)
-    return rows, seats_per_row, rows * seats_per_row
+    # The band's own real packed depth (rows actually placed x that type's
+    # own row step) — not band_depth_ft itself, which is the depth OFFERED
+    # to this band and can exceed what an integer number of rows actually
+    # fills. Feeds last_row_distance_ft below (real theater-design
+    # convention: "how far is the back row from the screen", not "how deep
+    # is the room").
+    return rows, seats_per_row, rows * seats_per_row, rows * row_step_ft
 
 
 def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str = DEFAULT_SEAT_TYPE_ID,
@@ -124,7 +130,8 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
     if usable_width_ft <= 0 or usable_depth_ft <= 0:
         return {"status": "INSUFFICIENT_ROOM_FOR_SEATING", "seat_count": 0, "rows": 0, "seats_per_row": 0,
                 "seat_breakdown": {"LOUNGER": 0, "SOFA_SLIDER": 0, "DUO_LOUNGER": 0, "PREMIUM_RECLINER": 0},
-                "first_row_distance_ft": round(front_setback_ft, 2)}
+                "first_row_distance_ft": round(front_setback_ft, 2),
+                "last_row_distance_ft": round(front_setback_ft, 2)}
 
     primary_ratio_pct = max(0, min(100, primary_ratio_pct))
     use_mix = secondary_seat_type_id and (primary_ratio_pct < 100 or front_row_count is not None)
@@ -132,7 +139,7 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
     breakdown = {"LOUNGER": 0, "SOFA_SLIDER": 0, "DUO_LOUNGER": 0, "PREMIUM_RECLINER": 0}
 
     if not use_mix:
-        rows, seats_per_row, count = _pack_band(usable_width_ft, usable_depth_ft, primary_seat_type_id, central_aisle_ft)
+        rows, seats_per_row, count, packed_depth_ft = _pack_band(usable_width_ft, usable_depth_ft, primary_seat_type_id, central_aisle_ft)
         col = CHART_COLUMN_BY_SEAT_TYPE.get(primary_seat_type_id, "LOUNGER")
         breakdown[col] = count
         seat_type_used = primary_seat_type_id
@@ -151,8 +158,8 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
         else:
             primary_depth = usable_depth_ft * (primary_ratio_pct / 100.0)
         secondary_depth = usable_depth_ft - primary_depth
-        p_rows, p_spr, p_count = _pack_band(usable_width_ft, primary_depth, primary_seat_type_id, central_aisle_ft)
-        s_rows, s_spr, s_count = _pack_band(usable_width_ft, secondary_depth, secondary_seat_type_id, central_aisle_ft)
+        p_rows, p_spr, p_count, p_packed_depth_ft = _pack_band(usable_width_ft, primary_depth, primary_seat_type_id, central_aisle_ft)
+        s_rows, s_spr, s_count, s_packed_depth_ft = _pack_band(usable_width_ft, secondary_depth, secondary_seat_type_id, central_aisle_ft)
         breakdown[CHART_COLUMN_BY_SEAT_TYPE.get(primary_seat_type_id, "LOUNGER")] += p_count
         breakdown[CHART_COLUMN_BY_SEAT_TYPE.get(secondary_seat_type_id, "LOUNGER")] += s_count
         if front_row_count is not None:
@@ -161,6 +168,7 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
             seat_type_used = f"{primary_seat_type_id}+{secondary_seat_type_id} ({primary_ratio_pct:.0f}/{100-primary_ratio_pct:.0f})"
         total_rows = p_rows + s_rows
         total_seats_per_row = max(p_spr, s_spr)
+        packed_depth_ft = p_packed_depth_ft + s_packed_depth_ft
 
     seat_count = sum(breakdown.values())
 
@@ -193,7 +201,17 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
         "seats_per_row": total_seats_per_row,
         "seat_type_used": seat_type_used,
         "seat_breakdown": breakdown,
-        "first_row_distance_ft": round(front_setback_ft, 2)
+        "first_row_distance_ft": round(front_setback_ft, 2),
+        # How far the BACK row sits from the screen — front_setback_ft (the
+        # first row's own distance) plus the real packed seating depth
+        # actually placed (rows x each band's own row step), not
+        # usable_depth_ft itself, which is only the depth OFFERED to the
+        # rows and can exceed what an integer row count fills. Feeds
+        # VR_LAST_ROW_DISTANCE (see rules_registry_v1.json) — general
+        # theater-design guidance (SMPTE / BS 5588) that a back-row seat too
+        # far from the screen loses legible facial expression, distinct
+        # from FIRST_ROW_DISTANCE_RULE's own too-close concern.
+        "last_row_distance_ft": round(front_setback_ft + packed_depth_ft, 2)
     }
     if note:
         result["note"] = note

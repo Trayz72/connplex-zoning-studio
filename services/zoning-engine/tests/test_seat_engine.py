@@ -118,3 +118,42 @@ def test_custom_fit_room_gets_a_real_seat_mix_not_a_flat_single_type():
     assert custom_config["secondary_seat_type_id"] == preset_config["secondary_seat_type_id"]
     nonzero_types = [v for v in custom_estimate["seat_breakdown"].values() if v > 0]
     assert len(nonzero_types) >= 2, f"expected a real mix of >=2 seat types, got {custom_estimate['seat_breakdown']}"
+
+
+def test_last_row_distance_reflects_the_real_packed_seating_depth():
+    """New: theater_architecture_complete_standards.csv (Screen Placement &
+    Layout / Last Row Distance) — the back row's own distance from the
+    screen, not the room's raw depth (which can exceed what an integer row
+    count actually fills). Feeds VR_LAST_ROW_DISTANCE. Single-type case:
+    last_row_distance_ft must equal first_row_distance_ft plus the real
+    number of packed rows times that type's own row step."""
+    result = seat_engine.estimate_seats(40, 60, primary_seat_type_id="SLIDER_SOFA")
+    row_step = rules_registry.seat_type("SLIDER_SOFA")["min_row_step_ft"]
+    expected = result["first_row_distance_ft"] + result["rows"] * row_step
+    assert result["last_row_distance_ft"] == round(expected, 2)
+
+
+def test_last_row_distance_never_smaller_than_first_row_distance():
+    result = seat_engine.estimate_seats(40, 60, screen_width_ft=30)
+    assert result["last_row_distance_ft"] >= result["first_row_distance_ft"]
+
+
+def test_last_row_distance_equals_first_row_distance_when_no_seating_fits():
+    """The INSUFFICIENT_ROOM_FOR_SEATING early-return case — zero rows
+    packed, so the back row is (trivially) the same distance as the front:
+    both just the front setback, never a stale/undefined value."""
+    result = seat_engine.estimate_seats(2, 2)
+    assert result["status"] == "INSUFFICIENT_ROOM_FOR_SEATING"
+    assert result["last_row_distance_ft"] == result["first_row_distance_ft"]
+
+
+def test_last_row_distance_accounts_for_both_bands_in_a_mixed_room():
+    """A front-lounger-row + bulk mix must pack the real depth of BOTH
+    bands into last_row_distance_ft, not just the primary band's — a room
+    this deep with a real mix should extend well past a single 4-5ft row's
+    worth of depth."""
+    result = seat_engine.estimate_seats(
+        40, 60, primary_seat_type_id="FRONT_LOUNGER", secondary_seat_type_id="SLIDER_SOFA", front_row_count=1
+    )
+    assert result["rows"] >= 2  # at least the 1 front row + something behind it
+    assert result["last_row_distance_ft"] > result["first_row_distance_ft"] + 4.0

@@ -179,6 +179,23 @@ def _build_measurements(requirements: dict, confirmed_obstacles: list, boundary_
         ]
         if margins:
             measurements["first_row_margin_ft"] = round(min(margins), 2)
+    # VR_LAST_ROW_DISTANCE's metric — general theater-design guidance
+    # (SMPTE / British Standards BS 5588: a back-row seat past ~120 ft from
+    # the screen loses legible facial expression), unconditionally
+    # computable (unlike first_row_margin_ft above, needs no architect-
+    # supplied screen_width_ft) since seat_engine.estimate_seats always
+    # reports each room's own real packed seating depth. The worst
+    # (largest, farthest-from-screen) value across auditoriums is reported
+    # — same "don't hide a real problem behind an average" convention as
+    # first_row_margin_ft's own worst-case (smallest-margin) reporting.
+    if rooms:
+        last_row_distances = [
+            r["seat_estimate"]["last_row_distance_ft"]
+            for r in rooms
+            if r["room_type"].startswith("AUDITORIUM") and r.get("seat_estimate", {}).get("last_row_distance_ft") is not None
+        ]
+        if last_row_distances:
+            measurements["last_row_distance_ft"] = round(max(last_row_distances), 2)
     return measurements
 
 
