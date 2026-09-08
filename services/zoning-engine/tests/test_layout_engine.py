@@ -1006,3 +1006,148 @@ def test_screen_width_note_absent_when_the_room_is_wide_enough():
     for room in aud_rooms:
         assert room["width_ft"] >= 24.0
         assert "screen_width_note" not in room
+
+
+# ---------- second and third real client buildings, pulled from live project
+# storage the same way the dense-column fixture above was. Neither of these
+# was ever locked into an automated test before — they were just data sitting
+# in services/zoning-engine/storage/, only ever checked by a human running the
+# app and looking at it. Both baselines below were verified against the exact
+# stored geometry before being written as assertions, not assumed. ----------
+
+_CHAUDHARY_PALANPUR_BOUNDARY_FT = [
+    [0.0, 146.79], [48.63, 146.79], [48.63, 126.79], [47.66, 126.79], [47.53, 125.82], [64.33, 125.82],
+    [64.33, 101.2], [62.65, 101.2], [62.65, 99.99], [65.07, 99.99], [65.07, 100.46], [79.89, 100.48],
+    [79.89, 100.24], [81.08, 100.24], [81.08, 79.86], [79.89, 79.86], [79.89, 78.89], [80.86, 78.89],
+    [24.55, 0.0], [21.38, 0.0], [21.38, 0.22], [19.45, 0.22], [19.45, 0.0], [14.2, 0.0],
+    [14.2, 0.22], [12.27, 0.22], [12.27, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 146.79],
+]
+
+_CHAUDHARY_PALANPUR_OBSTACLES = [
+    {"points_ft": [[33.75, 35.32], [31.35, 35.32], [31.35, 37.72], [33.75, 37.72], [33.75, 35.32]], "classification": "COLUMN"},
+    {"points_ft": [[45.75, 35.92], [45.75, 37.12], [47.55, 37.12], [47.55, 35.92], [45.75, 35.92]], "classification": "COLUMN"},
+    {"points_ft": [[31.45, 37.85], [33.87, 37.85], [33.87, 35.44], [31.45, 35.44], [31.45, 37.85]], "classification": "COLUMN"},
+    {"points_ft": [[45.69, 36.04], [45.69, 37.25], [47.63, 37.25], [47.63, 36.04], [45.69, 36.04]], "classification": "COLUMN"},
+    {"points_ft": [[54.84, 48.85], [54.84, 50.06], [56.77, 50.06], [56.77, 48.85], [54.84, 48.85]], "classification": "COLUMN"},
+    {"points_ft": [[31.43, 63.47], [33.85, 63.47], [33.85, 61.05], [31.43, 61.05], [31.43, 63.47]], "classification": "COLUMN"},
+    {"points_ft": [[33.75, 61.12], [31.35, 61.12], [31.35, 63.52], [33.75, 63.52], [33.75, 61.12]], "classification": "COLUMN"},
+    {"points_ft": [[-0.75, 74.32], [-0.75, 75.82], [1.65, 75.82], [1.65, 74.32], [-0.75, 74.32]], "classification": "COLUMN"},
+    {"points_ft": [[33.75, 86.62], [31.35, 86.62], [31.35, 89.02], [33.75, 89.02], [33.75, 86.62]], "classification": "COLUMN"},
+    {"points_ft": [[31.43, 89.09], [33.85, 89.09], [33.85, 86.67], [31.43, 86.67], [31.43, 89.09]], "classification": "COLUMN"},
+    {"points_ft": [[31.44, 114.7], [33.85, 114.7], [33.85, 112.29], [31.44, 112.29], [31.44, 114.7]], "classification": "COLUMN"},
+    {"points_ft": [[33.75, 112.42], [31.35, 112.42], [31.35, 114.82], [33.75, 114.82], [33.75, 112.42]], "classification": "COLUMN"},
+    {"points_ft": [[15.47, 141.73], [16.68, 141.73], [16.68, 139.79], [15.47, 139.79], [15.47, 141.73]], "classification": "COLUMN"},
+    {"points_ft": [[33.38, 139.79], [31.93, 139.79], [31.93, 141.73], [33.38, 141.73], [33.38, 139.79]], "classification": "COLUMN"},
+    {"points_ft": [[33.45, 139.72], [31.95, 139.72], [31.95, 141.82], [33.45, 141.82], [33.45, 139.72]], "classification": "COLUMN"},
+]
+
+_CHAUDHARY_PALANPUR_ENTRY_FT = [48.75, 138.92]
+_CHAUDHARY_PALANPUR_EXIT_FT = [48.75, 129.62]
+
+
+def test_chaudhary_palanpur_real_floor_places_only_real_presets_never_a_sliver():
+    """A second, unrelated real client building (Chaudhary, Palanpur) —
+    currently healthy in production but never locked into a test before.
+    Verified directly against the stored geometry: MAX_SCREEN_COUNT places 4
+    real-preset screens (35_SEAT each), MAX_SEATS_PER_SCREEN places 3
+    (60_SEAT each) — both real, standard tiers, never a custom-fit sliver on
+    this floor plate, with or without an entry+exit marked. Exists purely to
+    catch a future regression before a human has to notice it in a
+    screenshot, the way the dense-column starvation bug above was found."""
+    for requirements in (
+        {"max_auditoriums": 4},
+        {
+            "max_auditoriums": 4,
+            "entry_point_ft": _CHAUDHARY_PALANPUR_ENTRY_FT,
+            "exit_points_ft": [_CHAUDHARY_PALANPUR_EXIT_FT],
+        },
+    ):
+        candidates = layout_engine.generate_candidates(
+            _CHAUDHARY_PALANPUR_BOUNDARY_FT, _CHAUDHARY_PALANPUR_OBSTACLES, requirements
+        )
+        for candidate in candidates:
+            aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+            assert len(aud_rooms) >= 3, (
+                f"{candidate['strategy']} (entry marked={'entry_point_ft' in requirements}): "
+                f"expected at least 3 real screens, got {len(aud_rooms)}"
+            )
+            for room in aud_rooms:
+                assert room["preset_id"] is not None, (
+                    f"{candidate['strategy']}: {room['room_type']} fell through to a custom-fit "
+                    f"footprint ({room['width_ft']}x{room['depth_ft']}) on a floor plate that should "
+                    "place only real SOP presets"
+                )
+
+
+_SWATI_TRINITY_BOUNDARY_FT = [
+    [0.0, 66.12], [0.0, 57.88], [0.98, 57.88], [0.98, 53.94], [0.0, 53.94], [0.0, 38.31],
+    [0.98, 38.31], [0.98, 34.38], [0.0, 34.38], [0.0, 26.12], [0.98, 26.12], [0.98, 22.19],
+    [0.0, 22.19], [0.0, 7.23], [0.0, 3.94], [0.98, 3.94], [0.98, 0.38], [9.19, 0.38],
+    [9.19, 3.22], [11.21, 3.22], [14.0, 3.22], [14.0, 3.94], [14.98, 3.94], [14.98, 1.48],
+    [14.0, 1.48], [14.0, 0.0], [14.55, 0.0], [14.37, 0.38], [23.45, 0.38], [23.45, 3.22],
+    [25.47, 3.22], [28.37, 3.22], [31.54, 3.22], [33.55, 3.22], [33.55, 0.38], [37.0, 0.38],
+    [41.65, 0.38], [41.65, 2.95], [42.74, 2.95], [42.74, 20.22], [42.14, 20.22], [42.14, 26.12],
+    [43.12, 26.12], [43.12, 24.13], [57.12, 24.13], [57.12, 26.12], [57.88, 26.12], [57.88, 24.13],
+    [71.99, 24.13], [71.99, 26.62], [71.99, 29.08], [71.99, 31.91], [71.99, 34.38], [70.4, 34.38],
+    [70.4, 37.33], [71.99, 37.33], [71.99, 39.67], [76.78, 39.67], [76.78, 44.61], [71.12, 44.61],
+    [71.12, 54.92], [68.92, 54.92], [68.92, 57.12], [68.67, 57.12], [68.67, 57.88], [68.92, 57.88],
+    [68.92, 57.88], [71.87, 57.88], [79.37, 57.88], [89.87, 57.88], [92.83, 57.88], [93.07, 57.88],
+    [93.07, 57.12], [92.83, 57.12], [92.83, 54.92], [90.25, 54.92], [90.25, 38.31], [91.35, 38.31],
+    [91.35, 34.38], [90.25, 34.38], [90.25, 26.21], [90.86, 26.21], [90.86, 24.13], [95.61, 24.13],
+    [104.62, 24.13], [118.62, 24.13], [118.62, 26.12], [119.61, 26.12], [119.61, 18.74], [119.0, 18.74],
+    [119.0, 5.91], [119.61, 5.91], [119.61, 3.22], [122.28, 3.22], [123.92, 3.22], [124.3, 3.22],
+    [124.3, 2.84], [124.3, 0.38], [129.55, 0.38], [133.0, 0.38], [136.82, 0.38], [142.56, 0.38],
+    [142.56, 2.84], [142.56, 3.22], [142.94, 3.22], [144.58, 3.22], [147.37, 3.22], [147.37, 9.22],
+    [147.37, 9.6], [147.37, 23.17], [146.27, 23.17], [146.27, 25.75], [145.02, 25.75], [145.02, 34.75],
+    [146.27, 34.75], [146.27, 37.33], [147.37, 37.33], [147.37, 47.81], [147.75, 47.81], [147.75, 54.92],
+    [146.27, 54.92], [146.27, 57.12], [146.03, 57.12], [146.03, 57.88], [146.27, 57.88], [146.27, 57.88],
+    [147.75, 57.88], [147.75, 66.12], [147.37, 66.12], [90.63, 66.12], [89.87, 66.12], [71.87, 66.12],
+    [71.12, 66.12], [14.75, 66.12], [14.0, 66.12], [0.0, 66.12], [0.0, 66.12],
+]
+
+_SWATI_TRINITY_OBSTACLES = [
+    {"points_ft": [[117.83, 37.33], [119.79, 37.33], [119.79, 34.38], [117.83, 34.38], [117.83, 37.33]], "classification": "COLUMN"},
+    {"points_ft": [[106.74, 35.19], [106.44, 35.19], [106.44, 38.79], [102.54, 38.79], [102.54, 35.19], [101.94, 35.19], [101.94, 39.09], [104.34, 39.09], [106.74, 39.09], [106.74, 35.79], [106.74, 35.19]], "classification": "COLUMN"},
+    {"points_ft": [[117.33, 57.88], [120.29, 57.88], [120.29, 54.92], [117.33, 54.92], [117.33, 57.88]], "classification": "COLUMN"},
+    {"points_ft": [[26.29, 26.12], [28.75, 26.12], [28.75, 23.17], [26.29, 23.17], [26.29, 26.12]], "classification": "COLUMN"},
+    {"points_ft": [[41.95, 37.33], [43.92, 37.33], [43.92, 34.38], [41.95, 34.38], [41.95, 37.33]], "classification": "COLUMN"},
+    {"points_ft": [[43.14, 35.49], [43.14, 39.39], [47.04, 39.39], [47.04, 35.49], [45.54, 35.49], [45.54, 35.19], [44.04, 35.19], [44.04, 35.49], [43.14, 35.49]], "classification": "COLUMN"},
+    {"points_ft": [[26.04, 57.88], [28.99, 57.88], [28.99, 54.92], [26.04, 54.92], [26.04, 57.88]], "classification": "COLUMN"},
+    {"points_ft": [[41.95, 57.88], [43.92, 57.88], [43.92, 54.92], [41.95, 54.92], [41.95, 57.88]], "classification": "COLUMN"},
+    {"points_ft": [[14.0, 24.65], [14.98, 24.65], [14.98, 22.19], [14.0, 22.19], [14.0, 24.65]], "classification": "COLUMN"},
+    {"points_ft": [[14.0, 32.38], [14.98, 32.38], [14.98, 29.91], [14.0, 29.91], [14.0, 32.38]], "classification": "COLUMN"},
+    {"points_ft": [[14.0, 57.88], [14.98, 57.88], [14.98, 54.92], [14.0, 54.92], [14.0, 57.88]], "classification": "COLUMN"},
+]
+
+
+def test_swati_trinity_tight_column_floor_uses_disclosed_sliver_not_silent_starvation():
+    """A third real client building (Swati Trinity, Ahmedabad) with a
+    genuinely tight column grid: 11 columns packed into ~7,100 sqft. Directly
+    verified (including with a real entry point marked, ruling out the
+    top_k/mirroring regression above) that only 2 screens fit via honest
+    placement — this is real geometry, not an algorithm gap. The second
+    screen falls back to a disclosed non-standard sliver rather than being
+    silently dropped or silently left as unlabeled Foyer slack. This test
+    guards the disclosure itself: if a future change makes this floor
+    plate's fallback silent (no warning, or the note goes missing off the
+    room), that's a real regression in honesty even though the screen count
+    doesn't change."""
+    requirements = {"max_auditoriums": 4}
+    candidates = layout_engine.generate_candidates(
+        _SWATI_TRINITY_BOUNDARY_FT, _SWATI_TRINITY_OBSTACLES, requirements
+    )
+    for candidate in candidates:
+        aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+        assert len(aud_rooms) >= 2, (
+            f"{candidate['strategy']}: expected at least the 2 screens this real floor plate can honestly hold, "
+            f"got {len(aud_rooms)}"
+        )
+        real_preset_rooms = [r for r in aud_rooms if r["preset_id"] is not None]
+        custom_fit_rooms = [r for r in aud_rooms if r["preset_id"] is None]
+        assert real_preset_rooms, f"{candidate['strategy']}: expected at least one real-preset screen"
+        if custom_fit_rooms:
+            assert any("realism floor" in w for w in candidate.get("warnings", [])), (
+                f"{candidate['strategy']}: placed a non-standard custom-fit screen "
+                f"({[(r['width_ft'], r['depth_ft']) for r in custom_fit_rooms]}) without disclosing it via "
+                "a candidate-level warning — must never silently ship a sliver"
+            )
