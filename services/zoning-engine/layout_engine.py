@@ -276,12 +276,13 @@ def _scan_axis_positions(minv, maxv, min_extent, step, grid_lines, extra_lines=N
 
 
 def _scan_place(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True,
-                 grid_lines_x=None, grid_lines_y=None):
+                 grid_lines_x=None, grid_lines_y=None, extra_lines_x=None, extra_lines_y=None):
     """First-fit deterministic scan: returns (x, y, w_used, h_used) of the first
     valid placement, or None. Tries both orientations if allow_rotate.
     grid_lines_x/grid_lines_y, when given, are real structural column-line
     coordinates (see _column_grid_lines) — candidate positions snap to them
-    instead of the fixed GRID_STEP_FT scan step."""
+    instead of the fixed GRID_STEP_FT scan step. extra_lines_x/extra_lines_y:
+    see _scan_axis_positions (e.g. _column_face_alignment_lines)."""
     minx, miny, maxx, maxy = bbox
     step = _grid_step_for_bbox(bbox)
     orientations = [(w, h)]
@@ -289,8 +290,8 @@ def _scan_place(usable_poly, placed_polys, placed_types, candidate_type, w, h, b
         orientations.append((h, w))
     min_extent = min(h, w)
 
-    for y in _scan_axis_positions(miny, maxy, min_extent, step, grid_lines_y):
-        for x in _scan_axis_positions(minx, maxx, min_extent, step, grid_lines_x):
+    for y in _scan_axis_positions(miny, maxy, min_extent, step, grid_lines_y, extra_lines_y):
+        for x in _scan_axis_positions(minx, maxx, min_extent, step, grid_lines_x, extra_lines_x):
             for ow, oh in orientations:
                 if x + ow > maxx or y + oh > maxy:
                     continue
@@ -395,18 +396,19 @@ def _scan_place_best(usable_poly, placed_polys, placed_types, candidate_type, w,
 
 
 def _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True,
-                               grid_lines_x=None, grid_lines_y=None):
+                               grid_lines_x=None, grid_lines_y=None, extra_lines_x=None, extra_lines_y=None):
     """Try the strict (all-obstacles-subtracted) polygon first — a column-free
     placement is always preferred when one exists, this changes nothing about
     today's behavior in that case. Only if that fails does it retry against
     fallback_poly (obstacles minus COLUMN — see compute_usable_area), which
     allows the rectangle to cover a confirmed structural column but nothing
-    else. Returns (placement_or_None, used_fallback: bool)."""
-    result = _scan_place(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, grid_lines_x, grid_lines_y)
+    else. Returns (placement_or_None, used_fallback: bool). extra_lines_x/
+    extra_lines_y: see _scan_axis_positions."""
+    result = _scan_place(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, grid_lines_x, grid_lines_y, extra_lines_x, extra_lines_y)
     if result:
         return result, False
     if fallback_poly is not None and fallback_poly is not usable_poly:
-        result = _scan_place(fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, grid_lines_x, grid_lines_y)
+        result = _scan_place(fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, grid_lines_x, grid_lines_y, extra_lines_x, extra_lines_y)
         if result:
             return result, True
     return None, False
@@ -507,6 +509,48 @@ def _room_edge_alignment_lines(placed_polys, cluster_tolerance_ft=1.0):
         minx, miny, maxx, maxy = p.bounds
         xs += [minx, maxx]
         ys += [miny, maxy]
+    return _cluster_axis_lines(xs, cluster_tolerance_ft), _cluster_axis_lines(ys, cluster_tolerance_ft)
+
+
+def _column_face_alignment_lines(column_polys, bbox, flip_x=False, flip_y=False, cluster_tolerance_ft=1.0):
+    """Every confirmed column's own real face coordinates (not its
+    centroid — see _column_grid_lines, which only offers centroid-based
+    bay lines, and only once >=2 line a real grid), unioned in as extra
+    scan candidates the same way _room_edge_alignment_lines offers
+    already-placed rooms' own edges. A real, reported defect this fixes: a
+    room wall can pass every existing gate (enclosure ratio under the cap,
+    column within edge_tolerance_ft of some wall) while still landing at
+    an arbitrary few inches to a couple of feet short of the column's own
+    face — geometrically "compliant" but reading as sloppy/unaligned to an
+    architect, since a real wall is drawn flush against (or built directly
+    into) the column it runs past, not floating an arbitrary gap away from
+    it. Offered for BOTH axes regardless of column count or grid
+    regularity (unlike _column_grid_lines) — even a single scattered column
+    is worth a room wall lining up flush against, and this only ever ADDS
+    a candidate position, never narrows what the plain step/grid-line scan
+    already finds, so it can only improve alignment, never lose a
+    placement that exists today.
+
+    column_polys are always in real (unmirrored) coordinates (see
+    _column_enclosure_ok's own docstring) — mirrored into the same
+    scan-space flip_x/flip_y puts placement candidates in, via the same
+    reflect-about-bbox-center transform _mirror_for_scan/_unmirror_rect
+    use, so a face line actually lines candidates up correctly even when
+    the auditorium scan is running mirrored toward the entrance/exit
+    side."""
+    if not column_polys:
+        return [], []
+    minx, miny, maxx, maxy = bbox
+    cx, cy = (minx + maxx) / 2.0, (miny + maxy) / 2.0
+    xs, ys = [], []
+    for p in column_polys:
+        cminx, cminy, cmaxx, cmaxy = p.bounds
+        xs += [cminx, cmaxx]
+        ys += [cminy, cmaxy]
+    if flip_x:
+        xs = [2 * cx - v for v in xs]
+    if flip_y:
+        ys = [2 * cy - v for v in ys]
     return _cluster_axis_lines(xs, cluster_tolerance_ft), _cluster_axis_lines(ys, cluster_tolerance_ft)
 
 
@@ -1029,9 +1073,11 @@ def _try_place_auditorium_with_column_check(usable_poly, fallback_poly, placed_p
     feet away — this is exactly what made a real live project's 7,000+ sqft
     floor plate place only 1 of a possible 4 screens. Returns (x, y, w, h,
     used_fallback) or None."""
+    face_lines_x, face_lines_y = _column_face_alignment_lines(column_polys, bbox, flip_x, flip_y)
     ranked = _scan_place_ranked_with_fallback(
         usable_poly, fallback_poly, placed_polys, placed_types, "AUDITORIUM", w, h, bbox,
-        top_k=top_k, grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y
+        top_k=top_k, grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y,
+        extra_lines_x=face_lines_x, extra_lines_y=face_lines_y
     )
     for (x, y, ow, oh), _satisfied, used_fallback in ranked:
         if used_fallback and not _column_enclosure_ok((x, y, ow, oh), bbox, flip_x, flip_y, column_polys, aud_column_cap, aud_edge_tolerance_ft):
@@ -1362,21 +1408,27 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
     support_column_cap = rules_registry.planning_norm("SUPPORT_ZONE_MAX_ENCLOSED_COLUMN_RATIO")
     if support_column_cap is None:
         support_column_cap = 0.15
-    door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
 
     if room_type == "AUDITORIUM":
+        # See _column_face_alignment_lines' own docstring — a manually-added
+        # screen deserves the same flush-against-the-column wall alignment
+        # the auto-layout path gets, not a different, lower-quality result
+        # just because the architect added it one room at a time.
+        face_lines_x, face_lines_y = _column_face_alignment_lines(column_polys, bbox)
         presets = rules_registry.auditorium_presets()  # largest-first
         matched_preset = None
         for preset in presets:
             w_max = preset.get("width_max_ft", preset["width_min_ft"])
             h_max = preset.get("length_max_ft", preset["length_min_ft"])
             result, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, "AUDITORIUM", w_max, h_max, bbox,
-                                                                grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y)
+                                                                grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y,
+                                                                extra_lines_x=face_lines_x, extra_lines_y=face_lines_y)
             if result and used_fallback and not _column_enclosure_ok(result, bbox, False, False, column_polys, aud_column_cap, aud_edge_tolerance_ft):
                 result = None
             if not result and (w_max, h_max) != (preset["width_min_ft"], preset["length_min_ft"]):
                 result, used_fallback = _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, "AUDITORIUM", preset["width_min_ft"], preset["length_min_ft"], bbox,
-                                                                    grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y)
+                                                                    grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y,
+                                                                    extra_lines_x=face_lines_x, extra_lines_y=face_lines_y)
                 if result and used_fallback and not _column_enclosure_ok(result, bbox, False, False, column_polys, aud_column_cap, aud_edge_tolerance_ft):
                     result = None
             if result:
@@ -1432,7 +1484,7 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
             "seat_estimate": seat_est,
             "seat_config": seat_config,
             "screen_wall": screen_wall,
-            "doors": _doors_for_screen_wall(w, h, door_wall, door_width_ft)
+            "doors": []  # see generate_candidate's _strip_auto_generated_doors comment — the architect draws every real door by hand
         }
         if used_custom_fit:
             room["area_basis_note"] = (
@@ -1837,6 +1889,26 @@ def _place_support_zones_and_foyer(usable_poly, fallback_poly, column_polys, bbo
     return support_rooms, foyer_room, leftover_slack, warnings
 
 
+def _strip_auto_generated_doors(rooms):
+    """Clears every room's `doors` list right before a generated candidate
+    is returned. A room's real door position is still computed and used
+    internally throughout this whole placement pipeline — the connectivity-
+    severing check in _place_support_zones_and_foyer and _build_foyer_room's
+    own door-touch tiebreak both read a room's actual door via
+    connectivity.door_outside_point — but none of that is a claim about
+    where a real door belongs on the finished drawing, only a proxy point
+    for "close to this room's likely entrance." The architect draws every
+    real door by hand instead (EditableCanvas's own "+ Door" tool), so an
+    auto-placed room should never arrive with a door glyph it never asked
+    for. Called exactly once, at the very end of every top-level candidate-
+    generation function (generate_candidate, generate_optimized_candidate),
+    after every internal use of a room's real doors has already happened —
+    never inside the placement pipeline itself, which still needs them."""
+    for r in rooms:
+        r["doors"] = []
+    return rooms
+
+
 def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requirements: dict, confirmed_obstacles: list = None) -> dict:
     # True boundary bbox, not usable_poly's — obstacle subtraction almost
     # never shrinks the bounding box (obstacles are interior), but computing
@@ -1887,7 +1959,7 @@ def generate_candidate(usable_poly, boundary_points_ft, strategy: str, requireme
         usable_poly, fallback_poly, column_polys, bbox, auditoriums, aud_polys, requirements,
         franchise_tier_id=franchise_tier_id
     )
-    auditoriums = auditoriums + support_rooms + ([foyer_room] if foyer_room else [])
+    auditoriums = _strip_auto_generated_doors(auditoriums + support_rooms + ([foyer_room] if foyer_room else []))
 
     # fallback_poly.area, not usable_poly.area — a room can legitimately
     # enclose a confirmed column (see fallback_poly's own comment above), so
@@ -2045,7 +2117,7 @@ def generate_optimized_candidate(usable_poly, boundary_points_ft, requirements: 
         usable_poly, fallback_poly, column_polys, bbox, auditoriums, aud_polys, requirements,
         franchise_tier_id=franchise_tier_id
     )
-    auditoriums = auditoriums + support_rooms + ([foyer_room] if foyer_room else [])
+    auditoriums = _strip_auto_generated_doors(auditoriums + support_rooms + ([foyer_room] if foyer_room else []))
 
     circulation_area = leftover_slack
     total_seats = sum(a["seat_estimate"]["seat_count"] for a in auditoriums if a["room_type"].startswith("AUDITORIUM"))
