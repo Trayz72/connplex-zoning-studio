@@ -395,6 +395,29 @@ def get_requirements(project_id: str):
     return data
 
 
+def _candidate_geometry_errors(boundary_points_ft, confirmed_obstacles, candidate_rooms):
+    """Shared validation gate used before a generated candidate (from any of
+    the three engines — deterministic packer, AI-assisted, or CP-SAT
+    optimizer) is allowed to become the saved editable layout. Returns a
+    list of validate_rooms-style error dicts, or None if the candidate is
+    geometrically clean.
+
+    Exists because update_layout re-validates the WHOLE room list on every
+    single edit (see its own docstring) — if a defective candidate were ever
+    saved unvalidated, the first edit attempt afterward would reject over
+    rooms the architect never touched, permanently blocking editing with no
+    diagnostic trail. That exact symptom already happened once for real, via
+    a stale Foyer (now fixed by making Foyer derived instead of stored); this
+    closes the same failure mode for every other room type, defensively —
+    not because it's been observed on a real project, but because the
+    placement engine is complex enough that a future regression could produce
+    one (see this session's own top_k-starvation bug for how a placement bug
+    can slip past code review and unit tests until it's live)."""
+    real_rooms = [r for r in candidate_rooms if r["room_type"] != "FOYER"]
+    validation = layout_engine.validate_rooms(boundary_points_ft, confirmed_obstacles, real_rooms)
+    return None if validation["valid"] else validation["errors"]
+
+
 # ---------- Zoning run (real auto-layout + seats + feasibility) ----------
 
 @app.post("/api/projects/{project_id}/zoning-runs")
@@ -430,6 +453,9 @@ def run_zoning(project_id: str, body: ZoningRunIn):
         for room in cand["rooms"]:
             if room["room_type"].startswith("AUDITORIUM"):
                 room["preset_fit"] = seat_engine.best_fit_preset(room["area_sqft"])
+        cand["internal_geometry_error"] = _candidate_geometry_errors(
+            region["boundary"]["points_ft"], confirmed_obstacle_records, cand["rooms"]
+        )
 
     run_id = uuid.uuid4().hex[:12]
     run_record = {
@@ -443,8 +469,14 @@ def run_zoning(project_id: str, body: ZoningRunIn):
     storage.write_json(storage.run_path(project_id, run_id), run_record)
     storage.write_json(storage.latest_run_path(project_id), run_record)
 
-    if candidates:
-        best = max(candidates, key=lambda c: c["total_seats"])
+    # Never auto-select a candidate with a real geometry defect as the
+    # editable layout — see the internal_geometry_error comment above. A
+    # defective candidate is still returned in run_record for inspection
+    # (the frontend can show it, disabled), just never silently saved as
+    # the thing an architect starts editing.
+    valid_candidates = [c for c in candidates if c.get("internal_geometry_error") is None]
+    if valid_candidates:
+        best = max(valid_candidates, key=lambda c: c["total_seats"])
         layout = {
             "region_id": body.region_id,
             "source_candidate_id": best["candidate_id"],
@@ -613,11 +645,28 @@ def select_candidate(project_id: str, body: CandidateSelectIn):
 
     geometry = storage.read_json(storage.geometry_path(project_id))
     region = next(r for r in geometry["regions"] if r["region_id"] == run["region_id"])
+
+    # Validated fresh here rather than trusting a stored internal_geometry_error
+    # field, since this candidate may have come from the deterministic packer,
+    # the AI-assisted engine, or the CP-SAT optimizer (ai-zoning-runs and
+    # zoning-runs/optimize don't set that field at all) — whichever engine
+    # produced it, a real overlap must never get saved as the editable layout
+    # unvalidated (see _candidate_geometry_errors for why).
+    confirmed_obstacle_records = [o for o in region["obstacles"] if o["status"] == "CONFIRMED"]
+    errors = _candidate_geometry_errors(region["boundary"]["points_ft"], confirmed_obstacle_records, candidate["rooms"])
+    if errors is not None:
+        raise HTTPException(500, {
+            "message": "This candidate has an internal geometry defect and can't be selected as the editable "
+                       "layout — this is an engine bug, not something wrong with your project. Try the other "
+                       "strategy or re-run zoning.",
+            "errors": errors,
+        })
+
     layout = {
         "region_id": run["region_id"],
         "source_candidate_id": candidate["candidate_id"],
         "boundary_points_ft": region["boundary"]["points_ft"],
-        "obstacles": [o for o in region["obstacles"] if o["status"] == "CONFIRMED"],
+        "obstacles": confirmed_obstacle_records,
         "rooms": candidate["rooms"],
         "circulation_area_sqft": candidate["circulation_area_sqft"],
         "warnings": candidate.get("warnings", []),
