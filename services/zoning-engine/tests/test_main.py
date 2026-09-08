@@ -48,6 +48,36 @@ def test_replace_foyer_with_derived_ignores_a_stale_bad_foyer_already_in_real_ro
     assert circulation >= 0
 
 
+def test_candidate_geometry_errors_none_for_clean_candidate():
+    """A normal, non-overlapping set of rooms must pass through untouched —
+    no false positives from the new save-time validation gate."""
+    boundary = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
+    rooms = [_room("AUDITORIUM_1", 0, 0, 24, 40), _room("AUDITORIUM_2", 30, 0, 24, 40)]
+    assert main._candidate_geometry_errors(boundary, [], rooms) is None
+
+
+def test_candidate_geometry_errors_catches_a_real_overlap_and_ignores_foyer():
+    """The actual defect this gate exists to catch: two real rooms
+    overlapping. Must be reported (so run_zoning/select_candidate refuse to
+    save it as the editable layout — see _candidate_geometry_errors'
+    docstring for why this matters: an unvalidated overlap saved today would
+    otherwise permanently block every future edit, since update_layout
+    re-validates the whole room list on every call). A FOYER entry is
+    included specifically overlapping everything, proving it's stripped
+    before validation exactly like update_layout strips it — Foyer is
+    derived, never blocked on."""
+    boundary = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
+    overlapping_rooms = [
+        _room("AUDITORIUM_1", 0, 0, 24, 40),
+        _room("AUDITORIUM_2", 20, 0, 24, 40),  # overlaps AUDITORIUM_1 by 4x40
+        _room("FOYER", 0, 0, 100, 60),  # spans the whole boundary; must be ignored, not flagged
+    ]
+    errors = main._candidate_geometry_errors(boundary, [], overlapping_rooms)
+    assert errors is not None
+    assert any(e["issue"] == "ROOM_OVERLAP" for e in errors)
+    assert not any(e.get("room_id") == "foyer-1" for e in errors)
+
+
 def test_replace_foyer_with_derived_recomputes_after_a_room_shrinks():
     """The real UX this fixes: after a manual resize (a room shrinking),
     Foyer must grow to fill the newly-freed space, not stay stale — proving
