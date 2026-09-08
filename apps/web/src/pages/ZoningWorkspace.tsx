@@ -695,16 +695,24 @@ export const ZoningWorkspace: React.FC = () => {
                 ))}
               </div>
 
-              {(layout.warnings.length > 0 || layout.rooms.some(r => r.obstacle_note || r.seat_estimate?.note)) && (
+              {(layout.warnings.length > 0 || layout.rooms.some(r => r.obstacle_note || r.screen_width_note || r.seat_estimate?.note)) && (
                 <div className="panel" style={{ borderColor: 'rgba(201,154,58,0.35)', marginBottom: '16px' }}>
                   <div className="panel-label" style={{ color: 'var(--warning)', marginBottom: '8px' }}>Warnings &amp; Notes</div>
                   {layout.warnings.map((w, i) => (
                     <div key={`w${i}`} style={{ fontSize: '0.7rem', color: 'var(--warning)', padding: '5px 0', borderBottom: '1px solid var(--border-color)' }}>{w}</div>
                   ))}
-                  {layout.rooms.filter(r => r.obstacle_note || r.seat_estimate?.note).map(r => (
-                    <div key={r.room_id} style={{ fontSize: '0.7rem', color: 'var(--warning)', padding: '5px 0', borderBottom: '1px solid var(--border-color)' }}>
-                      <strong>{r.display_name}:</strong> {r.obstacle_note || r.seat_estimate?.note}
-                    </div>
+                  {layout.rooms.filter(r => r.obstacle_note || r.screen_width_note || r.seat_estimate?.note).map(r => (
+                    // A room can carry more than one independent note at once (e.g. both a
+                    // confirmed-column obstacle discount and a narrower-than-requested screen
+                    // width) — each has a different real cause, so both must show, not just
+                    // whichever happens to be listed first.
+                    [r.obstacle_note, r.screen_width_note, r.obstacle_note ? undefined : r.seat_estimate?.note]
+                      .filter((note): note is string => Boolean(note))
+                      .map((note, i) => (
+                        <div key={`${r.room_id}-${i}`} style={{ fontSize: '0.7rem', color: 'var(--warning)', padding: '5px 0', borderBottom: '1px solid var(--border-color)' }}>
+                          <strong>{r.display_name}:</strong> {note}
+                        </div>
+                      ))
                   ))}
                 </div>
               )}

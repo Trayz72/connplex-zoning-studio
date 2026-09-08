@@ -302,6 +302,11 @@ export interface LiveRoom {
   // carry the equivalent note on seat_estimate.note instead, since there it's
   // tied to the seat-count discount.
   obstacle_note?: string;
+  // Present when this auditorium came out narrower than the screen_width_ft
+  // marked in Requirements — see layout_engine.py's _build_auditorium_room.
+  // The seat count is real, just badly undersold by the legibility setback
+  // a screen that wide still forces regardless of the room's actual width.
+  screen_width_note?: string;
   // Which of this room's own edges is the screen wall — geometry-relative,
   // never a compass direction (see layout_engine.py's
   // _screen_wall_for_rect for why). Auditoriums only; defaults to 'min_y'

@@ -839,3 +839,170 @@ def test_generate_candidate_never_auto_generates_doors_on_any_room():
     assert len(candidate["rooms"]) > 0
     for room in candidate["rooms"]:
         assert room["doors"] == [], f"{room['room_type']} carries an auto-generated door: {room['doors']}"
+
+
+# ---------- top_k starvation on a dense, real column layout (entry+exit marked) ----------
+
+# Real boundary + confirmed-COLUMN geometry from a live client floor plate
+# (coordinates shifted to a local origin, otherwise unchanged) — a real,
+# measured case where marking an entry+exit point collapsed a floor plate
+# that fits 4 real screens (confirmed by both this engine with a large
+# enough top_k and by the architect's own hand-drawn zoning sheet for this
+# exact floor) down to a single, absurd 14.9x80ft custom-fit sliver.
+_REAL_DENSE_COLUMN_BOUNDARY_FT = [
+    [0.0, 16.78], [0.0, 8.96], [0.23, 8.96], [0.23, 8.96], [0.23, 8.96], [0.23, 0.02],
+    [23.65, 0.02], [23.65, 0.02], [26.11, 0.02], [26.11, 0.02], [49.05, 0.02], [49.05, 0.02],
+    [51.51, 0.02], [51.51, 0.02], [74.44, 0.02], [74.44, 0.02], [76.9, 0.02], [76.9, 0.02],
+    [85.19, 0.02], [85.19, 0.02], [87.16, 0.02], [87.16, 0.02], [102.23, 0.02], [102.24, 0.0],
+    [102.72, 0.13], [100.74, 7.24], [99.74, 10.85], [99.26, 10.72], [98.73, 12.61], [99.21, 12.75],
+    [95.96, 24.43], [95.48, 24.3], [94.96, 26.2], [95.43, 26.33], [93.23, 34.23], [93.23, 34.23],
+    [93.01, 35.06], [93.01, 35.06], [92.87, 35.55], [92.71, 36.12], [92.71, 36.12], [92.68, 36.23],
+    [92.21, 36.1], [91.68, 37.99], [92.15, 38.12], [91.84, 39.24], [87.95, 53.26], [87.47, 53.13],
+    [86.94, 55.02], [87.42, 55.15], [84.83, 64.47], [84.35, 64.34], [83.83, 66.23], [84.3, 66.37],
+    [80.31, 80.71], [79.84, 80.58], [79.31, 82.47], [79.79, 82.61], [77.98, 89.09], [76.4, 94.79],
+    [75.93, 94.66], [75.93, 94.66], [75.47, 96.31], [50.77, 96.31], [50.77, 94.84], [49.79, 94.84],
+    [49.79, 96.31], [25.38, 96.31], [25.38, 94.84], [24.39, 94.84], [24.39, 96.31], [0.23, 96.31],
+    [0.23, 94.84], [0.0, 94.84], [0.0, 82.99], [0.23, 82.99], [0.23, 80.53], [0.0, 80.53],
+    [0.0, 66.75], [0.23, 66.75], [0.23, 66.75], [0.23, 66.75], [0.23, 16.78], [0.23, 16.78],
+    [0.0, 16.78], [0.0, 16.78],
+]
+
+_REAL_DENSE_COLUMN_OBSTACLES = [
+    {"points_ft": [[50.77, 13.16], [49.79, 13.16], [49.79, 10.7], [50.77, 10.7], [50.77, 13.16]], "classification": "COLUMN"},
+    {"points_ft": [[25.38, 13.16], [24.39, 13.16], [24.39, 10.7], [25.38, 10.7], [25.38, 13.16]], "classification": "COLUMN"},
+    {"points_ft": [[76.16, 13.16], [75.18, 13.16], [75.18, 10.7], [76.16, 10.7], [76.16, 13.16]], "classification": "COLUMN"},
+    {"points_ft": [[76.16, 26.61], [75.18, 26.61], [75.18, 24.15], [76.16, 24.15], [76.16, 26.61]], "classification": "COLUMN"},
+    {"points_ft": [[50.77, 26.61], [49.79, 26.61], [49.79, 24.15], [50.77, 24.15], [50.77, 26.61]], "classification": "COLUMN"},
+    {"points_ft": [[25.38, 26.61], [24.39, 26.61], [24.39, 24.15], [25.38, 24.15], [25.38, 26.61]], "classification": "COLUMN"},
+    {"points_ft": [[50.77, 38.91], [49.79, 38.91], [49.79, 36.45], [50.77, 36.45], [50.77, 38.91]], "classification": "COLUMN"},
+    {"points_ft": [[76.16, 38.91], [75.18, 38.91], [75.18, 36.45], [76.16, 36.45], [76.16, 38.91]], "classification": "COLUMN"},
+    {"points_ft": [[63.47, 55.54], [62.49, 55.54], [62.49, 53.08], [63.47, 53.08], [63.47, 55.54]], "classification": "COLUMN"},
+    {"points_ft": [[25.38, 38.91], [24.39, 38.91], [24.39, 36.45], [25.38, 36.45], [25.38, 38.91]], "classification": "COLUMN"},
+    {"points_ft": [[50.77, 55.54], [49.79, 55.54], [49.79, 53.08], [50.77, 53.08], [50.77, 55.54]], "classification": "COLUMN"},
+    {"points_ft": [[25.38, 55.54], [24.39, 55.54], [24.39, 53.08], [25.38, 53.08], [25.38, 55.54]], "classification": "COLUMN"},
+    {"points_ft": [[50.77, 66.75], [49.79, 66.75], [49.79, 64.29], [50.77, 64.29], [50.77, 66.75]], "classification": "COLUMN"},
+    {"points_ft": [[25.38, 66.75], [24.39, 66.75], [24.39, 64.29], [25.38, 64.29], [25.38, 66.75]], "classification": "COLUMN"},
+    {"points_ft": [[63.47, 66.75], [62.49, 66.75], [62.49, 64.29], [63.47, 64.29], [63.47, 66.75]], "classification": "COLUMN"},
+    {"points_ft": [[50.77, 82.99], [49.79, 82.99], [49.79, 80.53], [50.77, 80.53], [50.77, 82.99]], "classification": "COLUMN"},
+    {"points_ft": [[25.38, 82.99], [24.39, 82.99], [24.39, 80.53], [25.38, 80.53], [25.38, 82.99]], "classification": "COLUMN"},
+    {"points_ft": [[63.47, 82.99], [62.49, 82.99], [62.49, 80.53], [63.47, 80.53], [63.47, 82.99]], "classification": "COLUMN"},
+]
+
+_REAL_DENSE_COLUMN_ENTRY_FT = [0.19, 39.69]
+_REAL_DENSE_COLUMN_EXIT_FT = [-0.01, 44.89]
+
+
+def test_marked_entry_and_exit_does_not_starve_auditorium_placement_on_a_dense_column_floor():
+    """The exact regression this fixture was pulled from a live client file
+    to guard: with no entry/exit marked, this floor plate places 4 real
+    screens; with a real entry+exit marked near one corner (both close
+    together, forcing the auditorium scan to run mirrored — see
+    _entry_exit_scan_flip), the scan used to rank its top 12 fallback
+    candidates entirely inside the confirmed-column field (all rejected by
+    the column-enclosure gate) while dozens of genuinely valid,
+    column-clear candidates existed a few ranks further down — invisible
+    to the old top_k=12 cutoff in _try_place_auditorium_with_column_check.
+    That collapsed every preset tier down to Phase 2's custom-fit fallback,
+    which produced one absurd ~15x80ft sliver screen instead of 4 real
+    ones. Marking an entrance must never make placement worse than not
+    marking one at all."""
+    requirements = {
+        "max_auditoriums": 4,
+        "entry_point_ft": _REAL_DENSE_COLUMN_ENTRY_FT,
+        "exit_points_ft": [_REAL_DENSE_COLUMN_EXIT_FT],
+    }
+    candidates = layout_engine.generate_candidates(
+        _REAL_DENSE_COLUMN_BOUNDARY_FT, _REAL_DENSE_COLUMN_OBSTACLES, requirements
+    )
+    for candidate in candidates:
+        aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+        assert len(aud_rooms) >= 3, (
+            f"{candidate['strategy']}: expected several real screens on this floor plate, got only "
+            f"{len(aud_rooms)}: {[(r['area_sqft'], r['width_ft'], r['depth_ft']) for r in aud_rooms]}"
+        )
+        for room in aud_rooms:
+            assert room["preset_id"] is not None, (
+                f"{candidate['strategy']}: {room['room_type']} fell through to a non-standard custom-fit "
+                f"footprint ({room['width_ft']}x{room['depth_ft']}) even though real SOP-preset positions exist"
+            )
+
+
+def test_narrower_top_k_reproduces_the_starvation_this_fixture_guards_against():
+    """Confirms the fixture above actually exercises the regression — with
+    the old top_k=12 default, this exact floor plate + entry/exit really
+    did collapse to a single screen. If this assertion ever stops holding
+    (e.g. the fixture bit-rots against unrelated scan changes), the
+    positive test above stops being meaningful and both should be
+    revisited together."""
+    import functools
+    original = layout_engine._try_place_auditorium_with_column_check
+
+    def forced_old_top_k(*args, **kwargs):
+        kwargs["top_k"] = 12
+        return original(*args, **kwargs)
+
+    layout_engine._try_place_auditorium_with_column_check = forced_old_top_k
+    try:
+        requirements = {
+            "max_auditoriums": 4,
+            "entry_point_ft": _REAL_DENSE_COLUMN_ENTRY_FT,
+            "exit_points_ft": [_REAL_DENSE_COLUMN_EXIT_FT],
+        }
+        candidates = layout_engine.generate_candidates(
+            _REAL_DENSE_COLUMN_BOUNDARY_FT, _REAL_DENSE_COLUMN_OBSTACLES, requirements
+        )
+        screen_counts = [
+            len([r for r in c["rooms"] if r["room_type"].startswith("AUDITORIUM")]) for c in candidates
+        ]
+        assert all(n <= 1 for n in screen_counts), (
+            f"expected top_k=12 to reproduce the known starvation (<=1 screen), got {screen_counts} — "
+            "the fixture may no longer exercise the original regression"
+        )
+    finally:
+        layout_engine._try_place_auditorium_with_column_check = original
+
+
+# ---------- screen_width_ft narrower-than-requested disclosure ----------
+
+def test_screen_width_note_appears_when_no_preset_can_carry_the_marked_screen_width():
+    """Real, measured case: an architect marks screen_width_ft=30 in
+    Requirements, but the confirmed column layout leaves no 30ft-wide
+    preset position anywhere — every screen ends up placed at the 24ft-wide
+    35_SEAT tier instead. FIRST_ROW_DISTANCE_RULE still forces the front-row
+    setback out to 30ft regardless of the room's actual width (see
+    seat_engine.estimate_seats), badly undersizing the reported seat count
+    for a reason that isn't a placement defect — must be disclosed on the
+    room, not left for the architect to puzzle out from a low seat count."""
+    requirements = {
+        "max_auditoriums": 4,
+        "entry_point_ft": _REAL_DENSE_COLUMN_ENTRY_FT,
+        "exit_points_ft": [_REAL_DENSE_COLUMN_EXIT_FT],
+        "screen_width_ft": 30.0,
+    }
+    candidates = layout_engine.generate_candidates(
+        _REAL_DENSE_COLUMN_BOUNDARY_FT, _REAL_DENSE_COLUMN_OBSTACLES, requirements
+    )
+    for candidate in candidates:
+        aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+        narrow_rooms = [r for r in aud_rooms if r["width_ft"] < 30.0]
+        assert narrow_rooms, "expected at least one auditorium narrower than the marked screen_width_ft on this floor plate"
+        for room in narrow_rooms:
+            assert "screen_width_note" in room, (
+                f"{room['room_type']} is {room['width_ft']}ft wide (< marked 30ft screen_width_ft) but carries "
+                "no screen_width_note explaining the resulting seat undercount"
+            )
+            assert "30" in room["screen_width_note"]
+
+
+def test_screen_width_note_absent_when_the_room_is_wide_enough():
+    """No false positives — a room already at least as wide as the marked
+    screen_width_ft must not carry the narrower-than-requested note."""
+    candidate = layout_engine.generate_candidate(
+        _usable(), RECT_BOUNDARY, "MAX_SEATS_PER_SCREEN",
+        {"max_auditoriums": 2, "screen_width_ft": 24.0}, []
+    )
+    aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+    assert aud_rooms
+    for room in aud_rooms:
+        assert room["width_ft"] >= 24.0
+        assert "screen_width_note" not in room

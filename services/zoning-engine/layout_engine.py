@@ -797,6 +797,19 @@ def _build_auditorium_room(x, y, w, h, index, used_preset, used_fallback, column
         )
     if seat_est.get("note"):
         room["obstacle_note"] = seat_est["note"]
+    if screen_width_ft and w < screen_width_ft:
+        # The room itself came out narrower than the architect's own marked
+        # screen width — FIRST_ROW_DISTANCE_RULE still forces the front-row
+        # setback out to screen_width_ft regardless (see
+        # seat_engine.estimate_seats), so the seat count above is real but
+        # badly undersold for this room's actual depth, not a placement
+        # defect. Surfaced explicitly rather than left for the architect to
+        # puzzle out from a low seat count alone.
+        room["screen_width_note"] = (
+            f"Placed {w:.0f}ft wide — narrower than the {screen_width_ft:.0f}ft screen width marked in "
+            "Requirements. No wider footprint fit this floor plate, so seating depth (and seat count) is "
+            "reduced by the legibility setback a screen this wide still requires. Review before finalizing."
+        )
     return room
 
 
@@ -1060,7 +1073,7 @@ def _place_auditoriums(usable_poly, fallback_poly, column_polys, bbox, presets, 
 
 def _try_place_auditorium_with_column_check(usable_poly, fallback_poly, placed_polys, placed_types, w, h, bbox,
                                              grid_lines_x, grid_lines_y, column_polys, aud_column_cap,
-                                             aud_edge_tolerance_ft, flip_x, flip_y, top_k=12):
+                                             aud_edge_tolerance_ft, flip_x, flip_y, top_k=80):
     """Same strict-then-column-tolerant scan every auditorium placement
     already used, but tries up to top_k ranked candidates instead of
     stopping at the single first-fit one — a real, confirmed defect this
@@ -1071,8 +1084,20 @@ def _try_place_auditorium_with_column_check(usable_poly, fallback_poly, placed_p
     instant one preset fails everywhere" logic, the ENTIRE preset tier)
     reads as "nothing fits" even though a column-clear position exists two
     feet away — this is exactly what made a real live project's 7,000+ sqft
-    floor plate place only 1 of a possible 4 screens. Returns (x, y, w, h,
-    used_fallback) or None."""
+    floor plate place only 1 of a possible 4 screens.
+
+    top_k default matches _scan_place_ranked_with_fallback's own
+    max_candidates=80 — i.e. exhaust the whole ranked pool it already
+    generates, not an arbitrary smaller slice of it. A real, measured case
+    the old top_k=12 missed: with a marked entry+exit, the scan runs
+    mirrored toward the entrance, and every one of the top 12 ranked
+    fallback candidates landed straddling the confirmed column field
+    (clustered by score, all failing the enclosure gate) while 72 genuinely
+    valid, column-clear candidates existed only a few ranks further down —
+    invisible to a top_k=12 cutoff, collapsing 4 real screens down to a
+    single custom-fit sliver. Checking the rest of an already-computed list
+    costs a handful of cheap polygon checks, not a new scan.
+    Returns (x, y, w, h, used_fallback) or None."""
     face_lines_x, face_lines_y = _column_face_alignment_lines(column_polys, bbox, flip_x, flip_y)
     ranked = _scan_place_ranked_with_fallback(
         usable_poly, fallback_poly, placed_polys, placed_types, "AUDITORIUM", w, h, bbox,
@@ -1145,7 +1170,15 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
     custom_fit_column_cap = 0.05
     door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
     min_preset_area_sqft = min((p["min_area_sqft"] for p in presets), default=0)
-    min_short_side_ft = min((p["width_min_ft"] for p in presets), default=0)
+    # A room narrower than the architect's own marked screen_width_ft can
+    # never legibly host that screen — FIRST_ROW_DISTANCE_RULE already
+    # forces the front-row setback out to screen_width_ft regardless of the
+    # room's actual width (see seat_engine.estimate_seats), so a preset too
+    # narrow for it doesn't fail outright, it just quietly starves its own
+    # seating depth and reports a technically-valid but badly undersold
+    # seat count. Folding screen_width_ft into the realism floor here means
+    # Phase 2's custom-fit fallback never manufactures that same trap.
+    min_short_side_ft = max(min((p["width_min_ft"] for p in presets), default=0), screen_width_ft or 0)
 
     # Phase 1: real SOP presets only, largest-fits-first, exactly as before.
     # The instant a preset fails to fit anywhere, stop this loop — every
@@ -1155,6 +1188,21 @@ def _place_auditoriums_inner(usable_poly, fallback_poly, column_polys, bbox, pre
     # now Phase 2 below: a proper backtracking-aware fill for every
     # remaining slot at once.
     ordered_presets = preset_order(presets)
+    # When a screen width is marked, presets too narrow to actually carry
+    # that screen are tried last, not skipped outright — still real,
+    # buildable rooms (an architect may accept a narrower screen there),
+    # just never preferred over a preset that can host the requested width
+    # without the legibility setback silently eating the room's own seating
+    # depth. Real, measured case this exists for: with screen_width_ft=30
+    # and a 24ft-wide preset available before a 30ft-wide one in size order,
+    # the 24ft preset placed fine and then reported a fraction of the seats
+    # a 30ft-wide preset (present, spatially valid, just ranked worse by
+    # raw size) would have — a strictly worse outcome nothing flagged.
+    if screen_width_ft:
+        capable = [p for p in ordered_presets if p.get("width_max_ft", p["width_min_ft"]) >= screen_width_ft]
+        incapable = [p for p in ordered_presets if p not in capable]
+        if capable:
+            ordered_presets = capable + incapable
     presets_exhausted = False
     for _ in range(max_count):
         placement = None
