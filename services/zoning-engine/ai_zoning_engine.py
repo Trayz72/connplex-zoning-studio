@@ -211,7 +211,6 @@ def _room_type_and_label(raw_type, index, counters):
 
 def _rooms_from_tool_input(tool_input, column_polys, entry_point=None, screen_width_ft=None):
     valid_seat_ids = {s["id"] for s in seat_engine.selectable_seat_types()}
-    door_width_ft = rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
     counters = {}
     rooms = []
     for r in tool_input.get("rooms", []):
@@ -245,13 +244,16 @@ def _rooms_from_tool_input(tool_input, column_polys, entry_point=None, screen_wi
             room["seat_config"] = {"primary_seat_type_id": seat_type_id, "secondary_seat_type_id": None, "primary_ratio_pct": 100}
             if seat_est.get("note"):
                 room["obstacle_note"] = seat_est["note"]
-            # Same screen-wall/door derivation the deterministic engine uses
-            # (layout_engine._screen_wall_for_rect/_doors_for_screen_wall) —
-            # an AI-proposed screen should render and validate consistently
-            # with an auto-placed one, not read as a different kind of room.
+            # Same screen-wall derivation the deterministic engine uses
+            # (layout_engine._screen_wall_for_rect) — an AI-proposed screen
+            # should render and validate consistently with an auto-placed
+            # one, not read as a different kind of room. No auto-generated
+            # door glyph here either (see generate_candidate's own
+            # _strip_auto_generated_doors comment for the full reasoning —
+            # the architect draws every real door by hand).
             screen_wall = layout_engine._screen_wall_for_rect(x, y, w, d, entry_point)
             room["screen_wall"] = screen_wall
-            room["doors"] = layout_engine._doors_for_screen_wall(w, d, screen_wall, door_width_ft)
+            room["doors"] = []
         rooms.append(room)
     return rooms
 

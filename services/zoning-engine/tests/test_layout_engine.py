@@ -142,13 +142,13 @@ def test_validate_rooms_accepts_real_non_overlapping_layout():
 
 # ---------- screen_wall / doors (component-placement upgrade) ----------
 
-def test_screen_wall_and_doors_derived_from_entry_point():
-    """An auditorium placed with a marked entry point should get its doors
-    on the edge nearest that entry point, and its actual projection screen
-    on the OPPOSITE wall — a real, reported defect this guards against: an
-    earlier version put both on the same wall, meaning a patron would have
-    to walk in right next to the screen. Real cinema design has patrons
-    enter from the back/near wall and see the screen at the far end."""
+def test_screen_wall_derived_from_entry_point_opposite_the_near_wall():
+    """An auditorium placed with a marked entry point should get its actual
+    projection screen on the wall OPPOSITE the entry — a real, reported
+    defect this guards against: an earlier version put the screen on the
+    same wall a patron enters from, meaning they'd walk in right next to
+    it. Real cinema design has patrons enter from the back/near wall and
+    see the screen at the far end."""
     usable = _usable()
     requirements = {"entry_point_ft": [0, 30]}  # far left, mid-height
     room, warning = layout_engine.place_single_zone(
@@ -156,11 +156,23 @@ def test_screen_wall_and_doors_derived_from_entry_point():
     )
     assert room is not None, warning
     assert room["screen_wall"] == "max_x", "screen should be on the FAR wall from the entry, not the near one"
-    kinds = sorted(d["kind"] for d in room["doors"])
-    assert kinds == ["ENTRY", "EXIT"]
-    for door in room["doors"]:
-        assert door["wall"] == "min_x", "doors belong on the near-entry wall, never the screen wall"
-        assert door["width_ft"] > 0
+
+
+def test_generated_auditorium_never_carries_an_auto_generated_door():
+    """No auto-placed screen — via place_single_zone (manual Add Zone) or
+    the full auto-layout pipeline — should ever arrive with a door glyph
+    the architect never asked for. Doors are drawn by hand afterward
+    (EditableCanvas's own "+ Door" tool); see
+    layout_engine._strip_auto_generated_doors' own docstring for why door
+    POSITION is still computed and used internally (connectivity/Foyer
+    door-touch logic) even though it's never exposed on the room itself."""
+    usable = _usable()
+    requirements = {"entry_point_ft": [0, 30]}
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 100, 60), "AUDITORIUM", requirements
+    )
+    assert room is not None, warning
+    assert room["doors"] == []
 
 
 def test_screen_wall_defaults_to_min_y_without_entry_point():
@@ -752,3 +764,78 @@ def test_generate_candidate_never_places_a_screen_over_an_interior_column_throug
     candidate = layout_engine.generate_candidate(usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 1}, [column])
     aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
     assert len(aud_rooms) == 0, "expected no screen to be placed rather than one enclosing the dead-center column"
+
+
+# ---------- column face alignment (screens flush against a nearby column) ----------
+
+def test_column_face_alignment_lines_returns_real_column_face_coordinates():
+    """Real, reported defect: a screen wall could pass every existing gate
+    (area ratio under the cap, column within edge_tolerance_ft of some
+    wall) while still landing an arbitrary fraction of a foot short of the
+    column's own face — geometrically compliant but reading as sloppy/
+    unaligned, since a real wall is drawn flush against (or built into) the
+    column it runs past. _column_face_alignment_lines offers the column's
+    own real face coordinates (not its centroid — see _column_grid_lines,
+    a different, coarser mechanism) as extra scan candidates."""
+    from shapely.geometry import box
+    col = box(23.3, 10.0, 24.7, 11.4)  # deliberately not on the 2ft GRID_STEP_FT scan sequence
+    xs, ys = layout_engine._column_face_alignment_lines([col], (0, 0, 100, 60))
+    assert sorted(round(v, 2) for v in xs) == [23.3, 24.7]
+    assert sorted(round(v, 2) for v in ys) == [10.0, 11.4]
+
+
+def test_column_face_alignment_lines_mirrors_correctly_for_flipped_scans():
+    """Auditorium placement can run its scan mirrored about the bbox center
+    (see _mirror_for_scan/_entry_exit_scan_flip) to bias toward the marked
+    entry/exit side — column_polys stay in real (unmirrored) coordinates
+    throughout (see _column_enclosure_ok's own docstring), so a face line
+    must be mirrored into the same scan-space flip_x/flip_y puts placement
+    candidates in, or it would line candidates up against the wrong side
+    of the floor plate entirely."""
+    from shapely.geometry import box
+    col = box(10.0, 10.0, 12.0, 12.0)
+    bbox = (0, 0, 100, 60)  # center at (50, 30)
+    xs, ys = layout_engine._column_face_alignment_lines([col], bbox, flip_x=True, flip_y=False)
+    assert sorted(round(v, 2) for v in xs) == [88.0, 90.0]  # 2*50 - {10, 12}
+    assert sorted(round(v, 2) for v in ys) == [10.0, 12.0]  # y untouched
+
+
+def test_column_face_alignment_lines_empty_with_no_columns():
+    xs, ys = layout_engine._column_face_alignment_lines([], (0, 0, 100, 60))
+    assert xs == [] and ys == []
+
+
+def test_scan_place_ranked_offers_a_candidate_flush_against_a_column_face():
+    """End-to-end proof the mechanism actually reaches the scan: a column
+    whose face sits at a non-grid-step coordinate must still appear as a
+    real candidate x-position once its face lines are passed through as
+    extra_lines_x — not just computed and discarded."""
+    from shapely.geometry import box
+    usable = _usable()
+    col = box(23.3, 0, 24.7, 60)  # spans the room's full height, off the 2ft grid
+    face_lines_x, face_lines_y = layout_engine._column_face_alignment_lines([col], (0, 0, 100, 60))
+    ranked = layout_engine._scan_place_ranked(
+        usable, [], [], "AUDITORIUM", 24, 35, (0, 0, 100, 60),
+        extra_lines_x=face_lines_x, extra_lines_y=face_lines_y
+    )
+    xs_seen = {round(c[0][0], 2) for c in ranked}
+    assert 24.7 in xs_seen, f"expected a candidate flush against the column's own face (24.7), got x values {sorted(xs_seen)}"
+
+
+# ---------- no auto-generated doors (architect draws every door by hand) ----------
+
+def test_generate_candidate_never_auto_generates_doors_on_any_room():
+    """Real product decision this round enforces: an auto-placed room
+    (screen or support zone) never arrives with a door glyph the architect
+    never asked for — doors are added by hand afterward via the edit
+    canvas's own "+ Door" tool. Door POSITION is still computed and used
+    internally by the placement pipeline itself (connectivity gating,
+    Foyer's door-touch tiebreak — see _strip_auto_generated_doors' own
+    docstring), but must never leak into the returned room list."""
+    candidate = layout_engine.generate_candidate(
+        _usable(), RECT_BOUNDARY, "MAX_SEATS_PER_SCREEN",
+        {"max_auditoriums": 4, "entry_point_ft": [0, 30]}, []
+    )
+    assert len(candidate["rooms"]) > 0
+    for room in candidate["rooms"]:
+        assert room["doors"] == [], f"{room['room_type']} carries an auto-generated door: {room['doors']}"
