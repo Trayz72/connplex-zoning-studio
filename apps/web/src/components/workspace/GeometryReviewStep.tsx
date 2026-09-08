@@ -3,6 +3,7 @@ import { GeometryResult, GeometryRegion } from '../../types/live';
 import { EditableCanvas } from './EditableCanvas';
 import * as engine from '../../services/zoningEngineApi';
 import { ArrowLeftIcon, ArrowRightIcon, RefreshIcon, WarningIcon, CheckIcon } from '../Icons';
+import { floorLabelFor } from '../../utils/floorLabel';
 
 interface GeometryReviewStepProps {
   projectId: string;
@@ -256,24 +257,30 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
           border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', padding: '5px 10px', fontSize: '0.75rem'
         }}
       >
-        {regions.map((r, i) => (
-          <option key={r.region_id} value={r.region_id}>
-            Region {i + 1} · {r.boundary.area_sqft.toLocaleString()} sqft
-          </option>
-        ))}
+        {regions.map((r, i) => {
+          const floorLabel = floorLabelFor(r);
+          return (
+            <option key={r.region_id} value={r.region_id}>
+              Region {i + 1}{floorLabel ? ` (${floorLabel})` : ''} · {r.boundary.area_sqft.toLocaleString()} sqft
+            </option>
+          );
+        })}
       </select>
     ) : (
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', flex: '0 0 auto' }}>
-        {regions.map(r => (
-          <button
-            key={r.region_id}
-            onClick={() => setActiveRegionId(r.region_id)}
-            className={r.region_id === activeRegionId ? 'btn btn-primary' : 'btn btn-secondary'}
-            style={{ fontSize: '0.72rem', padding: '4px 10px' }}
-          >
-            Region {regions.indexOf(r) + 1} · {r.boundary.area_sqft.toLocaleString()} sqft
-          </button>
-        ))}
+        {regions.map(r => {
+          const floorLabel = floorLabelFor(r);
+          return (
+            <button
+              key={r.region_id}
+              onClick={() => setActiveRegionId(r.region_id)}
+              className={r.region_id === activeRegionId ? 'btn btn-primary' : 'btn btn-secondary'}
+              style={{ fontSize: '0.72rem', padding: '4px 10px' }}
+            >
+              Region {regions.indexOf(r) + 1}{floorLabel ? ` (${floorLabel})` : ''} · {r.boundary.area_sqft.toLocaleString()} sqft
+            </button>
+          );
+        })}
       </div>
     )
   );

@@ -3,6 +3,7 @@ import { GeometryResult, GeometryRegion, RawClosedShape, RawSegment, FullRawGeom
 import * as engine from '../../services/zoningEngineApi';
 import { ArrowRightIcon, RefreshIcon, WarningIcon } from '../Icons';
 import { EntryExitPicker } from './EntryExitPicker';
+import { floorLabelFor } from '../../utils/floorLabel';
 
 interface BoundaryStudioProps {
   projectId: string;
@@ -210,14 +211,16 @@ type Preview = { points: number[][]; mode: 'shape' | 'walls' | 'draw'; sourceHan
 // behind an extra click.
 const REGION_LIST_COMPACT_THRESHOLD = 8;
 
-const RegionCandidateButton: React.FC<{ region: GeometryRegion; index: number; onChoose: (regionId: string) => void }> = ({ region, index, onChoose }) => (
+const RegionCandidateButton: React.FC<{ region: GeometryRegion; index: number; onChoose: (regionId: string) => void }> = ({ region, index, onChoose }) => {
+  const floorLabel = floorLabelFor(region);
+  return (
   <button
     className="btn btn-secondary"
     style={{ fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', width: '100%' }}
     onClick={() => onChoose(region.region_id)}
   >
-    <span style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-      Region {index + 1} — {region.boundary.area_sqft.toLocaleString()} sqft
+    <span style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flexWrap: 'wrap' }}>
+      Region {index + 1}{floorLabel ? ` (${floorLabel})` : ''} — {region.boundary.area_sqft.toLocaleString()} sqft
       {region.boundary.is_net_usage_hatch && (
         <span
           title="This candidate's shape comes from a hatched (slant-line) fill in the source drawing — the standard convention for marking net usage area."
@@ -232,7 +235,8 @@ const RegionCandidateButton: React.FC<{ region: GeometryRegion; index: number; o
     </span>
     <ArrowRightIcon size={13} />
   </button>
-);
+  );
+};
 
 /** The auto-detected-candidates sidebar list — a plain list of buttons
  * below REGION_LIST_COMPACT_THRESHOLD (the common, real case), collapsed
