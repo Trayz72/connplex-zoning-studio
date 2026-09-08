@@ -4,6 +4,8 @@ behaviors this session's work depends on (screens-only auto-layout,
 zero-gap screen adjacency, place_single_zone's collision-safety and
 division-by-zero guard) so they can't silently regress."""
 import layout_engine
+from shapely.geometry import Polygon
+from fixtures.dhule_real_building import DHULE_BOUNDARY_FT, DHULE_OBSTACLES
 
 # A plain 100x60 ft rectangle, far bigger than the smallest auditorium
 # preset (35_SEAT needs 24x35 min) — enough room for several screens without
@@ -1150,4 +1152,52 @@ def test_swati_trinity_tight_column_floor_uses_disclosed_sliver_not_silent_starv
                 f"{candidate['strategy']}: placed a non-standard custom-fit screen "
                 f"({[(r['width_ft'], r['depth_ft']) for r in custom_fit_rooms]}) without disclosing it via "
                 "a candidate-level warning — must never silently ship a sliver"
+            )
+
+
+# ---------- a fourth real client building: the densest floor tested so far ----------
+
+def test_dhule_dense_obstacle_floor_places_real_presets_with_no_collisions():
+    """A fourth real client building (Dhule) — the largest and densest
+    floor tested: 1,033 obstacles (372 columns, 47 walls, 315 furniture,
+    271 unclassified, 28 staircases) across a confirmed 125,353 sqft
+    boundary. The stored layout_current.json for this project was missing
+    all 4 support zones and had a suspiciously small Foyer (2,100 sqft on a
+    125k sqft floor) — turned out to be a stale, manually-edited save from
+    testing, not the algorithm's real output (same pattern as the Swati
+    Trinity fixture above). A fresh run produces 4 real-preset screens plus
+    all 4 support zones plus a correctly enormous leftover Foyer, under
+    both strategies, with zero geometric overlap between any placed screen
+    and any real blocking obstacle (wall/staircase/unclassified — verified
+    directly with shapely, not assumed)."""
+    requirements = {"max_auditoriums": 4}
+    candidates = layout_engine.generate_candidates(DHULE_BOUNDARY_FT, DHULE_OBSTACLES, requirements)
+    blocking_polys = []
+    for o in DHULE_OBSTACLES:
+        if o.get("classification") in ("COLUMN", "FURNITURE"):
+            continue
+        pts = o.get("points_ft", [])
+        if len(pts) < 3:
+            continue
+        poly = Polygon(pts)
+        blocking_polys.append(poly if poly.is_valid else poly.buffer(0))
+
+    for candidate in candidates:
+        aud_rooms = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+        support_rooms = [r for r in candidate["rooms"] if r["room_type"] in ("BOX_OFFICE", "FNB", "WASHROOM", "BOH")]
+        assert len(aud_rooms) == 4, f"{candidate['strategy']}: expected all 4 auditoriums to place, got {len(aud_rooms)}"
+        assert len(support_rooms) == 4, f"{candidate['strategy']}: expected all 4 support zones to place, got {len(support_rooms)}"
+        for room in aud_rooms:
+            assert room["preset_id"] is not None, (
+                f"{candidate['strategy']}: {room['room_type']} fell through to a custom-fit footprint "
+                "on a floor plate that has real room for standard presets"
+            )
+            poly = Polygon(room["geometry_points_ft"])
+            if not poly.is_valid:
+                poly = poly.buffer(0)
+            overlap_area = sum(poly.intersection(bp).area for bp in blocking_polys if poly.intersects(bp))
+            assert overlap_area < 0.5, (
+                f"{candidate['strategy']}: {room['room_type']} overlaps a real wall/staircase/unclassified "
+                f"obstacle by {overlap_area:.1f} sqft — this floor plate has 346 of them, easy to clip if the "
+                "usable-area subtraction regresses"
             )
