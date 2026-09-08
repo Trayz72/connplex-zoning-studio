@@ -102,16 +102,47 @@ def _fmt_ft_in(value_ft):
     return f"{ft}'-{inch_part}\""
 
 
+def _truncate_to_width(c, text, font, size, max_w):
+    """Last-resort ellipsis truncation — only reached when shrinking to
+    floor_size and (for _fit_room_name) wrapping to a second line still
+    isn't enough, e.g. an architect's own long rename with no natural word
+    break, or a two-word split where neither half fits. Guarantees the
+    returned string actually fits max_w at this size, which the caller's
+    own shrink loop alone doesn't (it stops shrinking at floor_size even if
+    the text is still too wide)."""
+    if c.stringWidth(text, font, size) <= max_w:
+        return text
+    if c.stringWidth("…", font, size) > max_w:
+        # max_w is smaller than a single ellipsis character at this size —
+        # only reachable in a pathologically tiny room. The empty string is
+        # the only thing guaranteed to fit any non-negative max_w.
+        return ""
+    lo, hi = 0, len(text)
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if c.stringWidth(text[:mid] + "…", font, size) <= max_w:
+            lo = mid
+        else:
+            hi = mid - 1
+    return (text[:lo] + "…") if lo > 0 else "…"
+
+
 def _fit_room_name(c, name, max_w, start_size, floor_size=4.2):
     """Fit a room name within max_w: shrink the font first, then — if it still
     won't fit even at the floor size — wrap onto a second line split at the
     best space. Long real names ('FOOD & BEVERAGE / CONCESSION') in narrow
-    rooms otherwise spill past the room's drawn boundary."""
+    rooms otherwise spill past the room's drawn boundary. As a final
+    backstop (a long custom rename with no good word split, or a single
+    word with no spaces at all), truncates with an ellipsis rather than
+    ever returning text wider than max_w — the shrink loops alone don't
+    guarantee that, they just stop trying once floor_size is reached."""
     size = start_size
     while size > floor_size and c.stringWidth(name, "Helvetica-Bold", size) > max_w:
         size -= 0.4
-    if c.stringWidth(name, "Helvetica-Bold", size) <= max_w or " " not in name:
+    if c.stringWidth(name, "Helvetica-Bold", size) <= max_w:
         return [name], size
+    if " " not in name:
+        return [_truncate_to_width(c, name, "Helvetica-Bold", size, max_w)], size
 
     words = name.split(" ")
     best = None
@@ -123,6 +154,8 @@ def _fit_room_name(c, name, max_w, start_size, floor_size=4.2):
     _, line1, line2 = best
     while size > floor_size and max(c.stringWidth(line1, "Helvetica-Bold", size), c.stringWidth(line2, "Helvetica-Bold", size)) > max_w:
         size -= 0.4
+    line1 = _truncate_to_width(c, line1, "Helvetica-Bold", size, max_w)
+    line2 = _truncate_to_width(c, line2, "Helvetica-Bold", size, max_w)
     return [line1, line2], size
 
 

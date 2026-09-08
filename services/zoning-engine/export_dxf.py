@@ -10,6 +10,7 @@ import os
 import sys
 
 import ezdxf
+from ezdxf.enums import TextEntityAlignment
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "cad-interop"))
 from convert import convert as oda_convert  # noqa: E402
@@ -39,6 +40,52 @@ _EXIT_ACI = 1
 # (see layout_engine._screen_wall_for_rect) — used to draw a door's leaf
 # line swung perpendicular off the wall.
 _INTERIOR_DIR = {"min_y": (0, 1), "max_y": (0, -1), "min_x": (1, 0), "max_x": (-1, 0)}
+
+# Fallback labels for the floor plan text only — matches export_pdf.py's
+# ROOM_SHORT_LABEL exactly (duplicated per this file's existing convention
+# of not sharing rendering helpers between the two exporters). Used when
+# even a shrunk single line of the real display_name won't fit the room's
+# on-drawing width.
+_ROOM_SHORT_LABEL = {"BOH": "BOH", "FNB": "F&B", "BOX_OFFICE": "BOX OFFICE"}
+
+# ezdxf's default "Standard" text style has no loaded font metrics, so exact
+# glyph widths aren't available the way reportlab's stringWidth gives
+# export_pdf.py — this is a documented approximation (typical average
+# character width for a simplex-style CAD font), good enough to keep a
+# room's label from visibly bleeding into a neighboring room, not meant to
+# be pixel-precise.
+_TEXT_CHAR_WIDTH_RATIO = 0.6
+
+
+def _fit_room_label_dxf(name, room_type, max_w_ft, start_height, floor_height=0.8):
+    """Pick a text height for a single-line DXF label that keeps `name`
+    within max_w_ft, falling back to a short room-type label and finally an
+    ellipsis-truncated string if even the short label doesn't fit at
+    floor_height. Unlike export_pdf.py's _fit_room_name, DXF text here is a
+    single TEXT entity with no per-line wrapping story, so this only
+    shrinks/substitutes/truncates, never wraps onto a second line. Found
+    while auditing exports for the same class of defect export_pdf.py
+    already had to fix (BOH's full name overflowing into an adjacent
+    Washroom) — DXF had no fitting logic at all before this, just a fixed
+    1.5ft text height and a fixed -5 unit offset regardless of room size."""
+    def width_at(text, height):
+        return len(text) * height * _TEXT_CHAR_WIDTH_RATIO
+
+    height = start_height
+    while height > floor_height and width_at(name, height) > max_w_ft:
+        height -= 0.1
+    if width_at(name, height) <= max_w_ft:
+        return name, height
+
+    short = _ROOM_SHORT_LABEL.get(room_type)
+    if short and width_at(short, floor_height) <= max_w_ft:
+        return short, floor_height
+
+    candidate = short or name
+    max_chars = max(int(max_w_ft / (floor_height * _TEXT_CHAR_WIDTH_RATIO)), 3)
+    if len(candidate) > max_chars:
+        candidate = candidate[:max_chars - 1].rstrip() + "…"
+    return candidate, floor_height
 
 
 def _door_glyph_points_ft(room, door):
@@ -186,13 +233,16 @@ def export_layout_to_dxf(project_meta: dict, boundary_points_ft, obstacles, room
         else:
             cx = sum(p[0] for p in pts) / len(pts)
             cy = -sum(p[1] for p in pts) / len(pts)
-        label = f"{room['display_name']}\n{room['area_sqft']} sqft"
+        room_w_ft = max(p[0] for p in pts) - min(p[0] for p in pts)
         seat_count = room.get("seat_estimate", {}).get("seat_count")
-        if seat_count:
-            label += f"\n{seat_count} seats"
-        msp.add_text(room["display_name"], dxfattribs={"layer": "ANNOTATION", "height": 1.5, "insert": (cx - 5, cy)})
-        msp.add_text(f"{room['area_sqft']} sqft" + (f" / {seat_count} seats" if seat_count else ""),
-                      dxfattribs={"layer": "ANNOTATION", "height": 1.0, "insert": (cx - 5, cy - 2)})
+        start_height = max(min(room_w_ft * 0.09, 2.2), 0.8)
+        name_text, name_height = _fit_room_label_dxf(room["display_name"], room["room_type"], room_w_ft * 0.92, start_height)
+        name_entity = msp.add_text(name_text, dxfattribs={"layer": "ANNOTATION", "height": name_height})
+        name_entity.set_placement((cx, cy + name_height * 0.6), align=TextEntityAlignment.MIDDLE_CENTER)
+        detail_text = f"{room['area_sqft']} sqft" + (f" / {seat_count} seats" if seat_count else "")
+        detail_text, detail_height = _fit_room_label_dxf(detail_text, room["room_type"], room_w_ft * 0.92, name_height * 0.7, floor_height=0.6)
+        detail_entity = msp.add_text(detail_text, dxfattribs={"layer": "ANNOTATION", "height": detail_height})
+        detail_entity.set_placement((cx, cy - name_height * 0.6), align=TextEntityAlignment.MIDDLE_CENTER)
 
         for door in room.get("doors", []):
             p1, p2, leaf_end = _door_glyph_points_ft(room, door)
