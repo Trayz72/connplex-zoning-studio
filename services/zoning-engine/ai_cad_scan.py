@@ -136,13 +136,18 @@ SCAN_TOOL = {
 }
 
 
-def ai_rescan(input_path: str) -> dict:
+def ai_rescan(input_path: str, target_area_sqft: float = None, label_hint: str = None) -> dict:
     """Returns the same GeometryResult shape as cad_extraction.extract().
     Always runs the real deterministic extractor — Claude only chooses which
     layers to point it at. If the AI-guided pass doesn't actually find more
     than the plain default pass, the default result is returned instead
-    (never regresses relative to just uploading normally)."""
-    default_result = cad_extraction.extract(input_path)
+    (never regresses relative to just uploading normally).
+
+    target_area_sqft/label_hint (both optional, default None) are passed
+    straight through to both extract() calls below so a re-scan still
+    benefits from the same intake-form-driven ranking a normal upload gets —
+    see cad_extraction._form_match_info."""
+    default_result = cad_extraction.extract(input_path, target_area_sqft=target_area_sqft, label_hint=label_hint)
 
     stats = _layer_stats(input_path)
     client = _client()
@@ -187,7 +192,10 @@ nothing looks plausible, return an empty boundary_layers array rather than guess
         return default_result
 
     try:
-        ai_result = cad_extraction.extract(input_path, allowed_layers=layers, min_boundary_area_sqft=min_area)
+        ai_result = cad_extraction.extract(
+            input_path, allowed_layers=layers, min_boundary_area_sqft=min_area,
+            target_area_sqft=target_area_sqft, label_hint=label_hint
+        )
     except Exception as e:
         raise AiCadScanError(f"Re-extraction against AI-selected layers failed: {e}")
 

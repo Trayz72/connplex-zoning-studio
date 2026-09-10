@@ -5,6 +5,7 @@ import * as engine from '../services/zoningEngineApi';
 import { ValidationRejectedError } from '../services/zoningEngineApi';
 import { GeometryResult, GeometryRegion, Requirements, EditableLayout, LiveRoom, LiveCandidate, ValidationError, SelectableSeatType, SeatConfig, RoomDoor } from '../types/live';
 import { UploadStep } from '../components/workspace/UploadStep';
+import { CleaningStudio } from '../components/workspace/CleaningStudio';
 import { BoundaryStudio } from '../components/workspace/BoundaryStudio';
 import { GeometryReviewStep } from '../components/workspace/GeometryReviewStep';
 import { RequirementsStep } from '../components/workspace/RequirementsStep';
@@ -16,10 +17,10 @@ import { RoomDimensionEditor, RoomNameEditor } from '../components/workspace/Roo
 import { ShortcutsHelp, hasSeenEditOnboarding } from '../components/workspace/ShortcutsHelp';
 import { ThemeToggle } from '../components/ThemeToggle';
 
-type Step = 'LOADING' | 'UPLOAD' | 'BOUNDARY_STUDIO' | 'GEOMETRY_REVIEW' | 'REQUIREMENTS' | 'RUN' | 'EDIT';
+type Step = 'LOADING' | 'UPLOAD' | 'CLEAN_STUDIO' | 'BOUNDARY_STUDIO' | 'GEOMETRY_REVIEW' | 'REQUIREMENTS' | 'RUN' | 'EDIT';
 
 const STEP_LABEL: Record<Step, string> = {
-  LOADING: 'Loading', UPLOAD: 'Upload', BOUNDARY_STUDIO: 'Select Boundary', GEOMETRY_REVIEW: 'Geometry Review',
+  LOADING: 'Loading', UPLOAD: 'Upload', CLEAN_STUDIO: 'Clean CAD', BOUNDARY_STUDIO: 'Select Boundary', GEOMETRY_REVIEW: 'Geometry Review',
   REQUIREMENTS: 'Requirements', RUN: 'Run', EDIT: 'Edit'
 };
 
@@ -27,7 +28,7 @@ const STEP_LABEL: Record<Step, string> = {
 // stepper left-to-right and to know which steps count as "already visited"
 // (see maxStepIndex) so a completed step can be revisited without also
 // making an unreached one clickable, which would just 404 on missing state.
-const STEP_ORDER: Step[] = ['UPLOAD', 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'];
+const STEP_ORDER: Step[] = ['UPLOAD', 'CLEAN_STUDIO', 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'];
 
 // Placement itself is entirely server-side now (see zoningEngineApi.addZone /
 // layout_engine.place_single_zone) — the backend finds a real, collision-free,
@@ -45,7 +46,10 @@ const ROOM_TYPE_TEMPLATES: { type: string; label: string }[] = [
   { type: 'FNB', label: 'F&B / Concession' },
   { type: 'WASHROOM', label: 'Washroom' },
   { type: 'BOX_OFFICE', label: 'Box Office' },
+  { type: 'MANAGER_ROOM', label: 'Manager Room' },
   { type: 'BOH', label: 'Back-of-House' },
+  { type: 'ELECTRICAL', label: 'Electrical Room' },
+  { type: 'PROJECTOR', label: 'Projector Room' },
   { type: 'PASSAGE', label: 'Passage / Corridor' }
 ];
 
@@ -121,6 +125,7 @@ export const ZoningWorkspace: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [snapFt, setSnapFt] = useState(1);
   const [showCadLinework, setShowCadLinework] = useState(true);
+  const [showFullFloor, setShowFullFloor] = useState(true);
   const [showSeatRows, setShowSeatRows] = useState(false);
   // Layout Strategy / Feasibility / Warnings & Notes / Area & Seat Chart /
   // Export all live in one right-hand panel — hiding it gives the canvas
@@ -219,6 +224,15 @@ export const ZoningWorkspace: React.FC = () => {
 
   const handleUploaded = (geo: GeometryResult) => {
     setGeometry(geo);
+    goToStep('CLEAN_STUDIO');
+  };
+
+  const handleCleaned = (geo: GeometryResult) => {
+    setGeometry(geo);
+    goToStep('BOUNDARY_STUDIO');
+  };
+
+  const handleSkipCleaning = () => {
     goToStep('BOUNDARY_STUDIO');
   };
 
@@ -320,6 +334,7 @@ export const ZoningWorkspace: React.FC = () => {
     { type: 'FNB', label: 'F&B / Concession' },
     { type: 'WASHROOM', label: 'Washroom' },
     { type: 'BOX_OFFICE', label: 'Box Office' },
+    { type: 'MANAGER_ROOM', label: 'Manager Room' },
     { type: 'BOH', label: 'Back-of-House' },
     { type: 'PASSAGE', label: 'Passage / Corridor' },
   ];
@@ -406,6 +421,28 @@ export const ZoningWorkspace: React.FC = () => {
     setAddDoorMode(false);
     const rooms = layout.rooms.map(r => r.room_id === selectedRoomId ? { ...r, doors: [...(r.doors ?? []), door] } : r);
     await persistLayout(rooms);
+  };
+
+  // Set Screen Wall: same one-shot mode as Add Door above, but re-orienting
+  // an already-placed screen instead — the room's own footprint never
+  // moves, only which wall its projection screen is on, which is why this
+  // goes through its own narrow endpoint (engine.setScreenWall) rather than
+  // persistLayout's generic PUT (see main.py's update_screen_wall docstring).
+  const [setScreenWallMode, setSetScreenWallMode] = useState(false);
+  useEffect(() => { setSetScreenWallMode(false); }, [selectedRoomId]);
+  const applySetScreenWall = async (wall: RoomDoor['wall']) => {
+    if (!id || !layout || !selectedRoomId) return;
+    setSetScreenWallMode(false);
+    setSaving(true);
+    setValidationErrors([]);
+    try {
+      const updated = await engine.setScreenWall(id, selectedRoomId, wall);
+      commitLayout(updated);
+    } catch (e: any) {
+      setValidationErrors([{ room_id: '', issue: 'ERROR', message: e.message || 'Could not reassign the screen wall.' }]);
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Restores one snapshot exactly (rooms + boundary_points_ft + obstacles +
@@ -548,7 +585,23 @@ export const ZoningWorkspace: React.FC = () => {
       </header>
 
       <div style={{ flex: 1, overflow: 'auto' }}>
-        {step === 'UPLOAD' && id && <UploadStep projectId={id} onUploaded={handleUploaded} />}
+        {step === 'UPLOAD' && id && (
+          <UploadStep
+            projectId={id}
+            onUploaded={handleUploaded}
+            carpetAreaSqft={project?.carpet_area_sqft}
+            floorShopHint={project?.floor_shop_no}
+          />
+        )}
+        {step === 'CLEAN_STUDIO' && id && geometry && (
+          <CleaningStudio
+            projectId={id}
+            geometry={geometry}
+            onCleaned={handleCleaned}
+            onSkip={handleSkipCleaning}
+            onStartOver={handleStartOver}
+          />
+        )}
         {step === 'BOUNDARY_STUDIO' && id && geometry && (
           <BoundaryStudio
             projectId={id}
@@ -592,10 +645,20 @@ export const ZoningWorkspace: React.FC = () => {
                   <button
                     className={addDoorMode ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
                     disabled={saving}
-                    onClick={() => setAddDoorMode(m => !m)}
+                    onClick={() => { setAddDoorMode(m => !m); setSetScreenWallMode(false); }}
                     title="Click a wall of the selected room to add a door there"
                   >
                     {addDoorMode ? 'Click a wall…' : '+ Door'}
+                  </button>
+                )}
+                {selectedRoom && selectedRoom.room_type.startsWith('AUDITORIUM') && (
+                  <button
+                    className={setScreenWallMode ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+                    disabled={saving}
+                    onClick={() => { setSetScreenWallMode(m => !m); setAddDoorMode(false); }}
+                    title="Click a wall of the selected screen to move the projection screen there — recomputes the seat count for the new orientation"
+                  >
+                    {setScreenWallMode ? 'Click a wall…' : 'Set Screen Wall'}
                   </button>
                 )}
                 <button className="btn btn-secondary btn-sm" disabled={saving || history.length === 0} onClick={undo} title="Undo (Ctrl/Cmd+Z)">↶ Undo</button>
@@ -607,6 +670,10 @@ export const ZoningWorkspace: React.FC = () => {
                 <label className="checkbox-label">
                   <input type="checkbox" checked={showCadLinework} onChange={(e) => setShowCadLinework(e.target.checked)} />
                   CAD linework
+                </label>
+                <label className="checkbox-label" title="Show the whole floor's uncropped geometry, dimmed, behind the usable-area boundary — for context, not editing">
+                  <input type="checkbox" checked={showFullFloor} onChange={(e) => setShowFullFloor(e.target.checked)} />
+                  Whole floor
                 </label>
                 <label className="checkbox-label" style={{ cursor: 'default' }}>
                   Snap:
@@ -650,12 +717,16 @@ export const ZoningWorkspace: React.FC = () => {
                 snapToGridFt={snapFt}
                 rawGeometry={geometry?.regions.find(r => r.region_id === layout.region_id)?.raw_geometry}
                 showCadLinework={showCadLinework}
+                fullRawGeometry={geometry?.full_raw_geometry}
+                showFullFloor={showFullFloor}
                 showSeatRows={showSeatRows}
                 onDeleteSelected={deleteSelected}
                 entryPointFt={layout.entry_point_ft}
                 exitPointsFt={layout.exit_points_ft}
                 addDoorMode={addDoorMode}
                 onAddDoor={applyAddDoor}
+                setScreenWallMode={setScreenWallMode}
+                onSetScreenWall={applySetScreenWall}
               />
             </div>
 
@@ -695,18 +766,18 @@ export const ZoningWorkspace: React.FC = () => {
                 ))}
               </div>
 
-              {(layout.warnings.length > 0 || layout.rooms.some(r => r.obstacle_note || r.screen_width_note || r.seat_estimate?.note)) && (
+              {(layout.warnings.length > 0 || layout.rooms.some(r => r.obstacle_note || r.screen_width_note || r.screen_wall_note || r.seat_estimate?.note)) && (
                 <div className="panel" style={{ borderColor: 'rgba(201,154,58,0.35)', marginBottom: '16px' }}>
                   <div className="panel-label" style={{ color: 'var(--warning)', marginBottom: '8px' }}>Warnings &amp; Notes</div>
                   {layout.warnings.map((w, i) => (
                     <div key={`w${i}`} style={{ fontSize: '0.7rem', color: 'var(--warning)', padding: '5px 0', borderBottom: '1px solid var(--border-color)' }}>{w}</div>
                   ))}
-                  {layout.rooms.filter(r => r.obstacle_note || r.screen_width_note || r.seat_estimate?.note).map(r => (
+                  {layout.rooms.filter(r => r.obstacle_note || r.screen_width_note || r.screen_wall_note || r.seat_estimate?.note).map(r => (
                     // A room can carry more than one independent note at once (e.g. both a
                     // confirmed-column obstacle discount and a narrower-than-requested screen
                     // width) — each has a different real cause, so both must show, not just
                     // whichever happens to be listed first.
-                    [r.obstacle_note, r.screen_width_note, r.obstacle_note ? undefined : r.seat_estimate?.note]
+                    [r.obstacle_note, r.screen_width_note, r.screen_wall_note, r.obstacle_note ? undefined : r.seat_estimate?.note]
                       .filter((note): note is string => Boolean(note))
                       .map((note, i) => (
                         <div key={`${r.room_id}-${i}`} style={{ fontSize: '0.7rem', color: 'var(--warning)', padding: '5px 0', borderBottom: '1px solid var(--border-color)' }}>

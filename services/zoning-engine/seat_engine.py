@@ -21,6 +21,13 @@ Methodology, same deterministic row-packing approach as before, generalized:
      split), not a claim that it matches any specific approved company layout
      standard — no such standard exists yet as a decided rule (Master Context
      §20: "Actual rules are catalogue/rule driven" and currently TBD).
+  4. Every seat this module places gets a real (row, col, along_ft, depth_ft)
+     position (`seat_positions` in estimate_seats' result), not just an
+     aggregate count — the single source `seat_count`/`seat_breakdown` are
+     always derived FROM that list, never computed separately. This is what
+     lets a door on an auditorium's side wall (`side_exclusions`) remove the
+     specific seat(s) nearest it, instead of an aggregate area-based fudge
+     like the confirmed-obstacle correction below still is.
 """
 import math
 import rules_registry
@@ -84,31 +91,81 @@ def selectable_seat_types() -> list:
     return out
 
 
-def _pack_band(usable_width_ft, band_depth_ft, seat_type_id, central_aisle_ft):
+def _pack_band_seats(usable_width_ft, band_depth_ft, seat_type_id, central_aisle_ft,
+                      depth_offset_ft, side_exclusions=None):
+    """Same row/seats-per-row packing this project has always used, but
+    keeping each seat's own real (row, col, along_ft, depth_ft) position
+    instead of only a total — so a side-wall door's keep-clear zone
+    (side_exclusions) can drop the specific seat nearest it, not an
+    aggregate count. Two symmetric blocks (left/right of the central aisle,
+    when one fits) rather than one merged row, matching how a real theater
+    bowl is actually built — same total seats_per_row as the old single-
+    formula version, just spatially real now.
+
+    depth_offset_ft anchors along the room's own screen-to-back-wall axis
+    (0 = at the screen wall), not this band's own start, so a mixed front/
+    back-band room's exclusion zones — themselves expressed in the same
+    screen-relative depth (see layout_engine._side_door_exclusions) — line
+    up correctly regardless of which band a row falls in.
+
+    Returns (seats, rows, seats_per_row, packed_depth_ft). rows/
+    seats_per_row/packed_depth_ft are the nominal pre-exclusion numbers
+    (a door removes at most the outermost seat of a handful of rows, not a
+    whole row or column of capacity — reporting the room's real typical
+    capacity here matches this field's historical meaning); seat_count is
+    computed by every caller from len(seats), which does reflect any
+    exclusions applied."""
     seat = rules_registry.seat_type(seat_type_id)
     seat_width_ft, row_step_ft = _seat_geometry(seat)
     if seat_width_ft is None or band_depth_ft <= 0 or usable_width_ft <= 0:
-        return 0, 0, 0, 0.0
+        return [], 0, 0, 0.0
 
     rows = max(math.floor(band_depth_ft / row_step_ft), 0)
-    if usable_width_ft > central_aisle_ft + (2 * seat_width_ft):
-        seatable_width_ft = usable_width_ft - central_aisle_ft
-    else:
-        seatable_width_ft = usable_width_ft
+    has_aisle = usable_width_ft > central_aisle_ft + (2 * seat_width_ft)
+    seatable_width_ft = usable_width_ft - central_aisle_ft if has_aisle else usable_width_ft
     seats_per_row = max(math.floor(seatable_width_ft / seat_width_ft), 0)
+
+    if has_aisle:
+        left_count = math.ceil(seats_per_row / 2)
+        right_count = seats_per_row - left_count
+        right_block_start_ft = left_count * seat_width_ft + central_aisle_ft
+    else:
+        left_count, right_count, right_block_start_ft = seats_per_row, 0, 0.0
+
+    seats = []
+    for r in range(rows):
+        row_depth_ft = depth_offset_ft + r * row_step_ft
+        excluded_left = excluded_right = False
+        for ex in (side_exclusions or []):
+            if ex["depth_start_ft"] <= row_depth_ft < ex["depth_end_ft"]:
+                if ex["side"] == "left":
+                    excluded_left = True
+                else:
+                    excluded_right = True
+        for c in range(left_count):
+            if excluded_left and c == 0:
+                continue  # the seat nearest the door — the room's own min-side wall
+            seats.append({"row": r, "col": c, "along_ft": round(c * seat_width_ft, 2),
+                          "depth_ft": round(row_depth_ft, 2), "seat_type_id": seat_type_id})
+        for c in range(right_count):
+            if excluded_right and c == right_count - 1:
+                continue  # the seat nearest the door — the room's own max-side wall
+            seats.append({"row": r, "col": left_count + c, "along_ft": round(right_block_start_ft + c * seat_width_ft, 2),
+                          "depth_ft": round(row_depth_ft, 2), "seat_type_id": seat_type_id})
     # The band's own real packed depth (rows actually placed x that type's
     # own row step) — not band_depth_ft itself, which is the depth OFFERED
     # to this band and can exceed what an integer number of rows actually
     # fills. Feeds last_row_distance_ft below (real theater-design
     # convention: "how far is the back row from the screen", not "how deep
     # is the room").
-    return rows, seats_per_row, rows * seats_per_row, rows * row_step_ft
+    return seats, rows, seats_per_row, rows * row_step_ft
 
 
 def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str = DEFAULT_SEAT_TYPE_ID,
                     secondary_seat_type_id: str = None, primary_ratio_pct: float = 100,
                     front_row_count: int = None,
-                    enclosed_obstacle_area_sqft: float = 0.0, screen_width_ft: float = None) -> dict:
+                    enclosed_obstacle_area_sqft: float = 0.0, screen_width_ft: float = None,
+                    side_exclusions: list = None) -> dict:
     central_aisle_ft = rules_registry.planning_norm("CENTRAL_AISLE_MIN_FT")
     side_clear_ft = rules_registry.planning_norm("SIDE_CLEARANCE_ASSUMPTION_FT")
     rear_clear_ft = rules_registry.planning_norm("REAR_CLEARANCE_ASSUMPTION_FT")
@@ -130,6 +187,7 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
     if usable_width_ft <= 0 or usable_depth_ft <= 0:
         return {"status": "INSUFFICIENT_ROOM_FOR_SEATING", "seat_count": 0, "rows": 0, "seats_per_row": 0,
                 "seat_breakdown": {"LOUNGER": 0, "SOFA_SLIDER": 0, "DUO_LOUNGER": 0, "PREMIUM_RECLINER": 0},
+                "seat_positions": [],
                 "first_row_distance_ft": round(front_setback_ft, 2),
                 "last_row_distance_ft": round(front_setback_ft, 2)}
 
@@ -137,11 +195,16 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
     use_mix = secondary_seat_type_id and (primary_ratio_pct < 100 or front_row_count is not None)
 
     breakdown = {"LOUNGER": 0, "SOFA_SLIDER": 0, "DUO_LOUNGER": 0, "PREMIUM_RECLINER": 0}
+    all_seats = []
 
     if not use_mix:
-        rows, seats_per_row, count, packed_depth_ft = _pack_band(usable_width_ft, usable_depth_ft, primary_seat_type_id, central_aisle_ft)
+        seats, rows, seats_per_row, packed_depth_ft = _pack_band_seats(
+            usable_width_ft, usable_depth_ft, primary_seat_type_id, central_aisle_ft,
+            front_setback_ft, side_exclusions
+        )
+        all_seats.extend(seats)
         col = CHART_COLUMN_BY_SEAT_TYPE.get(primary_seat_type_id, "LOUNGER")
-        breakdown[col] = count
+        breakdown[col] = len(seats)
         seat_type_used = primary_seat_type_id
         total_rows, total_seats_per_row = rows, seats_per_row
     else:
@@ -158,10 +221,18 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
         else:
             primary_depth = usable_depth_ft * (primary_ratio_pct / 100.0)
         secondary_depth = usable_depth_ft - primary_depth
-        p_rows, p_spr, p_count, p_packed_depth_ft = _pack_band(usable_width_ft, primary_depth, primary_seat_type_id, central_aisle_ft)
-        s_rows, s_spr, s_count, s_packed_depth_ft = _pack_band(usable_width_ft, secondary_depth, secondary_seat_type_id, central_aisle_ft)
-        breakdown[CHART_COLUMN_BY_SEAT_TYPE.get(primary_seat_type_id, "LOUNGER")] += p_count
-        breakdown[CHART_COLUMN_BY_SEAT_TYPE.get(secondary_seat_type_id, "LOUNGER")] += s_count
+        p_seats, p_rows, p_spr, p_packed_depth_ft = _pack_band_seats(
+            usable_width_ft, primary_depth, primary_seat_type_id, central_aisle_ft,
+            front_setback_ft, side_exclusions
+        )
+        s_seats, s_rows, s_spr, s_packed_depth_ft = _pack_band_seats(
+            usable_width_ft, secondary_depth, secondary_seat_type_id, central_aisle_ft,
+            front_setback_ft + primary_depth, side_exclusions
+        )
+        all_seats.extend(p_seats)
+        all_seats.extend(s_seats)
+        breakdown[CHART_COLUMN_BY_SEAT_TYPE.get(primary_seat_type_id, "LOUNGER")] += len(p_seats)
+        breakdown[CHART_COLUMN_BY_SEAT_TYPE.get(secondary_seat_type_id, "LOUNGER")] += len(s_seats)
         if front_row_count is not None:
             seat_type_used = f"{primary_seat_type_id} ({p_rows}x front row) + {secondary_seat_type_id}"
         else:
@@ -188,6 +259,14 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
         retained_fraction = max(1.0 - (enclosed_obstacle_area_sqft / room_area), 0.0)
         breakdown = {k: math.floor(v * retained_fraction) for k, v in breakdown.items()}
         seat_count = sum(breakdown.values())
+        # This correction is a proportional area-share estimate, not real
+        # per-seat geometry (unlike the door exclusion above) — it has no
+        # specific seat(s) to point to, so it can only trim the *count* of
+        # real positions still on offer, arbitrarily from the end of the
+        # list. Keeps seat_positions and seat_count/seat_breakdown
+        # consistent (len(seat_positions) == seat_count always holds) rather
+        # than reporting a positions list that disagrees with its own count.
+        all_seats = all_seats[:seat_count]
         note = (
             f"{round(enclosed_obstacle_area_sqft, 1)} sqft of confirmed obstacle(s) (e.g. a structural column) "
             f"fall inside this room's footprint — seat count reduced proportionally from the raw row/column "
@@ -201,6 +280,7 @@ def estimate_seats(width_ft: float, depth_ft: float, primary_seat_type_id: str =
         "seats_per_row": total_seats_per_row,
         "seat_type_used": seat_type_used,
         "seat_breakdown": breakdown,
+        "seat_positions": all_seats,
         "first_row_distance_ft": round(front_setback_ft, 2),
         # How far the BACK row sits from the screen — front_setback_ft (the
         # first row's own distance) plus the real packed seating depth

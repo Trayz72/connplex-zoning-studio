@@ -17,7 +17,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -34,6 +34,7 @@ import export_pdf
 import ai_zoning_engine
 import ai_cad_scan
 import ai_obstacle_classify
+import cad_cleaner
 
 app = FastAPI(title="Connplex Zoning Engine")
 # No cookies flow through this service (it has no auth of its own — see the
@@ -122,6 +123,14 @@ class TraceBoundaryIn(BaseModel):
     custom_segments: list = []
 
 
+class SearchLabelIn(BaseModel):
+    query: str
+
+
+class CleanSelectionIn(BaseModel):
+    shape_handles: List[str]
+
+
 class UnitOverrideIn(BaseModel):
     unit: str  # one of cad_extraction.UNIT_NAME_TO_FEET's keys: Feet | Inches | Meters | Centimeters | Millimeters
 
@@ -134,7 +143,11 @@ class LayoutUpdateIn(BaseModel):
 
 
 class AddZoneIn(BaseModel):
-    room_type: str  # AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | BOH | PASSAGE
+    room_type: str  # AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | MANAGER_ROOM | BOH | ELECTRICAL | PROJECTOR | PASSAGE
+
+
+class ScreenWallUpdateIn(BaseModel):
+    screen_wall: str  # one of "min_x" | "max_x" | "min_y" | "max_y"
 
 
 class ExportIn(BaseModel):
@@ -202,7 +215,15 @@ def _build_measurements(requirements: dict, confirmed_obstacles: list, boundary_
 # ---------- CAD upload & geometry confirmation ----------
 
 @app.post("/api/projects/{project_id}/cad")
-async def upload_cad(project_id: str, file: UploadFile = File(...)):
+async def upload_cad(
+    project_id: str, file: UploadFile = File(...),
+    target_area_sqft: float = Form(None), label_hint: str = Form(None),
+):
+    """target_area_sqft/label_hint are optional — the frontend sends them
+    from the project's own intake record (Carpet Area / Floor-Shop-No) when
+    available, so the very first automatic candidate ranking already reflects
+    what a salesperson already told the app about this property, instead of
+    a blind size-only guess. See cad_extraction._form_match_info."""
     ext = os.path.splitext(file.filename or "")[1].lower()
     if ext not in (".dwg", ".dxf"):
         raise HTTPException(400, f"Unsupported file type '{ext}'. Upload a .dwg or .dxf file.")
@@ -214,7 +235,7 @@ async def upload_cad(project_id: str, file: UploadFile = File(...)):
     saved_path = storage.save_upload(project_id, file.filename, content)
 
     try:
-        geometry = cad_extraction.extract(saved_path)
+        geometry = cad_extraction.extract(saved_path, target_area_sqft=target_area_sqft, label_hint=label_hint)
     except Exception as e:
         raise HTTPException(422, f"Could not extract geometry from this file: {e}")
 
@@ -225,7 +246,7 @@ async def upload_cad(project_id: str, file: UploadFile = File(...)):
 
 
 @app.post("/api/projects/{project_id}/cad/ai-scan")
-def ai_scan_cad(project_id: str):
+def ai_scan_cad(project_id: str, target_area_sqft: float = None, label_hint: str = None):
     """Re-runs extraction on the already-uploaded file, but with Claude first
     picking which CAD layer(s) actually hold the wall/floor-boundary geometry
     — a dedicated alternative to the default full-drawing pass, for files
@@ -233,7 +254,11 @@ def ai_scan_cad(project_id: str):
     (confirmed against real client files where this recovers geometry the
     default pass found none of). Never fabricates geometry: only re-runs the
     same deterministic extractor cad_extraction.extract() already uses,
-    scoped to Claude's chosen layers."""
+    scoped to Claude's chosen layers.
+
+    target_area_sqft/label_hint (optional query params, same intake-form
+    values the original upload used) are passed straight through so a
+    re-scan keeps the same form-driven ranking — see upload_cad above."""
     saved_path = None
     for ext in (".dwg", ".dxf"):
         candidate = storage.path_in(project_id, f"original{ext}")
@@ -244,7 +269,7 @@ def ai_scan_cad(project_id: str):
         raise HTTPException(404, "No CAD file has been uploaded for this project yet.")
 
     try:
-        geometry = ai_cad_scan.ai_rescan(saved_path)
+        geometry = ai_cad_scan.ai_rescan(saved_path, target_area_sqft=target_area_sqft, label_hint=label_hint)
     except ai_cad_scan.AiCadScanError as e:
         raise HTTPException(502, str(e))
     except Exception as e:
@@ -325,6 +350,88 @@ def confirm_units(project_id: str, body: UnitOverrideIn):
     geometry["uploaded_at"] = existing.get("uploaded_at") or storage.now_iso()
     storage.write_json(storage.geometry_path(project_id), geometry)
     return geometry
+
+
+@app.post("/api/projects/{project_id}/clean/search-label")
+def clean_search_label(project_id: str, body: SearchLabelIn):
+    """Form-based boundary selection for the Clean CAD stage: a salesperson
+    types a room/space label (e.g. 'Screen 1', 'Suite 200') and this finds
+    every matching text already drawn in the file, each paired with its
+    smallest enclosing closed shape — see cad_cleaner.search_labels."""
+    geometry = storage.read_json(storage.geometry_path(project_id))
+    if not geometry or not geometry.get("full_raw_geometry"):
+        raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
+    return {"matches": cad_cleaner.search_labels(geometry["full_raw_geometry"], body.query)}
+
+
+@app.post("/api/projects/{project_id}/clean/preview")
+def clean_preview(project_id: str, body: CleanSelectionIn):
+    """Live before/after readout for one or more selected closed shapes
+    (need not be adjacent or connected) before the salesperson commits —
+    never silently trusted, per this app's own confirm-before-authoritative
+    convention, just simplified for this stage's non-architect audience."""
+    geometry = storage.read_json(storage.geometry_path(project_id))
+    if not geometry or not geometry.get("full_raw_geometry"):
+        raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
+    try:
+        regions = cad_cleaner.build_clean_regions(geometry["full_raw_geometry"], body.shape_handles)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    return {"regions": cad_cleaner.preview_summary(regions)}
+
+
+@app.post("/api/projects/{project_id}/clean/confirm")
+def clean_confirm(project_id: str, body: CleanSelectionIn):
+    """Finalizes the selected boundary(ies): exports a clean DXF/DWG
+    containing only the outline plus kept COLUMN/DUCT obstacles, then
+    re-runs the normal extraction pipeline against that clean file and
+    overwrites geometry.json — the hand-off point into the existing,
+    untouched Geometry Review step. Response shape matches POST .../cad
+    exactly so the frontend can transition the same way it does after a
+    normal upload."""
+    geometry = storage.read_json(storage.geometry_path(project_id))
+    if not geometry or not geometry.get("full_raw_geometry"):
+        raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
+
+    try:
+        regions = cad_cleaner.build_clean_regions(geometry["full_raw_geometry"], body.shape_handles)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+    export_result = cad_cleaner.export_clean_cad(regions, storage.clean_dxf_path(project_id), also_dwg=True)
+
+    try:
+        # A lower boundary-area floor than the default (150 sqft, sized to
+        # reject furniture-scale junk in an arbitrary raw upload) — a clean
+        # file's OUTLINE layer was already deliberately chosen by the user
+        # in Clean CAD, not a heuristic guess, so there's no "furniture
+        # mistaken for a floor plate" risk to guard against here. Without
+        # this, cleaning a legitimately small room (a real case: a 51.5 sqft
+        # toilet) produced "no candidate boundary was found automatically"
+        # on re-extraction even though the outline was right there, forcing
+        # an extra manual "Select Closed Shape" click to recover it.
+        clean_geometry = cad_extraction.extract(export_result["dxf_path"], min_boundary_area_sqft=cad_cleaner.MIN_CLEAN_BOUNDARY_AREA_SQFT)
+    except Exception as e:
+        raise HTTPException(422, f"Cleaned file could not be re-extracted: {e}")
+
+    clean_geometry["uploaded_filename"] = geometry.get("uploaded_filename")
+    clean_geometry["uploaded_at"] = storage.now_iso()
+    clean_geometry["cleaned_from_regions"] = [r["region_id"] for r in regions]
+    storage.write_json(storage.geometry_path(project_id), clean_geometry)
+    return clean_geometry
+
+
+@app.get("/api/projects/{project_id}/clean/download")
+def clean_download(project_id: str, format: str = "dxf"):
+    """Lets a salesperson download the cleaned file directly, without
+    necessarily continuing into the zoning pipeline."""
+    if format not in ("dxf", "dwg"):
+        raise HTTPException(400, "format must be 'dxf' or 'dwg'.")
+    path = storage.clean_dxf_path(project_id) if format == "dxf" else storage.clean_dwg_path(project_id)
+    if not os.path.isfile(path):
+        raise HTTPException(404, f"No clean .{format} file exists yet for this project — run Clean & Continue first.")
+    media_type = "application/dxf" if format == "dxf" else "application/octet-stream"
+    return FileResponse(path, filename=os.path.basename(path), media_type=media_type)
 
 
 @app.post("/api/projects/{project_id}/boundary/trace")
@@ -662,6 +769,14 @@ def select_candidate(project_id: str, body: CandidateSelectIn):
             "errors": errors,
         })
 
+    # Same Foyer hierarchy check _replace_foyer_with_derived runs on every
+    # later edit — checked here too so a freshly selected, never-yet-edited
+    # candidate carries it from the start rather than only appearing after
+    # the first manual change.
+    foyer_room = next((r for r in candidate["rooms"] if r["room_type"] == "FOYER"), None)
+    other_rooms = [r for r in candidate["rooms"] if r["room_type"] != "FOYER"]
+    foyer_warning = _foyer_hierarchy_warning(foyer_room, other_rooms)
+
     layout = {
         "region_id": run["region_id"],
         "source_candidate_id": candidate["candidate_id"],
@@ -669,7 +784,7 @@ def select_candidate(project_id: str, body: CandidateSelectIn):
         "obstacles": confirmed_obstacle_records,
         "rooms": candidate["rooms"],
         "circulation_area_sqft": candidate["circulation_area_sqft"],
-        "warnings": candidate.get("warnings", []),
+        "warnings": candidate.get("warnings", []) + ([foyer_warning] if foyer_warning else []),
         "revision": "R0",
         "updated_at": storage.now_iso()
     }
@@ -677,31 +792,63 @@ def select_candidate(project_id: str, body: CandidateSelectIn):
     return _enrich_layout(project_id, layout)
 
 
+def _screen_wall_door_conflict_note(room):
+    """Real cinema design never puts an entry/exit on the projection
+    wall (see layout_engine._screen_wall_for_rect's own docstring: the
+    screen and the doors patrons walk in through are always opposite walls,
+    never the same one). A soft, per-room note — like obstacle_note/
+    screen_width_note — not a hard block: the architect may be mid-edit
+    (about to move the door, or the screen wall, next) and rejecting the
+    edit outright would be more disruptive than just flagging it."""
+    conflicting = [d for d in room.get("doors", []) if d.get("wall") == room.get("screen_wall")]
+    if not conflicting:
+        return None
+    return (
+        f"{len(conflicting)} door(s) are on this room's screen wall — real cinema design keeps "
+        f"entries off the projection wall. Move the door(s) or reassign the screen wall before finalizing."
+    )
+
+
 def _recompute_room_derived_fields(room: dict, column_polys: list, screen_width_ft: float = None):
     """Recomputes a room's seat_estimate/preset_fit/obstacle_note from its
     current, real geometry — shared by update_layout (an architect's
-    move/resize/edit) and add_zone (a freshly placed room) so both paths stay
-    honest about a room that now encloses a confirmed column, rather than
+    move/resize/edit), add_zone (a freshly placed room), and
+    update_screen_wall (a reassigned screen) so all three paths stay honest
+    about a room that now encloses a confirmed column, carries a door too
+    close to itself, or has changed which wall its screen is on, rather than
     leaving a stale value from before the edit/placement."""
     room_poly = layout_engine.poly_from_points(room["geometry_points_ft"])
     enclosed_area = sum(room_poly.intersection(cp).area for cp in column_polys) if column_polys else 0.0
 
     if room["room_type"].startswith("AUDITORIUM"):
+        layout_engine._clamp_doors_to_room(room)
         cfg = room.get("seat_config") or {}
+        screen_wall = room.get("screen_wall") or "min_y"
+        span_ft, seat_depth_ft = layout_engine._seat_axis_dims(room["width_ft"], room["depth_ft"], screen_wall)
+        lateral_clearance_ft = rules_registry.planning_norm("DOOR_SEAT_LATERAL_CLEARANCE_FT") or 2.5
+        side_exclusions = layout_engine._side_door_exclusions(
+            room["width_ft"], room["depth_ft"], screen_wall, room.get("doors", []), lateral_clearance_ft
+        )
         room["seat_estimate"] = seat_engine.estimate_seats(
-            room["width_ft"], room["depth_ft"],
+            span_ft, seat_depth_ft,
             primary_seat_type_id=cfg.get("primary_seat_type_id", seat_engine.DEFAULT_SEAT_TYPE_ID),
             secondary_seat_type_id=cfg.get("secondary_seat_type_id"),
             primary_ratio_pct=cfg.get("primary_ratio_pct", 100),
             front_row_count=cfg.get("front_row_count"),
             enclosed_obstacle_area_sqft=enclosed_area,
             screen_width_ft=screen_width_ft,
+            side_exclusions=side_exclusions,
         )
         room["preset_fit"] = seat_engine.best_fit_preset(room["area_sqft"])
         if room["seat_estimate"].get("note"):
             room["obstacle_note"] = room["seat_estimate"]["note"]
         else:
             room.pop("obstacle_note", None)
+        conflict_note = _screen_wall_door_conflict_note(room)
+        if conflict_note:
+            room["screen_wall_note"] = conflict_note
+        else:
+            room.pop("screen_wall_note", None)
     elif enclosed_area > 0.5:
         room["obstacle_note"] = (
             f"{round(enclosed_area, 1)} sqft of confirmed obstacle(s) (e.g. a structural column) fall "
@@ -746,7 +893,7 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
     for room in real_rooms:
         _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"))
 
-    final_rooms, circulation = _replace_foyer_with_derived(body.boundary_points_ft, body.obstacles, real_rooms, requirements)
+    final_rooms, circulation, foyer_warning = _replace_foyer_with_derived(body.boundary_points_ft, body.obstacles, real_rooms, requirements)
 
     updated = {
         "region_id": existing["region_id"],
@@ -755,16 +902,61 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
         "obstacles": body.obstacles,
         "rooms": final_rooms,
         "circulation_area_sqft": round(circulation, 2),
-        # Carried forward unchanged, not recomputed — these describe how the
-        # auto-layout originally generated this candidate (unmarked entrance,
-        # undersized presets, etc.), which a manual edit doesn't retroactively
-        # change the truth of.
-        "warnings": existing.get("warnings", []),
+        # existing warnings are carried forward unchanged, not recomputed —
+        # they describe how the auto-layout originally generated this
+        # candidate (unmarked entrance, undersized presets, etc.), which a
+        # manual edit doesn't retroactively change the truth of. The Foyer
+        # hierarchy warning is the one exception: recomputed fresh on every
+        # edit (it describes the layout's CURRENT state, not how it was
+        # generated) — any stale copy from a previous edit is dropped first
+        # (see _is_foyer_hierarchy_warning) so it can't accumulate duplicates
+        # across repeated edits instead of just reflecting the latest check.
+        "warnings": [w for w in existing.get("warnings", []) if not _is_foyer_hierarchy_warning(w)] + ([foyer_warning] if foyer_warning else []),
         "revision": existing.get("revision", "R0"),
         "updated_at": storage.now_iso()
     }
     storage.write_json(storage.layout_path(project_id), updated)
     return _enrich_layout(project_id, updated)
+
+
+_FOYER_HIERARCHY_WARNING_PREFIX = "Foyer ("
+
+
+def _is_foyer_hierarchy_warning(warning_text):
+    """Identifies a previously-persisted _foyer_hierarchy_warning string so
+    it can be dropped before appending a freshly-recomputed one — both
+    callers persist the layout's `warnings` list across edits, and this
+    warning (unlike the others in that list) needs to reflect current state,
+    not accumulate a stale copy from every past edit."""
+    return warning_text.startswith(_FOYER_HIERARCHY_WARNING_PREFIX)
+
+
+def _foyer_hierarchy_warning(foyer_room, real_rooms):
+    """Team's own placement standards: Foyer has no fixed min/max, but must
+    be larger than every auxiliary (non-auditorium) room and smaller than
+    every auditorium — a soft check ("warnings, not blockers," per the same
+    document), not enforced by construction, since Foyer is whatever real
+    area happens to be left over once everything else is placed. Returns a
+    plain-English warning string, or None when the hierarchy holds (or
+    there's nothing real to compare against yet)."""
+    if not foyer_room:
+        return None
+    foyer_area = foyer_room["area_sqft"]
+    auxiliary_areas = [r["area_sqft"] for r in real_rooms if not r["room_type"].startswith("AUDITORIUM")]
+    auditorium_areas = [r["area_sqft"] for r in real_rooms if r["room_type"].startswith("AUDITORIUM")]
+    if auxiliary_areas and foyer_area < max(auxiliary_areas):
+        biggest = max(auxiliary_areas)
+        return (
+            f"Foyer ({foyer_area:,.0f} sqft) is smaller than another support zone ({biggest:,.0f} sqft) — "
+            f"the team's own placement standards call for Foyer to be the largest non-auditorium space."
+        )
+    if auditorium_areas and foyer_area > min(auditorium_areas):
+        smallest = min(auditorium_areas)
+        return (
+            f"Foyer ({foyer_area:,.0f} sqft) is larger than an auditorium ({smallest:,.0f} sqft) — "
+            f"the team's own placement standards call for Foyer to stay smaller than every auditorium."
+        )
+    return None
 
 
 def _replace_foyer_with_derived(boundary_points_ft, obstacles, real_rooms, requirements):
@@ -776,15 +968,19 @@ def _replace_foyer_with_derived(boundary_points_ft, obstacles, real_rooms, requi
     Foyer can never go stale or overlap anything: it's derived fresh from
     the ACTUAL current room list every single time, not stored and
     validated like an ordinary room. Returns (rooms_with_fresh_foyer,
-    circulation_area_sqft) — the latter is _build_foyer_room's own
-    leftover_slack (the real, small, genuinely-disconnected pockets Foyer
-    itself didn't claim), not a coarse boundary-minus-rooms estimate."""
+    circulation_area_sqft, foyer_hierarchy_warning_or_None) — the area is
+    _build_foyer_room's own leftover_slack (the real, small, genuinely-
+    disconnected pockets Foyer itself didn't claim), not a coarse
+    boundary-minus-rooms estimate; the warning is recomputed fresh every
+    call (unlike the layout's other, frozen-at-generation-time warnings —
+    see both call sites), since an edit can easily change whether Foyer's
+    hierarchy still holds."""
     fallback_poly = layout_engine.compute_usable_area(boundary_points_ft, obstacles, exclude_classifications=("COLUMN",)) if obstacles else layout_engine.poly_from_points(boundary_points_ft)
     real_room_polys = [layout_engine.poly_from_points(r["geometry_points_ft"]) for r in real_rooms]
     entry_point = requirements.get("entry_point_ft") if requirements else None
     foyer_room, leftover_slack = layout_engine._build_foyer_room(fallback_poly, real_room_polys, real_rooms, entry_point)
     final_rooms = real_rooms + ([foyer_room] if foyer_room else [])
-    return final_rooms, leftover_slack
+    return final_rooms, leftover_slack, _foyer_hierarchy_warning(foyer_room, real_rooms)
 
 
 @app.post("/api/projects/{project_id}/layout/zones")
@@ -818,6 +1014,7 @@ def add_zone(project_id: str, body: AddZoneIn):
     usable_poly = layout_engine.compute_usable_area(boundary_points_ft, obstacles)
     fallback_poly = layout_engine.compute_usable_area(boundary_points_ft, obstacles, exclude_classifications=("COLUMN",)) if obstacles else usable_poly
     column_polys = [layout_engine.poly_from_points(o["points_ft"]) for o in obstacles if o.get("classification") == "COLUMN"]
+    duct_polys = [layout_engine.poly_from_points(o["points_ft"]) for o in obstacles if o.get("classification") == "DUCT"]
     bbox = layout_engine.poly_from_points(boundary_points_ft).bounds
 
     placed_polys = [layout_engine.poly_from_points(r["geometry_points_ft"]) for r in real_rooms]
@@ -825,7 +1022,7 @@ def add_zone(project_id: str, body: AddZoneIn):
 
     room, message = layout_engine.place_single_zone(
         usable_poly, fallback_poly, column_polys, placed_polys, placed_types, bbox,
-        body.room_type, requirements, franchise_tier_id=requirements.get("franchise_tier_id")
+        body.room_type, requirements, franchise_tier_id=requirements.get("franchise_tier_id"), duct_polys=duct_polys
     )
     if not room:
         raise HTTPException(422, message)
@@ -833,7 +1030,7 @@ def add_zone(project_id: str, body: AddZoneIn):
     _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"))
     real_rooms = real_rooms + [room]
 
-    final_rooms, circulation = _replace_foyer_with_derived(boundary_points_ft, obstacles, real_rooms, requirements)
+    final_rooms, circulation, foyer_warning = _replace_foyer_with_derived(boundary_points_ft, obstacles, real_rooms, requirements)
 
     updated = {
         "region_id": existing["region_id"],
@@ -842,12 +1039,62 @@ def add_zone(project_id: str, body: AddZoneIn):
         "obstacles": obstacles,
         "rooms": final_rooms,
         "circulation_area_sqft": round(circulation, 2),
-        "warnings": existing.get("warnings", []),
+        # See update_layout's identical handling above — the Foyer hierarchy
+        # warning is recomputed fresh every call, so any stale copy from a
+        # previous edit/add is dropped before appending the current one.
+        "warnings": [w for w in existing.get("warnings", []) if not _is_foyer_hierarchy_warning(w)] + ([foyer_warning] if foyer_warning else []),
         "revision": existing.get("revision", "R0"),
         "updated_at": storage.now_iso()
     }
     storage.write_json(storage.layout_path(project_id), updated)
     return _enrich_layout(project_id, updated)
+
+
+_VALID_SCREEN_WALLS = ("min_x", "max_x", "min_y", "max_y")
+
+
+@app.post("/api/projects/{project_id}/layout/rooms/{room_id}/screen-wall")
+def update_screen_wall(project_id: str, room_id: str, body: ScreenWallUpdateIn):
+    """Re-orients an already-placed screen: which of the room's own 4 walls
+    is the real projection-screen wall. width_ft/depth_ft/geometry_points_ft
+    never change here — the room's box footprint is exactly the same either
+    way, only the label of which wall the screen sits on. That's enough:
+    _recompute_room_derived_fields (via _seat_axis_dims) reads screen_wall to
+    decide which raw box extent feeds seat_engine as the screen-parallel
+    span vs. the audience depth, so this one field flip is what actually
+    changes the seat estimate — a genuine 90-degree reorientation onto an
+    adjacent wall recomputes seat rows/columns along the other axis, and
+    reassigning to the opposite wall keeps the same axis (just flips which
+    end the screen is at). A narrow, single-field, single-room endpoint
+    rather than folding this into the generic layout PUT (which re-validates
+    every other room's geometry too) — same reasoning as add_zone being its
+    own endpoint rather than a special case of update_layout.
+
+    Nothing is written on any rejection here (unknown room/invalid wall) —
+    the frontend's existing revert-on-rejection handling for every other
+    committed edit (ZoningWorkspace.persistLayout's catch path) applies
+    unchanged, satisfying the same "never leave an edit half-applied" rule
+    every other write path in this file already follows."""
+    if body.screen_wall not in _VALID_SCREEN_WALLS:
+        raise HTTPException(422, f"screen_wall must be one of {', '.join(_VALID_SCREEN_WALLS)}.")
+
+    existing = storage.read_json(storage.layout_path(project_id))
+    if not existing:
+        raise HTTPException(404, "No editable layout exists for this project yet — run zoning first.")
+
+    room = next((r for r in existing["rooms"] if r["room_id"] == room_id), None)
+    if not room or not room["room_type"].startswith("AUDITORIUM"):
+        raise HTTPException(404, "No auditorium with that room_id in this layout.")
+
+    room["screen_wall"] = body.screen_wall
+    obstacles = existing.get("obstacles", [])
+    column_polys = [layout_engine.poly_from_points(o["points_ft"]) for o in obstacles if o.get("classification") == "COLUMN"]
+    requirements = storage.read_json(storage.requirements_path(project_id)) or {}
+    _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"))
+
+    existing["updated_at"] = storage.now_iso()
+    storage.write_json(storage.layout_path(project_id), existing)
+    return _enrich_layout(project_id, existing)
 
 
 def _enrich_layout(project_id: str, layout: dict) -> dict:

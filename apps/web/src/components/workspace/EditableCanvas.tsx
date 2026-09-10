@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
 import { LiveRoom, Obstacle, RoomDoor } from '../../types/live';
-import { RawGeometry } from '../../types/live';
+import { RawGeometry, FullRawGeometry } from '../../types/live';
 
 interface EditableCanvasProps {
   boundaryPointsFt: number[][];
@@ -22,6 +22,13 @@ interface EditableCanvasProps {
   snapToGridFt: number;
   rawGeometry?: RawGeometry | null;
   showCadLinework?: boolean;
+  /** The ENTIRE building's uncropped geometry (vs. rawGeometry above, which
+   * is just this region's own cropped CAD backdrop) — rendered dimmer and
+   * further back, purely for context ("what's the rest of this floor look
+   * like"), never interactive. Optional: a project confirmed via the older
+   * manual-region flow may not have one. */
+  fullRawGeometry?: FullRawGeometry | null;
+  showFullFloor?: boolean;
   /** Draws actual per-seat row marks inside each auditorium (from its
    * seat_estimate.rows/seats_per_row — the same real row-packing count
    * seat_engine.py already computes, just visualized) instead of only the
@@ -43,6 +50,13 @@ interface EditableCanvasProps {
    * component" affordance Add Zone already offers for whole rooms. */
   addDoorMode?: boolean;
   onAddDoor?: (door: RoomDoor) => void;
+  /** When true (only meaningful with an AUDITORIUM selected), the next
+   * click anywhere on the canvas snaps to the nearest wall of the SELECTED
+   * room and reassigns its screen to that wall — same one-shot,
+   * click-to-place feel as addDoorMode above, just resolving to a wall id
+   * instead of constructing a door. */
+  setScreenWallMode?: boolean;
+  onSetScreenWall?: (wall: RoomDoor['wall']) => void;
 }
 
 // Room-type fill colors — matches export_pdf.py's ROOM_FILL exactly (and,
@@ -54,7 +68,10 @@ const ROOM_TYPE_FILL: Record<string, string> = {
   FNB: '#f5c6c6',
   WASHROOM: '#c9e0f5',
   BOX_OFFICE: '#f5e6a8',
+  MANAGER_ROOM: '#c5e8e0',
   BOH: '#dcdce2',
+  ELECTRICAL: '#f0c9a0',
+  PROJECTOR: '#b8c4d9',
   PASSAGE: '#e8e4d8',
 };
 const ROOM_NEUTRAL = 'var(--text-secondary)';
@@ -143,7 +160,7 @@ function snap(v: number, grid: number) {
 // same glyph, no separate code path. width_ft is a real, generously-sized
 // single-leaf door (capped so it can never exceed the wall's own length),
 // clamped so the opening never spills past the room's own corners.
-function nearestRoomWallDoor(room: LiveRoom, pt: [number, number]): RoomDoor {
+function nearestWall(room: LiveRoom, pt: [number, number]): { wall: RoomDoor['wall']; along: number; wallLen: number } {
   const [x, y] = room.origin_ft;
   const w = room.width_ft, h = room.depth_ft;
   const candidates: { wall: RoomDoor['wall']; dist: number; along: number; wallLen: number }[] = [
@@ -153,7 +170,11 @@ function nearestRoomWallDoor(room: LiveRoom, pt: [number, number]): RoomDoor {
     { wall: 'max_x', dist: Math.abs(pt[0] - (x + w)), along: pt[1] - y, wallLen: h },
   ];
   candidates.sort((a, b) => a.dist - b.dist);
-  const best = candidates[0];
+  return candidates[0];
+}
+
+function nearestRoomWallDoor(room: LiveRoom, pt: [number, number]): RoomDoor {
+  const best = nearestWall(room, pt);
   const widthFt = Math.max(1.5, Math.min(4, best.wallLen / 2.5));
   const offsetFt = Math.max(0, Math.min(best.wallLen - widthFt, best.along - widthFt / 2));
   return {
@@ -214,8 +235,8 @@ const HANDLE_DEFS: { id: HandleId; cursor: string; fx: number; fy: number }[] = 
 
 export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   boundaryPointsFt, obstacles, rooms, selectedRoomId, onSelectRoom, onLiveChange, onCommit, snapToGridFt,
-  rawGeometry, showCadLinework = true, showSeatRows = false, drawMode = false, onDrawComplete, onDeleteSelected,
-  entryPointFt, exitPointsFt, addDoorMode = false, onAddDoor
+  rawGeometry, showCadLinework = true, fullRawGeometry, showFullFloor = true, showSeatRows = false, drawMode = false, onDrawComplete, onDeleteSelected,
+  entryPointFt, exitPointsFt, addDoorMode = false, onAddDoor, setScreenWallMode = false, onSetScreenWall
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragMode>(null);
@@ -462,6 +483,20 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
     onAddDoor(nearestRoomWallDoor(selected, [x, y]));
   };
 
+  // Same one-shot, click-to-place pattern as handleAddDoorPointerDownCapture
+  // above, just resolving to a wall id (nearestWall) instead of building a
+  // full door — reassigning which wall of the selected screen the
+  // projection screen is actually on.
+  const handleSetScreenWallPointerDownCapture = (e: React.PointerEvent) => {
+    if (!setScreenWallMode || !onSetScreenWall) return;
+    const selected = liveRooms.find(r => r.room_id === selectedRoomId);
+    if (!selected) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const { x, y } = screenToUser(e.clientX, e.clientY);
+    onSetScreenWall(nearestWall(selected, [x, y]).wall);
+  };
+
   // Mouse-wheel zoom centered on the cursor, not the viewBox's own corner —
   // keeps whatever the user is looking at under their cursor while zooming,
   // the way any map/canvas app behaves. Attached as a real, non-passive
@@ -565,11 +600,11 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
       <svg
         ref={svgRef}
         viewBox={viewBox}
-        style={{ flex: 1, width: '100%', touchAction: 'none', userSelect: 'none', cursor: (drawMode || addDoorMode) ? 'crosshair' : (drag || isPanning) ? 'grabbing' : 'grab' }}
+        style={{ flex: 1, width: '100%', touchAction: 'none', userSelect: 'none', cursor: (drawMode || addDoorMode || setScreenWallMode) ? 'crosshair' : (drag || isPanning) ? 'grabbing' : 'grab' }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerDown={handleBackgroundPointerDown}
-        onPointerDownCapture={handleAddDoorPointerDownCapture}
+        onPointerDownCapture={(e) => { handleAddDoorPointerDownCapture(e); handleSetScreenWallPointerDownCapture(e); }}
       >
         <defs>
           {/* Soft depth on placed rooms — constant screen size regardless of
@@ -581,6 +616,23 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
             <feDropShadow dx="0" dy={ftPerHandlePx(1.5)} stdDeviation={ftPerHandlePx(1.5)} floodOpacity="0.28" />
           </filter>
         </defs>
+        {/* The whole building's uncropped geometry — dimmer and beneath
+           everything else (painted first), purely for "what's the rest of
+           this floor like" context around the usable-area boundary/rooms
+           below. Distinct from rawGeometry's own region-cropped backdrop
+           (rendered on top of this, at higher opacity) — see this file's
+           fullRawGeometry prop doc. Never interactive: a real click here
+           should still hit whatever's drawn on top of it. */}
+        {showFullFloor && fullRawGeometry && (
+          <g opacity={0.22} pointerEvents="none">
+            {fullRawGeometry.lines.map(l => (
+              <line key={`fl${l.id}`} x1={l.a[0]} y1={l.a[1]} x2={l.b[0]} y2={l.b[1]} stroke="var(--text-tertiary)" strokeWidth={0.05} />
+            ))}
+            {fullRawGeometry.circles.map((c, i) => (
+              <circle key={`fc${i}`} cx={c.center[0]} cy={c.center[1]} r={c.radius} fill="none" stroke="var(--text-tertiary)" strokeWidth={0.05} />
+            ))}
+          </g>
+        )}
         {boundaryPointsFt.length > 0 && (
           <polygon points={boundaryPointsFt.map(p => p.join(',')).join(' ')} fill="var(--bg-secondary)" stroke="var(--text-primary)" strokeWidth={0.15} />
         )}

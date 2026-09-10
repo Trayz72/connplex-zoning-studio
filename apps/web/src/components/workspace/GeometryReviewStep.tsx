@@ -108,6 +108,7 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
         source_handle: 'manual', layer: 'manual', source: 'explicit',
         area_sqft: polygonAreaSqft(points), points_ft: points,
         bounding_box_ft: boundingBox(points), hatch_pattern: null, is_net_usage_hatch: false,
+        form_match: false, form_match_note: null,
         confidence: 'high', note: null, status: 'PROPOSED',
       },
       obstacles: [],
@@ -429,6 +430,15 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
               ? '(manually defined — see note below)'
               : `(largest un-nested closed polyline${activeRegion.boundary.layer.toLowerCase().includes('wall') ? ', on a wall-hinted layer' : ''})`}
           </div>
+          {activeRegion.boundary.form_match_note && (
+            <div style={{
+              display: 'flex', gap: '6px', fontSize: '0.72rem', color: 'var(--text-primary)', background: 'var(--success-bg)',
+              border: '1px solid rgba(79,157,105,0.4)', borderRadius: 'var(--radius-sm)', padding: '8px 10px', marginBottom: '10px'
+            }}>
+              <CheckIcon size={14} className="text-success" style={{ flex: '0 0 auto', marginTop: '1px' }} />
+              <span><strong>Best match to your intake details.</strong> {activeRegion.boundary.form_match_note}</span>
+            </div>
+          )}
           {activeRegion.boundary.note && (
             <div style={{
               display: 'flex', gap: '6px', fontSize: '0.72rem', color: 'var(--text-primary)', background: 'var(--danger-bg)',

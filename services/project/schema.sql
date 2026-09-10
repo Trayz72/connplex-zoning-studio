@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS projects (
   floor_shop_no TEXT,
   property_status TEXT,
   beam_bottom_clear_height TEXT,
+  carpet_area_sqft REAL,
   property_type TEXT,
   is_intake_complete INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,

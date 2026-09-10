@@ -37,4 +37,11 @@ if (!hasAdmin) {
   }
 }
 
+// Same lightweight migration pattern as is_admin above: carpet_area_sqft was
+// added after the initial schema, so existing databases need it bolted on.
+const projectColumns = db.prepare("PRAGMA table_info(projects)").all();
+if (!projectColumns.some((c) => c.name === 'carpet_area_sqft')) {
+  db.exec('ALTER TABLE projects ADD COLUMN carpet_area_sqft REAL');
+}
+
 export default db;

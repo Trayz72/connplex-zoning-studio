@@ -78,8 +78,20 @@ async function asJson<T>(res: Response): Promise<T> {
   return res.json();
 }
 
+/** Optional hints pulled straight from the project's own intake record
+ * (Carpet Area / Floor-Shop-No) so the very first automatic candidate
+ * ranking already reflects what a salesperson already told the app about
+ * this property — see cad_extraction._form_match_info. Both undefined is
+ * the same as omitting them entirely: ranking falls back to plain size. */
+export interface BoundaryFormHints {
+  targetAreaSqft?: number | null;
+  labelHint?: string | null;
+}
+
 /** Real upload with real byte-level progress via XHR (fetch doesn't expose upload progress). */
-export function uploadCad(projectId: string, file: File, onProgress: (pct: number) => void): Promise<GeometryResult> {
+export function uploadCad(
+  projectId: string, file: File, onProgress: (pct: number) => void, hints?: BoundaryFormHints
+): Promise<GeometryResult> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `${BASE}/${projectId}/cad`);
@@ -98,6 +110,8 @@ export function uploadCad(projectId: string, file: File, onProgress: (pct: numbe
     xhr.onerror = () => reject(new Error('Network error during upload.'));
     const form = new FormData();
     form.append('file', file);
+    if (hints?.targetAreaSqft != null) form.append('target_area_sqft', String(hints.targetAreaSqft));
+    if (hints?.labelHint) form.append('label_hint', hints.labelHint);
     xhr.send(form);
   });
 }
@@ -113,8 +127,12 @@ export async function getGeometry(projectId: string): Promise<GeometryResult> {
  * boundary among unrelated layers). A real, slower (~15-30s) Claude call,
  * not a retry of the same deterministic pass — only ever call this after a
  * normal upload, never instead of one. */
-export async function aiScanCad(projectId: string): Promise<GeometryResult> {
-  return asJson(await fetch(`${BASE}/${projectId}/cad/ai-scan`, { method: 'POST' }));
+export async function aiScanCad(projectId: string, hints?: BoundaryFormHints): Promise<GeometryResult> {
+  const params = new URLSearchParams();
+  if (hints?.targetAreaSqft != null) params.set('target_area_sqft', String(hints.targetAreaSqft));
+  if (hints?.labelHint) params.set('label_hint', hints.labelHint);
+  const qs = params.toString();
+  return asJson(await fetch(`${BASE}/${projectId}/cad/ai-scan${qs ? `?${qs}` : ''}`, { method: 'POST' }));
 }
 
 export async function updateGeometry(projectId: string, regions: GeometryRegion[]): Promise<GeometryResult> {
@@ -140,6 +158,61 @@ export async function traceBoundary(
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ segment_ids: segmentIds, custom_segments: customSegments })
   }));
+}
+
+export interface CleanLabelMatch {
+  text: string;
+  position_ft: [number, number];
+  shape_handle: string | null;
+  shape_area_sqft: number | null;
+  shape_bounding_box_ft: { min_x: number; min_y: number; max_x: number; max_y: number } | null;
+}
+
+export interface CleanRegionPreview {
+  region_id: string;
+  source_handle: string;
+  boundary_area_sqft: number;
+  boundary_points_ft: number[][];
+  kept_count: number;
+  dropped_count: number;
+  kept_by_classification: Record<string, number>;
+  dropped_by_classification: Record<string, number>;
+}
+
+/** Form-based boundary selection for the Clean CAD stage: finds every text
+ * label in the uploaded file matching `query`, each paired with its
+ * smallest enclosing closed shape (most specific room first). */
+export async function searchCleanLabel(projectId: string, query: string): Promise<CleanLabelMatch[]> {
+  const data = await asJson<{ matches: CleanLabelMatch[] }>(await fetch(`${BASE}/${projectId}/clean/search-label`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query })
+  }));
+  return data.matches;
+}
+
+/** Live before/after readout for one or more selected closed shapes
+ * (need not be adjacent/connected) — read-only, doesn't touch geometry.json. */
+export async function previewClean(projectId: string, shapeHandles: string[]): Promise<CleanRegionPreview[]> {
+  const data = await asJson<{ regions: CleanRegionPreview[] }>(await fetch(`${BASE}/${projectId}/clean/preview`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shape_handles: shapeHandles })
+  }));
+  return data.regions;
+}
+
+/** Finalizes the selection: exports a clean DXF/DWG (outline + kept
+ * COLUMN/DUCT obstacles only) and re-runs extraction against it, returning
+ * the same GeometryResult shape uploadCad does so the caller can transition
+ * straight into Geometry Review. */
+export async function confirmClean(projectId: string, shapeHandles: string[]): Promise<GeometryResult> {
+  return asJson(await fetch(`${BASE}/${projectId}/clean/confirm`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shape_handles: shapeHandles })
+  }));
+}
+
+/** Downloads the cleaned file directly, for a user who doesn't want to
+ * continue into the zoning pipeline right away. */
+export async function downloadClean(projectId: string, format: 'dxf' | 'dwg') {
+  const res = await fetch(`${BASE}/${projectId}/clean/download?format=${format}`);
+  await downloadFile(res, `${projectId}_clean.${format}`);
 }
 
 export async function createManualRegion(
@@ -227,6 +300,18 @@ export async function updateLayout(projectId: string, layout: Pick<EditableLayou
 export async function addZone(projectId: string, roomType: string): Promise<EditableLayout> {
   return asJson(await fetch(`${BASE}/${projectId}/layout/zones`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room_type: roomType })
+  }));
+}
+
+/** Re-orients an already-placed screen: which of its 4 walls is the real
+ * projection-screen wall. The room's footprint doesn't move — only the
+ * server-side seat estimate is recomputed (against the correct axis) and
+ * any doors on the new screen wall get flagged. A narrow, single-room
+ * endpoint, not a generic layout PUT — see main.py's update_screen_wall
+ * docstring for why. */
+export async function setScreenWall(projectId: string, roomId: string, screenWall: 'min_x' | 'max_x' | 'min_y' | 'max_y'): Promise<EditableLayout> {
+  return asJson(await fetch(`${BASE}/${projectId}/layout/rooms/${roomId}/screen-wall`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ screen_wall: screenWall })
   }));
 }
 
