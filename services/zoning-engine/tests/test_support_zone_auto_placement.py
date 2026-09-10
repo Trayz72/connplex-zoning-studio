@@ -1,10 +1,14 @@
 """Regression coverage for layout_engine.py's post-auditorium
-auto-placement pass — _place_support_zones_and_foyer and the connectivity
+auto-placement pass — _place_support_zones_and_passage and the connectivity
 gate it's built on (placement/connectivity.py). Verifies the real, evidence
 -based behavior this round's redesign depends on: real Box Office/F&B/
 Washroom/BOH geometry (not just a circulation number), a connectivity veto
-that actually changes which candidate gets chosen, and Foyer computed as
-the true geometric remainder rather than an independently sized room."""
+that actually changes which candidate gets chosen, and Passage computed as
+the true geometric remainder rather than an independently sized room.
+(Room type identifiers FOYER/PASSAGE were swapped 2026-09-10 at the
+client's request — FOYER is now the manually-placed room, PASSAGE is now
+the derived leftover-remainder room; see rules_registry_v1.json's
+support_zone_defaults entries.)"""
 from shapely.ops import unary_union
 
 import layout_engine
@@ -48,7 +52,7 @@ def test_connectivity_gate_rejects_best_scoring_candidate_and_falls_through_to_n
     aud_poly = layout_engine._rect(30, 0, 10, 20)
 
     requirements = {"entry_point_ft": list(entry_point), "max_auditoriums": 0}
-    support_rooms, foyer_room, leftover_slack, warnings = layout_engine._place_support_zones_and_foyer(
+    support_rooms, passage_room, leftover_slack, warnings = layout_engine._place_support_zones_and_passage(
         usable, usable, [], bbox, [aud_room], [aud_poly], requirements
     )
     box_office = next((r for r in support_rooms if r["room_type"] == "BOX_OFFICE"), None)
@@ -69,20 +73,20 @@ def test_connectivity_gate_rejects_best_scoring_candidate_and_falls_through_to_n
     assert not (bo_x0 < 25 and bo_x1 > 15), f"BOX_OFFICE landed in the connecting neck: x=[{bo_x0},{bo_x1}]"
 
 
-def test_auto_layout_produces_real_geometry_and_excludes_passage():
+def test_auto_layout_produces_real_geometry_and_excludes_foyer():
     for candidate in layout_engine.generate_candidates(RECT_BOUNDARY, [], {}):
         room_types = [r["room_type"] for r in candidate["rooms"]]
-        assert "PASSAGE" not in room_types
+        assert "FOYER" not in room_types
         for room in candidate["rooms"]:
             assert len(room["geometry_points_ft"]) >= 3
             assert room["area_sqft"] > 0
 
 
-def test_foyer_and_components_and_screens_reconcile_to_usable_area():
+def test_passage_and_components_and_screens_reconcile_to_usable_area():
     """Real area-conservation check on the irregular comb boundary: total
-    screen area + every support-zone area + Foyer's own area + reported
+    screen area + every support-zone area + Passage's own area + reported
     leftover slack must reconcile to the true usable (fallback) area within
-    a small tolerance — proving Foyer is a genuine accounting of what's
+    a small tolerance — proving Passage is a genuine accounting of what's
     left, not an approximation. Checked for both greedy strategies and the
     CP-SAT optimizer, since all three build their candidate independently."""
     usable = _usable(COMB_BOUNDARY)
@@ -95,7 +99,7 @@ def test_foyer_and_components_and_screens_reconcile_to_usable_area():
             f"rooms ({room_area}) + leftover slack ({candidate['circulation_area_sqft']}) "
             f"!= usable area ({fallback_area})"
         )
-        assert any(r["room_type"] == "FOYER" for r in candidate["rooms"]), "expected a real Foyer room"
+        assert any(r["room_type"] == "PASSAGE" for r in candidate["rooms"]), "expected a real Passage room"
 
     for candidate in layout_engine.generate_candidates(COMB_BOUNDARY, [], {"max_auditoriums": 6}):
         check(candidate)
@@ -104,8 +108,8 @@ def test_foyer_and_components_and_screens_reconcile_to_usable_area():
     check(optimized)
 
 
-def test_foyer_polygon_is_the_real_remainder_not_a_bounding_box():
-    """On the comb boundary (genuinely irregular), Foyer's stored polygon
+def test_passage_polygon_is_the_real_remainder_not_a_bounding_box():
+    """On the comb boundary (genuinely irregular), Passage's stored polygon
     must equal the true leftover space (rooms subtracted from usable area),
     not an approximation, and — since the comb boundary's leftover space is
     not a plain rectangle — its area must differ from width_ft*depth_ft
@@ -114,41 +118,41 @@ def test_foyer_polygon_is_the_real_remainder_not_a_bounding_box():
     The true remainder can be a MultiPolygon here (a real, correct outcome
     on this boundary once the realistic-shape floor rejects a sliver
     custom-fit screen: the freed-up strip is too small/disconnected to
-    reach Foyer's own connected piece, so it correctly shows up as
+    reach Passage's own connected piece, so it correctly shows up as
     circulation_area_sqft leftover slack instead — see
-    test_multipolygon_remainder_picks_entry_connected_piece_as_foyer for
-    that behavior's own dedicated test) — so this test compares Foyer's
+    test_multipolygon_remainder_picks_entry_connected_piece_as_passage for
+    that behavior's own dedicated test) — so this test compares Passage's
     polygon against the true remainder's OWN matching piece, not the
     combined multi-piece total."""
     usable = _usable(COMB_BOUNDARY)
     candidate = layout_engine.generate_candidate(usable, COMB_BOUNDARY, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 6}, [])
-    foyer = next((r for r in candidate["rooms"] if r["room_type"] == "FOYER"), None)
-    assert foyer is not None
+    passage = next((r for r in candidate["rooms"] if r["room_type"] == "PASSAGE"), None)
+    assert passage is not None
 
     other_polys = [
         layout_engine._rect(*r["origin_ft"], r["width_ft"], r["depth_ft"])
-        for r in candidate["rooms"] if r["room_type"] != "FOYER"
+        for r in candidate["rooms"] if r["room_type"] != "PASSAGE"
     ]
-    foyer_poly = layout_engine.poly_from_points(foyer["geometry_points_ft"] + [foyer["geometry_points_ft"][0]])
+    passage_poly = layout_engine.poly_from_points(passage["geometry_points_ft"] + [passage["geometry_points_ft"][0]])
     true_remainder = usable.difference(unary_union(other_polys))
     pieces = list(true_remainder.geoms) if true_remainder.geom_type == "MultiPolygon" else [true_remainder]
-    match_idx = min(range(len(pieces)), key=lambda i: abs(pieces[i].area - foyer["area_sqft"]))
+    match_idx = min(range(len(pieces)), key=lambda i: abs(pieces[i].area - passage["area_sqft"]))
     matching_piece = pieces[match_idx]
-    mismatch_area = foyer_poly.symmetric_difference(matching_piece).area
-    assert mismatch_area < 2.0, f"Foyer's stored polygon differs from its matching true-remainder piece by {mismatch_area} sqft"
+    mismatch_area = passage_poly.symmetric_difference(matching_piece).area
+    assert mismatch_area < 2.0, f"Passage's stored polygon differs from its matching true-remainder piece by {mismatch_area} sqft"
     # Every other piece (if any) must be accounted for as reported leftover
     # slack, not silently dropped.
     other_pieces_area = sum(p.area for i, p in enumerate(pieces) if i != match_idx)
     assert abs(candidate["circulation_area_sqft"] - other_pieces_area) < 2.0
 
-    bbox_area = foyer["width_ft"] * foyer["depth_ft"]
-    assert abs(foyer["area_sqft"] - bbox_area) > 1.0, "expected a non-rectangular Foyer remainder on the comb boundary"
+    bbox_area = passage["width_ft"] * passage["depth_ft"]
+    assert abs(passage["area_sqft"] - bbox_area) > 1.0, "expected a non-rectangular Passage remainder on the comb boundary"
 
 
-def test_multipolygon_remainder_picks_entry_connected_piece_as_foyer():
+def test_multipolygon_remainder_picks_entry_connected_piece_as_passage():
     """Two disconnected leftover pockets (separated by a full-height
     dividing wall-like placed room) — the entry-connected piece must become
-    FOYER; the other must NOT appear as a second FOYER room, only as
+    PASSAGE; the other must NOT appear as a second PASSAGE room, only as
     reported leftover slack."""
     boundary = [[0, 0], [60, 0], [60, 20], [0, 20], [0, 0]]
     usable = _usable(boundary)
@@ -163,10 +167,57 @@ def test_multipolygon_remainder_picks_entry_connected_piece_as_foyer():
     }
     divider_poly = layout_engine._rect(28, 0, 4, 20)
 
-    foyer_room, leftover_slack = layout_engine._build_foyer_room(usable, [divider_poly], [divider], entry_point)
-    assert foyer_room is not None
-    assert foyer_room["origin_ft"][0] < 28, "expected the entry-side (left) pocket to become Foyer"
+    passage_room, leftover_slack = layout_engine._build_passage_room(usable, [divider_poly], [divider], entry_point)
+    assert passage_room is not None
+    assert passage_room["origin_ft"][0] < 28, "expected the entry-side (left) pocket to become Passage"
     assert leftover_slack > 100, "expected the right pocket's area to show up as leftover slack, not vanish"
+
+
+def test_box_office_claims_its_spot_before_the_auditorium_scan_runs():
+    """Real fix (Cinema_Layout_Notes.pdf, 2026-09-10, note 1.1/2.2): Box
+    Office is now carved out near the marked entry BEFORE auditoriums are
+    scanned (_claim_box_office_near_entry), so it isn't crowded out of the
+    entry-adjacent spot its own heuristic wants. Entry is marked mid-wall,
+    deliberately NOT at the scan's own row-major starting corner (0, 0) —
+    a real, confirmed defect this test is written to catch: an entry point
+    AT that starting corner doesn't exercise the candidate-pool coverage
+    fix at all (the corner's own candidates are always collected first
+    regardless of any cap), so an earlier version of this test using (0, 0)
+    passed even while a real live check (this exact scenario, run through
+    the actual API) showed Box Office landing 25ft from a mid-wall entry —
+    see _place_single_support_zone_connectivity_aware's own max_candidates
+    comment for the root cause (a row-major grid scan capped at 80 raw
+    candidates never reached the entry's own y-level on an open floor)."""
+    boundary = [[0, 0], [160, 0], [160, 90], [0, 90], [0, 0]]
+    entry_point = (0, 45)
+    requirements = {"entry_point_ft": list(entry_point), "max_auditoriums": 4}
+    candidate = layout_engine.generate_candidate(
+        layout_engine.compute_usable_area(boundary, []), boundary, "MAX_SEATS_PER_SCREEN", requirements, []
+    )
+    box_office = next((r for r in candidate["rooms"] if r["room_type"] == "BOX_OFFICE"), None)
+    assert box_office is not None, "expected Box Office to be placed"
+    bo_centroid_x = box_office["origin_ft"][0] + box_office["width_ft"] / 2
+    bo_centroid_y = box_office["origin_ft"][1] + box_office["depth_ft"] / 2
+    dist = ((bo_centroid_x - entry_point[0]) ** 2 + (bo_centroid_y - entry_point[1]) ** 2) ** 0.5
+    max_adjacency_ft = rules_registry.planning_norm("BOX_OFFICE_ENTRY_ADJACENCY_MAX_FT") or 12.0
+    assert dist <= max_adjacency_ft, (
+        f"Box Office landed {dist:.1f}ft from the entry — expected within the real adjacency preference "
+        f"({max_adjacency_ft}ft), proving it was crowded out by the auditorium scan"
+    )
+
+
+def test_box_office_carve_out_is_a_no_op_without_a_marked_entry():
+    """No entry marked: _claim_box_office_near_entry must be an honest no-op
+    (same graceful-degradation contract as _reserve_entry_vestibule) — Box
+    Office still gets placed later by the normal SUPPORT_ZONE_AUTO_ORDER
+    pass, just without the early carve-out (nothing to carve toward)."""
+    boundary = [[0, 0], [160, 0], [160, 90], [0, 90], [0, 0]]
+    requirements = {"max_auditoriums": 4}
+    candidate = layout_engine.generate_candidate(
+        layout_engine.compute_usable_area(boundary, []), boundary, "MAX_SEATS_PER_SCREEN", requirements, []
+    )
+    box_office = next((r for r in candidate["rooms"] if r["room_type"] == "BOX_OFFICE"), None)
+    assert box_office is not None, "Box Office should still be placed via the normal auto-order pass"
 
 
 def test_narrow_egress_passage_stays_open_end_to_end():

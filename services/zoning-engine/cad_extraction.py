@@ -139,6 +139,19 @@ UNIT_NAME_TO_FEET = {
     "Meters": 3.28084,
 }
 
+# Even the largest closed shape in a whole real architectural drawing should
+# be at least this big — anything smaller (see the declared-but-wrong-unit
+# check in extract(), right after pass 1) means the working scale itself is
+# almost certainly wrong, not that the building is real fine detail.
+MIN_PLAUSIBLE_LARGEST_SHAPE_SQFT = 20.0
+
+
+def _nearest_unit_name(feet_per_drawing_unit, tolerance=1e-6):
+    for name, value in UNIT_NAME_TO_FEET.items():
+        if abs(value - feet_per_drawing_unit) <= tolerance * max(value, 1.0):
+            return name
+    return None
+
 COLUMN_LAYER_HINTS = ["column", "col", "grid", "struct"]
 BOUNDARY_LAYER_HINTS = ["wall", "boundary", "outline"]
 
@@ -1464,6 +1477,48 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
             "polygon": poly, "area_sqft": poly.area * (scale ** 2),
             "points_ft": [[round(x * scale, 3), round(y * scale, 3)] for x, y in poly.exterior.coords]
         })
+
+    # Real, confirmed defect: a file can declare a specific $INSUNITS (so
+    # _get_units above never flags needs_user_confirmation — it only does
+    # that when $INSUNITS is literally unspecified) while its actual drawn
+    # coordinates are authored at a different scale entirely. Found on a
+    # real client file (a 4th-floor theater plan) whose header declared
+    # Millimeters but whose real coordinates were survey-scale METERS (a
+    # georeferenced, UTM-style site plan, easting/northing in the hundreds
+    # of thousands) — every shape in the file collapsed to a fraction of a
+    # sqft at the declared scale, leaving 0 usable boundary candidates with
+    # no explanation at all. Checked here, once every closed shape's real
+    # area is known (regardless of which pass found it): if even the
+    # LARGEST shape in the whole file is implausibly small for any real
+    # building, try the single most common real unit-confusion factor
+    # (1000x either way — millimeters vs. meters) and, if it lands in a
+    # plausible range, surface it through the exact same
+    # needs_user_confirmation/suggested_unit banner _get_units already
+    # drives for an unspecified $INSUNITS — never silently substituted,
+    # still one human confirmation away from actually changing anything
+    # (Product Principle #6/#4: uncertain detection never becomes
+    # authoritative, mark uncertainty explicitly).
+    if closed_shapes and not units["needs_user_confirmation"] and units["source"] != "user_confirmed":
+        largest_area_sqft = max(s["area_sqft"] for s in closed_shapes)
+        if 0 < largest_area_sqft < MIN_PLAUSIBLE_LARGEST_SHAPE_SQFT:
+            for factor in (1000.0, 0.001):
+                candidate_area = largest_area_sqft * (factor ** 2)
+                if not (MIN_PLAUSIBLE_LARGEST_SHAPE_SQFT <= candidate_area <= MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT):
+                    continue
+                candidate_name = _nearest_unit_name(units["feet_per_drawing_unit"] * factor)
+                if not candidate_name:
+                    continue
+                units["needs_user_confirmation"] = True
+                units["suggested_unit"] = candidate_name
+                units["suggested_unit_reason"] = (
+                    f"This file declares {units['detected_unit']}, but its real geometry looks "
+                    f"~{factor:g}x off that scale — the largest closed shape in the whole file is only "
+                    f"{largest_area_sqft:.2f} sqft at the declared unit, which is implausibly small for any "
+                    f"real building. {candidate_name} would put it at a real, building-scale "
+                    f"{candidate_area:,.0f} sqft instead. Verify against one real dimension in the file "
+                    f"before trusting this."
+                )
+                break
 
     # --- Pass 2: boundary candidates = large closed shapes, largest first.
     # CIRCLE-derived shapes are excluded from *boundary* candidacy — floor

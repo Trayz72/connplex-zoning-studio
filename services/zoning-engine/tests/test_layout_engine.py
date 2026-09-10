@@ -28,8 +28,8 @@ def test_generate_candidates_returns_two_strategies():
 def test_auto_layout_places_real_support_zone_geometry_not_just_a_number():
     """This round's redesign: generate_candidate now places screens first,
     then Box Office/Manager Room/F&B/Washroom/BOH with real geometry (not
-    just an aggregate circulation_area_sqft number), then Foyer as the true
-    leftover remainder. PASSAGE stays auto-layout-excluded (Foyer now
+    just an aggregate circulation_area_sqft number), then Passage as the true
+    leftover remainder. FOYER stays auto-layout-excluded (Passage now
     serves its old connective purpose) — it's still available via manual
     Add Zone (place_single_zone).
 
@@ -45,7 +45,7 @@ def test_auto_layout_places_real_support_zone_geometry_not_just_a_number():
         assert any(rt.startswith("AUDITORIUM") for rt in room_types), "expected at least one auditorium to fit in a 160x90 rect"
         for support_type in ("BOX_OFFICE", "MANAGER_ROOM", "FNB", "WASHROOM", "BOH"):
             assert support_type in room_types, f"expected auto-layout to place a real {support_type}, got room types {room_types}"
-        assert "PASSAGE" not in room_types, "PASSAGE should stay excluded from auto-layout — Foyer is now the connective remainder"
+        assert "FOYER" not in room_types, "FOYER should stay excluded from auto-layout — Passage is now the connective remainder"
         for room in candidate["rooms"]:
             assert len(room["geometry_points_ft"]) >= 3, f"{room['room_type']} has no real placed geometry"
 
@@ -82,7 +82,7 @@ def test_place_single_zone_screen_avoids_existing_room():
     placed_polys = [layout_engine.poly_from_points(first["geometry_points_ft"])]
     placed_types = ["AUDITORIUM"]
     second, warning2 = layout_engine.place_single_zone(
-        usable, usable, [], placed_polys, placed_types, (0, 0, 100, 60), "FOYER", {}
+        usable, usable, [], placed_polys, placed_types, (0, 0, 100, 60), "WASHROOM", {}
     )
     assert second is not None and warning2 is None
     # A real collision check, not just "it returned something" — Add Zone's
@@ -198,16 +198,23 @@ def test_generated_auditorium_carries_its_real_computed_doors():
     assert all(d["wall"] == door_wall for d in room["doors"])
 
 
-def test_screen_wall_defaults_to_min_y_without_entry_point():
-    """No entry point marked: screen_wall defaults to 'min_y' — this app's
-    original hardcoded frontend assumption — so a layout with no entry data
-    renders identically to before this field existed."""
+def test_screen_wall_defaults_to_the_room_s_own_longer_axis_without_entry_point():
+    """No entry point marked: screen_wall must still land on whichever wall
+    pair spans the room's own longer (real seating-depth) axis — never the
+    literal 'min_y' fallback regardless of shape, which was a real,
+    confirmed defect (see _screen_wall_for_rect's restrict_to_depth_axis
+    docstring): a room placed wider than deep would otherwise get its
+    seating depth computed from the SHORT axis, undercounting or zeroing
+    out real seats even with no entry point involved at all. This 100x60
+    usable area's own default placement comes out 70ft wide x 50ft deep, so
+    the longer axis is the width (x-axis) and screen_wall must be min_x."""
     usable = _usable()
     room, warning = layout_engine.place_single_zone(
         usable, usable, [], [], [], (0, 0, 100, 60), "AUDITORIUM", {}
     )
     assert room is not None, warning
-    assert room["screen_wall"] == "min_y"
+    assert room["width_ft"] > room["depth_ft"], "test assumes this placement comes out wider than deep"
+    assert room["screen_wall"] == "min_x"
 
 
 # ---------- _seat_axis_dims: seat math must follow the real screen wall ----------
@@ -435,48 +442,57 @@ def test_grid_snapping_aligns_placement_to_column_grid_lines():
     )
 
 
-# ---------- PASSAGE ----------
+# ---------- FOYER ----------
+#
+# Room type identifiers FOYER/PASSAGE were swapped 2026-09-10 at the
+# client's request (see rules_registry_v1.json's support_zone_defaults
+# entries): FOYER is now the manually-placed room, PASSAGE is now the
+# derived leftover-remainder room. The "connects to the derived circulation
+# space and the nearest screen" proximity heuristic moved with the
+# manually-placed identity (now FOYER); the elongated-corridor shape rule
+# in _support_zone_dims deliberately did NOT move — a lobby isn't a
+# corridor, so a newly-placed FOYER keeps the generic square-ish shape
+# every other support zone uses (see _support_zone_dims's own docstring).
 
-def test_place_single_zone_passage_connects_foyer_and_auditorium():
-    """A PASSAGE should be placed close to both the Foyer and the nearest
-    already-placed Screen (see place_single_zone's PASSAGE branch) — real,
-    evidence-based behavior from the reference floor plans this feature was
-    designed against, not just "wherever a plain first-fit scan happens to
-    land." Foyer/auditorium are pushed to the far side (x=200+) of a wide
-    boundary, with a large empty region at x=0 that a plain scan (no
-    proximity heuristic) would fill first — so a placement near x=200
-    specifically proves the heuristic ran, rather than coinciding with
-    first-fit's own default bottom-left-first order the way a tighter test
-    geometry could."""
+def test_place_single_zone_foyer_connects_passage_and_auditorium():
+    """A FOYER should be placed close to both the derived Passage remainder
+    and the nearest already-placed Screen (see place_single_zone's FOYER
+    branch) — real, evidence-based behavior from the reference floor plans
+    this feature was designed against, not just "wherever a plain first-fit
+    scan happens to land." Passage/auditorium are pushed to the far side
+    (x=200+) of a wide boundary, with a large empty region at x=0 that a
+    plain scan (no proximity heuristic) would fill first — so a placement
+    near x=200 specifically proves the heuristic ran, rather than
+    coinciding with first-fit's own default bottom-left-first order the way
+    a tighter test geometry could."""
     boundary = [[0, 0], [300, 0], [300, 100], [0, 100], [0, 0]]
     usable = layout_engine.compute_usable_area(boundary, [])
     auditorium = layout_engine._rect(200, 0, 70, 50)
-    foyer = layout_engine._rect(200, 60, 30, 20)
-    placed_polys = [auditorium, foyer]
-    placed_types = ["AUDITORIUM", "FOYER"]
+    passage = layout_engine._rect(200, 60, 30, 20)
+    placed_polys = [auditorium, passage]
+    placed_types = ["AUDITORIUM", "PASSAGE"]
 
-    passage, warning = layout_engine.place_single_zone(
-        usable, usable, [], placed_polys, placed_types, (0, 0, 300, 100), "PASSAGE", {"max_auditoriums": 1}
+    foyer, warning = layout_engine.place_single_zone(
+        usable, usable, [], placed_polys, placed_types, (0, 0, 300, 100), "FOYER", {"max_auditoriums": 1}
     )
-    assert passage is not None, warning
-    passage_poly = layout_engine.poly_from_points(passage["geometry_points_ft"])
-    real_distance_sum = passage_poly.distance(auditorium) + passage_poly.distance(foyer)
+    assert foyer is not None, warning
+    foyer_poly = layout_engine.poly_from_points(foyer["geometry_points_ft"])
+    real_distance_sum = foyer_poly.distance(auditorium) + foyer_poly.distance(passage)
     # A plain first-fit scan (no heuristic) lands at the boundary's own
     # (0, 0) corner here — real, empirically confirmed, not a guess.
     # Compare against a same-*size* rect placed at that corner (not an
     # arbitrary marker) so the comparison isolates position, not shape.
-    first_fit_corner = layout_engine._rect(0, 0, passage["width_ft"], passage["depth_ft"])
-    first_fit_distance_sum = first_fit_corner.distance(auditorium) + first_fit_corner.distance(foyer)
+    first_fit_corner = layout_engine._rect(0, 0, foyer["width_ft"], foyer["depth_ft"])
+    first_fit_distance_sum = first_fit_corner.distance(auditorium) + first_fit_corner.distance(passage)
     assert real_distance_sum < first_fit_distance_sum, (
-        f"expected the passage closer to the foyer/auditorium (distance sum {real_distance_sum}) than a "
+        f"expected the foyer closer to the passage/auditorium (distance sum {real_distance_sum}) than a "
         f"same-size placement at the far (0,0) corner would be ({first_fit_distance_sum}), origin was "
-        f"{passage['origin_ft']} — looks like the proximity heuristic didn't run"
+        f"{foyer['origin_ft']} — looks like the proximity heuristic didn't run"
     )
-    # A real corridor shape, not a square-ish room — min(w, h) should equal
-    # the configured minimum passage width, not the generic aspect=1.6 shape
-    # every other support zone uses.
-    min_width_ft = layout_engine.rules_registry.planning_norm("EGRESS_PASSAGE_MIN_WIDTH_FT")
-    assert abs(min(passage["width_ft"], passage["depth_ft"]) - min_width_ft) < 0.5
+    # Generic square-ish shape (aspect ~1.6), NOT the elongated corridor
+    # shape PASSAGE's own placeholder minimum uses — see this section's own
+    # header comment for why that shape rule deliberately didn't transfer.
+    assert max(foyer["width_ft"], foyer["depth_ft"]) / min(foyer["width_ft"], foyer["depth_ft"]) < 2.0
 
 
 # ---------- new placement standards round: real minimums, Box Office sightline,
@@ -533,14 +549,18 @@ def test_manager_room_is_auto_placed_electrical_is_not():
 
 
 def test_box_office_heuristic_has_both_distance_score_and_sightline_preference():
-    """New this round: BOX_OFFICE used to share FOYER's plain distance-to-
+    """New this round: BOX_OFFICE used to share PASSAGE's plain distance-to-
     entry score_fn with no sightline check at all — "immediately visible on
     arrival" (team's own placement standards) means a visible-but-slightly-
     farther spot should beat a closer-but-blocked one. Confirms both halves
-    are wired: a real prefer_fn now exists (FOYER, by contrast, still gets
+    are wired: a real prefer_fn now exists (PASSAGE, by contrast, still gets
     none), and it actually behaves like a sightline check — true for a clear
     line to a candidate on the entry's own side of a full-height wall, false
-    for one on the far side of it."""
+    for one on the far side of it. (PASSAGE here is the identifier used by
+    the entry-distance-only branch of _support_zone_heuristic — since the
+    2026-09-10 FOYER/PASSAGE swap this branch is unreachable via manual
+    placement, mirroring how it was reachable-but-unused for FOYER before
+    the swap; see rules_registry_v1.json's support_zone_defaults entries.)"""
     usable = _usable()
     entry_point = (0, 30)
     blocker = layout_engine._rect(10, 0, 20, 60)  # full-height wall, x=10..30
@@ -554,11 +574,11 @@ def test_box_office_heuristic_has_both_distance_score_and_sightline_preference()
     assert prefer_fn(visible_candidate) is True
     assert prefer_fn(blocked_candidate) is False
 
-    foyer_score_fn, foyer_prefer_fn = layout_engine._support_zone_heuristic(
-        "FOYER", entry_point, [], usable, usable, [blocker], ["AUDITORIUM"], None
+    passage_score_fn, passage_prefer_fn = layout_engine._support_zone_heuristic(
+        "PASSAGE", entry_point, [], usable, usable, [blocker], ["AUDITORIUM"], None
     )
-    assert foyer_score_fn is not None
-    assert foyer_prefer_fn is None, "FOYER should be unaffected by this round — distance-only, as before"
+    assert passage_score_fn is not None
+    assert passage_prefer_fn is None, "PASSAGE should be unaffected by this round — distance-only, as before"
 
 
 def test_box_office_heuristic_also_prefers_flanking_the_entry():
@@ -576,29 +596,54 @@ def test_box_office_heuristic_also_prefers_flanking_the_entry():
     score_fn, prefer_fn = layout_engine._support_zone_heuristic(
         "BOX_OFFICE", entry_point, [], usable, usable, [], ["AUDITORIUM"], None
     )
-    near_candidate = (2, 27, 5, 5)   # centroid ~5.4ft from entry — within the 12ft default
+    # Offset in y from entry_point's own y=30 (not straddling it) so this
+    # candidate isn't also rejected by the separate "not directly ahead of
+    # the entry" check added 2026-09-10 — see
+    # test_box_office_heuristic_rejects_landing_directly_ahead_of_the_entry
+    # below, which isolates that check on its own.
+    near_candidate = (2, 33, 5, 5)   # centroid ~7.1ft from entry, offset along the wall — within the 12ft default
     far_candidate = (2, 55, 5, 5)    # centroid ~25.7ft from entry — same open room, equally visible, too far
     assert prefer_fn(near_candidate) is True
     assert prefer_fn(far_candidate) is False, "a far-but-visible candidate should no longer satisfy prefer_fn"
 
 
-def test_fnb_heuristic_now_scores_by_route_to_foyer_and_auditorium():
+def test_box_office_heuristic_rejects_landing_directly_ahead_of_the_entry():
+    """Client decision, 2026-09-10 ("box office should not be directly in
+    front of entry, it should either be in left or right wall align"): a
+    candidate that straddles the entry's own straight-ahead line — the ray
+    perpendicular to the wall the entry sits on — must be rejected by
+    prefer_fn even when it's near and has a clear sightline, since standing
+    there would put Box Office directly in a customer's walking path rather
+    than flanking the door. An equally-near candidate offset along the same
+    wall (not straddling that line) must still be preferred."""
+    usable = _usable()
+    entry_point = (0, 30)  # on the x=0 wall of RECT_BOUNDARY; "into the room" is +x
+    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+        "BOX_OFFICE", entry_point, [], usable, usable, [], ["AUDITORIUM"], None
+    )
+    directly_ahead = (2, 27, 5, 5)  # y:[27,32] straddles the entry's own y=30 — blocks the straight-in path
+    flanking = (2, 33, 5, 5)        # y:[33,38] — offset along the wall, same distance class, doesn't block it
+    assert prefer_fn(directly_ahead) is False, "a candidate straddling the entry's straight-ahead line should be rejected"
+    assert prefer_fn(flanking) is True
+
+
+def test_fnb_heuristic_now_scores_by_route_to_passage_and_auditorium():
     """New this round: FNB used to carry only a sightline-from-entry
     prefer_fn, with no positional score_fn at all — any visible spot ranked
     the same as any other visible spot. "Conveniently located along the
     route to auditoriums" (team's own placement standards) needs a real
-    score, the exact same dual-distance-to-foyer-and-nearest-screen pattern
-    PASSAGE already uses."""
+    score, the exact same dual-distance-to-passage-and-nearest-screen
+    pattern FOYER already uses."""
     usable = _usable()
     entry_point = (0, 30)
     auditorium = layout_engine._rect(70, 0, 20, 40)
-    foyer = layout_engine._rect(40, 0, 10, 10)
+    passage = layout_engine._rect(40, 0, 10, 10)
     score_fn, prefer_fn = layout_engine._support_zone_heuristic(
-        "FNB", entry_point, [], usable, usable, [auditorium, foyer], ["AUDITORIUM", "FOYER"], foyer
+        "FNB", entry_point, [], usable, usable, [auditorium, passage], ["AUDITORIUM", "PASSAGE"], passage
     )
     assert prefer_fn is not None
-    assert score_fn is not None, "FNB should now also score candidates by distance to foyer + nearest auditorium"
-    near_route = (45, 15, 5, 5)      # close to both the foyer and the auditorium
+    assert score_fn is not None, "FNB should now also score candidates by distance to passage + nearest auditorium"
+    near_route = (45, 15, 5, 5)      # close to both the passage and the auditorium
     far_from_route = (0, 55, 5, 5)   # far corner, away from both
     assert score_fn(near_route) < score_fn(far_from_route)
 
@@ -616,7 +661,7 @@ def test_manager_room_heuristic_prefers_proximity_to_box_office():
     assert score_fn(near) < score_fn(far)
 
     # No Box Office placed/known yet — no preference at all, same
-    # None-tolerant fallback pattern foyer_rect already gets elsewhere.
+    # None-tolerant fallback pattern passage_rect already gets elsewhere.
     score_fn2, prefer_fn2 = layout_engine._support_zone_heuristic(
         "MANAGER_ROOM", None, [], usable, usable, [], [], None
     )
@@ -681,12 +726,15 @@ def test_projector_heuristic_prefers_touching_the_screen_wall_not_the_door_wall(
     just "any wall of the room.\""""
     usable = _usable()
     entry_point = (0, 30)  # entry is nearest the auditorium's min_x wall
-    auditorium = layout_engine._rect(20, 0, 30, 40)  # door_wall=min_x (x=20) -> screen_wall=max_x (x=50)
+    # 40ft wide (x) x 30ft deep (y) — wider than deep, so the room's real
+    # depth axis is x (see _screen_wall_for_rect's restrict_to_depth_axis)
+    # and screen_wall correctly lands on min_x/max_x, not min_y/max_y.
+    auditorium = layout_engine._rect(20, 0, 40, 30)  # door_wall=min_x (x=20) -> screen_wall=max_x (x=60)
     score_fn, prefer_fn = layout_engine._support_zone_heuristic(
         "PROJECTOR", entry_point, [], usable, usable, [auditorium], ["AUDITORIUM"], None
     )
     assert prefer_fn is not None
-    on_screen_wall = (50, 15, 3, 3)   # touches x=50, the real screen wall
+    on_screen_wall = (60, 15, 3, 3)   # touches x=60, the real screen wall
     on_door_wall = (17, 15, 3, 3)     # touches x=20, the door wall — must NOT count
     assert prefer_fn(on_screen_wall) is True
     assert prefer_fn(on_door_wall) is False
@@ -747,14 +795,24 @@ def test_placed_auditorium_uses_preset_seating_mix_not_a_hardcoded_default():
     SLIDER_SOFA regardless of preset — the real, measured defect this round
     fixes (a 35_SEAT-tier screen getting Sofa Slider counts instead of its
     own Premium Recliner mix undercounted real seats on an actual uploaded
-    file)."""
+    file). Checked against the matched preset's OWN real seating_mix from
+    the registry, not a fixed expected type — the exact preset/dimensions a
+    default (0, 0, 100, 60) placement produces is allowed to legitimately
+    shift with unrelated engine changes (e.g. which wall the screen lands
+    on doesn't change which preset matches), so what actually matters here
+    is "reflects the real preset," not "always resolves to this one preset
+    tier's mix.\""""
     usable = _usable()
     room, warning = layout_engine.place_single_zone(
         usable, usable, [], [], [], (0, 0, 100, 60), "AUDITORIUM", {}
     )
     assert room is not None, warning
-    assert room["seat_config"]["primary_seat_type_id"] in ("PREMIUM_RECLINER", "FRONT_LOUNGER")
-    assert room["seat_estimate"]["seat_breakdown"]["SOFA_SLIDER"] == 0 or room["seat_config"]["secondary_seat_type_id"] == "SLIDER_SOFA"
+    assert room["preset_id"] is not None, "test assumes a real SOP preset matches, not a custom-fit screen"
+    preset = next(p for p in layout_engine.rules_registry.auditorium_presets() if p["id"] == room["preset_id"])
+    assert room["seat_config"]["primary_seat_type_id"] in preset["seating_mix"], (
+        f"primary_seat_type_id {room['seat_config']['primary_seat_type_id']!r} is not in matched preset "
+        f"{preset['id']}'s own seating_mix {preset['seating_mix']} — looks hardcoded, not preset-driven"
+    )
 
 
 # ---------- custom-fit fallback when no preset fits (real-file gap-closure round) ----------
@@ -793,9 +851,9 @@ def test_custom_fit_screen_rejects_unrealistically_narrow_shape():
     produced a real, ~13-16ft-deep custom-fit "screen" no human would draw
     — a real, measured defect on a live project this round fixes. The 2,000
     sqft of real usable area doesn't vanish: with no screen placed, it
-    becomes real Foyer/circulation space instead (see
-    _place_support_zones_and_foyer / _build_foyer_room), never silently
-    lost the way it would have been before Foyer-as-remainder existed."""
+    becomes real Passage/circulation space instead (see
+    _place_support_zones_and_passage / _build_passage_room), never silently
+    lost the way it would have been before Passage-as-remainder existed."""
     boundary = [[0, 0], [20, 0], [20, 100], [0, 100], [0, 0]]
     usable = layout_engine.compute_usable_area(boundary, [])
     room, warning = layout_engine.place_single_zone(
@@ -918,7 +976,7 @@ def test_reserve_entry_vestibule_is_a_noop_without_a_marked_entry():
 def test_auto_layout_keeps_auditoriums_clear_of_the_marked_entry():
     """The real, live-project defect this exists to fix: a custom-fit
     screen's own wall landed 0.56ft from the marked entry point, leaving no
-    real Foyer space to walk into. No auditorium's own rectangle should
+    real Passage space to walk into. No auditorium's own rectangle should
     come closer than the real SOP passage-width clearance to the entry —
     guaranteed by geometry (_reserve_entry_vestibule), not just discouraged."""
     boundary = RECT_BOUNDARY
@@ -956,6 +1014,70 @@ def test_place_auditoriums_falls_back_without_vestibule_when_it_starves_all_plac
     )
     assert len(placed) == 1, f"expected the fallback to still place one screen, got {len(placed)}"
     assert any("SOP adjustment" in w for w in warnings), f"expected a disclosed SOP-adjustment warning, got {warnings}"
+
+
+def test_reserve_entry_vestibule_also_shrinks_usable_area_around_exit_points():
+    """Client decision, 2026-09-10 (Cinema_Layout_Notes.pdf groups "Entry &
+    Exit" together as both not being given proper space): a marked exit
+    point gets the same walkable-buffer treatment the entry already did —
+    an exit is often an auditorium's own fire-exit wall, but that wall
+    still needs an unobstructed few feet on the inside to actually reach
+    and open it."""
+    usable = _usable()
+    exit_pt = (100, 30)
+    reserved_usable, reserved_fallback = layout_engine._reserve_entry_vestibule(usable, usable, None, [exit_pt])
+    assert reserved_usable.area < usable.area
+    assert reserved_fallback.area < usable.area
+    from shapely.geometry import Point
+    assert not reserved_usable.contains(Point(exit_pt).buffer(1))
+    # A point well clear of the exit keeps its area untouched.
+    assert reserved_usable.contains(Point(50, 30))
+
+
+def test_reserve_entry_vestibule_combines_entry_and_multiple_exits_without_double_counting_overlap():
+    usable = _usable()
+    entry = (0, 30)
+    exits = [(100, 30), (100, 40)]  # close enough together that their disks overlap
+    entry_only, _ = layout_engine._reserve_entry_vestibule(usable, usable, entry, [])
+    both, _ = layout_engine._reserve_entry_vestibule(usable, usable, entry, exits)
+    assert both.area < entry_only.area, "marking exits on top of an existing entry should carve out more area, not less/same"
+    # Carved area is the union of the three disks, not a naive sum (which would double-count the overlap
+    # between the two nearby exit disks) — so it must be strictly less than three independent disks' worth.
+    clearance_ft = layout_engine.rules_registry.planning_norm("EGRESS_PASSAGE_MIN_WIDTH_FT") or 8.25
+    import math
+    one_disk_area = math.pi * clearance_ft ** 2
+    carved = usable.area - both.area
+    assert carved < 3 * one_disk_area
+
+
+def test_reserve_entry_vestibule_is_a_noop_without_entry_or_exits():
+    usable = _usable()
+    reserved_usable, reserved_fallback = layout_engine._reserve_entry_vestibule(usable, usable, None, [])
+    assert reserved_usable is usable
+    assert reserved_fallback is usable
+
+
+def test_auto_layout_keeps_auditoriums_clear_of_a_marked_exit():
+    """Same real defect class _reserve_entry_vestibule fixes for the entry
+    (a placed screen's wall landing inches from the marked point), now
+    checked for an exit with no entry marked at all."""
+    boundary = RECT_BOUNDARY
+    usable = layout_engine.compute_usable_area(boundary, [])
+    exit_pt = (0, 30)
+    candidate = layout_engine.generate_candidate(
+        usable, boundary, "MAX_SEATS_PER_SCREEN", {"max_auditoriums": 4, "exit_points_ft": [list(exit_pt)]}, []
+    )
+    clearance_ft = layout_engine.rules_registry.planning_norm("EGRESS_PASSAGE_MIN_WIDTH_FT") or 8.25
+    from shapely.geometry import Point
+    exit_point = Point(exit_pt)
+    for room in candidate["rooms"]:
+        if not room["room_type"].startswith("AUDITORIUM"):
+            continue
+        room_poly = layout_engine.poly_from_points(room["geometry_points_ft"])
+        assert room_poly.distance(exit_point) >= clearance_ft - 1e-6, (
+            f"{room['room_type']} sits {room_poly.distance(exit_point):.2f}ft from the marked exit, "
+            f"closer than the required {clearance_ft}ft clearance"
+        )
 
 
 # ---------- scan candidate coverage / narrow-screen SOP adjustment (real-file remediation round) ----------
@@ -1204,11 +1326,11 @@ def test_scan_place_ranked_offers_a_candidate_flush_against_a_column_face():
 # ---------- no auto-generated doors (architect draws every door by hand) ----------
 
 def test_generate_candidate_strips_support_zone_doors_but_keeps_auditorium_doors():
-    """Support zones (Foyer/F&B/Washroom/Box Office/etc.) still never arrive
+    """Support zones (Passage/F&B/Washroom/Box Office/etc.) still never arrive
     with a door glyph the architect never asked for — those are added by
     hand afterward via the edit canvas's own "+ Door" tool, since their
     computed door position is only ever a placement-pipeline-internal proxy
-    (connectivity gating, Foyer's door-touch tiebreak — see
+    (connectivity gating, Passage's door-touch tiebreak — see
     _strip_auto_generated_doors' own docstring). AUDITORIUM rooms are the
     deliberate exception this round adds: a screen's entry/exit pair is
     placed by a real, documented rule (_doors_for_screen_wall), so it's kept
@@ -1515,7 +1637,7 @@ def test_swati_trinity_tight_column_floor_uses_disclosed_sliver_not_silent_starv
     top_k/mirroring regression above) that only 2 screens fit via honest
     placement — this is real geometry, not an algorithm gap. The second
     screen falls back to a disclosed non-standard sliver rather than being
-    silently dropped or silently left as unlabeled Foyer slack. This test
+    silently dropped or silently left as unlabeled Passage slack. This test
     guards the disclosure itself: if a future change makes this floor
     plate's fallback silent (no warning, or the note goes missing off the
     room), that's a real regression in honesty even though the screen count
@@ -1548,11 +1670,11 @@ def test_dhule_dense_obstacle_floor_places_real_presets_with_no_collisions():
     floor tested: 1,033 obstacles (372 columns, 47 walls, 315 furniture,
     271 unclassified, 28 staircases) across a confirmed 125,353 sqft
     boundary. The stored layout_current.json for this project was missing
-    all 4 support zones and had a suspiciously small Foyer (2,100 sqft on a
+    all 4 support zones and had a suspiciously small Passage (2,100 sqft on a
     125k sqft floor) — turned out to be a stale, manually-edited save from
     testing, not the algorithm's real output (same pattern as the Swati
     Trinity fixture above). A fresh run produces 4 real-preset screens plus
-    all 4 support zones plus a correctly enormous leftover Foyer, under
+    all 4 support zones plus a correctly enormous leftover Passage, under
     both strategies, with zero geometric overlap between any placed screen
     and any real blocking obstacle (wall/staircase/unclassified — verified
     directly with shapely, not assumed)."""

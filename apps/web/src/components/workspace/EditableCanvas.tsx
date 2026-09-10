@@ -50,6 +50,16 @@ interface EditableCanvasProps {
    * component" affordance Add Zone already offers for whole rooms. */
   addDoorMode?: boolean;
   onAddDoor?: (door: RoomDoor) => void;
+  /** Click an existing door on the SELECTED room to remove it — mirrors
+   * addDoorMode's click-to-place affordance in reverse. Real gap this
+   * fixes: doors could be added one at a time via addDoorMode but never
+   * individually removed (only by deleting the whole room), for every
+   * room type, not just auditoriums — a mis-clicked or no-longer-wanted
+   * door had no way back short of undo. Passed room_id (not assumed to be
+   * the selected room, even though it always is today) and the door's own
+   * index within that room's doors array, the same identity persistLayout
+   * callers already use to splice a door list. */
+  onRemoveDoor?: (roomId: string, doorIndex: number) => void;
   /** When true (only meaningful with an AUDITORIUM selected), the next
    * click anywhere on the canvas snaps to the nearest wall of the SELECTED
    * room and reassigns its screen to that wall — same one-shot,
@@ -72,14 +82,16 @@ const ROOM_TYPE_FILL: Record<string, string> = {
   BOH: '#dcdce2',
   ELECTRICAL: '#f0c9a0',
   PROJECTOR: '#b8c4d9',
-  PASSAGE: '#e8e4d8',
+  STORE_ROOM: '#e0d4c3',
+  FOYER: '#e8e4d8',
 };
 const ROOM_NEUTRAL = 'var(--text-secondary)';
 
 // Just above the largest normal screen's own label size (a big auditorium's
 // min(w,h) rarely exceeds ~30ft, giving fontSize ~2.7 under the 0.09 scale
-// factor below) — caps a large non-rectangular room's label (Foyer) from
-// dwarfing the rooms underneath it, without shrinking any ordinary room.
+// factor below) — caps a large non-rectangular room's label (Passage, the
+// derived leftover-remainder room) from dwarfing the rooms underneath it,
+// without shrinking any ordinary room.
 const MAX_LABEL_FONT_FT = 3;
 
 const HANDLE_SCREEN_PX = 9;       // visible handle size, constant on screen regardless of zoom
@@ -236,7 +248,7 @@ const HANDLE_DEFS: { id: HandleId; cursor: string; fx: number; fy: number }[] = 
 export const EditableCanvas: React.FC<EditableCanvasProps> = ({
   boundaryPointsFt, obstacles, rooms, selectedRoomId, onSelectRoom, onLiveChange, onCommit, snapToGridFt,
   rawGeometry, showCadLinework = true, fullRawGeometry, showFullFloor = true, showSeatRows = false, drawMode = false, onDrawComplete, onDeleteSelected,
-  entryPointFt, exitPointsFt, addDoorMode = false, onAddDoor, setScreenWallMode = false, onSetScreenWall
+  entryPointFt, exitPointsFt, addDoorMode = false, onAddDoor, onRemoveDoor, setScreenWallMode = false, onSetScreenWall
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragMode>(null);
@@ -688,51 +700,52 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
         )}
 
         {liveRooms.map(room => {
-          const isFoyer = room.room_type === 'FOYER';
-          const isSelected = !isFoyer && room.room_id === selectedRoomId;
-          const isHovered = !isFoyer && room.room_id === hoveredRoomId;
+          const isPassage = room.room_type === 'PASSAGE';
+          const isSelected = !isPassage && room.room_id === selectedRoomId;
+          const isHovered = !isPassage && room.room_id === hoveredRoomId;
           const isAuditorium = room.room_type.startsWith('AUDITORIUM');
           // Auditoriums get a warm, on-brand tint (they're the room every
           // reviewer looks at first); every other support zone gets the
           // same real per-type color a printed sheet and the reference
           // drawing use (see ROOM_TYPE_FILL), so identity reads from color
-          // at a glance the same way it does on paper. Foyer gets no fill
-          // at all — a real Connplex reference drawing never renders
-          // circulation as a colored room, only as plain floor space (its
-          // area still shows up in the Area & Seat Chart) — so it reads as
-          // background, not a room competing for attention with the ones
-          // actually being designed.
-          const roomFill = isFoyer ? 'none' : isAuditorium ? '#d9d2f0' : (ROOM_TYPE_FILL[room.room_type] ?? ROOM_NEUTRAL);
+          // at a glance the same way it does on paper. Passage (the derived
+          // leftover-remainder room — called Foyer before the 2026-09-10
+          // terminology swap) gets no fill at all — a real Connplex
+          // reference drawing never renders circulation as a colored room,
+          // only as plain floor space (its area still shows up in the Area
+          // & Seat Chart) — so it reads as background, not a room competing
+          // for attention with the ones actually being designed.
+          const roomFill = isPassage ? 'none' : isAuditorium ? '#d9d2f0' : (ROOM_TYPE_FILL[room.room_type] ?? ROOM_NEUTRAL);
           const b = polygonBounds(room.geometry_points_ft);
           const w = b.maxX - b.minX, h = b.maxY - b.minY;
           // Capped — an uncapped size scaled a large, non-rectangular room
-          // (Foyer, computed as the real leftover remainder) into a label
-          // that dwarfed and hid every room underneath it. MAX_LABEL_FONT_FT
-          // sits just above the largest normal screen's own size so ordinary
-          // rooms are unaffected. Foyer's own label is further scaled down —
-          // it's a background label, not a named component.
-          const fontSize = Math.min(Math.max(Math.min(w, h) * 0.09, 0.6), MAX_LABEL_FONT_FT) * (isFoyer ? 0.55 : 1);
+          // (the derived Passage remainder) into a label that dwarfed and
+          // hid every room underneath it. MAX_LABEL_FONT_FT sits just above
+          // the largest normal screen's own size so ordinary rooms are
+          // unaffected. Passage's own label is further scaled down — it's a
+          // background label, not a named component.
+          const fontSize = Math.min(Math.max(Math.min(w, h) * 0.09, 0.6), MAX_LABEL_FONT_FT) * (isPassage ? 0.55 : 1);
           // Guaranteed inside the room's true polygon (server-computed via
           // shapely representative_point()) — a bbox-center label lands
-          // outside a concave shape like Foyer's own remainder, which is why
-          // its area text used to float disconnected over unrelated rooms.
-          // Falls back to bbox center for any older cached layout that
-          // doesn't carry this field yet.
+          // outside a concave shape like Passage's own remainder, which is
+          // why its area text used to float disconnected over unrelated
+          // rooms. Falls back to bbox center for any older cached layout
+          // that doesn't carry this field yet.
           const [lx, ly] = room.label_point_ft ?? [(b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2];
           const handleVisR = ftPerHandlePx(HANDLE_SCREEN_PX) / 2;
           const handleHitR = ftPerHandlePx(HANDLE_HIT_SCREEN_PX) / 2;
           return (
             <g
               key={room.room_id}
-              onPointerDown={isFoyer ? undefined : (e) => handlePointerDown(e, room, 'move')}
-              onPointerEnter={isFoyer ? undefined : () => setHoveredRoomId(room.room_id)}
-              onPointerLeave={isFoyer ? undefined : () => setHoveredRoomId(null)}
-              // Foyer is never draggable/resizable/selectable — it's always
-              // freshly recomputed server-side as the real leftover
+              onPointerDown={isPassage ? undefined : (e) => handlePointerDown(e, room, 'move')}
+              onPointerEnter={isPassage ? undefined : () => setHoveredRoomId(room.room_id)}
+              onPointerLeave={isPassage ? undefined : () => setHoveredRoomId(null)}
+              // Passage is never draggable/resizable/selectable — it's
+              // always freshly recomputed server-side as the real leftover
               // remainder on the next save regardless of what the UI does
-              // with it (see main.py's _replace_foyer_with_derived), so
+              // with it (see main.py's _replace_passage_with_derived), so
               // offering to edit it directly would be misleading.
-              style={{ cursor: isFoyer ? 'default' : 'move', pointerEvents: isFoyer ? 'none' : 'auto' }}
+              style={{ cursor: isPassage ? 'default' : 'move', pointerEvents: isPassage ? 'none' : 'auto' }}
             >
               {isSelected && (
                 <polygon
@@ -751,20 +764,20 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                 // name/area label and reading as if editing had corrupted
                 // it. A solid fill (matching the reference sheet's own
                 // solid room colors) hides that overlap entirely.
-                fillOpacity={isFoyer ? 0 : isSelected ? 0.95 : isHovered ? 0.9 : 0.85}
+                fillOpacity={isPassage ? 0 : isSelected ? 0.95 : isHovered ? 0.9 : 0.85}
                 // A dark, neutral outline — matches export_pdf.py's own
                 // black room boundaries (a real CAD sheet outlines every
                 // room in black regardless of its fill color) and stays a
                 // clearly visible edge between two adjacent same-colored
                 // rooms (e.g. two auditoriums sharing a wall), which a
-                // same-as-fill stroke would blend into. Foyer keeps its
+                // same-as-fill stroke would blend into. Passage keeps its
                 // own light dashed outline; a light border, not a solid
                 // dark one — enough to see where circulation space is
                 // without it competing with the real, named components.
-                stroke={isFoyer ? 'var(--border-color)' : isSelected ? 'var(--brand-strong)' : 'var(--text-primary)'}
-                strokeWidth={isFoyer ? ftPerHandlePx(0.75) : isSelected ? ftPerHandlePx(1.5) : ftPerHandlePx(1)}
-                strokeDasharray={isFoyer ? `${ftPerHandlePx(5)} ${ftPerHandlePx(4)}` : undefined}
-                filter={isFoyer ? undefined : "url(#roomShadow)"}
+                stroke={isPassage ? 'var(--border-color)' : isSelected ? 'var(--brand-strong)' : 'var(--text-primary)'}
+                strokeWidth={isPassage ? ftPerHandlePx(0.75) : isSelected ? ftPerHandlePx(1.5) : ftPerHandlePx(1)}
+                strokeDasharray={isPassage ? `${ftPerHandlePx(5)} ${ftPerHandlePx(4)}` : undefined}
+                filter={isPassage ? undefined : "url(#roomShadow)"}
                 style={{ transition: 'fill-opacity 0.12s ease-out, stroke-width 0.12s ease-out' }}
               />
               {isAuditorium && (() => {
@@ -851,20 +864,39 @@ export const EditableCanvas: React.FC<EditableCanvasProps> = ({
                 })()
               )}
               {room.doors && room.doors.length > 0 && (
-                <g pointerEvents="none">
+                <g>
                   {room.doors.map((door, i) => {
                     const { p1, leafEnd } = doorGlyphPoints(room, door);
+                    // Removable only on the currently selected room — matches
+                    // addDoorMode's own "only meaningful with a room selected"
+                    // scoping, and avoids every room's doors reacting to a
+                    // click at once.
+                    const canRemove = isSelected && !!onRemoveDoor;
+                    const midX = (p1[0] + leafEnd[0]) / 2, midY = (p1[1] + leafEnd[1]) / 2;
                     return (
-                      <line
-                        key={i}
-                        x1={p1[0]} y1={p1[1]} x2={leafEnd[0]} y2={leafEnd[1]}
-                        stroke="var(--text-primary)" strokeWidth={ftPerHandlePx(1.5)} strokeLinecap="round"
-                      />
+                      <g key={i}>
+                        <line
+                          x1={p1[0]} y1={p1[1]} x2={leafEnd[0]} y2={leafEnd[1]}
+                          stroke="var(--text-primary)" strokeWidth={ftPerHandlePx(1.5)} strokeLinecap="round"
+                          pointerEvents="none"
+                        />
+                        {canRemove && (
+                          <circle
+                            cx={midX} cy={midY} r={ftPerHandlePx(HANDLE_HIT_SCREEN_PX) / 2}
+                            fill="var(--danger)" fillOpacity={0.001} stroke="var(--danger)" strokeOpacity={0.55}
+                            strokeWidth={ftPerHandlePx(1)} strokeDasharray={`${ftPerHandlePx(2)} ${ftPerHandlePx(2)}`}
+                            style={{ cursor: 'pointer' }}
+                            onPointerDown={(e) => { e.stopPropagation(); onRemoveDoor!(room.room_id, i); }}
+                          >
+                            <title>Click to remove this door</title>
+                          </circle>
+                        )}
+                      </g>
                     );
                   })}
                 </g>
               )}
-              <text x={lx} y={ly} textAnchor="middle" fontSize={fontSize} fontWeight={isFoyer ? 400 : 600} fill={isFoyer ? 'var(--text-tertiary)' : 'var(--text-primary)'} style={{ pointerEvents: 'none', userSelect: 'none' }}>
+              <text x={lx} y={ly} textAnchor="middle" fontSize={fontSize} fontWeight={isPassage ? 400 : 600} fill={isPassage ? 'var(--text-tertiary)' : 'var(--text-primary)'} style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {room.display_name}
               </text>
               <text x={lx} y={ly + fontSize * 1.3} textAnchor="middle" fontSize={fontSize * 0.8} fill="var(--text-tertiary)" style={{ pointerEvents: 'none', userSelect: 'none' }}>

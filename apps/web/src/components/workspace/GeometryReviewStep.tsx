@@ -3,7 +3,7 @@ import { GeometryResult, GeometryRegion } from '../../types/live';
 import { EditableCanvas } from './EditableCanvas';
 import * as engine from '../../services/zoningEngineApi';
 import { ArrowLeftIcon, ArrowRightIcon, RefreshIcon, WarningIcon, CheckIcon } from '../Icons';
-import { floorLabelFor } from '../../utils/floorLabel';
+import { floorLabelFor, bestMatchRegionId } from '../../utils/floorLabel';
 
 interface GeometryReviewStepProps {
   projectId: string;
@@ -14,6 +14,12 @@ interface GeometryReviewStepProps {
    * an auto-detected region picked directly, or one just created manually).
    * Falls back to the first region when not given. */
   initialRegionId?: string;
+  /** The project's own intake-form Carpet Area / Offered Floor — used only
+   * to mark the best-matching region in the switcher below when more than
+   * one exists (see bestMatchRegionId in utils/floorLabel.ts); never
+   * auto-selects one. */
+  carpetAreaSqft?: number | null;
+  floorShopHint?: string | null;
 }
 
 const CONF_COLOR: Record<string, string> = { high: 'var(--success)', medium: 'var(--warning)', low: 'var(--danger)' };
@@ -51,7 +57,7 @@ function boundingBox(points: number[][]) {
   return { min_x: Math.min(...xs), min_y: Math.min(...ys), max_x: Math.max(...xs), max_y: Math.max(...ys) };
 }
 
-export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectId, geometry, onConfirmed, onStartOver, initialRegionId }) => {
+export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectId, geometry, onConfirmed, onStartOver, initialRegionId, carpetAreaSqft, floorShopHint }) => {
   const [regions, setRegions] = useState<GeometryRegion[]>(() => geometry.regions.map(preConfirmObstacles));
   const [activeRegionId, setActiveRegionId] = useState<string>(initialRegionId || geometry.regions[0]?.region_id || '');
   const [showCadLinework, setShowCadLinework] = useState(true);
@@ -248,6 +254,7 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
   // search than a native dropdown). The button row is kept for the common
   // small-count case since it's a nicer, one-click switcher when there are
   // only a few.
+  const bestMatchId = bestMatchRegionId(regions, carpetAreaSqft, floorShopHint);
   const regionSwitcher = regions.length > 1 && (
     regions.length > 8 ? (
       <select
@@ -260,9 +267,10 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
       >
         {regions.map((r, i) => {
           const floorLabel = floorLabelFor(r);
+          const isBestMatch = r.region_id === bestMatchId;
           return (
             <option key={r.region_id} value={r.region_id}>
-              Region {i + 1}{floorLabel ? ` (${floorLabel})` : ''} · {r.boundary.area_sqft.toLocaleString()} sqft
+              Region {i + 1}{floorLabel ? ` (${floorLabel})` : ''} · {r.boundary.area_sqft.toLocaleString()} sqft{isBestMatch ? ' — best match for your form' : ''}
             </option>
           );
         })}
@@ -271,14 +279,16 @@ export const GeometryReviewStep: React.FC<GeometryReviewStepProps> = ({ projectI
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', flex: '0 0 auto' }}>
         {regions.map(r => {
           const floorLabel = floorLabelFor(r);
+          const isBestMatch = r.region_id === bestMatchId;
           return (
             <button
               key={r.region_id}
               onClick={() => setActiveRegionId(r.region_id)}
               className={r.region_id === activeRegionId ? 'btn btn-primary' : 'btn btn-secondary'}
-              style={{ fontSize: '0.72rem', padding: '4px 10px' }}
+              style={{ fontSize: '0.72rem', padding: '4px 10px', borderColor: isBestMatch && r.region_id !== activeRegionId ? 'var(--success)' : undefined }}
+              title={isBestMatch ? "This region's area (and floor label, if detected) is the closest match to your intake form's Carpet Area / Offered Floor." : undefined}
             >
-              Region {regions.indexOf(r) + 1}{floorLabel ? ` (${floorLabel})` : ''} · {r.boundary.area_sqft.toLocaleString()} sqft
+              Region {regions.indexOf(r) + 1}{floorLabel ? ` (${floorLabel})` : ''} · {r.boundary.area_sqft.toLocaleString()} sqft{isBestMatch ? ' ★' : ''}
             </button>
           );
         })}

@@ -109,6 +109,39 @@ def search_labels(full_raw_geometry: dict, query: str) -> list:
     return matches
 
 
+def search_by_area(full_raw_geometry: dict, target_area_sqft: float, tolerance_fraction: float = None) -> list:
+    """Given the project's own stated intake-form Carpet Area, proactively
+    finds which closed shape(s) already in the file are close to that real
+    figure — the salesperson doesn't have to already know which shape is
+    the right one; this surfaces it the moment the file is uploaded. Same
+    "form drives boundary detection" principle cad_extraction._form_match_info
+    already applies to the automatic region-candidate pipeline, just over
+    Clean CAD's much broader "any closed shape in the file" pool instead of
+    pre-ranked region candidates. Sorted closest-match-first. Purely a
+    suggestion — never auto-selects anything, the same as everywhere else
+    in this app uncertain detection stays proposed until a human clicks."""
+    if not target_area_sqft or target_area_sqft <= 0:
+        return []
+    tolerance = tolerance_fraction if tolerance_fraction is not None else cad_extraction.FORM_MATCH_AREA_TOLERANCE_FRACTION
+
+    matches = []
+    for s in full_raw_geometry.get("closed_shapes", []):
+        area = s["area_sqft"]
+        if area <= 0:
+            continue
+        rel_error = abs(area - target_area_sqft) / target_area_sqft
+        if rel_error > tolerance:
+            continue
+        matches.append({
+            "shape_handle": s["handle"],
+            "shape_area_sqft": round(area, 2),
+            "shape_bounding_box_ft": _bbox_of(s["points_ft"]),
+            "rel_error_pct": round(rel_error * 100, 1),
+        })
+    matches.sort(key=lambda m: m["rel_error_pct"])
+    return matches
+
+
 def build_clean_regions(full_raw_geometry: dict, shape_handles: list) -> list:
     """One region per selected closed-shape handle, via the exact same
     build_manual_region() an architect's own "click a shape" tool calls —
@@ -148,12 +181,42 @@ def partition_kept(region: dict) -> dict:
     return {"kept": kept, "dropped": dropped}
 
 
-def preview_summary(regions: list) -> list:
+def _carpet_area_check(region: dict, target_area_sqft, label_hint):
+    """Clean CAD's own honest-in-both-directions check, built on
+    cad_extraction._form_match_info: that function is deliberately silent
+    on a mismatch (correct when ranking many automatic candidates — see its
+    own docstring), but here the user has already committed to ONE shape,
+    so a mismatch is exactly the signal worth surfacing, not suppressing.
+    Returns None when no target was supplied — nothing to validate
+    against, not a fabricated warning."""
+    if not target_area_sqft or target_area_sqft <= 0:
+        return None
+    area = region["boundary"]["area_sqft"]
+    is_match, note = cad_extraction._form_match_info(
+        area, region["text_labels"], target_area_sqft, label_hint
+    )
+    if is_match:
+        return {"matches": True, "note": note}
+    rel_error = abs(area - target_area_sqft) / target_area_sqft
+    return {
+        "matches": False,
+        "note": (
+            f"This boundary is {rel_error * 100:.0f}% off your stated carpet area "
+            f"({target_area_sqft:,.0f} sqft) — double-check this is the right selection."
+        ),
+    }
+
+
+def preview_summary(regions: list, target_area_sqft: float = None, label_hint: str = None) -> list:
     """Per-region kept/dropped counts for a before/after readout on the
     selection screen — read-only, nothing here mutates a region. Kept
     deliberately simple (counts by classification, not a per-item
     confirm/ignore list like GeometryReviewStep) since this stage's audience
-    is a salesperson cleaning a file, not an architect reviewing one."""
+    is a salesperson cleaning a file, not an architect reviewing one.
+
+    target_area_sqft/label_hint (both default None, so every existing
+    caller is unaffected) are the project's own intake-form Carpet Area /
+    Floor-Shop-No, when available — see _carpet_area_check."""
     summary = []
     for region in regions:
         split = partition_kept(region)
@@ -166,11 +229,18 @@ def preview_summary(regions: list) -> list:
             "region_id": region["region_id"],
             "source_handle": region["boundary"]["source_handle"],
             "boundary_area_sqft": region["boundary"]["area_sqft"],
+            # Same real, already-computed figure as boundary_area_sqft above —
+            # deliberately re-exposed under Connplex's own business term (see
+            # this feature's plan doc for why this isn't a new "minus walls"
+            # computation: no sourced formula for that exists anywhere in the
+            # registry/SOP extract).
+            "net_usage_area_sqft": region["boundary"]["area_sqft"],
             "boundary_points_ft": region["boundary"]["points_ft"],
             "kept_count": len(split["kept"]),
             "dropped_count": len(split["dropped"]),
             "kept_by_classification": kept_by_classification,
             "dropped_by_classification": dropped_by_classification,
+            "carpet_area_check": _carpet_area_check(region, target_area_sqft, label_hint),
         })
     return summary
 

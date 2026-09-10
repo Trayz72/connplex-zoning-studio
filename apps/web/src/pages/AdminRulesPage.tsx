@@ -21,7 +21,7 @@ const PK_FIELD: Record<RulesCategory, string> = {
 const SUMMARY_FIELDS: Record<RulesCategory, string[]> = {
   seat_types: ['name', 'category', 'width_in_before_slide'],
   auditorium_presets: ['name', 'target_seats', 'min_area_sqft'],
-  franchise_tiers: ['name', 'foyer_to_screen_ratio'],
+  franchise_tiers: ['name', 'passage_to_screen_ratio'],
   planning_norms: ['value', 'unit', 'description'],
   viability_rules: ['metric', 'operator', 'threshold', 'severity']
 };

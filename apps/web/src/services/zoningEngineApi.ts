@@ -168,15 +168,29 @@ export interface CleanLabelMatch {
   shape_bounding_box_ft: { min_x: number; min_y: number; max_x: number; max_y: number } | null;
 }
 
+/** Whether a selected boundary's real computed area matches the project's
+ * own stated intake-form Carpet Area (see cad_cleaner._carpet_area_check) —
+ * null on CleanRegionPreview when no carpet area was declared at all
+ * (nothing to validate against, not a fabricated warning). Unlike
+ * BoundaryStudio's automatic-ranking form_match (silent on a mismatch),
+ * this reports honestly in both directions, since Clean CAD's selection is
+ * one deliberate choice, not a ranked list of many candidates. */
+export interface CleanCarpetAreaCheck {
+  matches: boolean;
+  note: string;
+}
+
 export interface CleanRegionPreview {
   region_id: string;
   source_handle: string;
   boundary_area_sqft: number;
+  net_usage_area_sqft: number;
   boundary_points_ft: number[][];
   kept_count: number;
   dropped_count: number;
   kept_by_classification: Record<string, number>;
   dropped_by_classification: Record<string, number>;
+  carpet_area_check: CleanCarpetAreaCheck | null;
 }
 
 /** Form-based boundary selection for the Clean CAD stage: finds every text
@@ -189,11 +203,35 @@ export async function searchCleanLabel(projectId: string, query: string): Promis
   return data.matches;
 }
 
+export interface CleanAreaMatch {
+  shape_handle: string;
+  shape_area_sqft: number;
+  shape_bounding_box_ft: { min_x: number; min_y: number; max_x: number; max_y: number };
+  rel_error_pct: number;
+}
+
+/** Proactive boundary suggestion, driven by the project's own intake
+ * Carpet Area — runs automatically on Clean CAD load (see CleaningStudio.tsx),
+ * not triggered by a manual search like searchCleanLabel above. */
+export async function searchCleanArea(projectId: string, targetAreaSqft: number): Promise<CleanAreaMatch[]> {
+  const data = await asJson<{ matches: CleanAreaMatch[] }>(await fetch(`${BASE}/${projectId}/clean/search-area`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target_area_sqft: targetAreaSqft })
+  }));
+  return data.matches;
+}
+
 /** Live before/after readout for one or more selected closed shapes
- * (need not be adjacent/connected) — read-only, doesn't touch geometry.json. */
-export async function previewClean(projectId: string, shapeHandles: string[]): Promise<CleanRegionPreview[]> {
+ * (need not be adjacent/connected) — read-only, doesn't touch geometry.json.
+ * `hints` (the project's own intake Carpet Area / Floor-Shop-No, when
+ * available) drives the Net Usage Area validation on each returned region. */
+export async function previewClean(projectId: string, shapeHandles: string[], hints?: BoundaryFormHints): Promise<CleanRegionPreview[]> {
   const data = await asJson<{ regions: CleanRegionPreview[] }>(await fetch(`${BASE}/${projectId}/clean/preview`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ shape_handles: shapeHandles })
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      shape_handles: shapeHandles,
+      target_area_sqft: hints?.targetAreaSqft ?? undefined,
+      label_hint: hints?.labelHint ?? undefined,
+    })
   }));
   return data.regions;
 }
@@ -292,7 +330,7 @@ export async function updateLayout(projectId: string, layout: Pick<EditableLayou
   }));
 }
 
-/** Places one new room (AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | BOH | PASSAGE)
+/** Places one new room (AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | MANAGER_ROOM | BOH | ELECTRICAL | PROJECTOR | STORE_ROOM)
  * into the current layout at a real, collision-free position the backend
  * finds via the same entry-aware scan-and-fit machinery auto-layout itself
  * uses — never a client-guessed corner. Throws a plain Error (its `message`
