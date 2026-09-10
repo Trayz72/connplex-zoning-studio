@@ -54,6 +54,9 @@ ROOM_SHORT_LABEL = {
     "BOH": "BOH",
     "FNB": "F&B",
     "BOX_OFFICE": "BOX OFFICE",
+    "MANAGER_ROOM": "MANAGER",
+    "ELECTRICAL": "ELEC.",
+    "PROJECTOR": "PROJ.",
 }
 
 ROOM_FILL = {
@@ -62,7 +65,10 @@ ROOM_FILL = {
     "FNB": HexColor("#f5c6c6"),         # salmon/pink — matches the reference's own F&B fill
     "WASHROOM": HexColor("#c9e0f5"),    # blue — matches the reference's own Washroom fill
     "BOX_OFFICE": HexColor("#f5e6a8"),  # tan/yellow — matches the reference's own Box Office fill
+    "MANAGER_ROOM": HexColor("#c5e8e0"),  # teal — distinct from every color above
     "BOH": HexColor("#dcdce2"),         # slate
+    "ELECTRICAL": HexColor("#f0c9a0"),  # warm orange — hazard-adjacent without being alarm-red, distinct from FNB's salmon
+    "PROJECTOR": HexColor("#b8c4d9"),   # steel/slate blue — a technical room, distinct from BOH's neutral gray and WASHROOM's lighter blue
     "PASSAGE": HexColor("#e8e4d8"),     # warm gray-beige — distinct from the BOH slate and the plain #eeeeee fallback
 }
 

@@ -4,6 +4,7 @@ behaviors this session's work depends on (screens-only auto-layout,
 zero-gap screen adjacency, place_single_zone's collision-safety and
 division-by-zero guard) so they can't silently regress."""
 import layout_engine
+import seat_engine
 from shapely.geometry import Polygon
 from fixtures.dhule_real_building import DHULE_BOUNDARY_FT, DHULE_OBSTACLES
 
@@ -26,15 +27,23 @@ def test_generate_candidates_returns_two_strategies():
 
 def test_auto_layout_places_real_support_zone_geometry_not_just_a_number():
     """This round's redesign: generate_candidate now places screens first,
-    then Box Office/F&B/Washroom/BOH with real geometry (not just an
-    aggregate circulation_area_sqft number), then Foyer as the true
+    then Box Office/Manager Room/F&B/Washroom/BOH with real geometry (not
+    just an aggregate circulation_area_sqft number), then Foyer as the true
     leftover remainder. PASSAGE stays auto-layout-excluded (Foyer now
     serves its old connective purpose) — it's still available via manual
-    Add Zone (place_single_zone)."""
-    for candidate in layout_engine.generate_candidates(RECT_BOUNDARY, [], {}):
+    Add Zone (place_single_zone).
+
+    Uses its own larger boundary, not the shared RECT_BOUNDARY other tests
+    in this file rely on for their own (different) assertions — WASHROOM's
+    real minimum is now 450 sqft (the team's own placement standards, up
+    from the old 60 sqft placeholder), which the compact 100x60 RECT_BOUNDARY
+    can no longer guarantee room for alongside 2 auditoriums and every other
+    standard support zone."""
+    large_boundary = [[0, 0], [160, 0], [160, 90], [0, 90], [0, 0]]
+    for candidate in layout_engine.generate_candidates(large_boundary, [], {}):
         room_types = {r["room_type"] for r in candidate["rooms"]}
-        assert any(rt.startswith("AUDITORIUM") for rt in room_types), "expected at least one auditorium to fit in a 100x60 rect"
-        for support_type in ("BOX_OFFICE", "FNB", "WASHROOM", "BOH"):
+        assert any(rt.startswith("AUDITORIUM") for rt in room_types), "expected at least one auditorium to fit in a 160x90 rect"
+        for support_type in ("BOX_OFFICE", "MANAGER_ROOM", "FNB", "WASHROOM", "BOH"):
             assert support_type in room_types, f"expected auto-layout to place a real {support_type}, got room types {room_types}"
         assert "PASSAGE" not in room_types, "PASSAGE should stay excluded from auto-layout — Foyer is now the connective remainder"
         for room in candidate["rooms"]:
@@ -160,21 +169,33 @@ def test_screen_wall_derived_from_entry_point_opposite_the_near_wall():
     assert room["screen_wall"] == "max_x", "screen should be on the FAR wall from the entry, not the near one"
 
 
-def test_generated_auditorium_never_carries_an_auto_generated_door():
-    """No auto-placed screen — via place_single_zone (manual Add Zone) or
-    the full auto-layout pipeline — should ever arrive with a door glyph
-    the architect never asked for. Doors are drawn by hand afterward
-    (EditableCanvas's own "+ Door" tool); see
-    layout_engine._strip_auto_generated_doors' own docstring for why door
-    POSITION is still computed and used internally (connectivity/Foyer
-    door-touch logic) even though it's never exposed on the room itself."""
+def test_generated_auditorium_carries_its_real_computed_doors():
+    """A manually-placed screen (place_single_zone / Add Zone) keeps the
+    real entry/exit doors _doors_for_screen_wall computes for it — on the
+    door wall (opposite the screen wall, nearest the marked entry), matching
+    every real reference floor plan. This reverses this project's earlier
+    'strip every auto-placed door' behavior for AUDITORIUM rooms specifically
+    (see _strip_auto_generated_doors' own docstring, and
+    test_generate_candidate_never_auto_generates_doors_on_any_room below for
+    the equivalent full-pipeline case) — a screen's doors are placed by a
+    real, documented rule, not a placement-pipeline-internal proxy, so the
+    architect gets them as an editable starting point instead of redrawing
+    from scratch."""
     usable = _usable()
     requirements = {"entry_point_ft": [0, 30]}
     room, warning = layout_engine.place_single_zone(
         usable, usable, [], [], [], (0, 0, 100, 60), "AUDITORIUM", requirements
     )
     assert room is not None, warning
-    assert room["doors"] == []
+    assert room["screen_wall"] == "max_x"
+    door_wall = layout_engine._OPPOSITE_WALL[room["screen_wall"]]
+    assert door_wall == "min_x"
+    door_width_ft = layout_engine.rules_registry.planning_norm("AUDITORIUM_DOOR_WIDTH_FT") or 3.5
+    expected_doors = layout_engine._doors_for_screen_wall(room["width_ft"], room["depth_ft"], door_wall, door_width_ft)
+    assert room["doors"] == expected_doors
+    assert len(room["doors"]) == 2
+    assert {d["kind"] for d in room["doors"]} == {"ENTRY", "EXIT"}
+    assert all(d["wall"] == door_wall for d in room["doors"])
 
 
 def test_screen_wall_defaults_to_min_y_without_entry_point():
@@ -187,6 +208,126 @@ def test_screen_wall_defaults_to_min_y_without_entry_point():
     )
     assert room is not None, warning
     assert room["screen_wall"] == "min_y"
+
+
+# ---------- _seat_axis_dims: seat math must follow the real screen wall ----------
+
+def test_seat_axis_dims_swaps_for_a_vertical_screen_wall():
+    """seat_engine.estimate_seats always treats its first argument as
+    screen-parallel (the row's width) — correct by construction only when
+    screen_wall is min_y/max_y, since that's the only case where the room's
+    own w matches that axis. A min_x/max_x screen wall means the room was
+    rotated 90 degrees relative to that assumption; _seat_axis_dims must
+    swap w/h in that case, and leave them alone in every other."""
+    assert layout_engine._seat_axis_dims(40, 70, "min_x") == (70, 40)
+    assert layout_engine._seat_axis_dims(40, 70, "max_x") == (70, 40)
+    assert layout_engine._seat_axis_dims(40, 70, "min_y") == (40, 70)
+    assert layout_engine._seat_axis_dims(40, 70, "max_y") == (40, 70)
+
+
+def test_placed_auditorium_with_vertical_screen_wall_gets_axis_corrected_seat_estimate():
+    """Live regression case for the axis bug this round's Phase 0 fixes:
+    before the fix, a room whose entry point forced a min_x/max_x screen
+    wall got its seat estimate computed against the wrong axis (packing rows
+    across the narrow dimension instead of the long one). Boundary is a
+    100x30 strip with the entry on the SHORT (top/bottom) wall, so the
+    nearest-to-entry wall is min_y — screen ends up on the opposite short
+    wall (max_y)... to force a min_x/max_x screen wall instead, mark the
+    entry on a LONG wall of a room shaped so screen_wall lands on min_x/
+    max_x: use a tall, narrow boundary (30 wide x 100 deep) with entry on
+    the bottom (min_y) wall — screen_wall is then max_y (still horizontal).
+    To actually exercise the min_x/max_x branch, mark entry near the LEFT
+    (min_x) wall of a wide, shallow boundary instead — screen_wall becomes
+    max_x, a vertical wall — and confirm the seat estimate matches
+    estimate_seats called with width/depth swapped relative to the room's
+    raw box w/h."""
+    usable = _usable()
+    requirements = {"entry_point_ft": [0, 30]}  # nearest the left (min_x) wall
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 100, 60), "AUDITORIUM", requirements
+    )
+    assert room is not None, warning
+    assert room["screen_wall"] == "max_x"
+    cfg = room["seat_config"]
+    expected = seat_engine.estimate_seats(
+        room["depth_ft"], room["width_ft"],  # swapped: room's real h becomes the screen-parallel span
+        primary_seat_type_id=cfg["primary_seat_type_id"], secondary_seat_type_id=cfg["secondary_seat_type_id"],
+        primary_ratio_pct=cfg["primary_ratio_pct"], front_row_count=cfg["front_row_count"],
+    )
+    assert room["seat_estimate"]["rows"] == expected["rows"]
+    assert room["seat_estimate"]["seats_per_row"] == expected["seats_per_row"]
+    assert room["seat_estimate"]["seat_count"] == expected["seat_count"]
+
+
+# ---------- side-wall door -> seat exclusion mapping (_side_door_exclusions) ----------
+
+def test_side_door_exclusions_ignores_screen_and_door_walls():
+    """A door on the screen wall or the door(entry) wall isn't a 'side'
+    door — only the two walls perpendicular to the screen carry this kind
+    of exclusion (see _screen_wall_door_conflict_note for the separate,
+    already-illegal screen-wall-door case)."""
+    doors = [
+        {"kind": "ENTRY", "wall": "min_y", "offset_ft": 10, "width_ft": 3.5},  # screen wall itself
+        {"kind": "EXIT", "wall": "max_y", "offset_ft": 10, "width_ft": 3.5},   # the door wall
+    ]
+    assert layout_engine._side_door_exclusions(40, 70, "min_y", doors, 2.5) == []
+
+
+def test_side_door_exclusions_near_screen_for_a_near_wall_screen():
+    """screen_wall='min_y' (screen at the room's own y=0 origin wall): a side
+    door's offset_ft already IS its distance from the screen, no mirroring
+    needed."""
+    doors = [{"kind": "ENTRY", "wall": "min_x", "offset_ft": 20, "width_ft": 4}]
+    exclusions = layout_engine._side_door_exclusions(40, 70, "min_y", doors, 2.5)
+    assert len(exclusions) == 1
+    assert exclusions[0]["side"] == "left"
+    assert exclusions[0]["depth_start_ft"] == 17.5  # 20 - 2.5
+    assert exclusions[0]["depth_end_ft"] == 26.5     # 20 + 4 + 2.5
+
+
+def test_side_door_exclusions_mirrors_for_a_far_wall_screen():
+    """screen_wall='max_y' (screen at the FAR wall, y=depth): a side door's
+    offset_ft is still measured from the wall's own near-origin corner
+    (per _doors_for_screen_wall's fixed convention), which now runs AWAY
+    from the screen — must be mirrored (depth = raw_depth_span - offset)
+    to get real distance-from-screen, or the exclusion lands on the wrong
+    rows entirely."""
+    doors = [{"kind": "ENTRY", "wall": "max_x", "offset_ft": 20, "width_ft": 4}]
+    exclusions = layout_engine._side_door_exclusions(40, 70, "max_y", doors, 2.5)
+    assert len(exclusions) == 1
+    assert exclusions[0]["side"] == "right"
+    # raw_depth_span = 70 (h, since screen_wall is min_y/max_y); door spans
+    # raw [20, 24] -> mirrored depth [70-24, 70-20] = [46, 50] -> +/- 2.5 clearance
+    assert exclusions[0]["depth_start_ft"] == 43.5
+    assert exclusions[0]["depth_end_ft"] == 52.5
+
+
+def test_side_door_exclusions_for_a_vertical_screen_wall():
+    """screen_wall='min_x' (a 90-degree-reoriented screen): side walls are
+    now min_y/max_y, and the depth axis runs along the room's own w (per
+    _seat_axis_dims) — confirms the mirroring logic generalizes to the
+    other axis, not just min_y/max_y screens."""
+    doors = [{"kind": "ENTRY", "wall": "min_y", "offset_ft": 5, "width_ft": 3}]
+    exclusions = layout_engine._side_door_exclusions(40, 70, "min_x", doors, 2.5)
+    assert len(exclusions) == 1
+    assert exclusions[0]["side"] == "left"
+    assert exclusions[0]["depth_start_ft"] == 2.5   # 5 - 2.5
+    assert exclusions[0]["depth_end_ft"] == 10.5     # 5 + 3 + 2.5
+
+
+# ---------- _clamp_doors_to_room ----------
+
+def test_clamp_doors_to_room_shrinks_an_oversized_door_after_a_resize():
+    """A door drawn on a room before it was shrunk can end up wider than the
+    new wall (or offset past its end) — _clamp_doors_to_room must re-apply
+    the same bound _doors_for_screen_wall uses at creation time."""
+    room = {"width_ft": 10, "depth_ft": 40, "doors": [
+        {"kind": "ENTRY", "wall": "min_y", "offset_ft": 8, "width_ft": 6},  # wall_len is now only 10ft
+    ]}
+    layout_engine._clamp_doors_to_room(room)
+    door = room["doors"][0]
+    assert door["width_ft"] <= 10 / 2.5
+    assert door["offset_ft"] + door["width_ft"] <= 10 + 1e-9
 
 
 # ---------- per-room-type column tolerance ----------
@@ -336,6 +477,242 @@ def test_place_single_zone_passage_connects_foyer_and_auditorium():
     # every other support zone uses.
     min_width_ft = layout_engine.rules_registry.planning_norm("EGRESS_PASSAGE_MIN_WIDTH_FT")
     assert abs(min(passage["width_ft"], passage["depth_ft"]) - min_width_ft) < 0.5
+
+
+# ---------- new placement standards round: real minimums, Box Office sightline,
+# F&B route-to-auditorium, Manager Room, Electrical Room ----------
+
+def test_place_single_zone_washroom_respects_new_450_sqft_minimum():
+    """Team's own placement standards set a real, much larger washroom
+    minimum (450 sqft, up from the old 60 sqft engineering placeholder) —
+    confirms place_single_zone actually enforces it end-to-end, not just
+    that the SUPPORT_ZONE_DEFAULTS constant changed."""
+    usable = _usable()
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 100, 60), "WASHROOM", {}
+    )
+    assert room is not None, warning
+    assert room["area_sqft"] >= 450.0
+
+
+def test_place_single_zone_box_office_respects_new_50_sqft_minimum():
+    usable = _usable()
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 100, 60), "BOX_OFFICE", {}
+    )
+    assert room is not None, warning
+    assert room["area_sqft"] >= 50.0
+
+
+def test_place_single_zone_manager_room_and_electrical_are_placeable():
+    """Confirms the generic SUPPORT_ZONE_DEFAULTS-driven dispatch already in
+    place_single_zone picks up both new zone types with no special-casing
+    needed beyond the table entry itself (same mechanism BOX_OFFICE/FNB/etc.
+    already use)."""
+    usable = _usable()
+    manager_room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 100, 60), "MANAGER_ROOM", {}
+    )
+    assert manager_room is not None, warning
+    assert manager_room["area_sqft"] >= 100.0
+    assert manager_room["display_name"] == "Manager Room"
+
+    electrical, warning2 = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 100, 60), "ELECTRICAL", {}
+    )
+    assert electrical is not None, warning2
+    assert electrical["display_name"] == "Electrical Room"
+
+
+def test_manager_room_is_auto_placed_electrical_is_not():
+    """Manager Room: standard auto-placed zone, same standing as Box
+    Office/F&B/Washroom/BOH. Electrical Room: opt-in only (Add Zone) until a
+    real minimum area exists — see SUPPORT_ZONE_DEFAULTS' own note on it."""
+    assert "MANAGER_ROOM" in layout_engine.SUPPORT_ZONE_AUTO_ORDER
+    assert "ELECTRICAL" not in layout_engine.SUPPORT_ZONE_AUTO_ORDER
+
+
+def test_box_office_heuristic_has_both_distance_score_and_sightline_preference():
+    """New this round: BOX_OFFICE used to share FOYER's plain distance-to-
+    entry score_fn with no sightline check at all — "immediately visible on
+    arrival" (team's own placement standards) means a visible-but-slightly-
+    farther spot should beat a closer-but-blocked one. Confirms both halves
+    are wired: a real prefer_fn now exists (FOYER, by contrast, still gets
+    none), and it actually behaves like a sightline check — true for a clear
+    line to a candidate on the entry's own side of a full-height wall, false
+    for one on the far side of it."""
+    usable = _usable()
+    entry_point = (0, 30)
+    blocker = layout_engine._rect(10, 0, 20, 60)  # full-height wall, x=10..30
+    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+        "BOX_OFFICE", entry_point, [], usable, usable, [blocker], ["AUDITORIUM"], None
+    )
+    assert score_fn is not None, "BOX_OFFICE should still prefer being close to the entry"
+    assert prefer_fn is not None, "BOX_OFFICE should now also prefer a real sightline from the entry"
+    visible_candidate = (2, 25, 5, 5)   # inside the open x<10 strip, in view of the entry
+    blocked_candidate = (50, 25, 5, 5)  # on the far side of the wall, out of view
+    assert prefer_fn(visible_candidate) is True
+    assert prefer_fn(blocked_candidate) is False
+
+    foyer_score_fn, foyer_prefer_fn = layout_engine._support_zone_heuristic(
+        "FOYER", entry_point, [], usable, usable, [blocker], ["AUDITORIUM"], None
+    )
+    assert foyer_score_fn is not None
+    assert foyer_prefer_fn is None, "FOYER should be unaffected by this round — distance-only, as before"
+
+
+def test_box_office_heuristic_also_prefers_flanking_the_entry():
+    """New this round: real reference floor plans (Keshav Landmark Vadodara,
+    Maruti Nandan Dhule) show Box Office immediately beside the Cinema
+    Entry/Exit, not just anywhere with a clear sightline — a candidate on
+    the far side of the same open room, equally visible, is a real floor
+    plan the team would never actually draw. prefer_fn now requires both a
+    clear sightline AND landing within BOX_OFFICE_ENTRY_ADJACENCY_MAX_FT of
+    the entry (12ft placeholder, REQUIRES_APPROVAL — see rules_registry_v1.json)."""
+    usable = _usable()
+    entry_point = (0, 30)
+    # No blocker this time — isolating the new adjacency term from the
+    # existing sightline term (already covered by the test above).
+    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+        "BOX_OFFICE", entry_point, [], usable, usable, [], ["AUDITORIUM"], None
+    )
+    near_candidate = (2, 27, 5, 5)   # centroid ~5.4ft from entry — within the 12ft default
+    far_candidate = (2, 55, 5, 5)    # centroid ~25.7ft from entry — same open room, equally visible, too far
+    assert prefer_fn(near_candidate) is True
+    assert prefer_fn(far_candidate) is False, "a far-but-visible candidate should no longer satisfy prefer_fn"
+
+
+def test_fnb_heuristic_now_scores_by_route_to_foyer_and_auditorium():
+    """New this round: FNB used to carry only a sightline-from-entry
+    prefer_fn, with no positional score_fn at all — any visible spot ranked
+    the same as any other visible spot. "Conveniently located along the
+    route to auditoriums" (team's own placement standards) needs a real
+    score, the exact same dual-distance-to-foyer-and-nearest-screen pattern
+    PASSAGE already uses."""
+    usable = _usable()
+    entry_point = (0, 30)
+    auditorium = layout_engine._rect(70, 0, 20, 40)
+    foyer = layout_engine._rect(40, 0, 10, 10)
+    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+        "FNB", entry_point, [], usable, usable, [auditorium, foyer], ["AUDITORIUM", "FOYER"], foyer
+    )
+    assert prefer_fn is not None
+    assert score_fn is not None, "FNB should now also score candidates by distance to foyer + nearest auditorium"
+    near_route = (45, 15, 5, 5)      # close to both the foyer and the auditorium
+    far_from_route = (0, 55, 5, 5)   # far corner, away from both
+    assert score_fn(near_route) < score_fn(far_from_route)
+
+
+def test_manager_room_heuristic_prefers_proximity_to_box_office():
+    usable = _usable()
+    box_office = layout_engine._rect(50, 0, 10, 10)
+    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+        "MANAGER_ROOM", None, [], usable, usable, [box_office], ["BOX_OFFICE"], None
+    )
+    assert prefer_fn is None
+    assert score_fn is not None
+    near = (55, 12, 5, 5)
+    far = (0, 55, 5, 5)
+    assert score_fn(near) < score_fn(far)
+
+    # No Box Office placed/known yet — no preference at all, same
+    # None-tolerant fallback pattern foyer_rect already gets elsewhere.
+    score_fn2, prefer_fn2 = layout_engine._support_zone_heuristic(
+        "MANAGER_ROOM", None, [], usable, usable, [], [], None
+    )
+    assert score_fn2 is None and prefer_fn2 is None
+
+
+def test_electrical_heuristic_prefers_distance_from_entry_and_washroom():
+    usable = _usable()
+    entry_point = (0, 30)
+    washroom = layout_engine._rect(20, 20, 10, 10)
+    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+        "ELECTRICAL", entry_point, [], usable, usable, [washroom], ["WASHROOM"], None
+    )
+    assert prefer_fn is None
+    assert score_fn is not None
+    near_both = (5, 25, 5, 5)        # close to entry AND close to the washroom
+    far_from_both = (90, 55, 5, 5)   # far from both
+    assert score_fn(far_from_both) < score_fn(near_both)  # lower (more negative) score wins
+
+
+# ---------- duct-aware Washroom, Projector Room (real placement-standards round 2) ----------
+
+def test_washroom_heuristic_prefers_proximity_to_a_confirmed_duct():
+    """New this round: real DUCT-classified obstacles (cad_extraction.py's
+    DUCT_LAYER_HINTS) now feed WASHROOM's own placement preference — the
+    team's own placement standards prefer a washroom near a plumbing duct/
+    shaft when one is confirmed on the drawing. Before this, WASHROOM only
+    ever had the existing sightline prefer_fn, no positional score_fn at
+    all."""
+    usable = _usable()
+    entry_point = (0, 30)
+    duct = layout_engine._rect(60, 30, 4, 4)
+    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+        "WASHROOM", entry_point, [], usable, usable, [], [], None, duct_polys=[duct]
+    )
+    assert prefer_fn is not None, "the existing sightline preference must be unaffected"
+    assert score_fn is not None, "WASHROOM should now also score candidates by distance to a confirmed duct"
+    near_duct = (58, 28, 5, 5)
+    far_from_duct = (0, 55, 5, 5)
+    assert score_fn(near_duct) < score_fn(far_from_duct)
+
+
+def test_washroom_heuristic_has_no_duct_score_when_none_confirmed():
+    """No ducts confirmed on the drawing: behavior unchanged from before this
+    round — no score_fn at all, sightline prefer_fn only."""
+    usable = _usable()
+    entry_point = (0, 30)
+    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+        "WASHROOM", entry_point, [], usable, usable, [], [], None, duct_polys=[]
+    )
+    assert prefer_fn is not None
+    assert score_fn is None
+
+
+def test_projector_heuristic_prefers_touching_the_screen_wall_not_the_door_wall():
+    """New this round: Projector Room should sit behind ANY one auditorium's
+    screen (one room per complex, served via cable/network — see the
+    document's own resolution of the previously-unconfirmed question).
+    Recomputes that auditorium's screen wall the exact same way it was
+    really derived at placement time (_screen_wall_for_rect + _OPPOSITE_WALL)
+    — proving the preference reads the *opposite* wall from the entry, not
+    just "any wall of the room.\""""
+    usable = _usable()
+    entry_point = (0, 30)  # entry is nearest the auditorium's min_x wall
+    auditorium = layout_engine._rect(20, 0, 30, 40)  # door_wall=min_x (x=20) -> screen_wall=max_x (x=50)
+    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+        "PROJECTOR", entry_point, [], usable, usable, [auditorium], ["AUDITORIUM"], None
+    )
+    assert prefer_fn is not None
+    on_screen_wall = (50, 15, 3, 3)   # touches x=50, the real screen wall
+    on_door_wall = (17, 15, 3, 3)     # touches x=20, the door wall — must NOT count
+    assert prefer_fn(on_screen_wall) is True
+    assert prefer_fn(on_door_wall) is False
+
+
+def test_projector_heuristic_has_no_preference_with_no_auditoriums_placed():
+    usable = _usable()
+    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+        "PROJECTOR", None, [], usable, usable, [], [], None
+    )
+    assert score_fn is None and prefer_fn is None
+
+
+def test_place_single_zone_projector_is_placeable_but_opt_in_only():
+    """Confirms the generic SUPPORT_ZONE_DEFAULTS-driven dispatch already in
+    place_single_zone picks up PROJECTOR with no special-casing beyond the
+    table entry itself (same mechanism every other zone type uses), and
+    that it stays opt-in (Add Zone only), same as ELECTRICAL — no real area
+    figure exists yet for either."""
+    usable = _usable()
+    room, warning = layout_engine.place_single_zone(
+        usable, usable, [], [], [], (0, 0, 100, 60), "PROJECTOR", {}
+    )
+    assert room is not None, warning
+    assert room["display_name"] == "Projector Room"
+    assert "PROJECTOR" not in layout_engine.SUPPORT_ZONE_AUTO_ORDER
 
 
 # ---------- default seat mix from the matched preset (real-file gap-closure round) ----------
@@ -826,21 +1203,30 @@ def test_scan_place_ranked_offers_a_candidate_flush_against_a_column_face():
 
 # ---------- no auto-generated doors (architect draws every door by hand) ----------
 
-def test_generate_candidate_never_auto_generates_doors_on_any_room():
-    """Real product decision this round enforces: an auto-placed room
-    (screen or support zone) never arrives with a door glyph the architect
-    never asked for — doors are added by hand afterward via the edit
-    canvas's own "+ Door" tool. Door POSITION is still computed and used
-    internally by the placement pipeline itself (connectivity gating,
-    Foyer's door-touch tiebreak — see _strip_auto_generated_doors' own
-    docstring), but must never leak into the returned room list."""
+def test_generate_candidate_strips_support_zone_doors_but_keeps_auditorium_doors():
+    """Support zones (Foyer/F&B/Washroom/Box Office/etc.) still never arrive
+    with a door glyph the architect never asked for — those are added by
+    hand afterward via the edit canvas's own "+ Door" tool, since their
+    computed door position is only ever a placement-pipeline-internal proxy
+    (connectivity gating, Foyer's door-touch tiebreak — see
+    _strip_auto_generated_doors' own docstring). AUDITORIUM rooms are the
+    deliberate exception this round adds: a screen's entry/exit pair is
+    placed by a real, documented rule (_doors_for_screen_wall), so it's kept
+    as a real, editable starting point instead of being thrown away."""
     candidate = layout_engine.generate_candidate(
         _usable(), RECT_BOUNDARY, "MAX_SEATS_PER_SCREEN",
         {"max_auditoriums": 4, "entry_point_ft": [0, 30]}, []
     )
     assert len(candidate["rooms"]) > 0
-    for room in candidate["rooms"]:
+    auditoriums = [r for r in candidate["rooms"] if r["room_type"].startswith("AUDITORIUM")]
+    non_auditoriums = [r for r in candidate["rooms"] if not r["room_type"].startswith("AUDITORIUM")]
+    assert auditoriums, "expected at least one auditorium in this candidate"
+    for room in non_auditoriums:
         assert room["doors"] == [], f"{room['room_type']} carries an auto-generated door: {room['doors']}"
+    for room in auditoriums:
+        assert room["doors"], f"{room['room_type']} should carry its real computed doors"
+        assert all(d["wall"] == layout_engine._OPPOSITE_WALL[room["screen_wall"]] for d in room["doors"]), \
+            f"{room['room_type']}'s doors should be on its door wall (opposite the screen), not the screen wall itself"
 
 
 # ---------- top_k starvation on a dense, real column layout (entry+exit marked) ----------

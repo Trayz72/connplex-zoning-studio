@@ -92,6 +92,18 @@ def layout_path(project_id: str) -> str:
     return path_in(project_id, "layout_current.json")
 
 
+def clean_dxf_path(project_id: str) -> str:
+    """The salesperson-facing cleaned CAD file (see cad_cleaner.py) — kept
+    alongside original.dwg/dxf as its own well-known filename rather than
+    overwriting the original upload, so the raw file a user uploaded is
+    still there if they want to clean it differently later."""
+    return path_in(project_id, "clean.dxf")
+
+
+def clean_dwg_path(project_id: str) -> str:
+    return path_in(project_id, "clean.dwg")
+
+
 def export_dir(project_id: str) -> str:
     d = path_in(project_id, "exports")
     os.makedirs(d, exist_ok=True)

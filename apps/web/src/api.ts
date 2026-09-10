@@ -24,6 +24,7 @@ export interface Project {
   property_status: string | null;
   beam_bottom_clear_height: string | null;
   property_type: string | null;
+  carpet_area_sqft: number | null;
   is_intake_complete: boolean;
   created_at: string;
   created_by: string;

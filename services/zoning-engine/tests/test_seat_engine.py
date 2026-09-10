@@ -83,6 +83,54 @@ def test_front_row_count_none_reproduces_percentage_behavior_unchanged():
     assert result["seat_breakdown"]["DUO_LOUNGER"] > 0
 
 
+# ---------- real per-seat coordinates + door-aware exclusion (side_exclusions) ----------
+
+def test_seat_positions_are_consistent_with_reported_aggregates():
+    """seat_count/rows/seat_breakdown must always be derivable FROM
+    seat_positions, never drift independently of it — the whole point of
+    moving to real per-seat coordinates instead of an aggregate formula."""
+    result = seat_engine.estimate_seats(40, 60)
+    assert len(result["seat_positions"]) == result["seat_count"]
+    if result["seat_positions"]:
+        assert max(s["row"] for s in result["seat_positions"]) + 1 == result["rows"]
+
+
+def test_side_exclusion_removes_the_specific_outermost_seat_in_the_affected_row():
+    """A side-wall door's keep-clear zone should drop exactly the seat
+    nearest that wall in whichever row(s) it overlaps — not an aggregate
+    count, and not any other seat in that row."""
+    baseline = seat_engine.estimate_seats(40, 60)
+    assert baseline["rows"] >= 1
+    front_row_depth = baseline["first_row_distance_ft"]
+    exclusion = [{"side": "left", "depth_start_ft": front_row_depth - 0.1, "depth_end_ft": front_row_depth + 0.1}]
+    excluded = seat_engine.estimate_seats(40, 60, side_exclusions=exclusion)
+
+    assert excluded["seat_count"] == baseline["seat_count"] - 1
+
+    before_front_row = [s for s in baseline["seat_positions"] if s["row"] == 0]
+    after_front_row = [s for s in excluded["seat_positions"] if s["row"] == 0]
+    assert len(after_front_row) == len(before_front_row) - 1
+    leftmost_along_ft = min(s["along_ft"] for s in before_front_row)
+    assert all(s["along_ft"] != leftmost_along_ft for s in after_front_row), \
+        "the specific leftmost seat should be gone, not some other seat in the row"
+    # Every other row is untouched.
+    for row_idx in range(1, baseline["rows"]):
+        before = [s for s in baseline["seat_positions"] if s["row"] == row_idx]
+        after = [s for s in excluded["seat_positions"] if s["row"] == row_idx]
+        assert len(before) == len(after)
+
+
+def test_side_exclusion_outside_the_packed_depth_range_changes_nothing():
+    """A door position that doesn't overlap any actual row's depth should
+    leave the seat count completely untouched — the zone check is bounded,
+    not a global reduction."""
+    baseline = seat_engine.estimate_seats(40, 60)
+    far_exclusion = [{"side": "left", "depth_start_ft": 9999, "depth_end_ft": 10005}]
+    result = seat_engine.estimate_seats(40, 60, side_exclusions=far_exclusion)
+    assert result["seat_count"] == baseline["seat_count"]
+    assert result["seat_positions"] == baseline["seat_positions"]
+
+
 def test_nearest_preset_for_area_picks_the_largest_preset_the_area_clears():
     """Same selection rule as best_fit_preset, just returning the real
     preset dict instead of an id/status string."""

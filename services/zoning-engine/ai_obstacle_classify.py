@@ -35,7 +35,7 @@ load_dotenv()
 
 MODEL_ID = "claude-opus-5"
 
-PHYSICAL_CLASSIFICATIONS = ["COLUMN", "WALL", "DOOR", "WINDOW", "STAIRCASE", "WASHROOM_FIXTURE", "FURNITURE"]
+PHYSICAL_CLASSIFICATIONS = ["COLUMN", "DUCT", "WALL", "DOOR", "WINDOW", "STAIRCASE", "WASHROOM_FIXTURE", "FURNITURE"]
 
 
 class AiClassifyError(Exception):
@@ -137,7 +137,7 @@ Per-layer stats (only layers with unclassified shapes):
 {json.dumps(list(layer_stats.values()), indent=2)}
 
 For each layer, decide: does its name (plus shape count/avg area/squarish ratio) point clearly to a real physical \
-obstacle — and if so, which kind (COLUMN, WALL, DOOR, WINDOW, STAIRCASE, WASHROOM_FIXTURE, FURNITURE) — or is it \
+obstacle — and if so, which kind (COLUMN, DUCT, WALL, DOOR, WINDOW, STAIRCASE, WASHROOM_FIXTURE, FURNITURE) — or is it \
 non-physical annotation/reference content (NOT_PHYSICAL)? If there's genuinely not enough evidence, say UNSURE \
 rather than guessing. A compact, squarish shape under ~20 sqft repeated many times is a strong column signal; a \
 name referencing area/index/calculation/title/format/dimension terms is a strong NOT_PHYSICAL signal."""

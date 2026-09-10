@@ -50,10 +50,13 @@ NON_AUDITORIUM_DISPLAY_NAMES = {
     "FNB": "Food & Beverage / Concession",
     "WASHROOM": "Washrooms",
     "BOX_OFFICE": "Box Office / Ticketing",
+    "MANAGER_ROOM": "Manager Room",
     "BOH": "Back-of-House (Electrical / Server / Store)",
+    "ELECTRICAL": "Electrical Room",
+    "PROJECTOR": "Projector Room",
     "PASSAGE": "Passage / Corridor",
 }
-ROOM_TYPES = ["AUDITORIUM", "FOYER", "FNB", "WASHROOM", "BOX_OFFICE", "BOH", "PASSAGE"]
+ROOM_TYPES = ["AUDITORIUM", "FOYER", "FNB", "WASHROOM", "BOX_OFFICE", "MANAGER_ROOM", "BOH", "ELECTRICAL", "PROJECTOR", "PASSAGE"]
 
 
 class AiZoningError(Exception):
@@ -170,7 +173,7 @@ THIS floor's real shape — different screens may have different sizes if that f
 uniform screens. Every auditorium must still fall within a sane real-world range (roughly 28-55 ft wide, \
 40-75 ft deep — smaller or bigger than that isn't a real cinema screen).
 2. Maximize total seat count across all auditoriums — this is the locked v1 optimization objective — while \
-never overlapping a hard obstacle (WALL, STAIRCASE, WASHROOM_FIXTURE, DOOR, WINDOW, FURNITURE, \
+never overlapping a hard obstacle (WALL, DUCT, STAIRCASE, WASHROOM_FIXTURE, DOOR, WINDOW, FURNITURE, \
 UNCLASSIFIED_OBSTACLE) and never extending outside the floor boundary. A CONFIRMED_OBSTACLE classified \
 COLUMN is the one exception — a room may enclose a column if there is genuinely no better option, since a \
 real architect designs around a structural column rather than refusing to use that floor area, but prefer \

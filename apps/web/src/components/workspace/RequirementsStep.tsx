@@ -50,6 +50,24 @@ function parseClearHeightToFeet(text: string | null | undefined): number | null 
   return num; // ft, ', or a bare number — feet is the common default in these documents
 }
 
+// Every one of these is a real key layout_engine.py's place_single_zone
+// already reads from support_zone_area_overrides_sqft — this UI was the only
+// missing piece, the backend has supported per-zone area targets all along.
+// FOYER is included even though it's also driven by the franchise tier's
+// foyer:screen ratio — an explicit override here still wins over that ratio,
+// same as any other zone.
+const SUPPORT_ZONE_TYPES: { type: string; label: string }[] = [
+  { type: 'FOYER', label: 'Foyer' },
+  { type: 'FNB', label: 'F&B / Concession' },
+  { type: 'WASHROOM', label: 'Washroom' },
+  { type: 'BOX_OFFICE', label: 'Box Office' },
+  { type: 'MANAGER_ROOM', label: 'Manager Room' },
+  { type: 'BOH', label: 'Back-of-House' },
+  { type: 'ELECTRICAL', label: 'Electrical Room' },
+  { type: 'PROJECTOR', label: 'Projector Room' },
+  { type: 'PASSAGE', label: 'Passage / Corridor' },
+];
+
 export const RequirementsStep: React.FC<RequirementsStepProps> = ({
   initial, clearHeightHint, boundaryPointsFt, initialEntryPointFt, initialExitPointsFt, onSubmit
 }) => {
@@ -133,6 +151,32 @@ export const RequirementsStep: React.FC<RequirementsStepProps> = ({
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+        <label>Support Zone Area Preferences (optional)</label>
+        <div style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginBottom: '8px' }}>
+          Leave any of these blank to use the engine's own default sizing (the franchise tier's foyer ratio, or a
+          share of total auditorium area). Set one to require that zone at a specific size instead.
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          {SUPPORT_ZONE_TYPES.map(({ type, label }) => (
+            <div key={type}>
+              <label style={{ fontSize: '0.76rem', fontWeight: 400 }}>{label} (sqft)</label>
+              <input
+                type="number" min={0} step={10} className="form-control"
+                value={req.support_zone_area_overrides_sqft[type] ?? ''}
+                placeholder="Default"
+                onChange={(e) => {
+                  const next = { ...req.support_zone_area_overrides_sqft };
+                  if (e.target.value === '') delete next[type];
+                  else next[type] = parseFloat(e.target.value);
+                  setReq({ ...req, support_zone_area_overrides_sqft: next });
+                }}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       {boundaryPointsFt && boundaryPointsFt.length >= 3 && (

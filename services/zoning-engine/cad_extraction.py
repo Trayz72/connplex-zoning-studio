@@ -35,6 +35,7 @@ own geometry/layer-name evidence — layer on/off/frozen state is never
 consulted anywhere in this module.
 """
 import os
+import re
 import sys
 import math
 import uuid
@@ -104,6 +105,13 @@ CURVE_FLATTEN_MIN_SEGMENTS = 8
 WALL_SNAP_TOLERANCE_FT = 0.3
 MIN_OBSTACLE_AREA_SQFT = 0.3       # ignore microscopic closed shapes (hatch fragments, tick marks)
 CONTAINMENT_THRESHOLD = 0.6        # fraction of an obstacle's area that must fall inside a boundary to count as "in" it
+# Above this many raw line segments, _reconstruct_polygons_from_lines skips
+# its polygonize() call outright rather than risk hanging a real request —
+# see that function's own docstring for the real 2.6-million-segment file
+# that motivated this. Generously above any previously-tested real file
+# (the attribution STRtree fix elsewhere in that function was itself sized
+# for "tens of thousands" of segments) while still bounding worst-case cost.
+MAX_RECONSTRUCTION_SEGMENTS = 100000
 MAX_INSERT_DEPTH = 8               # guards against a pathological/cyclic block-reference chain
 
 # Entities that are pure annotation (dimension lines/arrows, leader callout
@@ -134,6 +142,16 @@ UNIT_NAME_TO_FEET = {
 COLUMN_LAYER_HINTS = ["column", "col", "grid", "struct"]
 BOUNDARY_LAYER_HINTS = ["wall", "boundary", "outline"]
 
+# Mechanical/electrical service enclosures (duct risers, AHU rooms, shaft
+# cores) drawn as their own closed shape. Same evidence-based technique as
+# COLUMN_LAYER_HINTS/WALL_LAYER_HINTS — real AIA-convention layer names
+# (M-DUCT, service "SHAFT", "AHU ROOM", "MEP", "HVAC", plumbing/electrical
+# "RISER") — not an invented rule. Checked before WALL_LAYER_HINTS below so a
+# layer literally named "duct"/"shaft" isn't swallowed by the generic
+# interior-partition WALL bucket, which is what happened before this
+# category existed (see WALL_LAYER_HINTS's own docstring).
+DUCT_LAYER_HINTS = ["duct", "shaft", "ahu", "mep", "hvac", "riser"]
+
 # Layer names that are near-universal AutoCAD sheet/drafting artifacts —
 # a paper-space viewport border, a plot/print margin, a drawing-sheet
 # format frame, a title block, or an area-calculation/dimension-helper
@@ -153,8 +171,62 @@ BOUNDARY_LAYER_HINTS = ["wall", "boundary", "outline"]
 # architectural rule.
 NON_PHYSICAL_LAYER_HINTS = [
     "viewport", "margin", "format", "title block", "titleblock",
-    "plot", "f.s.i", "fsi", "built up", "builtup", "dim",
+    "plot", "f.s.i", "fsi", "built up", "builtup", "dim", "sheet",
 ]
+
+# A region whose contained text is dominated by drawing-stamp/revision-log
+# vocabulary is a title block or drawing-issue log, not real architecture —
+# found on a real file (the CHAUDHARY DXF) where a title-block area on the
+# generic, unnamed layer "0" (so NON_PHYSICAL_LAYER_HINTS' layer-name check
+# can't catch it at all) produced 3 duplicate ~21,656 sqft junk candidate
+# regions containing exactly this vocabulary ("DRAWING ISSUED :-", "N.T.S.",
+# "AR. ARTI ROKA"). Same "plain substring check on real evidence" reasoning
+# as NON_PHYSICAL_LAYER_HINTS, applied to text content instead of layer name
+# for the case where a layer name carries no signal at all.
+TITLE_BLOCK_TEXT_HINTS = ["drawing issued", "n.t.s", "checked by", "drawn by", "ar. ", "rev."]
+
+# A stated carpet area on a sales intake form is a rounded business figure
+# ("7,000 sqft"), never a precise CAD measurement — the real drawn boundary
+# (walls, columns, a few inches of tolerance either way) will always differ
+# from it somewhat. 15% is generous enough to still recognize a genuine match
+# on a real file while staying tight enough that two candidates a real
+# property could plausibly have (a full floor vs. one shop on it) don't both
+# qualify.
+FORM_MATCH_AREA_TOLERANCE_FRACTION = 0.15
+
+_FORM_MATCH_STOPWORDS = {"floor", "shop", "no", "unit", "the", "and", "of"}
+
+
+def _form_match_info(region_area_sqft, region_texts, target_area_sqft, label_hint):
+    """Optional, purely additive: does this region's real computed area match
+    what a salesperson already typed into the intake form (see
+    services/project's Carpet Area field)? This is the actual "form drives
+    boundary detection" behavior the app was always supposed to have — before
+    this, the automatic candidate ranking had no idea what property it was
+    even looking at. Returns (is_match, note); note is None unless is_match,
+    so a non-match never adds noise to a region that already has plenty of
+    its own (a title block, a plot line, etc.).
+
+    Deliberately does not gate on label_hint — a printed label match is only
+    ever an upgrade to the note (see _resolve_entities-adjacent text_labels,
+    already collected per region with zero extra geometry work), never a
+    requirement, because the same combined "Floor / Shop No" free-text field
+    this reads from isn't guaranteed to appear verbatim anywhere in the
+    drawing. Area proximity alone is the real, reliable signal."""
+    if not target_area_sqft or target_area_sqft <= 0:
+        return False, None
+    rel_error = abs(region_area_sqft - target_area_sqft) / target_area_sqft
+    if rel_error > FORM_MATCH_AREA_TOLERANCE_FRACTION:
+        return False, None
+
+    note = f"Matches your stated carpet area ({target_area_sqft:,.0f} sqft) within {rel_error * 100:.1f}%."
+    if label_hint:
+        tokens = [t for t in re.split(r"[^a-z0-9]+", label_hint.lower()) if t and t not in _FORM_MATCH_STOPWORDS]
+        combined_text = " ".join((t.get("text") or "") for t in region_texts).lower()
+        if tokens and any(tok in combined_text for tok in tokens):
+            note += " Also found a matching label drawn inside this boundary."
+    return True, note
+
 
 # Standard AutoCAD architectural layer-naming conventions (A-DOOR, A-GLAZ,
 # A-FURN, etc. per the AIA CAD Layer Guidelines most real firms follow) — this
@@ -174,6 +246,7 @@ NON_PHYSICAL_LAYER_HINTS = [
 WALL_LAYER_HINTS = ["wall", "partition", "shear"]
 OBSTACLE_LAYER_HINTS = [
     ("COLUMN", COLUMN_LAYER_HINTS),
+    ("DUCT", DUCT_LAYER_HINTS),
     ("WALL", WALL_LAYER_HINTS),
     ("DOOR", ["door", "-dr", "_dr"]),
     ("WINDOW", ["window", "glaz", "-win", "_win"]),
@@ -276,16 +349,6 @@ def working_scale(units: dict) -> float:
     return units["feet_per_drawing_unit"] or UNIT_NAME_TO_FEET.get(units.get("suggested_unit"), 1.0)
 
 
-def _handle_of(e, fallback_idx):
-    """Real top-level entities carry a stable DXF handle; entities produced by
-    exploding a block INSERT (see _resolve_entities) are virtual copies with
-    no handle of their own — fall back to a positional id so every shape still
-    has *something* to show as provenance, without pretending it's a real
-    DXF handle."""
-    h = getattr(e.dxf, "handle", None)
-    return str(h) if h else f"virtual-{fallback_idx}"
-
-
 def _identity_tf(p):
     """The base case every entity's transform chain composes down to (see
     _resolve_entities: a top-level entity's tf is this function directly; a
@@ -355,19 +418,55 @@ def _resolve_entities(doc, msp):
     could only manufacture false boundary candidates, never find a real one.
 
     Returns (resolved, annotation_ids): resolved is a list of (entity,
-    transform_fn) pairs — every entity in the drawing with directly-
-    drawable geometry, paired with the function that converts its own local
-    points into world coordinates (identity for anything already at the top
-    level, not from a DIMENSION's block); annotation_ids is a set of
-    id(entity) for entities that are annotation, not real geometry."""
+    transform_fn, handle) triples — every entity in the drawing with
+    directly-drawable geometry, paired with the function that converts its
+    own local points into world coordinates (identity for anything already
+    at the top level, not from a DIMENSION's block) and a handle string
+    that's unique to *this occurrence*, not just this entity; annotation_ids
+    is a set of id(entity) for entities that are annotation, not real
+    geometry.
+
+    The handle needs its own pass here, not a per-call _handle_of(e, idx)
+    at each of extract()'s several downstream loops (the previous design):
+    walk() below reaches a block-definition entity `e` once per INSERT that
+    references it, and every one of those visits passes the *same* real
+    ezdxf entity object — this module deliberately walks the block's real
+    entities with a composed transform instead of exploding virtual copies
+    (see above), so there's no per-instance object for a per-instance handle
+    to live on. `e.dxf.handle` is therefore identical across every
+    occurrence, and a positional fallback_idx was never reached to fix that
+    because it only kicked in when dxf.handle was *missing* — a repeated
+    block instance has a perfectly real handle, just not a unique one.
+    Confirmed on a real file (Magnate Plaza Khekra Commercial): two block
+    handles alone accounted for 1,124 distinct closed-shape occurrences
+    each, all sharing one "handle" — meaning build_manual_region's
+    existing_source_handle lookup (and cad_cleaner's, and BoundaryStudio's
+    click-a-shape) could silently resolve a click on instance #900 to
+    instance #1's geometry instead. Fixed by counting occurrences of each
+    real handle as they're actually reached, right here: the first
+    occurrence keeps the clean, real, human-readable handle unchanged
+    (matches every existing single-occurrence case); the 2nd/3rd/... reuse
+    of the same real handle appends a disambiguating "-N" suffix, still
+    traceable back to the real handle for debugging. An entity with no real
+    handle at all (a genuine virtual/annotation-block case) still falls back
+    to a positional id, same as before."""
     resolved = []
     annotation_ids = set()
+    occurrence_counts = {}
 
     def make_child_transform(local_matrix, outer_fn):
         def fn(p):
             x, y, _z = local_matrix.transform((p[0], p[1], 0))
             return outer_fn((x, y))
         return fn
+
+    def instance_handle(e):
+        h = getattr(e.dxf, "handle", None)
+        if not h:
+            return f"virtual-{len(resolved)}"
+        n = occurrence_counts.get(h, 0)
+        occurrence_counts[h] = n + 1
+        return str(h) if n == 0 else f"{h}-{n}"
 
     def walk(entities, transform_fn, depth, in_annotation):
         for e in entities:
@@ -397,7 +496,7 @@ def _resolve_entities(doc, msp):
                 except Exception:
                     continue
             else:
-                resolved.append((e, transform_fn))
+                resolved.append((e, transform_fn, instance_handle(e)))
                 if in_annotation or t in ANNOTATION_ENTITY_TYPES:
                     annotation_ids.add(id(e))
 
@@ -586,7 +685,7 @@ def _all_segments(e, tf=_identity_tf):
     return _open_segments(e, tf)
 
 
-def _dedupe_closed_shapes(closed_shapes):
+def _dedupe_closed_shapes(closed_shapes, centroid_tolerance_ft=0.05, area_tolerance_sqft=0.1):
     """A real block-based drawing very commonly draws one physical element
     (a column, in theater_clean.dxf's case) as BOTH a closed LWPOLYLINE
     outline and a HATCH fill covering the identical footprint — verified
@@ -598,19 +697,72 @@ def _dedupe_closed_shapes(closed_shapes):
     and centroid match closely; when they do, the explicit polyline is kept
     over its hatch twin (a literal outline is stronger evidence than a fill
     pattern), and a reconstructed shape is kept over a hatch twin for the
-    same reason."""
+    same reason.
+
+    Works off the already feet-scaled `area_sqft`/`points_ft` (not the raw
+    drawing-unit `polygon`) so the tolerance means the same real-world thing
+    regardless of the source file's drawing units — the original version
+    rounded the raw polygon's own coordinates, which made its effective
+    real-world tolerance quietly depend on whether a file was drawn in
+    inches, mm, or meters. `centroid_tolerance_ft`/`area_tolerance_sqft` let
+    a caller loosen this for boundary-scale (not just obstacle-scale)
+    duplicates — see the second call site in extract() for real evidence
+    (6 identical 369,490 sqft boundary candidates from separate INSERT
+    instances of a shared "shell" block) this tolerance now also needs to
+    catch, at a real-world scale where a fraction of an inch is irrelevant."""
     source_rank = {"explicit": 0, "reconstructed": 1, "hatch": 2}
     kept = {}
     for s in closed_shapes:
-        c = s["polygon"].centroid
-        key = (round(c.x, 1), round(c.y, 1), round(s["polygon"].area, 1))
+        xs = [p[0] for p in s["points_ft"]]
+        ys = [p[1] for p in s["points_ft"]]
+        cx = sum(xs) / len(xs)
+        cy = sum(ys) / len(ys)
+        key = (
+            round(cx / centroid_tolerance_ft),
+            round(cy / centroid_tolerance_ft),
+            round(s["area_sqft"] / area_tolerance_sqft),
+        )
         existing = kept.get(key)
         if existing is None or source_rank.get(s["source"], 3) < source_rank.get(existing["source"], 3):
             kept[key] = s
     return list(kept.values())
 
 
-def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_drawing_units, snap_tolerance_drawing_units=0.0, annotation_ids=frozenset()):
+NOISE_LAYER_MIN_SHAPE_COUNT = 500
+NOISE_LAYER_MAX_AVG_AREA_SQFT = 0.05
+
+
+def _detect_noise_layers(closed_shapes):
+    """A layer dominated by hundreds/thousands of near-zero-area closed
+    shapes is traced/rasterized reference geometry, not real architecture —
+    found on a real file (a theater plan traced from an imported PDF
+    underlay, AutoCAD's PDFIMPORT workflow) where one such layer
+    ("PDF_Geometry") held 1,863 closed shapes averaging under 0.0006 sqft
+    each — none of them a real room, fixture, or column. Every one of those
+    shapes is already too small to ever become a boundary or obstacle
+    candidate on its own (both have their own area minimums), so excluding
+    the whole layer changes no real detection outcome; what it does fix is
+    the *cost* of carrying tens of thousands of these around: they were
+    consuming the entire full_raw_geometry line budget (crowding out the
+    real "Wall"/"0"-layer lines a person would actually want to see or
+    manually trace over) and inflating _reconstruct_polygons_from_lines's
+    segment count (74,306 total on that file, only 385 of them real).
+    Requires both signals together (many shapes AND all tiny) since either
+    alone is common in legitimate files — a real furniture layer can have
+    many small shapes; a real large shape can sit on an otherwise-sparse
+    layer."""
+    by_layer = {}
+    for s in closed_shapes:
+        rec = by_layer.setdefault(s["layer"], {"count": 0, "total_area": 0.0})
+        rec["count"] += 1
+        rec["total_area"] += s["area_sqft"]
+    return {
+        layer for layer, rec in by_layer.items()
+        if rec["count"] >= NOISE_LAYER_MIN_SHAPE_COUNT and (rec["total_area"] / rec["count"]) < NOISE_LAYER_MAX_AVG_AREA_SQFT
+    }
+
+
+def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_drawing_units, snap_tolerance_drawing_units=0.0, annotation_ids=frozenset(), noise_layers=frozenset()):
     """Chain together every LINE/open-polyline segment in the drawing (via
     shapely's polygonize, which finds closed rings in an arbitrary network of
     line segments) to recover boundaries that exist as discrete wall segments
@@ -638,26 +790,63 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
     recovered cleanly once nearby endpoints were snapped together first —
     shapely.set_precision quantizes every coordinate to this grid size before
     polygonize runs, which is the standard fix for near-but-not-quite-closed
-    line networks. 0 (the default) preserves the exact old behavior."""
+    line networks. 0 (the default) preserves the exact old behavior.
+
+    Returns (results, skip_note) — skip_note is None unless this pass was
+    skipped outright for being infeasibly large (see MAX_RECONSTRUCTION_SEGMENTS
+    below), in which case results is []. Never partial/silent: a skip is
+    always reported, never just a quietly smaller result."""
     from shapely.strtree import STRtree
 
+    # shapely's polygonize() is a real planar-graph algorithm, not something
+    # that degrades gracefully to "just slower" at arbitrary scale — found on
+    # a real file ("Magnate Plaza Khekra Commercial 28-04-26.dwg", 123,046
+    # entities) that produced 2.6 MILLION raw segments here (vastly more than
+    # any previously-tested real file — the attribution STRtree fix above was
+    # sized for "tens of thousands") and made this one call the dominant cost
+    # of an extraction that ran 130+ seconds and climbed to 3.5GB RAM. Rather
+    # than attempt it and risk hanging a real request, skip outright above a
+    # generous ceiling and say so honestly — explicit closed shapes (Pass 1)
+    # still get found normally; only this *fallback* recovery for boundaries
+    # drawn purely as discrete wall segments is skipped, and the caller
+    # surfaces exactly why plus the two real alternatives that still work
+    # (AI Scan, or manually selecting a boundary).
+    #
+    # Checked *inside* the entity loop below, not after building the full
+    # segments list — on that same real file, just constructing a LineString
+    # per segment for all 2.6M of them (before ever reaching this check) was
+    # itself ~48s of pure waste once we already know the result is "skip."
+    # Bailing out mid-loop, the instant the count is exceeded, means real
+    # files that blow the budget only ever pay for the fraction of entities
+    # actually walked before that happens.
+    over_budget_note = (
+        f"Skipped automatic wall-segment reconstruction — this file has more than "
+        f"{MAX_RECONSTRUCTION_SEGMENTS:,} raw line segments (a real single-floor building typically has "
+        f"a few thousand), too many to safely process in real time. Explicit closed shapes were still "
+        f"detected normally. If no usable boundary was found, try 'Scan with AI' or select a boundary "
+        f"manually."
+    )
     segments = []
     layer_by_segment = []
-    for i, (e, tf) in enumerate(entities):
-        if _handle_of(e, i) in already_closed_handles:
+    for e, tf, h in entities:
+        if h in already_closed_handles:
             continue  # already a closed shape in its own right; don't double-count its edges
         if id(e) in annotation_ids:
             continue  # a dimension extension line or leader is never a real wall segment
         if _layer_hint_score(str(e.dxf.layer), NON_PHYSICAL_LAYER_HINTS):
             continue  # a sheet frame/margin/title-block line is never a real wall segment either
+        if str(e.dxf.layer) in noise_layers:
+            continue  # see _detect_noise_layers — traced/rasterized reference geometry, not a real wall
         for a, b in _open_segments(e, tf):
             if a == b:
                 continue
             segments.append(LineString([a, b]))
             layer_by_segment.append(str(e.dxf.layer))
+        if len(segments) > MAX_RECONSTRUCTION_SEGMENTS:
+            return [], over_budget_note
 
     if len(segments) < 3:
-        return []
+        return [], None
 
     if snap_tolerance_drawing_units > 0:
         snapped = shapely.set_precision(MultiLineString(segments), grid_size=snap_tolerance_drawing_units)
@@ -669,11 +858,11 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
             snapped_layers.append(layer)
         segments, layer_by_segment = snapped_segments, snapped_layers
         if len(segments) < 3:
-            return []
+            return [], None
 
     candidate_polys = [p for p in polygonize(segments) if p.is_valid and p.area >= min_area_drawing_units]
     if not candidate_polys:
-        return []
+        return [], None
 
     tree = STRtree(segments)
     results = []
@@ -689,7 +878,7 @@ def _reconstruct_polygons_from_lines(entities, already_closed_handles, min_area_
             "source": "reconstructed",
             "polygon": poly,
         })
-    return results
+    return results, None
 
 
 def resolve_dxf_path(input_path: str):
@@ -746,7 +935,7 @@ def _stride_sample(items, cap):
     return [items[int(i * stride)] for i in range(cap)], True
 
 
-def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale, annotation_ids=frozenset()):
+def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale, annotation_ids=frozenset(), noise_layers=frozenset()):
     """The ENTIRE drawing's raw linework, computed ONCE (up to MAX_FULL_RAW_LINES,
     the highest-fidelity cap of any consumer) and reused to derive every other
     raw-geometry view this module produces — the whole-drawing `raw_geometry`
@@ -793,10 +982,12 @@ def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale, an
     truncated = False
     CURVE_GROUP_TYPES = ("ARC", "SPLINE", "ELLIPSE")
 
-    for entity_idx, (e, tf) in enumerate(all_entities):
+    for e, tf, h in all_entities:
         if len(lines) >= MAX_FULL_RAW_LINES:
             truncated = True
             break
+        if noise_layers and e.dxf.hasattr("layer") and str(e.dxf.layer) in noise_layers:
+            continue  # see _detect_noise_layers — would otherwise swamp this budget with essentially-invisible fragments
         t = e.dxftype()
         if id(e) in annotation_ids:
             category = "annotation"
@@ -804,7 +995,7 @@ def _build_full_raw_geometry(all_entities, closed_shapes, text_labels, scale, an
             category = "sheet"
         else:
             category = "geometry"
-        curve_group = f"curve-{_handle_of(e, entity_idx)}" if t in CURVE_GROUP_TYPES else None
+        curve_group = f"curve-{h}" if t in CURVE_GROUP_TYPES else None
         try:
             if t in ("LINE", "LWPOLYLINE", "POLYLINE", "ARC", "HATCH", "SPLINE", "ELLIPSE", "LEADER"):
                 layer = str(e.dxf.layer)
@@ -1122,8 +1313,19 @@ def build_manual_region(points_ft: list, mode: str, full_raw_geometry: dict, exi
     }
 
 
-def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, unit_override: str = None) -> dict:
+def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, unit_override: str = None,
+            target_area_sqft: float = None, label_hint: str = None) -> dict:
     """Main entry point. input_path may be .dwg or .dxf. Returns canonical geometry.
+
+    target_area_sqft/label_hint (both default None, so every existing caller
+    is unaffected) are the real "form drives boundary detection" method —
+    when a project's intake carpet-area figure is available, candidates
+    whose real computed area actually matches it are ranked to the front and
+    labeled why (see _form_match_info). Purely a ranking/labeling signal,
+    never a filter: every candidate this pass already finds is still
+    returned, still PROPOSED, and a human still has to confirm one — same
+    "uncertain detection never becomes authoritative" rule as everything else
+    here.
 
     allowed_layers / min_boundary_area_sqft: normally None (unfiltered, the
     default MIN_BOUNDARY_AREA_SQFT) — real overrides exist only for
@@ -1154,19 +1356,18 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
     entities, annotation_ids = _resolve_entities(doc, msp)
     if allowed_layers:
         allowed_set = set(allowed_layers)
-        entities = [(e, tf) for e, tf in entities if str(e.dxf.layer) in allowed_set]
+        entities = [(e, tf, h) for e, tf, h in entities if str(e.dxf.layer) in allowed_set]
     min_boundary_area_sqft = MIN_BOUNDARY_AREA_SQFT if min_boundary_area_sqft is None else min_boundary_area_sqft
 
     # --- Pass 1: find every closed shape and its polygon/area (in drawing units) ---
     closed_shapes = []
     closed_handles = set()
-    for i, (e, tf) in enumerate(entities):
+    for e, tf, h in entities:
         if id(e) in annotation_ids:
             continue  # a dimension/leader can't be a real wall or column — see _resolve_entities
         if _layer_hint_score(str(e.dxf.layer), NON_PHYSICAL_LAYER_HINTS):
             continue  # a sheet frame/margin/title-block/area-callout is never real geometry — see NON_PHYSICAL_LAYER_HINTS
         t = e.dxftype()
-        h = _handle_of(e, i)
         if t == "HATCH":
             try:
                 # A "solid_fill" hatch (DXF's own flag) is a flat color fill —
@@ -1190,15 +1391,25 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
                 # closed shape.
                 pattern_name = str(getattr(e.dxf, "pattern_name", "") or "")
                 is_line_hatch = not bool(getattr(e.dxf, "solid_fill", 0)) and pattern_name.upper() not in ("", "SOLID")
-                for path in e.paths:
+                # A HATCH with an island (a donut-shaped fill, or several
+                # disjoint fill regions on one entity) has multiple paths —
+                # each is its own real closed shape and needs its own
+                # selectable handle, not all sharing the parent entity's one
+                # handle (found on the same real file as the block-instance
+                # handle bug above: 510 shapes across 145 handles, i.e.
+                # _shape_by_handle's first-match lookup would silently
+                # resolve a click on one island to a different one).
+                multi_path = len(e.paths) > 1
+                for path_idx, path in enumerate(e.paths):
                     pts = _hatch_path_points(path, tf)
                     if len(pts) < 3:
                         continue
                     poly = _safe_polygon(pts)
                     if not poly:
                         continue
+                    path_handle = f"{h}-p{path_idx}" if multi_path else h
                     closed_shapes.append({
-                        "handle": h, "layer": str(e.dxf.layer), "dxftype": "HATCH", "source": "hatch",
+                        "handle": path_handle, "layer": str(e.dxf.layer), "dxftype": "HATCH", "source": "hatch",
                         "polygon": poly, "area_sqft": poly.area * (scale ** 2),
                         "points_ft": [[round(x * scale, 3), round(y * scale, 3)] for x, y in poly.exterior.coords],
                         "hatch_pattern": pattern_name or None, "is_line_hatch": is_line_hatch
@@ -1225,6 +1436,17 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
         closed_handles.add(h)
 
     closed_shapes = _dedupe_closed_shapes(closed_shapes)
+
+    # See _detect_noise_layers: a layer dominated by hundreds/thousands of
+    # near-zero-area shapes (a PDF underlay traced into AutoCAD) is dropped
+    # entirely — every one of these shapes was already too small to become a
+    # boundary or obstacle candidate, so this changes no real detection
+    # outcome, only its cost (full_raw_geometry's line budget, and Pass 1b's
+    # segment count below, both no longer swamped by tens of thousands of
+    # essentially-invisible fragments).
+    noise_layers = _detect_noise_layers(closed_shapes)
+    if noise_layers:
+        closed_shapes = [s for s in closed_shapes if s["layer"] not in noise_layers]
     closed_handles = {s["handle"] for s in closed_shapes}
 
     # --- Pass 1b: reconstruct additional boundary candidates from discrete wall
@@ -1232,7 +1454,10 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
     # loop but aren't one explicit closed shape in the source file) ---
     min_area_drawing_units = MIN_OBSTACLE_AREA_SQFT / max(scale ** 2, 1e-9)  # cheap pre-filter, tightened again in feet below
     snap_tolerance_drawing_units = WALL_SNAP_TOLERANCE_FT / max(scale, 1e-9)
-    for rec in _reconstruct_polygons_from_lines(entities, closed_handles, min_area_drawing_units, snap_tolerance_drawing_units, annotation_ids):
+    reconstructed_shapes, reconstruction_skip_note = _reconstruct_polygons_from_lines(
+        entities, closed_handles, min_area_drawing_units, snap_tolerance_drawing_units, annotation_ids, noise_layers
+    )
+    for rec in reconstructed_shapes:
         poly = rec["polygon"]
         closed_shapes.append({
             "handle": rec["handle"], "layer": rec["layer"], "dxftype": rec["dxftype"], "source": "reconstructed",
@@ -1253,6 +1478,22 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
         key=lambda s: s["area_sqft"],
         reverse=True
     )
+
+    # Boundary-scale duplicate collapse — the same real problem
+    # _dedupe_closed_shapes solves for obstacles (one physical element drawn
+    # as both an outline and a hatch), but at building-outline scale: found
+    # on a real file ("ALL BLOCK Working - Industrial Park - GIDC Plot...dwg")
+    # where the exact same 369,490.16 sqft "Wall"-layer shape appeared 6
+    # times identically among the boundary candidates — separate real INSERT
+    # block instances (very plausibly one per floor) all referencing a
+    # shared "shell" block, not 6 distinct real boundaries. A looser,
+    # real-world tolerance than the obstacle-level default (a fraction of a
+    # foot/sqft is irrelevant at "is this the same building outline" scale)
+    # without touching genuinely distinct candidates — two different floors
+    # always differ in at least their nested obstacle content, never in a
+    # byte-identical outer polygon.
+    boundary_candidates = _dedupe_closed_shapes(boundary_candidates, centroid_tolerance_ft=0.5, area_tolerance_sqft=1.0)
+    boundary_candidates.sort(key=lambda s: s["area_sqft"], reverse=True)
 
     # See SUSPECTED_PLOT_BOUNDARY_* above — computed here, over the FULL
     # candidate list, before the nesting-collapse pass below runs, so a
@@ -1295,10 +1536,31 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
     # around the actual building outline would silently lose that real boundary
     # entirely — demoted to an "obstacle" of the frame/plot line instead of being
     # offered as its own selectable region.
+    #
+    # Spatial-indexed (STRtree), not a plain double loop over every candidate —
+    # this used to be unconditional O(candidates^2) real shapely intersection
+    # calls with no way out, unlike the obstacle-detection pass just below,
+    # which already learned this exact lesson (see its own comment, citing a
+    # real 276s worst case). This pass never got the same fix: reproduced live
+    # on a real 2.1MB file ("Magnate Plaza Khekra Commercial 28-04-26.dwg")
+    # that ran for 5+ minutes, climbed to 3.5GB RAM, and was killed by a 400s
+    # timeout without ever finishing. The query-then-verify semantics below
+    # are identical to the old loop's (only ever compare a candidate against
+    # boundaries already chosen earlier in the same largest-first order) —
+    # the STRtree only rules out candidates that can't possibly be nested at
+    # all (no bounding-box overlap) before paying for a real intersection.
+    from shapely.strtree import STRtree
     chosen_boundaries = []
-    for cand in boundary_candidates:
+    candidate_polys = [c["polygon"] for c in boundary_candidates]
+    candidate_tree = STRtree(candidate_polys) if candidate_polys else None
+    chosen_mask = [False] * len(boundary_candidates)
+    for i, cand in enumerate(boundary_candidates):
         nested_in_existing = False
-        for b in chosen_boundaries:
+        nearby_idx = candidate_tree.query(cand["polygon"]) if candidate_tree is not None else []
+        for j in nearby_idx:
+            if not chosen_mask[j]:
+                continue  # not yet decided (or not chosen) — can't act as a container
+            b = boundary_candidates[j]
             if b["area_sqft"] > MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT or b["_is_suspected_plot_boundary"]:
                 continue
             inter = cand["polygon"].intersection(b["polygon"]).area
@@ -1307,10 +1569,11 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
                 break
         if not nested_in_existing:
             chosen_boundaries.append(cand)
+            chosen_mask[i] = True
 
     # --- Pass 3: text labels (raw, uninterpreted) ---
     text_labels = []
-    for e, tf in entities:
+    for e, tf, _h in entities:
         if e.dxftype() in ("TEXT", "MTEXT"):
             try:
                 txt = e.plain_text().strip() if hasattr(e, "plain_text") else str(getattr(e.dxf, "text", "")).strip()
@@ -1327,7 +1590,7 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
     # is derived by filtering this instead of re-walking entities. See
     # _build_full_raw_geometry's own docstring for the real performance bug
     # this fixes.
-    full_raw_geometry = _build_full_raw_geometry(entities, closed_shapes, text_labels, scale, annotation_ids)
+    full_raw_geometry = _build_full_raw_geometry(entities, closed_shapes, text_labels, scale, annotation_ids, noise_layers)
 
     # Spatial index over every closed shape so each region only tests the
     # handful actually near it, instead of every region testing every shape
@@ -1342,6 +1605,8 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
 
     regions = []
     suspected_plot_boundary_flags = []
+    suspected_title_block_flags = []
+    form_match_flags = []
     for boundary in chosen_boundaries:
         b_poly = boundary["polygon"]
         b_area = boundary["area_sqft"]
@@ -1435,6 +1700,31 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
         else:
             plot_boundary_note = None
 
+        # A region whose own contained text is dominated by drawing-stamp/
+        # revision-log vocabulary (see TITLE_BLOCK_TEXT_HINTS above) is a
+        # title block, not real architecture — found on a real file where
+        # this sat on the generic, unnamed layer "0", so no layer-name check
+        # could ever catch it. Scoped to ranking/note only (not exempted from
+        # being nested inside another candidate the way a plot boundary is)
+        # since real evidence showed these regions are small and obstacle-
+        # empty — they were never swallowing a real nested candidate, just
+        # cluttering the candidate list as duplicate junk.
+        title_block_hit_count = sum(
+            1 for t in region_texts
+            if _layer_hint_score(t["text"], TITLE_BLOCK_TEXT_HINTS)
+        )
+        is_suspected_title_block = title_block_hit_count >= 2
+        if is_suspected_title_block:
+            boundary_layer_conf = "low"
+            title_block_note = (
+                f"This looks like a title block or drawing-issue log, not real architecture — "
+                f"its contained text matches {title_block_hit_count} drawing-stamp/revision-log "
+                f"terms (e.g. \"drawing issued\", \"n.t.s.\"). Check the other candidate regions "
+                f"below before confirming this one."
+            )
+        else:
+            title_block_note = None
+
         # See the HATCH-handling comment in Pass 1 above: a boundary built
         # from a real line-pattern hatch (not a flat "SOLID" fill) matches
         # this drafting convention's own way of marking net usable area.
@@ -1444,7 +1734,14 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
         hatch_pattern = boundary.get("hatch_pattern")
         is_net_usage_hatch = boundary.get("source") == "hatch" and bool(boundary.get("is_line_hatch"))
 
+        # See _form_match_info above — same "own field, never folded into
+        # `note`" reasoning as is_net_usage_hatch just above: this is
+        # confirming evidence from the intake form, not a caution.
+        is_form_match, form_match_note = _form_match_info(b_area, region_texts, target_area_sqft, label_hint)
+
         suspected_plot_boundary_flags.append(is_suspected_plot_boundary)
+        suspected_title_block_flags.append(is_suspected_title_block)
+        form_match_flags.append(is_form_match)
         regions.append({
             "region_id": f"region-{uuid.uuid4().hex[:8]}",
             "boundary": {
@@ -1459,13 +1756,16 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
                 },
                 "hatch_pattern": hatch_pattern,
                 "is_net_usage_hatch": is_net_usage_hatch,
+                "form_match": is_form_match,
+                "form_match_note": form_match_note,
                 "confidence": boundary_layer_conf,
                 "note": " ".join(filter(None, [
                     ("Reconstructed from discrete wall line segments — not one explicit closed "
                      "polyline in the source file. Verify this boundary carefully before confirming."
                      if is_reconstructed else None),
                     plausibility_note,
-                    plot_boundary_note
+                    plot_boundary_note,
+                    title_block_note
                 ])) or None,
                 "status": "PROPOSED"
             },
@@ -1474,20 +1774,50 @@ def extract(input_path: str, allowed_layers=None, min_boundary_area_sqft=None, u
             "raw_geometry": _region_raw_geometry(full_raw_geometry, minx * scale, miny * scale, maxx * scale, maxy * scale)
         })
 
-    # Plausible-sized, not-suspected-plot-boundary regions first (largest
-    # among them first, same as before); implausibly-large ones (see
-    # MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT) pushed to the very end; suspected
-    # plot/site-boundary lines (see SUSPECTED_PLOT_BOUNDARY_* above) pushed
-    # just ahead of those — the frontend defaults to reviewing regions[0], so
-    # neither an oversized sheet-border/frame nor a plot-line rectangle
-    # should ever be what an architect lands on first by default when a more
-    # plausible building-footprint candidate exists.
+    # Plausible-sized, not-suspected-plot-boundary, not-suspected-title-block
+    # regions first (largest among them first, same as before); implausibly-
+    # large ones (see MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT) pushed to the very
+    # end; suspected plot/site-boundary lines and suspected title
+    # blocks/drawing-issue logs (see SUSPECTED_PLOT_BOUNDARY_*/
+    # TITLE_BLOCK_TEXT_HINTS above) pushed just ahead of those — the frontend
+    # defaults to reviewing regions[0], so neither an oversized sheet-border/
+    # frame nor a plot-line rectangle nor a title block should ever be what
+    # an architect lands on first by default when a more plausible building-
+    # footprint candidate exists.
+    #
+    # form_match (see _form_match_info) slots in right after those three
+    # disqualifying checks and before the plain size fallback: among
+    # otherwise-clean candidates, one that actually matches the carpet area
+    # a salesperson already typed into the intake form wins outright — but a
+    # suspected plot line/title block/implausibly-large shape never jumps the
+    # queue just because its area happens to coincide with that number. When
+    # no target_area_sqft was given, every region's form_match is False, so
+    # this key is a no-op and ordering is unchanged from before this field
+    # existed.
     order = sorted(range(len(regions)), key=lambda i: (
         regions[i]["boundary"]["area_sqft"] > MAX_PLAUSIBLE_BOUNDARY_AREA_SQFT,
         suspected_plot_boundary_flags[i],
+        suspected_title_block_flags[i],
+        not form_match_flags[i],
         -regions[i]["boundary"]["area_sqft"]
     ))
     regions = [regions[i] for i in order]
+
+    noise_layer_note = None
+    if noise_layers:
+        noise_layer_note = (
+            f"Excluded {len(noise_layers)} layer(s) from automatic detection — {', '.join(sorted(noise_layers))} — "
+            f"they look like traced or rasterized reference geometry (many shapes, all negligibly small), not "
+            f"real architecture. This never removes real content: none of those shapes were ever large enough to "
+            f"become a boundary or obstacle on their own."
+        )
+
+    # Folded into conversion_note (already rendered verbatim by BoundaryStudio)
+    # rather than a new field — a real, honest caveat about this specific
+    # extraction, same category of "here's what happened to your file" as the
+    # DWG->DXF conversion note it may already be sitting next to.
+    conversion_note = " ".join(filter(None, [conversion_note, reconstruction_skip_note, noise_layer_note]))
+    conversion_note = conversion_note or None
 
     return {
         "schema_version": "1.1",

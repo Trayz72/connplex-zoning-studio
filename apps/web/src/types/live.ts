@@ -9,7 +9,7 @@ export interface Obstacle {
   dxftype: string;
   area_sqft: number;
   points_ft: number[][];
-  classification: 'COLUMN' | 'WALL' | 'DOOR' | 'WINDOW' | 'STAIRCASE' | 'WASHROOM_FIXTURE' | 'FURNITURE' | 'UNCLASSIFIED_OBSTACLE';
+  classification: 'COLUMN' | 'DUCT' | 'WALL' | 'DOOR' | 'WINDOW' | 'STAIRCASE' | 'WASHROOM_FIXTURE' | 'FURNITURE' | 'UNCLASSIFIED_OBSTACLE';
   confidence: 'high' | 'medium' | 'low';
   status: 'PROPOSED' | 'CONFIRMED' | 'IGNORED';
   /** Set only when AI-assisted classification (see ai_obstacle_classify.py)
@@ -47,6 +47,15 @@ export interface Boundary {
    * Confirming evidence, not a caution — kept separate from `note`, which
    * BoundaryStudio treats as a warning that blocks auto-advance. */
   is_net_usage_hatch: boolean;
+  /** True when this candidate's real computed area matches the Carpet Area
+   * the salesperson already entered on the project's intake form (see
+   * cad_extraction._form_match_info) — the actual "form drives boundary
+   * detection" behavior. Confirming evidence, not a caution — kept separate
+   * from `note` for the same reason is_net_usage_hatch is. */
+  form_match: boolean;
+  /** Human-readable reason for form_match (e.g. "Matches your stated carpet
+   * area (7,000 sqft) within 0.6%."), or null when form_match is false. */
+  form_match_note: string | null;
   confidence: 'high' | 'medium' | 'low';
   /** Set when this boundary needs a second look before confirming — e.g.
    * reconstructed from discrete wall segments rather than one explicit
@@ -126,7 +135,13 @@ export interface RawClosedShape {
 export interface FullRawGeometry {
   lines: RawSegment[];
   circles: { center: [number, number]; radius: number; layer: string }[];
-  texts: { text: string; position: [number, number] }[];
+  // Note: position_ft here, unlike RawGeometry.texts[].position below —
+  // full_raw_geometry.texts is cad_extraction.py's text_labels list passed
+  // through unrenamed (_build_full_raw_geometry), while RawGeometry (each
+  // region's own cropped raw_geometry, and the whole-drawing fallback) goes
+  // through _region_raw_geometry/_simple_raw_geometry, which do rename this
+  // field to "position". Two distinct wire shapes for the same kind of data.
+  texts: { text: string; position_ft: [number, number] }[];
   closed_shapes: RawClosedShape[];
   bounds_ft: { min_x: number; min_y: number; max_x: number; max_y: number };
   truncated: boolean;
@@ -314,6 +329,12 @@ export interface LiveRoom {
   // assumption, so older stored layouts render identically to before this
   // field existed.
   screen_wall?: 'min_x' | 'max_x' | 'min_y' | 'max_y';
+  // Present when one of this room's own doors sits on its current
+  // screen_wall — real cinema design never puts an entry on the projection
+  // wall. Soft, like obstacle_note/screen_width_note: move the door or
+  // reassign the screen wall, not a blocked save. See main.py's
+  // _screen_wall_door_conflict_note.
+  screen_wall_note?: string;
   doors?: RoomDoor[];
 }
 

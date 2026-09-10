@@ -6,9 +6,17 @@ import { UploadIcon, RefreshIcon, WarningIcon } from '../Icons';
 interface UploadStepProps {
   projectId: string;
   onUploaded: (geometry: GeometryResult) => void;
+  /** From the project's own intake record (Carpet Area / Floor-Shop-No) —
+   * passed straight through to uploadCad/aiScanCad so the very first
+   * automatic candidate ranking already reflects what a salesperson already
+   * told the app about this property. Both optional: a project with an
+   * incomplete intake still uploads normally, just without the boost. */
+  carpetAreaSqft?: number | null;
+  floorShopHint?: string | null;
 }
 
-export const UploadStep: React.FC<UploadStepProps> = ({ projectId, onUploaded }) => {
+export const UploadStep: React.FC<UploadStepProps> = ({ projectId, onUploaded, carpetAreaSqft, floorShopHint }) => {
+  const formHints = { targetAreaSqft: carpetAreaSqft, labelHint: floorShopHint };
   const [dragActive, setDragActive] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
   const [status, setStatus] = useState<'IDLE' | 'UPLOADING' | 'EXTRACTING' | 'ERROR' | 'NO_REGIONS'>('IDLE');
@@ -33,7 +41,7 @@ export const UploadStep: React.FC<UploadStepProps> = ({ projectId, onUploaded })
       const geometry = await uploadCad(projectId, file, (pct) => {
         setProgress(pct);
         if (pct >= 100) setStatus('EXTRACTING');
-      });
+      }, formHints);
       if (geometry.region_count === 0) {
         // Don't auto-advance into a Geometry Review step with nothing to
         // review — offer the AI scan right here instead, since this is
@@ -52,7 +60,7 @@ export const UploadStep: React.FC<UploadStepProps> = ({ projectId, onUploaded })
     setAiScanning(true);
     setAiError(null);
     try {
-      const geometry = await aiScanCad(projectId);
+      const geometry = await aiScanCad(projectId, formHints);
       if (geometry.region_count === 0) {
         setAiError(
           (geometry.conversion_note || 'The AI scan tried alternative layers but still found no usable floor boundary in this file.')

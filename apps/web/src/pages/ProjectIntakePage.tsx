@@ -26,7 +26,8 @@ export const ProjectIntakePage: React.FC = () => {
     floor_shop_no: '',
     property_status: '',
     beam_bottom_clear_height: '',
-    property_type: ''
+    property_type: '',
+    carpet_area_sqft: '' as string | number
   });
 
   const loadProject = async () => {
@@ -47,7 +48,8 @@ export const ProjectIntakePage: React.FC = () => {
         floor_shop_no: data.floor_shop_no || '',
         property_status: data.property_status || '',
         beam_bottom_clear_height: data.beam_bottom_clear_height || '',
-        property_type: data.property_type || ''
+        property_type: data.property_type || '',
+        carpet_area_sqft: data.carpet_area_sqft ?? ''
       });
     } catch (err: any) {
       setError(err.message || 'Failed to load project');
@@ -73,7 +75,11 @@ export const ProjectIntakePage: React.FC = () => {
     setSaveSuccess(false);
 
     try {
-      const updated = await updateProject(id, formData);
+      const payload = {
+        ...formData,
+        carpet_area_sqft: formData.carpet_area_sqft === '' ? null : Number(formData.carpet_area_sqft)
+      };
+      const updated = await updateProject(id, payload);
       setProject(updated);
       setSaveSuccess(true);
     } catch (err: any) {
@@ -296,6 +302,21 @@ export const ProjectIntakePage: React.FC = () => {
                 value={formData.floor_shop_no}
                 onChange={(e) => handleChange('floor_shop_no', e.target.value)}
                 placeholder="e.g. 2nd Floor, Unit 201"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="carpet_area_sqft">Carpet Area (sq ft) *</label>
+              <input
+                id="carpet_area_sqft"
+                name="carpet_area_sqft"
+                type="number"
+                min={0}
+                step={1}
+                className="form-control"
+                value={formData.carpet_area_sqft}
+                onChange={(e) => handleChange('carpet_area_sqft', e.target.value)}
+                placeholder="e.g. 7000"
               />
             </div>
 

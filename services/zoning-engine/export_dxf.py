@@ -26,7 +26,8 @@ from convert import convert as oda_convert  # noqa: E402
 LAYER_NAMES = [
     "EXISTING-BOUNDARY", "EXISTING-OBSTACLE",
     "PROPOSED-AUDITORIUM", "PROPOSED-FOYER", "PROPOSED-FNB",
-    "PROPOSED-WASHROOM", "PROPOSED-BOX_OFFICE", "PROPOSED-BOH", "PROPOSED-PASSAGE",
+    "PROPOSED-WASHROOM", "PROPOSED-BOX_OFFICE", "PROPOSED-MANAGER_ROOM",
+    "PROPOSED-BOH", "PROPOSED-ELECTRICAL", "PROPOSED-PROJECTOR", "PROPOSED-PASSAGE",
     "PROPOSED-CIRCULATION", "ANNOTATION", "ANNOTATION-DOOR", "ANNOTATION-ENTRY-EXIT"
 ]
 
@@ -46,7 +47,7 @@ _INTERIOR_DIR = {"min_y": (0, 1), "max_y": (0, -1), "min_x": (1, 0), "max_x": (-
 # of not sharing rendering helpers between the two exporters). Used when
 # even a shrunk single line of the real display_name won't fit the room's
 # on-drawing width.
-_ROOM_SHORT_LABEL = {"BOH": "BOH", "FNB": "F&B", "BOX_OFFICE": "BOX OFFICE"}
+_ROOM_SHORT_LABEL = {"BOH": "BOH", "FNB": "F&B", "BOX_OFFICE": "BOX OFFICE", "MANAGER_ROOM": "MANAGER", "ELECTRICAL": "ELEC.", "PROJECTOR": "PROJ."}
 
 # ezdxf's default "Standard" text style has no loaded font metrics, so exact
 # glyph widths aren't available the way reportlab's stringWidth gives

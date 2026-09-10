@@ -109,7 +109,12 @@ router.post('/', (req, res) => {
     floor_shop_no: body.floor_shop_no || null,
     property_status: body.property_status || null,
     beam_bottom_clear_height: body.beam_bottom_clear_height || null,
-    property_type: body.property_type || null
+    property_type: body.property_type || null,
+    // A real number, not free text like the fields above — kept null on
+    // blank/missing rather than falling through `|| null` so a (hypothetical)
+    // legitimate 0 isn't silently treated the same as "not entered".
+    carpet_area_sqft: (body.carpet_area_sqft === undefined || body.carpet_area_sqft === null || body.carpet_area_sqft === '')
+      ? null : Number(body.carpet_area_sqft)
   };
 
   const is_intake_complete = computeIsIntakeComplete(projectData);
@@ -130,11 +135,12 @@ router.post('/', (req, res) => {
       property_status,
       beam_bottom_clear_height,
       property_type,
+      carpet_area_sqft,
       is_intake_complete,
       created_at,
       created_by
     ) VALUES (
-      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
     )
   `);
 
@@ -153,6 +159,7 @@ router.post('/', (req, res) => {
     projectData.property_status,
     projectData.beam_bottom_clear_height,
     projectData.property_type,
+    projectData.carpet_area_sqft,
     is_intake_complete,
     created_at,
     userId
@@ -186,6 +193,13 @@ router.patch('/:id', (req, res) => {
       updatedData[field] = body[field] !== undefined ? body[field] : null;
     }
   }
+  // Same numeric coercion as the create route above — a blank/missing value
+  // becomes null rather than the empty string `|| null` would otherwise let
+  // through untouched.
+  if ('carpet_area_sqft' in body) {
+    updatedData.carpet_area_sqft = (body.carpet_area_sqft === undefined || body.carpet_area_sqft === null || body.carpet_area_sqft === '')
+      ? null : Number(body.carpet_area_sqft);
+  }
 
   const is_intake_complete = computeIsIntakeComplete(updatedData);
 
@@ -203,6 +217,7 @@ router.patch('/:id', (req, res) => {
       property_status = ?,
       beam_bottom_clear_height = ?,
       property_type = ?,
+      carpet_area_sqft = ?,
       is_intake_complete = ?
     WHERE id = ?
   `);
@@ -220,6 +235,7 @@ router.patch('/:id', (req, res) => {
     updatedData.property_status,
     updatedData.beam_bottom_clear_height,
     updatedData.property_type,
+    updatedData.carpet_area_sqft,
     is_intake_complete,
     req.params.id
   );

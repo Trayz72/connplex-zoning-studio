@@ -929,6 +929,14 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
                 Matches this drawing's own net-usage-area hatch
               </div>
             )}
+            {bestRegion.boundary.form_match_note && (
+              <div style={{
+                fontSize: '0.7rem', color: 'var(--success)', border: '1px solid var(--success)',
+                borderRadius: 'var(--radius-sm)', padding: '3px 8px', marginBottom: '8px', lineHeight: 1.4,
+              }}>
+                Best match to your intake details — {bestRegion.boundary.form_match_note}
+              </div>
+            )}
             <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '14px' }}>
               {geometry.regions.length > 1 ? `Largest of ${geometry.regions.length} candidate regions — continuing automatically…` : 'The only candidate region found — continuing automatically…'}
             </div>

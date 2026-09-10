@@ -10,7 +10,8 @@ export const INTAKE_REQUIRED_FIELDS = [
   'floor_shop_no',
   'property_status',
   'beam_bottom_clear_height',
-  'property_type'
+  'property_type',
+  'carpet_area_sqft'
 ];
 
 export function computeIsIntakeComplete(project) {
