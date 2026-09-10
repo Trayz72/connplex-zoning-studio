@@ -3,15 +3,22 @@ SOFA SLIDER | DUO LOUNGER | PREMIUM RECLINER | TOTAL SEATS) from a candidate's
 room list. Same structure as services/cad-interop/generate_area_seat_chart.py,
 generalized to operate on any candidate, not just the frozen Dhule ones."""
 
+# Keyed by room_type — NOT the same thing as the "FOYER (...)"/"EXIT PASSAGE"
+# bucket-row labels below, which match a real Connplex reference drawing's
+# own Area & Seat Chart format verbatim and are deliberately left alone.
+# FOYER/PASSAGE here swapped 2026-09-10 at the client's request (the
+# manually-placed lobby room is now FOYER; the derived leftover-remainder
+# room is now PASSAGE — see rules_registry_v1.json's support_zone_defaults).
 NON_AUDITORIUM_LABELS = {
     "FOYER": "FOYER",
     "FNB": "F&B / CONCESSION",
     "WASHROOM": "WASHROOMS",
     "BOX_OFFICE": "BOX OFFICE",
     "MANAGER_ROOM": "MANAGER ROOM",
-    "BOH": "BACK-OF-HOUSE (ELECTRICAL/SERVER/STORE)",
+    "BOH": "BACK-OF-HOUSE (ELECTRICAL/SERVER)",
     "ELECTRICAL": "ELECTRICAL ROOM",
     "PROJECTOR": "PROJECTOR ROOM",
+    "STORE_ROOM": "STORE ROOM",
     "PASSAGE": "PASSAGE / CORRIDOR"
 }
 

@@ -53,10 +53,13 @@ function parseClearHeightToFeet(text: string | null | undefined): number | null 
 // Every one of these is a real key layout_engine.py's place_single_zone
 // already reads from support_zone_area_overrides_sqft — this UI was the only
 // missing piece, the backend has supported per-zone area targets all along.
-// FOYER is included even though it's also driven by the franchise tier's
-// foyer:screen ratio — an explicit override here still wins over that ratio,
-// same as any other zone.
+// PASSAGE is included even though it's also driven by the franchise tier's
+// passage:screen ratio — an explicit override here still wins over that
+// ratio, same as any other zone. (Before the 2026-09-10 terminology swap
+// this derived room was called FOYER and the ratio was foyer_to_screen_ratio
+// — see rules_registry_v1.json's support_zone_defaults entries.)
 const SUPPORT_ZONE_TYPES: { type: string; label: string }[] = [
+  { type: 'PASSAGE', label: 'Passage / Corridor' },
   { type: 'FOYER', label: 'Foyer' },
   { type: 'FNB', label: 'F&B / Concession' },
   { type: 'WASHROOM', label: 'Washroom' },
@@ -65,7 +68,7 @@ const SUPPORT_ZONE_TYPES: { type: string; label: string }[] = [
   { type: 'BOH', label: 'Back-of-House' },
   { type: 'ELECTRICAL', label: 'Electrical Room' },
   { type: 'PROJECTOR', label: 'Projector Room' },
-  { type: 'PASSAGE', label: 'Passage / Corridor' },
+  { type: 'STORE_ROOM', label: 'Store Room' },
 ];
 
 export const RequirementsStep: React.FC<RequirementsStepProps> = ({

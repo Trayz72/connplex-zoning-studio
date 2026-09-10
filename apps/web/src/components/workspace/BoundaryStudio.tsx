@@ -3,7 +3,7 @@ import { GeometryResult, GeometryRegion, RawClosedShape, RawSegment, FullRawGeom
 import * as engine from '../../services/zoningEngineApi';
 import { ArrowRightIcon, RefreshIcon, WarningIcon } from '../Icons';
 import { EntryExitPicker } from './EntryExitPicker';
-import { floorLabelFor } from '../../utils/floorLabel';
+import { floorLabelFor, bestMatchRegionId } from '../../utils/floorLabel';
 
 interface BoundaryStudioProps {
   projectId: string;
@@ -16,6 +16,11 @@ interface BoundaryStudioProps {
    * goes through it) never accidentally clears previously-marked points. */
   onBoundaryChosen: (geometry: GeometryResult, regionId: string, entryPointFt?: [number, number] | null, exitPointsFt?: [number, number][]) => void;
   onStartOver: () => void;
+  /** The project's own intake-form Carpet Area / Offered Floor — used only
+   * to rank candidate regions and surface a "Best match" badge (see
+   * bestMatchRegionId in utils/floorLabel.ts); never auto-selects one. */
+  carpetAreaSqft?: number | null;
+  floorShopHint?: string | null;
 }
 
 /** A boundary the architect has picked (auto-detected, shape-clicked,
@@ -211,12 +216,15 @@ type Preview = { points: number[][]; mode: 'shape' | 'walls' | 'draw'; sourceHan
 // behind an extra click.
 const REGION_LIST_COMPACT_THRESHOLD = 8;
 
-const RegionCandidateButton: React.FC<{ region: GeometryRegion; index: number; onChoose: (regionId: string) => void }> = ({ region, index, onChoose }) => {
+const RegionCandidateButton: React.FC<{ region: GeometryRegion; index: number; onChoose: (regionId: string) => void; isBestMatch?: boolean }> = ({ region, index, onChoose, isBestMatch }) => {
   const floorLabel = floorLabelFor(region);
   return (
   <button
     className="btn btn-secondary"
-    style={{ fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', width: '100%' }}
+    style={{
+      fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', width: '100%',
+      borderColor: isBestMatch ? 'var(--success)' : undefined,
+    }}
     onClick={() => onChoose(region.region_id)}
   >
     <span style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0, flexWrap: 'wrap' }}>
@@ -232,6 +240,17 @@ const RegionCandidateButton: React.FC<{ region: GeometryRegion; index: number; o
           hatched
         </span>
       )}
+      {isBestMatch && (
+        <span
+          title="This region's area (and floor label, if detected) is the closest match to your intake form's Carpet Area / Offered Floor."
+          style={{
+            fontSize: '0.64rem', color: 'var(--success)', border: '1px solid var(--success)',
+            borderRadius: 'var(--radius-sm)', padding: '1px 5px', whiteSpace: 'nowrap', flexShrink: 0,
+          }}
+        >
+          best match for your form
+        </span>
+      )}
     </span>
     <ArrowRightIcon size={13} />
   </button>
@@ -242,14 +261,18 @@ const RegionCandidateButton: React.FC<{ region: GeometryRegion; index: number; o
  * below REGION_LIST_COMPACT_THRESHOLD (the common, real case), collapsed
  * behind a "Show all" toggle above it so an unusually large candidate set
  * doesn't push the actual floor-plan view off-screen. */
-const RegionCandidateList: React.FC<{ geometry: GeometryResult; onChoose: (regionId: string) => void }> = ({ geometry, onChoose }) => {
+const RegionCandidateList: React.FC<{
+  geometry: GeometryResult; onChoose: (regionId: string) => void;
+  carpetAreaSqft?: number | null; floorShopHint?: string | null;
+}> = ({ geometry, onChoose, carpetAreaSqft, floorShopHint }) => {
   const [expanded, setExpanded] = useState(false);
   const regions = geometry.regions;
+  const bestId = bestMatchRegionId(regions, carpetAreaSqft, floorShopHint);
 
   if (regions.length <= REGION_LIST_COMPACT_THRESHOLD) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        {regions.map((r, i) => <RegionCandidateButton key={r.region_id} region={r} index={i} onChoose={onChoose} />)}
+        {regions.map((r, i) => <RegionCandidateButton key={r.region_id} region={r} index={i} onChoose={onChoose} isBestMatch={r.region_id === bestId} />)}
       </div>
     );
   }
@@ -260,7 +283,7 @@ const RegionCandidateList: React.FC<{ geometry: GeometryResult; onChoose: (regio
       <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', marginBottom: '2px' }}>
         {regions.length} candidates found — unusually many for a real floor plate. Showing the {visibleCount} largest.
       </div>
-      {regions.slice(0, visibleCount).map((r, i) => <RegionCandidateButton key={r.region_id} region={r} index={i} onChoose={onChoose} />)}
+      {regions.slice(0, visibleCount).map((r, i) => <RegionCandidateButton key={r.region_id} region={r} index={i} onChoose={onChoose} isBestMatch={r.region_id === bestId} />)}
       {!expanded ? (
         <button className="btn btn-secondary" style={{ fontSize: '0.72rem', padding: '6px 8px' }} onClick={() => setExpanded(true)}>
           Show all {regions.length} candidates
@@ -268,7 +291,7 @@ const RegionCandidateList: React.FC<{ geometry: GeometryResult; onChoose: (regio
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '280px', overflowY: 'auto', paddingRight: '2px' }}>
           {regions.slice(visibleCount).map((r, i) => (
-            <RegionCandidateButton key={r.region_id} region={r} index={i + visibleCount} onChoose={onChoose} />
+            <RegionCandidateButton key={r.region_id} region={r} index={i + visibleCount} onChoose={onChoose} isBestMatch={r.region_id === bestId} />
           ))}
         </div>
       )}
@@ -276,7 +299,7 @@ const RegionCandidateList: React.FC<{ geometry: GeometryResult; onChoose: (regio
   );
 };
 
-export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geometry, onGeometryUpdated, onBoundaryChosen, onStartOver }) => {
+export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geometry, onGeometryUpdated, onBoundaryChosen, onStartOver, carpetAreaSqft, floorShopHint }) => {
   const raw = geometry.full_raw_geometry;
   const svgRef = useRef<SVGSVGElement>(null);
   const autoModeHatchId = useId();
@@ -1172,7 +1195,7 @@ export const BoundaryStudio: React.FC<BoundaryStudioProps> = ({ projectId, geome
               No candidate boundary was found automatically — use one of the tools on the left to define one manually.
             </div>
           ) : (
-            <RegionCandidateList geometry={geometry} onChoose={(regionId) => setPendingChoice({ geometry, regionId })} />
+            <RegionCandidateList geometry={geometry} onChoose={(regionId) => setPendingChoice({ geometry, regionId })} carpetAreaSqft={carpetAreaSqft} floorShopHint={floorShopHint} />
           )}
         </div>
 

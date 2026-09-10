@@ -63,3 +63,11 @@ def franchise_tier(tier_id: str):
 
 def franchise_tiers() -> list:
     return load()["franchise_tiers"]
+
+
+def support_zone_defaults() -> list:
+    return load()["support_zone_defaults"]
+
+
+def support_zone_default(room_type_id: str):
+    return next((s for s in support_zone_defaults() if s["id"] == room_type_id), None)

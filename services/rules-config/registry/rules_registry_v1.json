@@ -7,7 +7,8 @@
     { "id": "SOP", "name": "CCL_ZONING_SOP_26.05.2026.pdf", "org": "Connplex Cinemas Limited", "note": "Image-based PDF; exact figures should be re-verified against the scan before promoting a value to a stricter status." },
     { "id": "FEASIBILITY_MANUAL", "name": "CONNPLEX Cinemas - PRE-DEAL FEASIBILITY CRITERIA MANUAL.pdf", "org": "Connplex Cinemas Limited" },
     { "id": "SPEC", "name": "Connplex_Zoning_Studio_Spec.pdf", "org": "Connplex Cinemas Limited / project spec v1.0", "note": "Reconciled/derived from SOP + Feasibility Manual + franchise brochure + ROI sheet." },
-    { "id": "THEATER_STD_CSV", "name": "theater_architecture_complete_standards.csv (user-supplied, sourced from the public internet)", "org": "Not Connplex-specific — cites SMPTE ST 290, THX Architecture Guidelines, British Standards BS 5588, ASHRAE, and several U.S. legal codes (IBC, NFPA 101, ADA, IPC)", "note": "The U.S. legal-code citations (IBC/NFPA/ADA/IPC) are NOT verified against India's National Building Code or the local cinema-licensing rules that actually govern Connplex's real projects (Gujarat, Maharashtra per this app's own project records) — only jurisdiction-agnostic engineering/design conventions from this source were wired in as rules; the rest are listed in not_evaluable_today with the reason." }
+    { "id": "THEATER_STD_CSV", "name": "theater_architecture_complete_standards.csv (user-supplied, sourced from the public internet)", "org": "Not Connplex-specific — cites SMPTE ST 290, THX Architecture Guidelines, British Standards BS 5588, ASHRAE, and several U.S. legal codes (IBC, NFPA 101, ADA, IPC)", "note": "The U.S. legal-code citations (IBC/NFPA/ADA/IPC) are NOT verified against India's National Building Code or the local cinema-licensing rules that actually govern Connplex's real projects (Gujarat, Maharashtra per this app's own project records) — only jurisdiction-agnostic engineering/design conventions from this source were wired in as rules; the rest are listed in not_evaluable_today with the reason." },
+    { "id": "CLIENT_LAYOUT_NOTES", "name": "Cinema_Layout_Notes.pdf (client-provided operational notes)", "org": "Connplex Cinemas Limited", "note": "A working notes document the client sent directly (2026-09-10) covering component placement order/issues and a table of minimum-area limits per support-zone type. Treated as the primary source of truth for the client's own operational minimums where no formal SOP figure existed or where it explicitly supersedes an earlier unsourced engineering placeholder." }
   ],
 
   "seat_types": [
@@ -191,7 +192,7 @@
       "height_min_ft": 10,
       "height_max_ft": 12,
       "allowed_seat_types": ["SLIDER_SOFA", "FRONT_LOUNGER"],
-      "foyer_to_screen_ratio": "30:70",
+      "passage_to_screen_ratio": "30:70",
       "franchisee_fee_per_screen_inr_lacs": 5,
       "source": "SPEC",
       "source_section": "§2.9",
@@ -208,7 +209,7 @@
       "height_min_ft": 11,
       "height_max_ft": 12,
       "allowed_seat_types": ["SLIDER_SOFA", "FRONT_LOUNGER", "DUO_LOUNGER"],
-      "foyer_to_screen_ratio": "40:60",
+      "passage_to_screen_ratio": "40:60",
       "franchisee_fee_per_screen_inr_lacs": 5,
       "source": "SPEC",
       "source_section": "§2.9",
@@ -225,12 +226,25 @@
       "height_min_ft": 12,
       "height_max_ft": 14,
       "allowed_seat_types": ["PREMIUM_RECLINER", "DUO_PREMIUM_RECLINER"],
-      "foyer_to_screen_ratio": "40:60",
+      "passage_to_screen_ratio": "40:60",
       "franchisee_fee_per_screen_inr_lacs": 5,
       "source": "SPEC",
       "source_section": "§2.9",
       "approval_status": "SOURCE_BACKED"
     }
+  ],
+
+  "support_zone_defaults": [
+    { "id": "BOX_OFFICE", "name": "Box Office / Ticketing", "target_area_sqft": 60.0, "min_area_sqft": 50.0, "source": "CLIENT_LAYOUT_NOTES", "approval_status": "SOURCE_BACKED", "notes": "Must be immediately visible on arrival from the lift/main entry (see the BOX_OFFICE sightline preference in _support_zone_heuristic). Minimum confirmed unchanged against the client's own notes; may be sized up beyond this default." },
+    { "id": "FOYER", "name": "Foyer", "target_area_sqft": null, "min_area_sqft": 600.0, "source": "CLIENT_LAYOUT_NOTES", "approval_status": "SOURCE_BACKED", "notes": "Manually-placed public lobby zone (Box Office/Waiting/F&B/Washrooms/Electrical/Server/Store per FOYER_REQUIRED_FUNCTIONS) — sized against the franchise tier's passage_to_screen_ratio when a tier is set, or 30% of auditorium area otherwise; this is only the hard floor. Note: this is the room type the app calls FOYER as of 2026-09-10 — before that date the same manually-placed room type was called PASSAGE and the derived-leftover concept was called FOYER; the two names were swapped at the client's explicit request once the terminology mismatch was found." },
+    { "id": "FNB", "name": "Food & Beverage / Concession", "target_area_sqft": null, "min_area_sqft": 200.0, "source": "CLIENT_LAYOUT_NOTES", "approval_status": "SOURCE_BACKED", "notes": "Target still defaults to 8% of usable area (Master Context Sec 35 illustrative figure, not a decided rule) — only the minimum is client-sourced." },
+    { "id": "WASHROOM", "name": "Washrooms", "target_area_sqft": 500.0, "min_area_sqft": 500.0, "source": "CLIENT_LAYOUT_NOTES", "approval_status": "SOURCE_BACKED" },
+    { "id": "BOH", "name": "Back-of-House (Electrical / Server)", "target_area_sqft": 90.0, "min_area_sqft": 60.0, "source": "ENGINEERING_ASSUMPTION", "approval_status": "REQUIRES_APPROVAL", "notes": "SOP lists these as required foyer sub-functions but gives no area figures. 'Store' dropped from the display name — STORE_ROOM is now its own room type below, client-sourced, so it no longer double-counts the same physical space under BOH." },
+    { "id": "MANAGER_ROOM", "name": "Manager Room", "target_area_sqft": 100.0, "min_area_sqft": 100.0, "source": "CLIENT_LAYOUT_NOTES", "approval_status": "SOURCE_BACKED", "notes": "Placed near Box Office (see _support_zone_heuristic)." },
+    { "id": "ELECTRICAL", "name": "Electrical Room", "target_area_sqft": 100.0, "min_area_sqft": 100.0, "source": "CLIENT_LAYOUT_NOTES", "approval_status": "SOURCE_BACKED", "notes": "Was an unsourced REQUIRES_APPROVAL placeholder (40 sqft) deliberately excluded from SUPPORT_ZONE_AUTO_ORDER 'until a real figure exists' — the client's notes now supply one. Left excluded from SUPPORT_ZONE_AUTO_ORDER regardless: the client's notes gave an area figure, not a request to change auto-placement inclusion." },
+    { "id": "PROJECTOR", "name": "Projector Room", "target_area_sqft": 150.0, "min_area_sqft": 150.0, "source": "CLIENT_LAYOUT_NOTES", "approval_status": "SOURCE_BACKED", "notes": "Was an unsourced REQUIRES_APPROVAL placeholder (60 sqft) deliberately excluded from SUPPORT_ZONE_AUTO_ORDER 'until a real figure exists' — the client's notes now supply one. Left excluded from SUPPORT_ZONE_AUTO_ORDER regardless (see ELECTRICAL note)." },
+    { "id": "STORE_ROOM", "name": "Store Room", "target_area_sqft": 90.0, "min_area_sqft": 90.0, "source": "CLIENT_LAYOUT_NOTES", "approval_status": "SOURCE_BACKED", "notes": "New room type, split out of BOH's prior combined 'Electrical/Server/Store' description — the client's notes give Store Room its own distinct minimum." },
+    { "id": "PASSAGE", "name": "Passage / Corridor", "target_area_sqft": null, "min_area_sqft": 170.0, "source": "CLIENT_LAYOUT_NOTES", "approval_status": "SOURCE_BACKED", "notes": "This is the derived-leftover-remainder room (never independently placed — see layout_engine._build_passage_room and main.py._replace_passage_with_derived), computed as whatever's genuinely left once every other room is placed. Minimum used as a real-area viability check, not a placement target. Note: this is the room type the app calls PASSAGE as of 2026-09-10 — see the FOYER entry above for the same terminology-swap history." }
   ],
 
   "planning_norms": [
@@ -274,7 +288,8 @@
     { "rule_id": "VR_BUILDING_HEIGHT_MAX_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "building_height_ft", "operator": "<=", "threshold": 50, "unit": "ft", "severity": "SOFT", "message_template": "Building height exceeds 50 ft (15.24 m) — requires DCR permission or competent-authority approval.", "source": "FEASIBILITY_MANUAL", "source_section": "§2.4", "approval_status": "SOURCE_BACKED" },
     { "rule_id": "VR_PASSENGER_LIFTS_MIN_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "passenger_lift_count", "operator": ">=", "threshold": 2, "unit": "count", "severity": "HARD", "source": "FEASIBILITY_MANUAL", "source_section": "§2.3", "approval_status": "SOURCE_BACKED", "evaluable": false },
     { "rule_id": "VR_DG_BACKUP_MANDATORY_OPEN_LAND", "property_type_scope": "OPEN_LAND", "metric": "dg_backup_present", "operator": "==", "threshold": true, "severity": "HARD", "source": "FEASIBILITY_MANUAL", "source_section": "§2.5", "approval_status": "SOURCE_BACKED", "evaluable": false },
-    { "rule_id": "VR_LAST_ROW_DISTANCE", "property_type_scope": "ANY", "metric": "last_row_distance_ft", "operator": "<=", "threshold": 120, "unit": "ft", "severity": "WARNING", "message_template": "Back row is more than 120 ft from the screen — facial expression/legibility degrades past this distance.", "source": "THEATER_STD_CSV", "source_section": "Screen Placement & Layout / Last Row Distance", "approval_status": "REQUIRES_APPROVAL" }
+    { "rule_id": "VR_LAST_ROW_DISTANCE", "property_type_scope": "ANY", "metric": "last_row_distance_ft", "operator": "<=", "threshold": 120, "unit": "ft", "severity": "WARNING", "message_template": "Back row is more than 120 ft from the screen — facial expression/legibility degrades past this distance.", "source": "THEATER_STD_CSV", "source_section": "Screen Placement & Layout / Last Row Distance", "approval_status": "REQUIRES_APPROVAL" },
+    { "rule_id": "VR_SUPPORT_ZONE_AREA_SHARE", "property_type_scope": "ANY", "metric": "support_zone_area_pct_of_carpet", "operator": "between", "threshold_min": 30, "threshold_max": 40, "unit": "%", "severity": "WARNING", "message_template": "Combined support-zone area (everything except screens) is outside the client's own 30-40% target share of total usable area.", "source": "CLIENT_LAYOUT_NOTES", "approval_status": "SOURCE_BACKED", "notes": "support_zone_area_pct_of_carpet = (sum of every placed room's area_sqft where room_type does not start with AUDITORIUM, including the derived PASSAGE remainder) / total usable area * 100 — see main.py's measurement builder." }
   ],
 
   "not_evaluable_today": [

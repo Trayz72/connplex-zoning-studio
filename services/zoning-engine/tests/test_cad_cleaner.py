@@ -69,6 +69,94 @@ def test_partition_kept_keeps_only_column_and_duct(tmp_path):
     assert dropped_classes == ["FURNITURE", "WALL"]
 
 
+# ---------- Net Usage Area / Carpet Area validation ----------
+
+def test_preview_summary_flags_a_matching_carpet_area(tmp_path):
+    """The boundary is exactly 40x30 = 1200 sqft with a 'Screen 1' label
+    inside it — a stated carpet area of 1200 (well within the 15%
+    tolerance) plus the matching label should produce a real match note,
+    not silence (unlike the automatic multi-candidate ranking path this
+    reuses, Clean CAD's one deliberate selection needs feedback either way)."""
+    dxf_path = str(tmp_path / "messy.dxf")
+    _build_messy_dxf(dxf_path)
+    geometry = cad_extraction.extract(dxf_path)
+    full_raw = geometry["full_raw_geometry"]
+    handle = _boundary_handle(full_raw)
+    regions = cad_cleaner.build_clean_regions(full_raw, [handle])
+
+    summary = cad_cleaner.preview_summary(regions, target_area_sqft=1200, label_hint="Screen 1")[0]
+    assert summary["net_usage_area_sqft"] == summary["boundary_area_sqft"] == 1200.0
+    assert summary["carpet_area_check"]["matches"] is True
+    assert "matching label" in summary["carpet_area_check"]["note"]
+
+
+def test_preview_summary_flags_a_mismatching_carpet_area():
+    """A stated carpet area far outside the tolerance must produce an
+    honest, real-percentage mismatch note — unlike the automatic ranking
+    path's deliberate silence-on-mismatch, this is the one place that
+    silence would hide the exact signal that matters most."""
+    region = {"boundary": {"area_sqft": 1200.0}, "text_labels": []}
+    check = cad_cleaner._carpet_area_check(region, target_area_sqft=2000, label_hint=None)
+    assert check["matches"] is False
+    assert "40%" in check["note"]
+    assert "2,000" in check["note"]
+
+
+def test_preview_summary_has_no_carpet_area_check_when_no_target_given(tmp_path):
+    dxf_path = str(tmp_path / "messy.dxf")
+    _build_messy_dxf(dxf_path)
+    geometry = cad_extraction.extract(dxf_path)
+    full_raw = geometry["full_raw_geometry"]
+    handle = _boundary_handle(full_raw)
+    regions = cad_cleaner.build_clean_regions(full_raw, [handle])
+
+    summary = cad_cleaner.preview_summary(regions)[0]
+    assert summary["carpet_area_check"] is None
+    assert summary["net_usage_area_sqft"] == summary["boundary_area_sqft"] == 1200.0
+
+
+# ---------- proactive boundary suggestion by Carpet Area (search_by_area) ----------
+
+def test_search_by_area_finds_the_matching_boundary_first(tmp_path):
+    dxf_path = str(tmp_path / "messy.dxf")
+    _build_messy_dxf(dxf_path)
+    full_raw = cad_extraction.extract(dxf_path)["full_raw_geometry"]
+    boundary_handle = _boundary_handle(full_raw)
+
+    matches = cad_cleaner.search_by_area(full_raw, target_area_sqft=1200)
+    assert matches
+    assert matches[0]["shape_handle"] == boundary_handle
+    assert matches[0]["shape_area_sqft"] == 1200.0
+    assert matches[0]["rel_error_pct"] == 0.0
+
+
+def test_search_by_area_returns_nothing_outside_tolerance(tmp_path):
+    dxf_path = str(tmp_path / "messy.dxf")
+    _build_messy_dxf(dxf_path)
+    full_raw = cad_extraction.extract(dxf_path)["full_raw_geometry"]
+
+    assert cad_cleaner.search_by_area(full_raw, target_area_sqft=5000) == []
+
+
+def test_search_by_area_returns_nothing_with_no_target(tmp_path):
+    dxf_path = str(tmp_path / "messy.dxf")
+    _build_messy_dxf(dxf_path)
+    full_raw = cad_extraction.extract(dxf_path)["full_raw_geometry"]
+
+    assert cad_cleaner.search_by_area(full_raw, target_area_sqft=None) == []
+    assert cad_cleaner.search_by_area(full_raw, target_area_sqft=0) == []
+
+
+def test_search_by_area_sorts_multiple_matches_closest_first():
+    full_raw = {"closed_shapes": [
+        {"handle": "far", "area_sqft": 1100.0, "points_ft": [[0, 0], [10, 0], [10, 10], [0, 10]]},
+        {"handle": "exact", "area_sqft": 1200.0, "points_ft": [[0, 0], [10, 0], [10, 10], [0, 10]]},
+        {"handle": "near", "area_sqft": 1180.0, "points_ft": [[0, 0], [10, 0], [10, 10], [0, 10]]},
+    ]}
+    matches = cad_cleaner.search_by_area(full_raw, target_area_sqft=1200)
+    assert [m["shape_handle"] for m in matches] == ["exact", "near", "far"]
+
+
 def test_export_clean_cad_writes_only_kept_geometry(tmp_path):
     dxf_path = str(tmp_path / "messy.dxf")
     _build_messy_dxf(dxf_path)

@@ -127,8 +127,16 @@ class SearchLabelIn(BaseModel):
     query: str
 
 
+class SearchAreaIn(BaseModel):
+    target_area_sqft: float
+
+
 class CleanSelectionIn(BaseModel):
     shape_handles: List[str]
+    # The project's own intake-form Carpet Area / Floor-Shop-No, when the
+    # frontend has them — see cad_cleaner._carpet_area_check.
+    target_area_sqft: Optional[float] = None
+    label_hint: Optional[str] = None
 
 
 class UnitOverrideIn(BaseModel):
@@ -143,7 +151,7 @@ class LayoutUpdateIn(BaseModel):
 
 
 class AddZoneIn(BaseModel):
-    room_type: str  # AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | MANAGER_ROOM | BOH | ELECTRICAL | PROJECTOR | PASSAGE
+    room_type: str  # AUDITORIUM | FOYER | FNB | WASHROOM | BOX_OFFICE | MANAGER_ROOM | BOH | ELECTRICAL | PROJECTOR | STORE_ROOM | PASSAGE
 
 
 class ScreenWallUpdateIn(BaseModel):
@@ -209,6 +217,14 @@ def _build_measurements(requirements: dict, confirmed_obstacles: list, boundary_
         ]
         if last_row_distances:
             measurements["last_row_distance_ft"] = round(max(last_row_distances), 2)
+    # VR_SUPPORT_ZONE_AREA_SHARE's metric — the client's own notes give a
+    # 30-40% target share of total usable area for every non-screen
+    # component combined (Box Office/Foyer/F&B/Washroom/etc, including the
+    # derived PASSAGE remainder) — computed here, not stored per-room, so it
+    # always reflects the current room list rather than going stale.
+    if rooms and boundary_area_sqft:
+        support_zone_area_sqft = sum(r["area_sqft"] for r in rooms if not r["room_type"].startswith("AUDITORIUM"))
+        measurements["support_zone_area_pct_of_carpet"] = round(support_zone_area_sqft / boundary_area_sqft * 100, 2)
     return measurements
 
 
@@ -364,6 +380,16 @@ def clean_search_label(project_id: str, body: SearchLabelIn):
     return {"matches": cad_cleaner.search_labels(geometry["full_raw_geometry"], body.query)}
 
 
+@app.post("/api/projects/{project_id}/clean/search-area")
+def clean_search_area(project_id: str, body: SearchAreaIn):
+    """Proactive boundary suggestion for the Clean CAD stage, driven by the
+    project's own intake Carpet Area — see cad_cleaner.search_by_area."""
+    geometry = storage.read_json(storage.geometry_path(project_id))
+    if not geometry or not geometry.get("full_raw_geometry"):
+        raise HTTPException(404, "No CAD geometry uploaded for this project yet.")
+    return {"matches": cad_cleaner.search_by_area(geometry["full_raw_geometry"], body.target_area_sqft)}
+
+
 @app.post("/api/projects/{project_id}/clean/preview")
 def clean_preview(project_id: str, body: CleanSelectionIn):
     """Live before/after readout for one or more selected closed shapes
@@ -377,7 +403,7 @@ def clean_preview(project_id: str, body: CleanSelectionIn):
         regions = cad_cleaner.build_clean_regions(geometry["full_raw_geometry"], body.shape_handles)
     except ValueError as e:
         raise HTTPException(422, str(e))
-    return {"regions": cad_cleaner.preview_summary(regions)}
+    return {"regions": cad_cleaner.preview_summary(regions, target_area_sqft=body.target_area_sqft, label_hint=body.label_hint)}
 
 
 @app.post("/api/projects/{project_id}/clean/confirm")
@@ -514,13 +540,15 @@ def _candidate_geometry_errors(boundary_points_ft, confirmed_obstacles, candidat
     saved unvalidated, the first edit attempt afterward would reject over
     rooms the architect never touched, permanently blocking editing with no
     diagnostic trail. That exact symptom already happened once for real, via
-    a stale Foyer (now fixed by making Foyer derived instead of stored); this
+    a stale Passage (now fixed by making Passage derived instead of stored;
+    this room type was called Foyer at the time — see rules_registry_v1.json's
+    support_zone_defaults entries for the 2026-09-10 terminology swap); this
     closes the same failure mode for every other room type, defensively —
     not because it's been observed on a real project, but because the
     placement engine is complex enough that a future regression could produce
     one (see this session's own top_k-starvation bug for how a placement bug
     can slip past code review and unit tests until it's live)."""
-    real_rooms = [r for r in candidate_rooms if r["room_type"] != "FOYER"]
+    real_rooms = [r for r in candidate_rooms if r["room_type"] != "PASSAGE"]
     validation = layout_engine.validate_rooms(boundary_points_ft, confirmed_obstacles, real_rooms)
     return None if validation["valid"] else validation["errors"]
 
@@ -769,13 +797,13 @@ def select_candidate(project_id: str, body: CandidateSelectIn):
             "errors": errors,
         })
 
-    # Same Foyer hierarchy check _replace_foyer_with_derived runs on every
+    # Same Passage hierarchy check _replace_passage_with_derived runs on every
     # later edit — checked here too so a freshly selected, never-yet-edited
     # candidate carries it from the start rather than only appearing after
     # the first manual change.
-    foyer_room = next((r for r in candidate["rooms"] if r["room_type"] == "FOYER"), None)
-    other_rooms = [r for r in candidate["rooms"] if r["room_type"] != "FOYER"]
-    foyer_warning = _foyer_hierarchy_warning(foyer_room, other_rooms)
+    passage_room = next((r for r in candidate["rooms"] if r["room_type"] == "PASSAGE"), None)
+    other_rooms = [r for r in candidate["rooms"] if r["room_type"] != "PASSAGE"]
+    passage_warning = _passage_hierarchy_warning(passage_room, other_rooms)
 
     layout = {
         "region_id": run["region_id"],
@@ -784,7 +812,7 @@ def select_candidate(project_id: str, body: CandidateSelectIn):
         "obstacles": confirmed_obstacle_records,
         "rooms": candidate["rooms"],
         "circulation_area_sqft": candidate["circulation_area_sqft"],
-        "warnings": candidate.get("warnings", []) + ([foyer_warning] if foyer_warning else []),
+        "warnings": candidate.get("warnings", []) + ([passage_warning] if passage_warning else []),
         "revision": "R0",
         "updated_at": storage.now_iso()
     }
@@ -809,14 +837,35 @@ def _screen_wall_door_conflict_note(room):
     )
 
 
-def _recompute_room_derived_fields(room: dict, column_polys: list, screen_width_ft: float = None):
+def _recompute_room_derived_fields(room: dict, column_polys: list, screen_width_ft: float = None, entry_point=None):
     """Recomputes a room's seat_estimate/preset_fit/obstacle_note from its
     current, real geometry — shared by update_layout (an architect's
     move/resize/edit), add_zone (a freshly placed room), and
     update_screen_wall (a reassigned screen) so all three paths stay honest
     about a room that now encloses a confirmed column, carries a door too
     close to itself, or has changed which wall its screen is on, rather than
-    leaving a stale value from before the edit/placement."""
+    leaving a stale value from before the edit/placement.
+
+    Real, reported defect this also fixes: reshaping an auditorium (a drag-
+    resize) used to leave screen_wall pointing at whatever wall was nearest
+    the entry at PLACEMENT time, even after the reshape made a different
+    wall the sensible one — doors stayed geometrically valid (re-clamped to
+    their own wall's new length below) but could end up "on the right wall
+    for a shape that no longer exists." Unless the architect has explicitly
+    pinned it via update_screen_wall (screen_wall_manual, set only there),
+    screen_wall is now recomputed here from the room's CURRENT bbox the
+    exact same way _build_auditorium_room derives it at placement time —
+    same _screen_wall_for_rect + _OPPOSITE_WALL pair, just re-run on demand.
+    Doors themselves are still only re-clamped (offset/width to the
+    possibly-now-different wall length), never silently moved to a new
+    wall — _screen_wall_door_conflict_note below is the safety net for
+    whatever that leaves inconsistent, same as before this fix."""
+    if (room.get("room_type", "").startswith("AUDITORIUM") and not room.get("screen_wall_manual")
+            and entry_point is not None and room.get("origin_ft") is not None):
+        x, y = room["origin_ft"]
+        door_wall = layout_engine._screen_wall_for_rect(x, y, room["width_ft"], room["depth_ft"], entry_point, restrict_to_depth_axis=True)
+        room["screen_wall"] = layout_engine._OPPOSITE_WALL[door_wall]
+
     room_poly = layout_engine.poly_from_points(room["geometry_points_ft"])
     enclosed_area = sum(room_poly.intersection(cp).area for cp in column_polys) if column_polys else 0.0
 
@@ -864,8 +913,8 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
     invalid edit (overlap, outside boundary, obstacle collision) is rejected with
     the specific reason, never silently accepted (Product Principle #4).
 
-    FOYER is never part of what's validated or stored here — see
-    _replace_foyer_with_derived's own docstring for why: it's always
+    PASSAGE is never part of what's validated or stored here — see
+    _replace_passage_with_derived's own docstring for why: it's always
     recomputed as the real leftover remainder after every other room in
     body.rooms, the same way generate_candidate's own auto-layout pass
     already does, so it can never be the thing an edit gets rejected for."""
@@ -873,7 +922,7 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
     if not existing:
         raise HTTPException(404, "No editable layout exists for this project yet — run zoning first.")
 
-    real_rooms = [r for r in body.rooms if r["room_type"] != "FOYER"]
+    real_rooms = [r for r in body.rooms if r["room_type"] != "PASSAGE"]
 
     # body.obstacles carries classification (points_ft + classification), same
     # as generate_candidates below — validate_rooms only hard-blocks on
@@ -891,9 +940,10 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
     column_polys = [layout_engine.poly_from_points(o["points_ft"]) for o in body.obstacles if o.get("classification") == "COLUMN"]
     requirements = storage.read_json(storage.requirements_path(project_id)) or {}
     for room in real_rooms:
-        _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"))
+        _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"),
+                                        entry_point=requirements.get("entry_point_ft"))
 
-    final_rooms, circulation, foyer_warning = _replace_foyer_with_derived(body.boundary_points_ft, body.obstacles, real_rooms, requirements)
+    final_rooms, circulation, passage_warning = _replace_passage_with_derived(body.boundary_points_ft, body.obstacles, real_rooms, requirements)
 
     updated = {
         "region_id": existing["region_id"],
@@ -905,13 +955,13 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
         # existing warnings are carried forward unchanged, not recomputed —
         # they describe how the auto-layout originally generated this
         # candidate (unmarked entrance, undersized presets, etc.), which a
-        # manual edit doesn't retroactively change the truth of. The Foyer
+        # manual edit doesn't retroactively change the truth of. The Passage
         # hierarchy warning is the one exception: recomputed fresh on every
         # edit (it describes the layout's CURRENT state, not how it was
         # generated) — any stale copy from a previous edit is dropped first
-        # (see _is_foyer_hierarchy_warning) so it can't accumulate duplicates
+        # (see _is_passage_hierarchy_warning) so it can't accumulate duplicates
         # across repeated edits instead of just reflecting the latest check.
-        "warnings": [w for w in existing.get("warnings", []) if not _is_foyer_hierarchy_warning(w)] + ([foyer_warning] if foyer_warning else []),
+        "warnings": [w for w in existing.get("warnings", []) if not _is_passage_hierarchy_warning(w)] + ([passage_warning] if passage_warning else []),
         "revision": existing.get("revision", "R0"),
         "updated_at": storage.now_iso()
     }
@@ -919,68 +969,72 @@ def update_layout(project_id: str, body: LayoutUpdateIn):
     return _enrich_layout(project_id, updated)
 
 
-_FOYER_HIERARCHY_WARNING_PREFIX = "Foyer ("
+_PASSAGE_HIERARCHY_WARNING_PREFIX = "Passage ("
 
 
-def _is_foyer_hierarchy_warning(warning_text):
-    """Identifies a previously-persisted _foyer_hierarchy_warning string so
+def _is_passage_hierarchy_warning(warning_text):
+    """Identifies a previously-persisted _passage_hierarchy_warning string so
     it can be dropped before appending a freshly-recomputed one — both
     callers persist the layout's `warnings` list across edits, and this
     warning (unlike the others in that list) needs to reflect current state,
     not accumulate a stale copy from every past edit."""
-    return warning_text.startswith(_FOYER_HIERARCHY_WARNING_PREFIX)
+    return warning_text.startswith(_PASSAGE_HIERARCHY_WARNING_PREFIX)
 
 
-def _foyer_hierarchy_warning(foyer_room, real_rooms):
-    """Team's own placement standards: Foyer has no fixed min/max, but must
-    be larger than every auxiliary (non-auditorium) room and smaller than
-    every auditorium — a soft check ("warnings, not blockers," per the same
-    document), not enforced by construction, since Foyer is whatever real
-    area happens to be left over once everything else is placed. Returns a
-    plain-English warning string, or None when the hierarchy holds (or
-    there's nothing real to compare against yet)."""
-    if not foyer_room:
+def _passage_hierarchy_warning(passage_room, real_rooms):
+    """Team's own placement standards: Passage (the derived leftover-
+    remainder room — called Foyer before the 2026-09-10 terminology swap)
+    has no fixed min/max, but must be larger than every auxiliary
+    (non-auditorium) room and smaller than every auditorium — a soft check
+    ("warnings, not blockers," per the same document), not enforced by
+    construction, since Passage is whatever real area happens to be left
+    over once everything else is placed. Returns a plain-English warning
+    string, or None when the hierarchy holds (or there's nothing real to
+    compare against yet)."""
+    if not passage_room:
         return None
-    foyer_area = foyer_room["area_sqft"]
+    passage_area = passage_room["area_sqft"]
     auxiliary_areas = [r["area_sqft"] for r in real_rooms if not r["room_type"].startswith("AUDITORIUM")]
     auditorium_areas = [r["area_sqft"] for r in real_rooms if r["room_type"].startswith("AUDITORIUM")]
-    if auxiliary_areas and foyer_area < max(auxiliary_areas):
+    if auxiliary_areas and passage_area < max(auxiliary_areas):
         biggest = max(auxiliary_areas)
         return (
-            f"Foyer ({foyer_area:,.0f} sqft) is smaller than another support zone ({biggest:,.0f} sqft) — "
-            f"the team's own placement standards call for Foyer to be the largest non-auditorium space."
+            f"Passage ({passage_area:,.0f} sqft) is smaller than another support zone ({biggest:,.0f} sqft) — "
+            f"the team's own placement standards call for Passage to be the largest non-auditorium space."
         )
-    if auditorium_areas and foyer_area > min(auditorium_areas):
+    if auditorium_areas and passage_area > min(auditorium_areas):
         smallest = min(auditorium_areas)
         return (
-            f"Foyer ({foyer_area:,.0f} sqft) is larger than an auditorium ({smallest:,.0f} sqft) — "
-            f"the team's own placement standards call for Foyer to stay smaller than every auditorium."
+            f"Passage ({passage_area:,.0f} sqft) is larger than an auditorium ({smallest:,.0f} sqft) — "
+            f"the team's own placement standards call for Passage to stay smaller than every auditorium."
         )
     return None
 
 
-def _replace_foyer_with_derived(boundary_points_ft, obstacles, real_rooms, requirements):
-    """FOYER is never a room an architect (or auto-layout) independently
+def _replace_passage_with_derived(boundary_points_ft, obstacles, real_rooms, requirements):
+    """PASSAGE is never a room an architect (or auto-layout) independently
     places or resizes — it's always whatever contiguous usable area is left
-    once every other room is accounted for (see layout_engine._build_foyer_room,
+    once every other room is accounted for (see layout_engine._build_passage_room,
     already used by generate_candidate's own auto-layout pass). Called from
     both update_layout and add_zone right after real_rooms is finalized, so
-    Foyer can never go stale or overlap anything: it's derived fresh from
+    Passage can never go stale or overlap anything: it's derived fresh from
     the ACTUAL current room list every single time, not stored and
-    validated like an ordinary room. Returns (rooms_with_fresh_foyer,
-    circulation_area_sqft, foyer_hierarchy_warning_or_None) — the area is
-    _build_foyer_room's own leftover_slack (the real, small, genuinely-
-    disconnected pockets Foyer itself didn't claim), not a coarse
+    validated like an ordinary room. Returns (rooms_with_fresh_passage,
+    circulation_area_sqft, passage_hierarchy_warning_or_None) — the area is
+    _build_passage_room's own leftover_slack (the real, small, genuinely-
+    disconnected pockets Passage itself didn't claim), not a coarse
     boundary-minus-rooms estimate; the warning is recomputed fresh every
     call (unlike the layout's other, frozen-at-generation-time warnings —
-    see both call sites), since an edit can easily change whether Foyer's
-    hierarchy still holds."""
+    see both call sites), since an edit can easily change whether Passage's
+    hierarchy still holds. (This room type was called FOYER before the
+    2026-09-10 terminology swap — see rules_registry_v1.json's
+    support_zone_defaults entries.)"""
     fallback_poly = layout_engine.compute_usable_area(boundary_points_ft, obstacles, exclude_classifications=("COLUMN",)) if obstacles else layout_engine.poly_from_points(boundary_points_ft)
     real_room_polys = [layout_engine.poly_from_points(r["geometry_points_ft"]) for r in real_rooms]
     entry_point = requirements.get("entry_point_ft") if requirements else None
-    foyer_room, leftover_slack = layout_engine._build_foyer_room(fallback_poly, real_room_polys, real_rooms, entry_point)
-    final_rooms = real_rooms + ([foyer_room] if foyer_room else [])
-    return final_rooms, leftover_slack, _foyer_hierarchy_warning(foyer_room, real_rooms)
+    passage_room, leftover_slack = layout_engine._build_passage_room(fallback_poly, real_room_polys, real_rooms, entry_point)
+    final_rooms = real_rooms + ([passage_room] if passage_room else [])
+    return final_rooms, leftover_slack, _passage_hierarchy_warning(passage_room, real_rooms)
 
 
 @app.post("/api/projects/{project_id}/layout/zones")
@@ -996,11 +1050,11 @@ def add_zone(project_id: str, body: AddZoneIn):
     Rejects with an honest 422 (never invents a placement that doesn't fit —
     Product Principle #4) when nothing fits anywhere for this zone type.
 
-    FOYER can't be requested here — see _replace_foyer_with_derived's own
+    PASSAGE can't be requested here — see _replace_passage_with_derived's own
     docstring: it's never independently placed, always recomputed as the
     real leftover remainder after this call's real_rooms is finalized."""
-    if body.room_type == "FOYER":
-        raise HTTPException(422, "Foyer is computed automatically from the remaining space — it can't be added manually.")
+    if body.room_type == "PASSAGE":
+        raise HTTPException(422, "Passage is computed automatically from the remaining space — it can't be added manually.")
 
     existing = storage.read_json(storage.layout_path(project_id))
     if not existing:
@@ -1008,7 +1062,7 @@ def add_zone(project_id: str, body: AddZoneIn):
 
     boundary_points_ft = existing["boundary_points_ft"]
     obstacles = existing.get("obstacles", [])
-    real_rooms = [r for r in existing["rooms"] if r["room_type"] != "FOYER"]
+    real_rooms = [r for r in existing["rooms"] if r["room_type"] != "PASSAGE"]
     requirements = storage.read_json(storage.requirements_path(project_id)) or {}
 
     usable_poly = layout_engine.compute_usable_area(boundary_points_ft, obstacles)
@@ -1027,10 +1081,11 @@ def add_zone(project_id: str, body: AddZoneIn):
     if not room:
         raise HTTPException(422, message)
 
-    _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"))
+    _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"),
+                                    entry_point=requirements.get("entry_point_ft"))
     real_rooms = real_rooms + [room]
 
-    final_rooms, circulation, foyer_warning = _replace_foyer_with_derived(boundary_points_ft, obstacles, real_rooms, requirements)
+    final_rooms, circulation, passage_warning = _replace_passage_with_derived(boundary_points_ft, obstacles, real_rooms, requirements)
 
     updated = {
         "region_id": existing["region_id"],
@@ -1039,10 +1094,10 @@ def add_zone(project_id: str, body: AddZoneIn):
         "obstacles": obstacles,
         "rooms": final_rooms,
         "circulation_area_sqft": round(circulation, 2),
-        # See update_layout's identical handling above — the Foyer hierarchy
+        # See update_layout's identical handling above — the Passage hierarchy
         # warning is recomputed fresh every call, so any stale copy from a
         # previous edit/add is dropped before appending the current one.
-        "warnings": [w for w in existing.get("warnings", []) if not _is_foyer_hierarchy_warning(w)] + ([foyer_warning] if foyer_warning else []),
+        "warnings": [w for w in existing.get("warnings", []) if not _is_passage_hierarchy_warning(w)] + ([passage_warning] if passage_warning else []),
         "revision": existing.get("revision", "R0"),
         "updated_at": storage.now_iso()
     }
@@ -1087,10 +1142,17 @@ def update_screen_wall(project_id: str, room_id: str, body: ScreenWallUpdateIn):
         raise HTTPException(404, "No auditorium with that room_id in this layout.")
 
     room["screen_wall"] = body.screen_wall
+    # Marks this architect's choice as deliberate so _recompute_room_derived_fields
+    # never silently overrides it on a later reshape (see that function's own
+    # docstring) — the whole point of this endpoint existing is that the
+    # architect is overriding the auto-derived wall, not proposing a new
+    # auto-derivation.
+    room["screen_wall_manual"] = True
     obstacles = existing.get("obstacles", [])
     column_polys = [layout_engine.poly_from_points(o["points_ft"]) for o in obstacles if o.get("classification") == "COLUMN"]
     requirements = storage.read_json(storage.requirements_path(project_id)) or {}
-    _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"))
+    _recompute_room_derived_fields(room, column_polys, screen_width_ft=requirements.get("screen_width_ft"),
+                                    entry_point=requirements.get("entry_point_ft"))
 
     existing["updated_at"] = storage.now_iso()
     storage.write_json(storage.layout_path(project_id), existing)

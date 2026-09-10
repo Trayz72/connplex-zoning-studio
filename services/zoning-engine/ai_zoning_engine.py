@@ -51,12 +51,13 @@ NON_AUDITORIUM_DISPLAY_NAMES = {
     "WASHROOM": "Washrooms",
     "BOX_OFFICE": "Box Office / Ticketing",
     "MANAGER_ROOM": "Manager Room",
-    "BOH": "Back-of-House (Electrical / Server / Store)",
+    "BOH": "Back-of-House (Electrical / Server)",
     "ELECTRICAL": "Electrical Room",
     "PROJECTOR": "Projector Room",
+    "STORE_ROOM": "Store Room",
     "PASSAGE": "Passage / Corridor",
 }
-ROOM_TYPES = ["AUDITORIUM", "FOYER", "FNB", "WASHROOM", "BOX_OFFICE", "MANAGER_ROOM", "BOH", "ELECTRICAL", "PROJECTOR", "PASSAGE"]
+ROOM_TYPES = ["AUDITORIUM", "FOYER", "FNB", "WASHROOM", "BOX_OFFICE", "MANAGER_ROOM", "BOH", "ELECTRICAL", "PROJECTOR", "STORE_ROOM", "PASSAGE"]
 
 
 class AiZoningError(Exception):

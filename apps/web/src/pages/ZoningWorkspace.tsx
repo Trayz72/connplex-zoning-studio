@@ -28,7 +28,13 @@ const STEP_LABEL: Record<Step, string> = {
 // stepper left-to-right and to know which steps count as "already visited"
 // (see maxStepIndex) so a completed step can be revisited without also
 // making an unreached one clickable, which would just 404 on missing state.
-const STEP_ORDER: Step[] = ['UPLOAD', 'CLEAN_STUDIO', 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'];
+//
+// CLEAN_STUDIO is deliberately commented out of the active flow (user
+// request, 2026-09-10): "comment out step two entirely, carry on with
+// previous flow" — upload now goes straight to BOUNDARY_STUDIO (see
+// handleUploaded below). The CleaningStudio component/route/handlers are
+// left in place, untouched, so this is a one-line revert if it comes back.
+const STEP_ORDER: Step[] = ['UPLOAD', /* 'CLEAN_STUDIO', */ 'BOUNDARY_STUDIO', 'GEOMETRY_REVIEW', 'REQUIREMENTS', 'RUN', 'EDIT'];
 
 // Placement itself is entirely server-side now (see zoningEngineApi.addZone /
 // layout_engine.place_single_zone) — the backend finds a real, collision-free,
@@ -36,13 +42,18 @@ const STEP_ORDER: Step[] = ['UPLOAD', 'CLEAN_STUDIO', 'BOUNDARY_STUDIO', 'GEOMET
 // itself uses for screens, so this list only needs a type + label, no
 // client-guessed size or position.
 //
-// No FOYER entry here — it's never independently added or resized anymore.
-// The server always recomputes it fresh as the real leftover remainder
-// after every other room (see main.py's _replace_foyer_with_derived), on
-// every add/move/resize/delete, so it can never go stale or overlap
-// anything the way an independently-placed Foyer rectangle used to.
+// No PASSAGE entry here — it's never independently added or resized
+// anymore. The server always recomputes it fresh as the real leftover
+// remainder after every other room (see main.py's
+// _replace_passage_with_derived), on every add/move/resize/delete, so it
+// can never go stale or overlap anything the way an independently-placed
+// Passage rectangle used to. (Before the 2026-09-10 terminology swap this
+// derived room was called FOYER and the manually-placed corridor room below
+// was called PASSAGE — see rules_registry_v1.json's support_zone_defaults
+// entries for the same history.)
 const ROOM_TYPE_TEMPLATES: { type: string; label: string }[] = [
   { type: 'AUDITORIUM', label: 'Screen' },
+  { type: 'FOYER', label: 'Foyer' },
   { type: 'FNB', label: 'F&B / Concession' },
   { type: 'WASHROOM', label: 'Washroom' },
   { type: 'BOX_OFFICE', label: 'Box Office' },
@@ -50,7 +61,7 @@ const ROOM_TYPE_TEMPLATES: { type: string; label: string }[] = [
   { type: 'BOH', label: 'Back-of-House' },
   { type: 'ELECTRICAL', label: 'Electrical Room' },
   { type: 'PROJECTOR', label: 'Projector Room' },
-  { type: 'PASSAGE', label: 'Passage / Corridor' }
+  { type: 'STORE_ROOM', label: 'Store Room' }
 ];
 
 const FEAS_COLOR: Record<string, string> = {
@@ -224,7 +235,8 @@ export const ZoningWorkspace: React.FC = () => {
 
   const handleUploaded = (geo: GeometryResult) => {
     setGeometry(geo);
-    goToStep('CLEAN_STUDIO');
+    // Was goToStep('CLEAN_STUDIO') — see STEP_ORDER's own comment above.
+    goToStep('BOUNDARY_STUDIO');
   };
 
   const handleCleaned = (geo: GeometryResult) => {
@@ -331,12 +343,12 @@ export const ZoningWorkspace: React.FC = () => {
   // does — it just runs the same real addZone/place_single_zone machinery
   // once per missing standard type instead of six individual clicks.
   const STANDARD_FILL_TYPES: typeof ROOM_TYPE_TEMPLATES = [
+    { type: 'FOYER', label: 'Foyer' },
     { type: 'FNB', label: 'F&B / Concession' },
     { type: 'WASHROOM', label: 'Washroom' },
     { type: 'BOX_OFFICE', label: 'Box Office' },
     { type: 'MANAGER_ROOM', label: 'Manager Room' },
     { type: 'BOH', label: 'Back-of-House' },
-    { type: 'PASSAGE', label: 'Passage / Corridor' },
   ];
 
   const fillStandardZones = async () => {
@@ -420,6 +432,18 @@ export const ZoningWorkspace: React.FC = () => {
     if (!layout || !selectedRoomId) return;
     setAddDoorMode(false);
     const rooms = layout.rooms.map(r => r.room_id === selectedRoomId ? { ...r, doors: [...(r.doors ?? []), door] } : r);
+    await persistLayout(rooms);
+  };
+
+  // Click an existing door (on the selected room, any room type — see
+  // EditableCanvas's own onRemoveDoor doc) to remove it, symmetric with
+  // applyAddDoor above. Splices by index within that one room's own doors
+  // array, same identity EditableCanvas's door-rendering loop already keys
+  // on, so this removes exactly the door that was clicked even when a room
+  // has several.
+  const applyRemoveDoor = async (roomId: string, doorIndex: number) => {
+    if (!layout) return;
+    const rooms = layout.rooms.map(r => r.room_id === roomId ? { ...r, doors: (r.doors ?? []).filter((_, i) => i !== doorIndex) } : r);
     await persistLayout(rooms);
   };
 
@@ -597,6 +621,8 @@ export const ZoningWorkspace: React.FC = () => {
           <CleaningStudio
             projectId={id}
             geometry={geometry}
+            carpetAreaSqft={project?.carpet_area_sqft}
+            floorShopHint={project?.floor_shop_no}
             onCleaned={handleCleaned}
             onSkip={handleSkipCleaning}
             onStartOver={handleStartOver}
@@ -609,10 +635,15 @@ export const ZoningWorkspace: React.FC = () => {
             onGeometryUpdated={setGeometry}
             onBoundaryChosen={handleBoundaryChosen}
             onStartOver={handleStartOver}
+            carpetAreaSqft={project?.carpet_area_sqft}
+            floorShopHint={project?.floor_shop_no}
           />
         )}
         {step === 'GEOMETRY_REVIEW' && geometry && id && (
-          <GeometryReviewStep projectId={id} geometry={geometry} onConfirmed={handleGeometryConfirmed} onStartOver={handleStartOver} initialRegionId={reviewRegionId} />
+          <GeometryReviewStep
+            projectId={id} geometry={geometry} onConfirmed={handleGeometryConfirmed} onStartOver={handleStartOver} initialRegionId={reviewRegionId}
+            carpetAreaSqft={project?.carpet_area_sqft} floorShopHint={project?.floor_shop_no}
+          />
         )}
         {step === 'REQUIREMENTS' && (
           <RequirementsStep
@@ -725,6 +756,7 @@ export const ZoningWorkspace: React.FC = () => {
                 exitPointsFt={layout.exit_points_ft}
                 addDoorMode={addDoorMode}
                 onAddDoor={applyAddDoor}
+                onRemoveDoor={applyRemoveDoor}
                 setScreenWallMode={setScreenWallMode}
                 onSetScreenWall={applySetScreenWall}
               />

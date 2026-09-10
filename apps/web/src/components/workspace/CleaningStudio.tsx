@@ -1,11 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GeometryResult, FullRawGeometry, RawClosedShape } from '../../types/live';
 import * as engine from '../../services/zoningEngineApi';
-import { ArrowRightIcon, RefreshIcon, WarningIcon, DownloadIcon } from '../Icons';
+import { ArrowRightIcon, RefreshIcon, WarningIcon, DownloadIcon, CheckIcon } from '../Icons';
 
 interface CleaningStudioProps {
   projectId: string;
   geometry: GeometryResult;
+  /** The project's own intake-form Carpet Area / Floor-Shop-No, when
+   * available — drives the Net Usage Area match/mismatch callout on each
+   * selected boundary (see zoningEngineApi.ts's previewClean). Optional:
+   * a project with no carpet area on file just skips the check silently,
+   * same as everywhere else this form data feeds a boundary check. */
+  carpetAreaSqft?: number | null;
+  floorShopHint?: string | null;
   /** Called once the backend has exported a clean DXF/DWG and re-run
    * extraction against it — the returned GeometryResult is the same shape
    * a normal upload produces, so the caller hands it straight to
@@ -154,8 +161,9 @@ function classificationCounts(byClass: Record<string, number>): string {
   return entries.map(([cls, n]) => `${n} ${CLASSIFICATION_LABEL[cls] || cls}${n === 1 ? '' : 's'}`).join(', ');
 }
 
-export const CleaningStudio: React.FC<CleaningStudioProps> = ({ projectId, geometry, onCleaned, onSkip, onStartOver }) => {
+export const CleaningStudio: React.FC<CleaningStudioProps> = ({ projectId, geometry, carpetAreaSqft, floorShopHint, onCleaned, onSkip, onStartOver }) => {
   const raw = geometry.full_raw_geometry;
+  const formHints = { targetAreaSqft: carpetAreaSqft, labelHint: floorShopHint };
   const svgRef = useRef<SVGSVGElement>(null);
   const [tool, setTool] = useState<Tool>('browse');
   const [zoom, setZoom] = useState(1);
@@ -165,6 +173,11 @@ export const CleaningStudio: React.FC<CleaningStudioProps> = ({ projectId, geome
   const [labelQuery, setLabelQuery] = useState('');
   const [labelMatches, setLabelMatches] = useState<engine.CleanLabelMatch[]>([]);
   const [searching, setSearching] = useState(false);
+  // Proactive, not a manual search like labelMatches above — runs once on
+  // mount (see the effect below) so the salesperson sees a suggestion the
+  // moment this screen loads, before they've clicked anything.
+  const [areaMatches, setAreaMatches] = useState<engine.CleanAreaMatch[]>([]);
+  const [areaSearchDone, setAreaSearchDone] = useState(false);
   const [preview, setPreview] = useState<engine.CleanRegionPreview[]>([]);
   const [previewing, setPreviewing] = useState(false);
   const [confirming, setConfirming] = useState<'continue' | 'download' | null>(null);
@@ -365,6 +378,22 @@ export const CleaningStudio: React.FC<CleaningStudioProps> = ({ projectId, geome
     movedRef.current = false;
   };
 
+  // Proactive boundary suggestion, driven by the project's own intake
+  // Carpet Area — runs exactly once, right when this screen loads, so the
+  // salesperson sees a real suggestion before they've clicked or typed
+  // anything (the whole point: "look for the proper area after CAD is
+  // uploaded", not wait for a manual search). No carpet area on file just
+  // means nothing to suggest, not an error.
+  useEffect(() => {
+    if (!carpetAreaSqft) { setAreaSearchDone(true); return; }
+    let cancelled = false;
+    engine.searchCleanArea(projectId, carpetAreaSqft)
+      .then(matches => { if (!cancelled) { setAreaMatches(matches); setAreaSearchDone(true); } })
+      .catch(() => { if (!cancelled) setAreaSearchDone(true); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Live before/after preview, debounced — re-fetches whenever the selected
   // shape set changes. Read-only on the backend (clean/preview never writes
   // geometry.json), so there's nothing to undo if the user keeps clicking.
@@ -374,7 +403,7 @@ export const CleaningStudio: React.FC<CleaningStudioProps> = ({ projectId, geome
     setPreviewing(true);
     const t = setTimeout(async () => {
       try {
-        const regions = await engine.previewClean(projectId, Array.from(selected));
+        const regions = await engine.previewClean(projectId, Array.from(selected), formHints);
         if (!cancelled) { setPreview(regions); setError(null); }
       } catch (e: any) {
         if (!cancelled) setError(e.message || 'Could not preview this selection.');
@@ -383,7 +412,8 @@ export const CleaningStudio: React.FC<CleaningStudioProps> = ({ projectId, geome
       }
     }, 350);
     return () => { cancelled = true; clearTimeout(t); };
-  }, [selected, projectId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, projectId, carpetAreaSqft, floorShopHint]);
 
   const runLabelSearch = async () => {
     if (!labelQuery.trim()) { setLabelMatches([]); return; }
@@ -539,6 +569,36 @@ export const CleaningStudio: React.FC<CleaningStudioProps> = ({ projectId, geome
           </div>
         </div>
 
+        {carpetAreaSqft ? (
+          areaMatches.length > 0 ? (
+            <div className="panel" style={{ borderColor: 'var(--success)' }}>
+              <div className="panel-label" style={{ color: 'var(--success)', marginBottom: '6px' }}>
+                Suggested by Carpet Area ({carpetAreaSqft.toLocaleString()} sqft)
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {areaMatches.map(m => (
+                  <button
+                    key={m.shape_handle} className="btn btn-secondary"
+                    style={{ fontSize: '0.72rem', padding: '6px 8px', textAlign: 'left', display: 'flex', justifyContent: 'space-between', gap: '8px' }}
+                    disabled={selected.has(m.shape_handle)}
+                    onClick={() => {
+                      toggleShape(m.shape_handle);
+                      setCenter({ x: (m.shape_bounding_box_ft.min_x + m.shape_bounding_box_ft.max_x) / 2, y: (m.shape_bounding_box_ft.min_y + m.shape_bounding_box_ft.max_y) / 2 });
+                    }}
+                  >
+                    <span>{m.shape_area_sqft.toLocaleString()} sqft {m.rel_error_pct === 0 ? '(exact match)' : `(${m.rel_error_pct}% off)`}</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{selected.has(m.shape_handle) ? 'Added ✓' : 'Add'}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : areaSearchDone ? (
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>
+              No boundary in this file closely matches your stated carpet area ({carpetAreaSqft.toLocaleString()} sqft) — select one manually below.
+            </div>
+          ) : null
+        ) : null}
+
         <div className="panel" style={{ borderColor: 'rgba(120,140,180,0.35)' }}>
           <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
             Cleaning strips a selected area down to just its outline, columns, and ducts — everything else (internal
@@ -646,8 +706,27 @@ export const CleaningStudio: React.FC<CleaningStudioProps> = ({ projectId, geome
                 {preview.map((r, i) => (
                   <div key={r.region_id} style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                     <div className="font-mono" style={{ color: 'var(--text-primary)' }}>
-                      Boundary {i + 1} — {r.boundary_area_sqft.toLocaleString()} sqft
+                      Boundary {i + 1} — Net Usage Area: {r.net_usage_area_sqft.toLocaleString()} sqft
                     </div>
+                    {r.carpet_area_check && (
+                      r.carpet_area_check.matches ? (
+                        <div style={{
+                          display: 'flex', gap: '6px', fontSize: '0.7rem', color: 'var(--text-primary)', background: 'var(--success-bg)',
+                          border: '1px solid rgba(79,157,105,0.4)', borderRadius: 'var(--radius-sm)', padding: '6px 8px', margin: '4px 0'
+                        }}>
+                          <CheckIcon size={13} className="text-success" style={{ flex: '0 0 auto', marginTop: '1px' }} />
+                          <span>{r.carpet_area_check.note}</span>
+                        </div>
+                      ) : (
+                        <div style={{
+                          display: 'flex', gap: '6px', fontSize: '0.7rem', color: 'var(--text-primary)', background: 'var(--warning-bg)',
+                          border: '1px solid rgba(201,154,58,0.4)', borderRadius: 'var(--radius-sm)', padding: '6px 8px', margin: '4px 0'
+                        }}>
+                          <WarningIcon size={13} className="text-warning" style={{ flex: '0 0 auto', marginTop: '1px' }} />
+                          <span>{r.carpet_area_check.note}</span>
+                        </div>
+                      )
+                    )}
                     <div>Keeping: outline + {classificationCounts(r.kept_by_classification)}</div>
                     <div style={{ color: 'var(--text-tertiary)' }}>Removing: {classificationCounts(r.dropped_by_classification)}</div>
                   </div>

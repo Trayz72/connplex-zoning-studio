@@ -57,11 +57,17 @@ ROOM_SHORT_LABEL = {
     "MANAGER_ROOM": "MANAGER",
     "ELECTRICAL": "ELEC.",
     "PROJECTOR": "PROJ.",
+    "STORE_ROOM": "STORE",
 }
 
+# FOYER/PASSAGE swapped 2026-09-10 at the client's request: FOYER is now the
+# manually-placed public lobby room, PASSAGE is now the derived
+# leftover-remainder room (is_passage below overrides its fill to none — see
+# export usage — so its color entry here is effectively dead, kept only so
+# a ROOM_FILL.get() lookup elsewhere has something to find).
 ROOM_FILL = {
     "AUDITORIUM": HexColor("#d9d2f0"),  # violet — matches a real Connplex reference sheet's own screen fill
-    "FOYER": HexColor("#cdefd6"),       # green (Foyer itself is de-emphasized/unfilled — see export usage)
+    "FOYER": HexColor("#e8e4d8"),       # warm gray-beige — the real, visible fill for the manually-placed lobby
     "FNB": HexColor("#f5c6c6"),         # salmon/pink — matches the reference's own F&B fill
     "WASHROOM": HexColor("#c9e0f5"),    # blue — matches the reference's own Washroom fill
     "BOX_OFFICE": HexColor("#f5e6a8"),  # tan/yellow — matches the reference's own Box Office fill
@@ -69,7 +75,8 @@ ROOM_FILL = {
     "BOH": HexColor("#dcdce2"),         # slate
     "ELECTRICAL": HexColor("#f0c9a0"),  # warm orange — hazard-adjacent without being alarm-red, distinct from FNB's salmon
     "PROJECTOR": HexColor("#b8c4d9"),   # steel/slate blue — a technical room, distinct from BOH's neutral gray and WASHROOM's lighter blue
-    "PASSAGE": HexColor("#e8e4d8"),     # warm gray-beige — distinct from the BOH slate and the plain #eeeeee fallback
+    "STORE_ROOM": HexColor("#e0d4c3"),  # tan/brown — distinct from BOX_OFFICE's yellow and ELECTRICAL's orange
+    "PASSAGE": HexColor("#cdefd6"),     # green — de-emphasized/unfilled, see comment above
 }
 
 COMPANY_NAME = "CONNPLEX SMART THEATRES"
@@ -648,14 +655,15 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
 
     for room in rooms:
         pts = room["geometry_points_ft"]
-        is_foyer = room["room_type"] == "FOYER"
+        is_passage = room["room_type"] == "PASSAGE"
         # A real Connplex reference drawing never renders circulation as a
         # colored room — only plain floor space, with its area appearing
-        # solely in the Area & Seat Chart — so Foyer gets no fill and a
-        # light dashed outline instead of the solid black/colored box every
-        # other room gets, letting it read as background rather than a
-        # named component competing for attention.
-        if is_foyer:
+        # solely in the Area & Seat Chart — so Passage (the derived
+        # leftover-remainder room) gets no fill and a light dashed outline
+        # instead of the solid black/colored box every other room gets,
+        # letting it read as background rather than a named component
+        # competing for attention.
+        if is_passage:
             c.setStrokeColor(HexColor("#999999"))
             c.setLineWidth(0.5)
             c.setDash([3, 2])
@@ -670,8 +678,8 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
             x, y = tx(p)
             path.lineTo(x, y)
         path.close()
-        c.drawPath(path, stroke=1, fill=0 if is_foyer else 1)
-        if is_foyer:
+        c.drawPath(path, stroke=1, fill=0 if is_passage else 1)
+        if is_passage:
             c.setDash([])
 
         page_pts = [tx(p) for p in pts]
@@ -679,10 +687,10 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
         rh = max(p[1] for p in page_pts) - min(p[1] for p in page_pts)
         # label_point_ft (server-computed via shapely representative_point())
         # is guaranteed to fall inside the room's true polygon — a plain
-        # vertex-mean centroid can land outside a concave shape (Foyer's own
-        # leftover-remainder polygon), which used to put its area/name text
-        # outside the room entirely. Falls back to vertex-mean for any older
-        # cached layout without the field.
+        # vertex-mean centroid can land outside a concave shape (Passage's
+        # own leftover-remainder polygon), which used to put its area/name
+        # text outside the room entirely. Falls back to vertex-mean for any
+        # older cached layout without the field.
         if "label_point_ft" in room:
             cx, cy = room["label_point_ft"]
         else:
@@ -695,9 +703,9 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
         name = room["display_name"].upper()
         # Capped — see EditableCanvas.tsx's MAX_LABEL_FONT_FT for the same
         # fix on the frontend: an uncapped size scaled a large, non-
-        # rectangular room's (Foyer's) label into something that dwarfed
+        # rectangular room's (Passage's) label into something that dwarfed
         # every room underneath it.
-        start_size = min(max(min(rw, rh) * 0.11, 6), 26) * (0.6 if is_foyer else 1)
+        start_size = min(max(min(rw, rh) * 0.11, 6), 26) * (0.6 if is_passage else 1)
         # Fit the name to the room's actual on-page width, rather than letting
         # it spill past the room's boundary — real rooms vary a lot in shape.
         name_lines, name_size = _fit_room_name(c, name, rw * 0.92, start_size)
@@ -710,7 +718,7 @@ def _draw_floor_plan(c, boundary_points_ft, obstacles, rooms, plan_x, plan_y, pl
             name = ROOM_SHORT_LABEL[room["room_type"]]
             name_lines, name_size = _fit_room_name(c, name, rw * 0.92, start_size)
         extra = len(name_lines) - 1
-        c.setFillColor(HexColor("#999999") if is_foyer else black)
+        c.setFillColor(HexColor("#999999") if is_passage else black)
         c.setFont("Helvetica-Bold", name_size)
         line_y = ly + (name_size * 0.8 if seat_count else 0) + extra * name_size * 0.55
         for i, ln in enumerate(name_lines):

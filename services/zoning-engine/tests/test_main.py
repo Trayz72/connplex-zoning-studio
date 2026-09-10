@@ -1,11 +1,14 @@
-"""Regression coverage for main.py's _replace_foyer_with_derived — the fix
-for a real, live bug: a stale/bad Foyer room used to block every single
+"""Regression coverage for main.py's _replace_passage_with_derived — the fix
+for a real, live bug: a stale/bad Passage room used to block every single
 manual edit (update_layout validated the WHOLE room list, so one invalid
-Foyer 422'd every drag/resize of any other room, forever, since nothing
-ever fixed Foyer's own geometry). Foyer is now never part of what's
+Passage 422'd every drag/resize of any other room, forever, since nothing
+ever fixed Passage's own geometry). Passage is now never part of what's
 validated or stored directly — always recomputed fresh as the real
 leftover remainder after every other room, so it can't overlap anything
-by construction."""
+by construction. (Room type identifiers FOYER/PASSAGE were swapped
+2026-09-10 at the client's request — FOYER is now the manually-placed
+room, PASSAGE is now the derived leftover-remainder room; see
+rules_registry_v1.json's support_zone_defaults entries.)"""
 import shutil
 
 import layout_engine
@@ -36,32 +39,32 @@ def _auditorium_room(room_id, x, y, w, h, screen_wall="min_y", doors=None):
     return room
 
 
-def test_replace_foyer_with_derived_produces_non_overlapping_foyer():
+def test_replace_passage_with_derived_produces_non_overlapping_passage():
     boundary = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
     real_rooms = [_room("AUDITORIUM_1", 0, 0, 24, 40)]
-    final_rooms, circulation, _foyer_warning = main._replace_foyer_with_derived(boundary, [], real_rooms, {})
+    final_rooms, circulation, _passage_warning = main._replace_passage_with_derived(boundary, [], real_rooms, {})
 
-    foyer = next((r for r in final_rooms if r["room_type"] == "FOYER"), None)
-    assert foyer is not None
+    passage = next((r for r in final_rooms if r["room_type"] == "PASSAGE"), None)
+    assert passage is not None
     aud_poly = layout_engine.poly_from_points(real_rooms[0]["geometry_points_ft"])
-    foyer_poly = layout_engine.poly_from_points(foyer["geometry_points_ft"])
-    assert foyer_poly.intersection(aud_poly).area < 1.0
-    assert foyer_poly.difference(layout_engine.poly_from_points(boundary)).area < 1.0
+    passage_poly = layout_engine.poly_from_points(passage["geometry_points_ft"])
+    assert passage_poly.intersection(aud_poly).area < 1.0
+    assert passage_poly.difference(layout_engine.poly_from_points(boundary)).area < 1.0
 
 
-def test_replace_foyer_with_derived_ignores_a_stale_bad_foyer_already_in_real_rooms():
-    """The exact live-project bug: a stale Foyer entry that spans (or
+def test_replace_passage_with_derived_ignores_a_stale_bad_passage_already_in_real_rooms():
+    """The exact live-project bug: a stale Passage entry that spans (or
     exceeds) the whole boundary must never influence the freshly computed
-    one — the caller strips FOYER from real_rooms before calling this
-    (see update_layout/add_zone), so this proves the derived Foyer is
-    computed purely from the OTHER rooms, never from a bad prior Foyer."""
+    one — the caller strips PASSAGE from real_rooms before calling this
+    (see update_layout/add_zone), so this proves the derived Passage is
+    computed purely from the OTHER rooms, never from a bad prior Passage."""
     boundary = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
     real_rooms = [_room("AUDITORIUM_1", 0, 0, 24, 40)]
-    # Simulate main.py's own strip-FOYER-first step explicitly, proving the
-    # function itself never needs to see a bad Foyer to do the right thing.
-    final_rooms, circulation, _foyer_warning = main._replace_foyer_with_derived(boundary, [], real_rooms, {})
-    foyer = next(r for r in final_rooms if r["room_type"] == "FOYER")
-    assert foyer["area_sqft"] < layout_engine.poly_from_points(boundary).area
+    # Simulate main.py's own strip-PASSAGE-first step explicitly, proving the
+    # function itself never needs to see a bad Passage to do the right thing.
+    final_rooms, circulation, _passage_warning = main._replace_passage_with_derived(boundary, [], real_rooms, {})
+    passage = next(r for r in final_rooms if r["room_type"] == "PASSAGE")
+    assert passage["area_sqft"] < layout_engine.poly_from_points(boundary).area
     assert circulation >= 0
 
 
@@ -73,69 +76,69 @@ def test_candidate_geometry_errors_none_for_clean_candidate():
     assert main._candidate_geometry_errors(boundary, [], rooms) is None
 
 
-def test_candidate_geometry_errors_catches_a_real_overlap_and_ignores_foyer():
+def test_candidate_geometry_errors_catches_a_real_overlap_and_ignores_passage():
     """The actual defect this gate exists to catch: two real rooms
     overlapping. Must be reported (so run_zoning/select_candidate refuse to
     save it as the editable layout — see _candidate_geometry_errors'
     docstring for why this matters: an unvalidated overlap saved today would
     otherwise permanently block every future edit, since update_layout
-    re-validates the whole room list on every call). A FOYER entry is
+    re-validates the whole room list on every call). A PASSAGE entry is
     included specifically overlapping everything, proving it's stripped
-    before validation exactly like update_layout strips it — Foyer is
+    before validation exactly like update_layout strips it — Passage is
     derived, never blocked on."""
     boundary = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
     overlapping_rooms = [
         _room("AUDITORIUM_1", 0, 0, 24, 40),
         _room("AUDITORIUM_2", 20, 0, 24, 40),  # overlaps AUDITORIUM_1 by 4x40
-        _room("FOYER", 0, 0, 100, 60),  # spans the whole boundary; must be ignored, not flagged
+        _room("PASSAGE", 0, 0, 100, 60),  # spans the whole boundary; must be ignored, not flagged
     ]
     errors = main._candidate_geometry_errors(boundary, [], overlapping_rooms)
     assert errors is not None
     assert any(e["issue"] == "ROOM_OVERLAP" for e in errors)
-    assert not any(e.get("room_id") == "foyer-1" for e in errors)
+    assert not any(e.get("room_id") == "passage-1" for e in errors)
 
 
-def test_replace_foyer_with_derived_recomputes_after_a_room_shrinks():
+def test_replace_passage_with_derived_recomputes_after_a_room_shrinks():
     """The real UX this fixes: after a manual resize (a room shrinking),
-    Foyer must grow to fill the newly-freed space, not stay stale — proving
+    Passage must grow to fill the newly-freed space, not stay stale — proving
     it's genuinely recomputed on every call, not cached."""
     boundary = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
     big_room = [_room("AUDITORIUM_1", 0, 0, 40, 40)]
     small_room = [_room("AUDITORIUM_1", 0, 0, 24, 40)]
 
-    rooms_before, _, _foyer_warning_before = main._replace_foyer_with_derived(boundary, [], big_room, {})
-    rooms_after, _, _foyer_warning_after = main._replace_foyer_with_derived(boundary, [], small_room, {})
+    rooms_before, _, _passage_warning_before = main._replace_passage_with_derived(boundary, [], big_room, {})
+    rooms_after, _, _passage_warning_after = main._replace_passage_with_derived(boundary, [], small_room, {})
 
-    foyer_before = next(r for r in rooms_before if r["room_type"] == "FOYER")
-    foyer_after = next(r for r in rooms_after if r["room_type"] == "FOYER")
-    assert foyer_after["area_sqft"] > foyer_before["area_sqft"]
+    passage_before = next(r for r in rooms_before if r["room_type"] == "PASSAGE")
+    passage_after = next(r for r in rooms_after if r["room_type"] == "PASSAGE")
+    assert passage_after["area_sqft"] > passage_before["area_sqft"]
 
 
-# ---------- Foyer hierarchy warning (placement-standards round 2) ----------
+# ---------- Passage hierarchy warning (placement-standards round 2) ----------
 
-def test_foyer_hierarchy_warning_fires_when_foyer_is_smaller_than_an_auxiliary():
-    """The team's own placement standards: Foyer must be the largest
+def test_passage_hierarchy_warning_fires_when_passage_is_smaller_than_an_auxiliary():
+    """The team's own placement standards: Passage must be the largest
     non-auditorium space. A large F&B room can genuinely leave less real
     leftover space than it claimed itself — this is a soft warning, not
     something the engine tries to prevent by construction."""
     boundary = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
     real_rooms = [_room("AUDITORIUM_1", 0, 0, 24, 40), _room("FNB", 24, 0, 70, 50)]
-    _final_rooms, _circulation, warning = main._replace_foyer_with_derived(boundary, [], real_rooms, {})
+    _final_rooms, _circulation, warning = main._replace_passage_with_derived(boundary, [], real_rooms, {})
     assert warning is not None
     assert "smaller than another support zone" in warning
 
 
-def test_foyer_hierarchy_warning_silent_when_hierarchy_holds():
-    """A well-proportioned layout (Foyer genuinely the 2nd-largest space,
+def test_passage_hierarchy_warning_silent_when_hierarchy_holds():
+    """A well-proportioned layout (Passage genuinely the 2nd-largest space,
     smaller than the auditorium, no other auxiliaries yet to compare
     against) must produce no warning at all."""
     boundary = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
     real_rooms = [_room("AUDITORIUM_1", 0, 0, 90, 50)]
-    _final_rooms, _circulation, warning = main._replace_foyer_with_derived(boundary, [], real_rooms, {})
+    _final_rooms, _circulation, warning = main._replace_passage_with_derived(boundary, [], real_rooms, {})
     assert warning is None
 
 
-def test_foyer_hierarchy_warning_does_not_accumulate_across_repeated_edits():
+def test_passage_hierarchy_warning_does_not_accumulate_across_repeated_edits():
     """Real bug this guards against: the warning is recomputed fresh on
     every call (it describes current state, not how the layout was
     originally generated) — a naive "append to existing warnings" would
@@ -145,12 +148,12 @@ def test_foyer_hierarchy_warning_does_not_accumulate_across_repeated_edits():
     boundary = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
     real_rooms = [_room("AUDITORIUM_1", 0, 0, 24, 40), _room("FNB", 24, 0, 70, 50)]
 
-    _final_rooms, _circulation, warning_1 = main._replace_foyer_with_derived(boundary, [], real_rooms, {})
-    warnings_after_edit_1 = [w for w in [] if not main._is_foyer_hierarchy_warning(w)] + ([warning_1] if warning_1 else [])
+    _final_rooms, _circulation, warning_1 = main._replace_passage_with_derived(boundary, [], real_rooms, {})
+    warnings_after_edit_1 = [w for w in [] if not main._is_passage_hierarchy_warning(w)] + ([warning_1] if warning_1 else [])
     assert warnings_after_edit_1 == [warning_1]
 
-    _final_rooms, _circulation, warning_2 = main._replace_foyer_with_derived(boundary, [], real_rooms, {})
-    warnings_after_edit_2 = [w for w in warnings_after_edit_1 if not main._is_foyer_hierarchy_warning(w)] + ([warning_2] if warning_2 else [])
+    _final_rooms, _circulation, warning_2 = main._replace_passage_with_derived(boundary, [], real_rooms, {})
+    warnings_after_edit_2 = [w for w in warnings_after_edit_1 if not main._is_passage_hierarchy_warning(w)] + ([warning_2] if warning_2 else [])
     assert warnings_after_edit_2 == [warning_2], "must still be exactly one copy, not two"
 
 
@@ -301,3 +304,71 @@ def test_update_screen_wall_404s_when_no_layout_exists_yet():
             assert e.status_code == 404
     finally:
         shutil.rmtree(storage.project_dir("no-such-project"), ignore_errors=True)
+
+
+# ---------- screen_wall auto-recompute on reshape (unless manually pinned) ----------
+#
+# Real gap this fixes: a reshaped auditorium's doors were always re-clamped
+# to their own wall's new length (_clamp_doors_to_room), but screen_wall
+# itself stayed frozen at whatever it was at placement time — so a big
+# enough reshape could leave screen_wall pointing at a wall that no longer
+# makes sense relative to the marked entry. update_layout now recomputes it
+# from the room's current bbox on every edit, the same way
+# _build_auditorium_room derives it at placement time, unless the architect
+# has explicitly pinned it via update_screen_wall (screen_wall_manual).
+
+_ENTRY_TEST_BOUNDARY = [[0, 0], [100, 0], [100, 60], [0, 60], [0, 0]]
+_ENTRY_TEST_ENTRY_POINT = [0, 30]  # on the min_x wall, mid-height
+
+
+def _seed_layout_with_entry(rooms):
+    layout = {
+        "region_id": "region-1", "source_candidate_id": None,
+        "boundary_points_ft": _ENTRY_TEST_BOUNDARY, "obstacles": [], "rooms": rooms,
+        "circulation_area_sqft": 0.0, "warnings": [], "revision": "R0",
+        "updated_at": storage.now_iso(),
+    }
+    storage.write_json(storage.layout_path(_TEST_PROJECT_ID), layout)
+    storage.write_json(storage.requirements_path(_TEST_PROJECT_ID), {"entry_point_ft": _ENTRY_TEST_ENTRY_POINT})
+
+
+def test_update_layout_recomputes_screen_wall_after_a_reshape():
+    """A room whose stored screen_wall is stale (doesn't match its current
+    geometry relative to the marked entry) must be corrected on the next
+    update_layout call — the room is 60ft wide x 20ft deep, so its longer
+    (real depth) axis is the x-axis and screen_wall must land on min_x/max_x
+    (see _screen_wall_for_rect's restrict_to_depth_axis) regardless of what
+    stale value was stored; the room's min_x edge (x=0, y=0..20) is also by
+    far the closest wall to the entry point (0, 30), so the real door wall
+    is min_x and the real screen wall is its opposite, max_x."""
+    try:
+        room = _auditorium_room("aud-1", 0, 0, 60, 20, screen_wall="min_y")  # stale/wrong on purpose
+        _seed_layout_with_entry([room])
+
+        result = main.update_layout(_TEST_PROJECT_ID, main.LayoutUpdateIn(rooms=[room], boundary_points_ft=_ENTRY_TEST_BOUNDARY))
+        updated_room = next(r for r in result["rooms"] if r["room_id"] == "aud-1")
+        assert updated_room["screen_wall"] == "max_x", (
+            f"expected screen_wall to be recomputed to max_x (door wall min_x is nearest the entry), "
+            f"got {updated_room['screen_wall']}"
+        )
+    finally:
+        _cleanup_test_project()
+
+
+def test_update_layout_does_not_override_a_manually_pinned_screen_wall():
+    """The architect's own explicit reassignment (update_screen_wall, which
+    sets screen_wall_manual) must survive a later reshape — the whole point
+    of that endpoint is to override the auto-derived wall, not propose a
+    new auto-derivation that a subsequent edit silently reverts."""
+    try:
+        room = _auditorium_room("aud-1", 0, 0, 60, 20, screen_wall="min_y")
+        room["screen_wall_manual"] = True
+        _seed_layout_with_entry([room])
+
+        result = main.update_layout(_TEST_PROJECT_ID, main.LayoutUpdateIn(rooms=[room], boundary_points_ft=_ENTRY_TEST_BOUNDARY))
+        updated_room = next(r for r in result["rooms"] if r["room_id"] == "aud-1")
+        assert updated_room["screen_wall"] == "min_y", (
+            "a manually-pinned screen_wall must not be silently overridden by the auto-recompute"
+        )
+    finally:
+        _cleanup_test_project()

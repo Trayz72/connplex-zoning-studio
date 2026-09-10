@@ -129,8 +129,9 @@ export const RunStep: React.FC<RunStepProps> = ({ projectId, regionId, onLayoutR
         <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>Generating Zoning Layout</h2>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
           Placing screens (largest-fitting preset first, biased toward the marked entrance) while avoiding every
-          confirmed obstacle — Foyer, F&amp;B, Washroom, Box Office, and Back-of-House are added afterward from
-          the Edit step's "Add zone" toolbar.
+          confirmed obstacle — Box Office is claimed near the marked entrance first, before screens, so it never
+          gets crowded out. Foyer, F&amp;B, Washroom, and Back-of-House are added afterward from the Edit step's
+          "Add zone" toolbar.
         </p>
       </div>
     );

@@ -29,3 +29,57 @@ export function floorLabelFor(region: GeometryRegion): string | null {
   }
   return null;
 }
+
+// Same real signal cad_extraction._form_match_info already applies to the
+// automatic region-candidate ranking (a region's own computed area vs. the
+// intake form's carpet_area_sqft, within a 15% tolerance — matches
+// FORM_MATCH_AREA_TOLERANCE_FRACTION server-side) and the Clean CAD area-
+// suggestion feature, applied here to the Boundary/Geometry-Review region
+// picker instead — "form drives boundary detection," extended to whichever
+// step a multi-region CAD file first needs the architect to choose one on.
+const AREA_MATCH_TOLERANCE_FRACTION = 0.15;
+
+/** Loose text match between this region's own detected floor label and the
+ * intake form's free-text Offered Floor field ("3rd Floor, Shop 12") — a
+ * simple substring check in either direction handles the common real case
+ * ("3RD FLOOR" is a substring of "3RD FLOOR, SHOP 12") without needing a
+ * full NLP match. Returns false (not a mismatch signal, just "no floor
+ * evidence") when either side is missing. */
+export function floorLabelMatchesHint(region: GeometryRegion, floorShopHint: string | null | undefined): boolean {
+  const regionLabel = floorLabelFor(region);
+  if (!regionLabel || !floorShopHint) return false;
+  const norm = (s: string) => s.toUpperCase().replace(/\s+/g, ' ').trim();
+  const a = norm(regionLabel), b = norm(floorShopHint);
+  return a.length > 0 && b.length > 0 && (b.includes(a) || a.includes(b));
+}
+
+export function areaMatchesCarpetArea(region: GeometryRegion, carpetAreaSqft: number | null | undefined): boolean {
+  if (!carpetAreaSqft || carpetAreaSqft <= 0) return false;
+  const relError = Math.abs(region.boundary.area_sqft - carpetAreaSqft) / carpetAreaSqft;
+  return relError <= AREA_MATCH_TOLERANCE_FRACTION;
+}
+
+/** Ranks candidate regions against the project's own intake form data and
+ * returns the single best-matching region_id, or null when nothing clears
+ * the bar — never picks one just because it's "least bad." A region only
+ * qualifies when its area matches; among qualifiers, one whose detected
+ * floor label also matches the Offered Floor hint outranks one that
+ * doesn't, and closer area wins ties. Purely a suggestion for a "Best
+ * match for your intake form" badge — never auto-selects a region, same
+ * "uncertain detection stays proposed until a human clicks" convention as
+ * every other suggestion feature in this app. */
+export function bestMatchRegionId(
+  regions: GeometryRegion[], carpetAreaSqft: number | null | undefined, floorShopHint: string | null | undefined
+): string | null {
+  const qualifying = regions.filter(r => areaMatchesCarpetArea(r, carpetAreaSqft));
+  if (qualifying.length === 0) return null;
+  const ranked = [...qualifying].sort((a, b) => {
+    const aFloorMatch = floorLabelMatchesHint(a, floorShopHint) ? 1 : 0;
+    const bFloorMatch = floorLabelMatchesHint(b, floorShopHint) ? 1 : 0;
+    if (aFloorMatch !== bFloorMatch) return bFloorMatch - aFloorMatch;
+    const aErr = Math.abs(a.boundary.area_sqft - (carpetAreaSqft || 0));
+    const bErr = Math.abs(b.boundary.area_sqft - (carpetAreaSqft || 0));
+    return aErr - bErr;
+  });
+  return ranked[0].region_id;
+}
