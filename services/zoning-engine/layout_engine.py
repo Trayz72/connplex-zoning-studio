@@ -371,7 +371,7 @@ def _entry_into_room_direction(fallback_poly, entry_point):
 
 
 def _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True, score_fn=None, prefer_fn=None, max_candidates=80,
-                        grid_lines_x=None, grid_lines_y=None, extra_lines_x=None, extra_lines_y=None):
+                        grid_lines_x=None, grid_lines_y=None, extra_lines_x=None, extra_lines_y=None, hard_filter_fn=None):
     """Same first-fit grid scan as _scan_place, but collects up to
     max_candidates valid positions and returns the FULL best-first ranked
     list — [(x, y, ow, oh), satisfied_preference), ...] — instead of
@@ -382,7 +382,15 @@ def _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, 
     position instead of failing outright. _scan_place_best below is just
     ranked[0] of this — same selection logic, unchanged behavior.
     grid_lines_x/grid_lines_y: see _scan_place. extra_lines_x/extra_lines_y:
-    see _scan_axis_positions."""
+    see _scan_axis_positions.
+
+    hard_filter_fn, unlike prefer_fn, is never soft: a candidate that fails
+    it is excluded from the pool entirely, so it can never resurface via
+    prefer_fn's own "nothing preferred, fall back to the full pool" rule
+    (Product Principle #7's soft-preference/hard-fallback pattern applies to
+    score_fn/prefer_fn only — a hard_filter_fn caller has decided the
+    excluded positions are not a legal placement at all, not merely
+    undesirable)."""
     minx, miny, maxx, maxy = bbox
     step = _grid_step_for_bbox(bbox)
     orientations = [(w, h)]
@@ -404,6 +412,8 @@ def _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, 
                 if not usable_poly.contains(cand.buffer(-0.01)):
                     continue
                 if not _fits_with_clearance(cand, placed_polys, placed_types, candidate_type):
+                    continue
+                if hard_filter_fn is not None and not hard_filter_fn((x, y, ow, oh)):
                     continue
                 candidates.append((x, y, ow, oh))
                 if len(candidates) >= max_candidates:
@@ -469,7 +479,7 @@ def _scan_place_with_fallback(usable_poly, fallback_poly, placed_polys, placed_t
 
 def _scan_place_ranked_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True,
                                       score_fn=None, prefer_fn=None, top_k=1, max_candidates=80, grid_lines_x=None, grid_lines_y=None,
-                                      extra_lines_x=None, extra_lines_y=None):
+                                      extra_lines_x=None, extra_lines_y=None, hard_filter_fn=None):
     """Ranked strict-then-column-tolerant retry: strict-tier ranked
     candidates always precede fallback-tier ones (a column-free placement
     beats a column-tolerant one regardless of score), each tagged with
@@ -478,22 +488,24 @@ def _scan_place_ranked_with_fallback(usable_poly, fallback_poly, placed_polys, p
     candidates — same laziness _scan_place_best_with_fallback (now just
     ranked[0] of this, top_k=1) always had: a column-tolerant scan is never
     even attempted when the strict tier already has enough to work with.
-    extra_lines_x/extra_lines_y: see _scan_axis_positions.
+    extra_lines_x/extra_lines_y: see _scan_axis_positions. hard_filter_fn:
+    see _scan_place_ranked.
     Returns [((x, y, ow, oh), satisfied_preference, used_fallback), ...]."""
     ranked = [(c, satisfied, False) for c, satisfied in
-              _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y, extra_lines_x, extra_lines_y)]
+              _scan_place_ranked(usable_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y, extra_lines_x, extra_lines_y, hard_filter_fn)]
     if len(ranked) < top_k and fallback_poly is not None and fallback_poly is not usable_poly:
         ranked += [(c, satisfied, True) for c, satisfied in
-                   _scan_place_ranked(fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y, extra_lines_x, extra_lines_y)]
+                   _scan_place_ranked(fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate, score_fn, prefer_fn, max_candidates, grid_lines_x, grid_lines_y, extra_lines_x, extra_lines_y, hard_filter_fn)]
     return ranked[:top_k]
 
 
 def _scan_place_best_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate=True,
-                                    score_fn=None, prefer_fn=None, max_candidates=80, grid_lines_x=None, grid_lines_y=None):
+                                    score_fn=None, prefer_fn=None, max_candidates=80, grid_lines_x=None, grid_lines_y=None, hard_filter_fn=None):
     """Same strict-then-column-tolerant retry as _scan_place_with_fallback,
     for the score_fn/prefer_fn-driven placements (passage-near-entry etc)."""
     ranked = _scan_place_ranked_with_fallback(usable_poly, fallback_poly, placed_polys, placed_types, candidate_type, w, h, bbox, allow_rotate,
-                                               score_fn, prefer_fn, top_k=1, max_candidates=max_candidates, grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y)
+                                               score_fn, prefer_fn, top_k=1, max_candidates=max_candidates, grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y,
+                                               hard_filter_fn=hard_filter_fn)
     if not ranked:
         return None, False, False
     return ranked[0]
@@ -1541,8 +1553,15 @@ def _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly,
     client's request — FOYER is now the manually-placed room, PASSAGE is now
     the derived leftover-remainder room; see rules_registry_v1.json's
     support_zone_defaults entries. The SOP quotes above use "foyer" in its
-    own, real-world sense and are unaffected by the swap.)"""
-    score_fn = prefer_fn = None
+    own, real-world sense and are unaffected by the swap.)
+
+    Returns (score_fn, prefer_fn, hard_filter_fn) — score_fn/prefer_fn are
+    None-tolerant soft signals as documented at each call site above;
+    hard_filter_fn (today: only BOX_OFFICE's "don't block the entry" check)
+    is None unless a room type actually has a non-negotiable geometric
+    constraint, and excludes a failing candidate from the pool outright
+    rather than merely de-preferring it — see the BOX_OFFICE branch."""
+    score_fn = prefer_fn = hard_filter_fn = None
     if room_type == "FOYER":
         # Connects the derived circulation space to the auditoriums —
         # evidence-based from the reference floor plans, not a
@@ -1632,10 +1651,22 @@ def _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly,
             # top: does the straight-ahead ray from the entry (perpendicular
             # to whichever wall the entry sits on, via
             # _entry_into_room_direction) actually cross the candidate's own
-            # footprint? If so, it's blocking the entry and is de-preferred,
-            # same soft-fallback pattern as sightline/adjacency above — an
-            # honest "no side spot available" still places Box Office
-            # somewhere rather than silently dropping it.
+            # footprint?
+            #
+            # Unlike sightline/adjacency below, this is a HARD filter, not a
+            # soft prefer_fn term: an earlier version folded it into the same
+            # combined prefer_fn as sightline+adjacency, which meant that on
+            # a floor plate where the only sightline-and-adjacent spot near
+            # the entry happened to be dead ahead, prefer_fn's own "nothing
+            # preferred → fall back to the whole pool" rule (Product
+            # Principle #7) resurfaced exactly the blocking placement this
+            # was meant to prevent — a real, reported case (2026-09-10). The
+            # client's rule is absolute ("not directly in front, ever"), so
+            # it belongs in hard_filter_fn: candidates that block the entry
+            # are excluded from the pool outright and can never be chosen by
+            # any fallback. Sightline/adjacency stay soft — losing the ideal
+            # spot but keeping a legal (non-blocking) one is fine; blocking
+            # the entry outright is not.
             score_fn = lambda c: (_rect(*c).centroid.x - entry_point[0]) ** 2 + (_rect(*c).centroid.y - entry_point[1]) ** 2
             blockers = [p for p in placed_polys if p is not passage_rect]
             max_adjacency_ft = rules_registry.planning_norm("BOX_OFFICE_ENTRY_ADJACENCY_MAX_FT") or 12.0
@@ -1650,19 +1681,27 @@ def _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly,
                     (entry_point[0] + entry_dir[0] * reach_ft, entry_point[1] + entry_dir[1] * reach_ft),
                 ])
 
-            def _box_office_prefer(c, _blockers=blockers, _ray=straight_ahead_ray, _max_adj=max_adjacency_ft):
+                def _box_office_not_blocking(c, _ray=straight_ahead_ray):
+                    # .crosses(), not .intersects() — a candidate merely
+                    # touching the ray at its own boundary (sitting right
+                    # beside the door, its near edge grazing the
+                    # straight-ahead line) is exactly the "flanking"
+                    # placement this is supposed to allow; only an actual
+                    # interior crossing means the ray would have to pass
+                    # through the room itself to reach the door.
+                    return not _ray.crosses(_rect(*c))
+                hard_filter_fn = _box_office_not_blocking
+            # else: couldn't determine which way the entry faces (e.g. it
+            # isn't on any wall segment of fallback_poly) — no ray, so no
+            # hard filter; the "not directly ahead" check simply can't be
+            # evaluated for this geometry, same None-tolerant degradation as
+            # every other branch here when its own precondition is unmet.
+
+            def _box_office_prefer(c, _blockers=blockers, _max_adj=max_adjacency_ft):
                 rect = _rect(*c)
                 if not _has_sightline(usable_poly, _blockers, entry_point, rect):
                     return False
                 if math.hypot(rect.centroid.x - entry_point[0], rect.centroid.y - entry_point[1]) > _max_adj:
-                    return False
-                # .crosses(), not .intersects() — a candidate merely touching
-                # the ray at its own boundary (sitting right beside the door,
-                # its near edge grazing the straight-ahead line) is exactly
-                # the "flanking" placement this is supposed to allow; only an
-                # actual interior crossing means the ray would have to pass
-                # through the room itself to reach the door.
-                if _ray is not None and _ray.crosses(rect):
                     return False
                 return True
             prefer_fn = _box_office_prefer
@@ -1743,7 +1782,7 @@ def _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly,
         # building's frontage in real cinema design.
         perimeter = _exterior_lines(fallback_poly)
         prefer_fn = lambda c: _rect(*c).distance(perimeter) < PERIMETER_TOUCH_TOLERANCE_FT
-    return score_fn, prefer_fn
+    return score_fn, prefer_fn, hard_filter_fn
 
 
 def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, placed_types, bbox,
@@ -1906,15 +1945,15 @@ def place_single_zone(usable_poly, fallback_poly, column_polys, placed_polys, pl
 
     passage_rect = next((p for p, t in zip(placed_polys, placed_types) if t == "PASSAGE"), None)
 
-    score_fn, prefer_fn = _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly, fallback_poly,
-                                                    placed_polys, placed_types, passage_rect, duct_polys=duct_polys)
+    score_fn, prefer_fn, hard_filter_fn = _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly, fallback_poly,
+                                                                     placed_polys, placed_types, passage_rect, duct_polys=duct_polys)
 
     note_out = None
     used_fallback = False
     if score_fn or prefer_fn:
         best, satisfied, used_fallback = _scan_place_best_with_fallback(
             usable_poly, fallback_poly, placed_polys, placed_types, room_type, w, h, bbox, score_fn=score_fn, prefer_fn=prefer_fn,
-            grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y
+            grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y, hard_filter_fn=hard_filter_fn
         )
         placement = best
         if placement and used_fallback and not _column_enclosure_ok(placement, bbox, False, False, column_polys, support_column_cap):
@@ -2061,8 +2100,8 @@ def _place_single_support_zone_connectivity_aware(usable_poly, fallback_poly, co
     corner, regardless of how close the true entry-adjacent spot was."""
     grid_lines_x, grid_lines_y = _column_grid_lines(column_polys)
     edge_lines_x, edge_lines_y = _room_edge_alignment_lines(placed_polys)
-    score_fn, prefer_fn = _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly, fallback_poly,
-                                                    placed_polys, placed_types, None, duct_polys=duct_polys)
+    score_fn, prefer_fn, hard_filter_fn = _support_zone_heuristic(room_type, entry_point, exit_points_ft, usable_poly, fallback_poly,
+                                                                     placed_polys, placed_types, None, duct_polys=duct_polys)
     # Wraps whatever score this room type already used (or none) with an
     # alignment tie-break — see _edge_alignment_score's own docstring —
     # applied unconditionally so even a room type with no score_fn of its
@@ -2083,7 +2122,8 @@ def _place_single_support_zone_connectivity_aware(usable_poly, fallback_poly, co
             score_fn=ranking_score, prefer_fn=prefer_fn, top_k=SUPPORT_ZONE_CONNECTIVITY_TOP_K,
             max_candidates=max_candidates,
             grid_lines_x=grid_lines_x, grid_lines_y=grid_lines_y,
-            extra_lines_x=edge_lines_x, extra_lines_y=edge_lines_y
+            extra_lines_x=edge_lines_x, extra_lines_y=edge_lines_y,
+            hard_filter_fn=hard_filter_fn
         )
         for (x, y, ow, oh), satisfied, used_fallback in ranked:
             if used_fallback and not _column_enclosure_ok((x, y, ow, oh), bbox, False, False, column_polys, support_column_cap):

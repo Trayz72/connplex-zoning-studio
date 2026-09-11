@@ -564,7 +564,7 @@ def test_box_office_heuristic_has_both_distance_score_and_sightline_preference()
     usable = _usable()
     entry_point = (0, 30)
     blocker = layout_engine._rect(10, 0, 20, 60)  # full-height wall, x=10..30
-    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+    score_fn, prefer_fn, _hard_filter_fn = layout_engine._support_zone_heuristic(
         "BOX_OFFICE", entry_point, [], usable, usable, [blocker], ["AUDITORIUM"], None
     )
     assert score_fn is not None, "BOX_OFFICE should still prefer being close to the entry"
@@ -574,7 +574,7 @@ def test_box_office_heuristic_has_both_distance_score_and_sightline_preference()
     assert prefer_fn(visible_candidate) is True
     assert prefer_fn(blocked_candidate) is False
 
-    passage_score_fn, passage_prefer_fn = layout_engine._support_zone_heuristic(
+    passage_score_fn, passage_prefer_fn, _passage_hard_filter_fn = layout_engine._support_zone_heuristic(
         "PASSAGE", entry_point, [], usable, usable, [blocker], ["AUDITORIUM"], None
     )
     assert passage_score_fn is not None
@@ -593,7 +593,7 @@ def test_box_office_heuristic_also_prefers_flanking_the_entry():
     entry_point = (0, 30)
     # No blocker this time — isolating the new adjacency term from the
     # existing sightline term (already covered by the test above).
-    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+    score_fn, prefer_fn, _hard_filter_fn = layout_engine._support_zone_heuristic(
         "BOX_OFFICE", entry_point, [], usable, usable, [], ["AUDITORIUM"], None
     )
     # Offset in y from entry_point's own y=30 (not straddling it) so this
@@ -611,19 +611,32 @@ def test_box_office_heuristic_rejects_landing_directly_ahead_of_the_entry():
     """Client decision, 2026-09-10 ("box office should not be directly in
     front of entry, it should either be in left or right wall align"): a
     candidate that straddles the entry's own straight-ahead line — the ray
-    perpendicular to the wall the entry sits on — must be rejected by
-    prefer_fn even when it's near and has a clear sightline, since standing
-    there would put Box Office directly in a customer's walking path rather
-    than flanking the door. An equally-near candidate offset along the same
-    wall (not straddling that line) must still be preferred."""
+    perpendicular to the wall the entry sits on — must be excluded by
+    hard_filter_fn even when it's near and has a clear sightline, since
+    standing there would put Box Office directly in a customer's walking
+    path rather than flanking the door. This is a HARD filter, not the soft
+    prefer_fn — see hard_filter_fn's own docstring in _support_zone_heuristic
+    for why: a soft prefer_fn term can still be overridden by the "nothing
+    preferred, use the full pool" fallback, which would silently resurface a
+    blocking placement on a floor plate where it's the only near-and-visible
+    spot. An equally-near candidate offset along the same wall (not
+    straddling that line) must still pass the hard filter and be preferred
+    by prefer_fn."""
     usable = _usable()
     entry_point = (0, 30)  # on the x=0 wall of RECT_BOUNDARY; "into the room" is +x
-    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+    score_fn, prefer_fn, hard_filter_fn = layout_engine._support_zone_heuristic(
         "BOX_OFFICE", entry_point, [], usable, usable, [], ["AUDITORIUM"], None
     )
+    assert hard_filter_fn is not None, "BOX_OFFICE should have a hard 'don't block the entry' filter when a direction is known"
     directly_ahead = (2, 27, 5, 5)  # y:[27,32] straddles the entry's own y=30 — blocks the straight-in path
     flanking = (2, 33, 5, 5)        # y:[33,38] — offset along the wall, same distance class, doesn't block it
-    assert prefer_fn(directly_ahead) is False, "a candidate straddling the entry's straight-ahead line should be rejected"
+    assert hard_filter_fn(directly_ahead) is False, "a candidate straddling the entry's straight-ahead line should be hard-rejected"
+    assert hard_filter_fn(flanking) is True
+    # Sightline/adjacency (prefer_fn) are unaffected by the ray check now
+    # that it lives in hard_filter_fn instead — both of these still pass on
+    # sightline+adjacency grounds alone; blocking exclusion happens upstream
+    # in the candidate pool, not here.
+    assert prefer_fn(directly_ahead) is True
     assert prefer_fn(flanking) is True
 
 
@@ -638,7 +651,7 @@ def test_fnb_heuristic_now_scores_by_route_to_passage_and_auditorium():
     entry_point = (0, 30)
     auditorium = layout_engine._rect(70, 0, 20, 40)
     passage = layout_engine._rect(40, 0, 10, 10)
-    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+    score_fn, prefer_fn, _hard_filter_fn = layout_engine._support_zone_heuristic(
         "FNB", entry_point, [], usable, usable, [auditorium, passage], ["AUDITORIUM", "PASSAGE"], passage
     )
     assert prefer_fn is not None
@@ -651,7 +664,7 @@ def test_fnb_heuristic_now_scores_by_route_to_passage_and_auditorium():
 def test_manager_room_heuristic_prefers_proximity_to_box_office():
     usable = _usable()
     box_office = layout_engine._rect(50, 0, 10, 10)
-    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+    score_fn, prefer_fn, _hard_filter_fn = layout_engine._support_zone_heuristic(
         "MANAGER_ROOM", None, [], usable, usable, [box_office], ["BOX_OFFICE"], None
     )
     assert prefer_fn is None
@@ -662,7 +675,7 @@ def test_manager_room_heuristic_prefers_proximity_to_box_office():
 
     # No Box Office placed/known yet — no preference at all, same
     # None-tolerant fallback pattern passage_rect already gets elsewhere.
-    score_fn2, prefer_fn2 = layout_engine._support_zone_heuristic(
+    score_fn2, prefer_fn2, _hard_filter_fn2 = layout_engine._support_zone_heuristic(
         "MANAGER_ROOM", None, [], usable, usable, [], [], None
     )
     assert score_fn2 is None and prefer_fn2 is None
@@ -672,7 +685,7 @@ def test_electrical_heuristic_prefers_distance_from_entry_and_washroom():
     usable = _usable()
     entry_point = (0, 30)
     washroom = layout_engine._rect(20, 20, 10, 10)
-    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+    score_fn, prefer_fn, _hard_filter_fn = layout_engine._support_zone_heuristic(
         "ELECTRICAL", entry_point, [], usable, usable, [washroom], ["WASHROOM"], None
     )
     assert prefer_fn is None
@@ -694,7 +707,7 @@ def test_washroom_heuristic_prefers_proximity_to_a_confirmed_duct():
     usable = _usable()
     entry_point = (0, 30)
     duct = layout_engine._rect(60, 30, 4, 4)
-    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+    score_fn, prefer_fn, _hard_filter_fn = layout_engine._support_zone_heuristic(
         "WASHROOM", entry_point, [], usable, usable, [], [], None, duct_polys=[duct]
     )
     assert prefer_fn is not None, "the existing sightline preference must be unaffected"
@@ -709,7 +722,7 @@ def test_washroom_heuristic_has_no_duct_score_when_none_confirmed():
     round — no score_fn at all, sightline prefer_fn only."""
     usable = _usable()
     entry_point = (0, 30)
-    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+    score_fn, prefer_fn, _hard_filter_fn = layout_engine._support_zone_heuristic(
         "WASHROOM", entry_point, [], usable, usable, [], [], None, duct_polys=[]
     )
     assert prefer_fn is not None
@@ -730,7 +743,7 @@ def test_projector_heuristic_prefers_touching_the_screen_wall_not_the_door_wall(
     # depth axis is x (see _screen_wall_for_rect's restrict_to_depth_axis)
     # and screen_wall correctly lands on min_x/max_x, not min_y/max_y.
     auditorium = layout_engine._rect(20, 0, 40, 30)  # door_wall=min_x (x=20) -> screen_wall=max_x (x=60)
-    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+    score_fn, prefer_fn, _hard_filter_fn = layout_engine._support_zone_heuristic(
         "PROJECTOR", entry_point, [], usable, usable, [auditorium], ["AUDITORIUM"], None
     )
     assert prefer_fn is not None
@@ -742,7 +755,7 @@ def test_projector_heuristic_prefers_touching_the_screen_wall_not_the_door_wall(
 
 def test_projector_heuristic_has_no_preference_with_no_auditoriums_placed():
     usable = _usable()
-    score_fn, prefer_fn = layout_engine._support_zone_heuristic(
+    score_fn, prefer_fn, _hard_filter_fn = layout_engine._support_zone_heuristic(
         "PROJECTOR", None, [], usable, usable, [], [], None
     )
     assert score_fn is None and prefer_fn is None
